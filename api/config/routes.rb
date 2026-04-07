@@ -1,14 +1,19 @@
-Rails.application.routes.draw do
-  require "sidekiq/web"                                                                               
+# frozen_string_literal: true
 
-  Sidekiq::Web.use(ActionDispatch::Cookies)                                                             
-  Sidekiq::Web.use(ActionDispatch::Session::CookieStore, key: "_sidekiq_session")                       
-  mount Sidekiq::Web => "/sidekiq"                                                                      
-                                                                                                        
-  namespace :api do                                                                                     
-    namespace :v1 do                                                                           
-    end                                                                                                 
+Rails.application.routes.draw do
+  require 'sidekiq/web'
+
+  Sidekiq::Web.use(ActionDispatch::Cookies)
+  Sidekiq::Web.use(ActionDispatch::Session::CookieStore, key: '_sidekiq_session')
+  mount Sidekiq::Web => '/sidekiq'
+
+  namespace :api do
+    namespace :v1 do
+      resource :registration, only: [:create]
+      resource :session, only: [:create, :destroy]
+      resource :token, only: [:create]
+    end
   end
 
-  get "up" => "rails/health#show", as: :rails_health_check
+  get 'up' => 'rails/health#show', as: :rails_health_check
 end

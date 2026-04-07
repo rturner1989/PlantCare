@@ -106,3 +106,6 @@ Lint/MissingSuper:
 # Rails
 Rails/HasAndBelongsToMany:
   Enabled: false
+
+Rails/DynamicFindBy:
+  Enabled: false
