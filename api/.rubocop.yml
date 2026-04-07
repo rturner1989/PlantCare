@@ -15,6 +15,12 @@ AllCops:
 Layout/LineLength:
   Max: 160
 
+Layout/HashAlignment:
+  Enabled: false
+
+Layout/ArgumentAlignment:
+  Enabled: false
+
 # Style opinions
 Style/GuardClause:
   MinBodyLength: 3
@@ -30,6 +36,9 @@ Style/SymbolArray:
 
 Style/RegexpLiteral:
   EnforcedStyle: slashes
+
+Style/AccessModifierDeclarations:
+  EnforcedStyle: inline
 
 Style/AccessorGrouping:
   EnforcedStyle: separated

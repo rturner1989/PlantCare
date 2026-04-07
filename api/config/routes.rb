@@ -12,6 +12,8 @@ Rails.application.routes.draw do
       resource :registration, only: [:create]
       resource :session, only: [:create, :destroy]
       resource :token, only: [:create]
+
+      resources :rooms, only: [:index, :show, :create, :update, :destroy]
     end
   end
 

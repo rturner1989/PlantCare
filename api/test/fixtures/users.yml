@@ -1,11 +1,9 @@
 john:
-  id: 1
   name: John Doe
   email: john@doe.com
   password_digest: <%= BCrypt::Password.create("password123") %>
 
 jane:
-  id: 2
   name: Jane Doe
   email: jane@doe.com
   password_digest: <%= BCrypt::Password.create("password123") %>

@@ -3,18 +3,12 @@
 module Api
   module V1
     class AuthController < ApplicationController
-      private
-
-      def issue_tokens(user)
+      private def issue_tokens(user)
         access_token = JwtToken.encode({ user_id: user.id })
         raw_refresh, _refresh_token = RefreshToken.generate(user)
         set_refresh_token_cookie(raw_refresh)
 
-        { access_token: access_token, user: user_json(user) }
-      end
-
-      def user_json(user)
-        { id: user.id, email: user.email, name: user.name, timezone: user.timezone }
+        { access_token: access_token, user: user }
       end
     end
   end

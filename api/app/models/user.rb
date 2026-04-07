@@ -4,7 +4,6 @@ class User < ApplicationRecord
   has_secure_password
 
   has_many :rooms, dependent: :destroy
-  has_many :plants, through: :rooms
   has_many :refresh_tokens, dependent: :destroy
 
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
@@ -13,9 +12,16 @@ class User < ApplicationRecord
 
   before_save :downcase_email
 
-  private
+  def as_json(_options = {})
+    {
+      id: id,
+      email: email,
+      name: name,
+      timezone: timezone
+    }
+  end
 
-  def downcase_email
+  private def downcase_email
     self.email = email.downcase.strip
   end
 end

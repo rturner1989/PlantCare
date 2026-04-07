@@ -3,13 +3,11 @@
 module Authenticatable
   extend ActiveSupport::Concern
 
-  private
-
-  def authenticate!
+  private def authenticate!
     render json: { error: 'Unauthorized' }, status: :unauthorized unless current_user
   end
 
-  def current_user
+  private def current_user
     return @current_user if defined?(@current_user)
 
     token = request.headers['Authorization']&.split&.last
@@ -19,7 +17,7 @@ module Authenticatable
     end
   end
 
-  def set_refresh_token_cookie(raw_token)
+  private def set_refresh_token_cookie(raw_token)
     cookies[:refresh_token] = {
       value: raw_token,
       httponly: true,
@@ -30,7 +28,7 @@ module Authenticatable
     }
   end
 
-  def clear_refresh_token_cookie
+  private def clear_refresh_token_cookie
     cookies.delete(:refresh_token, path: '/api/v1')
   end
 end

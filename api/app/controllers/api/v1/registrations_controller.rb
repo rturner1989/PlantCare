@@ -13,9 +13,7 @@ module Api
         end
       end
 
-      private
-
-      def registration_params
+      private def registration_params
         params.expect(user: [:email, :name, :password, :password_confirmation])
       end
     end
