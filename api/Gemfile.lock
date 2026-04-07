@@ -75,6 +75,9 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
+    annotaterb (4.22.0)
+      activerecord (>= 6.0.0)
+      activesupport (>= 6.0.0)
     ast (2.4.3)
     base64 (0.3.0)
     bcrypt (3.1.22)
@@ -270,6 +273,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  annotaterb
   bcrypt (~> 3.1.7)
   bootsnap
   debug

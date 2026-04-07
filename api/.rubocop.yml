@@ -34,6 +34,9 @@ Style/WordArray:
 Style/SymbolArray:
   EnforcedStyle: brackets
 
+Style/Lambda:
+  EnforcedStyle: literal
+
 Style/RegexpLiteral:
   EnforcedStyle: slashes
 

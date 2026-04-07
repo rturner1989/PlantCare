@@ -1,0 +1,78 @@
+# == Schema Information
+#
+# Table name: species
+#
+#  id                      :bigint           not null, primary key
+#  care_tips               :text
+#  common_name             :string           not null
+#  description             :text
+#  difficulty              :string
+#  feeding_frequency_days  :integer
+#  growth_rate             :string
+#  humidity_preference     :string
+#  image_url               :string
+#  light_requirement       :string
+#  personality             :string           default("chill"), not null
+#  scientific_name         :string
+#  source                  :string           default("seed"), not null
+#  temperature_max         :decimal(4, 1)
+#  temperature_min         :decimal(4, 1)
+#  toxicity                :string
+#  watering_frequency_days :integer          not null
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  external_id             :string
+#
+# Indexes
+#
+#  index_species_on_common_name             (common_name)
+#  index_species_on_scientific_name         (scientific_name)
+#  index_species_on_source_and_external_id  (source,external_id) UNIQUE WHERE (external_id IS NOT NULL)
+#
+monstera:
+  common_name: Monstera Deliciosa
+  scientific_name: Monstera deliciosa
+  watering_frequency_days: 7
+  feeding_frequency_days: 30
+  light_requirement: bright_indirect
+  humidity_preference: high
+  temperature_min: 18.0
+  temperature_max: 30.0
+  toxicity: Toxic to pets and children
+  difficulty: beginner
+  growth_rate: fast
+  personality: dramatic
+  description: A popular tropical plant known for its large, split leaves.
+  care_tips: Likes to dry out slightly between waterings.
+
+snake_plant:
+  common_name: Snake Plant
+  scientific_name: Dracaena trifasciata
+  watering_frequency_days: 14
+  feeding_frequency_days: 60
+  light_requirement: low_to_bright
+  humidity_preference: low
+  temperature_min: 15.0
+  temperature_max: 30.0
+  toxicity: Mildly toxic to pets
+  difficulty: beginner
+  growth_rate: slow
+  personality: chill
+  description: An extremely resilient plant with tall, upright leaves.
+  care_tips: Very drought-tolerant. Let soil dry completely between waterings.
+
+cactus:
+  common_name: Cactus
+  scientific_name: Cactaceae
+  watering_frequency_days: 21
+  feeding_frequency_days: 60
+  light_requirement: bright_direct
+  humidity_preference: low
+  temperature_min: 10.0
+  temperature_max: 35.0
+  toxicity: Non-toxic (but spiny)
+  difficulty: beginner
+  growth_rate: slow
+  personality: prickly
+  description: Desert-adapted plants that store water in their stems.
+  care_tips: Water only when soil is completely dry.
