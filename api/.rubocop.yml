@@ -21,6 +21,15 @@ Layout/HashAlignment:
 Layout/ArgumentAlignment:
   Enabled: false
 
+Layout/MultilineAssignmentLayout:
+  Enabled: false
+
+Layout/MultilineOperationIndentation:
+  EnforcedStyle: indented
+
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: variable
+
 # Style opinions
 Style/GuardClause:
   MinBodyLength: 3
@@ -29,7 +38,7 @@ Style/EmptyMethod:
   EnforcedStyle: expanded
 
 Style/WordArray:
-  EnforcedStyle: brackets
+  EnforcedStyle: percent
 
 Style/SymbolArray:
   EnforcedStyle: brackets

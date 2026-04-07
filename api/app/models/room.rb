@@ -4,12 +4,13 @@
 #
 # Table name: rooms
 #
-#  id         :bigint           not null, primary key
-#  icon       :string
-#  name       :string           not null
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  user_id    :bigint           not null
+#  id           :bigint           not null, primary key
+#  icon         :string
+#  name         :string           not null
+#  plants_count :integer          default(0), not null
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  user_id      :bigint           not null
 #
 # Indexes
 #
@@ -30,7 +31,7 @@ class Room < ApplicationRecord
       id: id,
       name: name,
       icon: icon,
-      plants_count: plants.size,
+      plants_count: plants_count,
       created_at: created_at
     }
   end

@@ -8,7 +8,7 @@ class Api::V1::SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'login with valid credentials returns token' do
-    post api_v1_session_path, params: { email: 'john@doe.com', password: 'password123' }, as: :json
+    post api_v1_session_path, params: { session: { email: 'john@doe.com', password: 'password123' } }, as: :json
 
     assert_response :ok
     json = response.parsed_body
@@ -17,7 +17,7 @@ class Api::V1::SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'login with invalid password returns unauthorized' do
-    post api_v1_session_path, params: { email: 'john@doe.com', password: 'wrong' }, as: :json
+    post api_v1_session_path, params: { session: { email: 'john@doe.com', password: 'wrong' } }, as: :json
 
     assert_response :unauthorized
     json = response.parsed_body
@@ -25,20 +25,20 @@ class Api::V1::SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'login with unknown email returns unauthorized' do
-    post api_v1_session_path, params: { email: 'nobody@example.com', password: 'password123' }, as: :json
+    post api_v1_session_path, params: { session: { email: 'nobody@example.com', password: 'password123' } }, as: :json
 
     assert_response :unauthorized
   end
 
   test 'login sets refresh token cookie' do
-    post api_v1_session_path, params: { email: 'john@doe.com', password: 'password123' }, as: :json
+    post api_v1_session_path, params: { session: { email: 'john@doe.com', password: 'password123' } }, as: :json
 
     assert_response :ok
     assert cookies[:refresh_token].present?
   end
 
   test 'logout revokes refresh token and clears cookie' do
-    post api_v1_session_path, params: { email: 'john@doe.com', password: 'password123' }, as: :json
+    post api_v1_session_path, params: { session: { email: 'john@doe.com', password: 'password123' } }, as: :json
     raw_token = cookies[:refresh_token]
 
     delete api_v1_session_path, as: :json

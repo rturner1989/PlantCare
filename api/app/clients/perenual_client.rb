@@ -29,7 +29,7 @@ class PerenualClient
   end
 
   def search(query)
-    return [] unless @api_key.present?
+    return [] if @api_key.blank?
 
     response = @conn.get('species-list', q: query, indoor: 1)
     response.body['data'] || []
@@ -39,7 +39,7 @@ class PerenualClient
   end
 
   def details(perenual_id)
-    return nil unless @api_key.present?
+    return nil if @api_key.blank?
 
     response = @conn.get("species/details/#{perenual_id}")
     response.body
@@ -80,19 +80,17 @@ class PerenualClient
 
     case data['watering']&.downcase
     when 'frequent' then 3
-    when 'average' then 7
     when 'minimum' then 14
     when 'none' then 30
-    else 7
+    else 7 # average or unknown
     end
   end
 
   private def derive_feeding_days(data)
     case data['maintenance']&.downcase
     when 'high' then 14
-    when 'moderate', 'medium' then 30
     when 'low' then 60
-    else 30
+    else 30 # moderate, medium, or unknown
     end
   end
 
@@ -101,12 +99,10 @@ class PerenualClient
 
     if sunlight.any? { |s| s.include?('full_sun') || s.include?('full sun') }
       'bright_direct'
-    elsif sunlight.any? { |s| s.include?('part shade') || s.include?('sun-part_shade') }
-      'bright_indirect'
     elsif sunlight.any? { |s| s.include?('full shade') || s.include?('full_shade') }
       'low'
     else
-      'bright_indirect'
+      'bright_indirect' # part shade, sun-part_shade, or unknown
     end
   end
 
@@ -148,9 +144,8 @@ class PerenualClient
   private def parse_difficulty(data)
     case data['care_level']&.downcase
     when 'low' then 'beginner'
-    when 'medium', 'moderate' then 'intermediate'
     when 'high' then 'advanced'
-    else 'intermediate'
+    else 'intermediate' # medium, moderate, or unknown
     end
   end
 
@@ -177,9 +172,9 @@ class PerenualClient
 
     watering = data['watering']&.downcase
     tips << case watering
-    when 'frequent' then 'Keep soil consistently moist.'
-    when 'average' then 'Allow top inch of soil to dry between waterings.'
-    when 'minimum' then 'Water sparingly — let soil dry out completely.'
+            when 'frequent' then 'Keep soil consistently moist.'
+            when 'average' then 'Allow top inch of soil to dry between waterings.'
+            when 'minimum' then 'Water sparingly — let soil dry out completely.'
     end
 
     sunlight = Array(data['sunlight']).first

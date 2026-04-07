@@ -12,7 +12,7 @@ class Api::V1::SpeciesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :ok
     json = response.parsed_body
-    assert json.any? { |s| s['common_name'] == 'Monstera Deliciosa' }
+    assert(json.any? { |s| s['common_name'] == 'Monstera Deliciosa' })
   end
 
   test 'index returns empty for blank query' do
@@ -41,7 +41,7 @@ class Api::V1::SpeciesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show returns not found for invalid id' do
-    get api_v1_species_path(id: 999999), headers: auth_headers(@user), as: :json
+    get api_v1_species_path(id: 999_999), headers: auth_headers(@user), as: :json
 
     assert_response :not_found
   end

@@ -18,7 +18,8 @@ module Api
       end
 
       def create
-        plant = @room.plants.new(plant_params.except(:room_id))
+        plant = @room.plants.new(plant_params)
+
         if plant.save
           render json: plant, status: :created
         else
@@ -27,7 +28,7 @@ module Api
       end
 
       def update
-        if @plant.update(plant_params.except(:room_id))
+        if @plant.update(plant_params)
           render json: @plant
         else
           render json: { errors: @plant.errors.full_messages }, status: :unprocessable_content
@@ -40,7 +41,7 @@ module Api
       end
 
       private def set_room
-        @room = current_user.rooms.find_by(id: plant_params[:room_id])
+        @room = current_user.rooms.find_by(id: params.dig(:plant, :room_id))
         render json: { error: 'Room not found' }, status: :not_found unless @room
       end
 
@@ -50,10 +51,8 @@ module Api
       end
 
       private def plant_params
-        params.require(:plant).permit(
-          :room_id, :species_id, :nickname, :notes,
-          :light_level, :temperature_level, :humidity_level, :acquired_at
-        )
+        params.expect(plant: [:species_id, :nickname, :notes,
+                              :light_level, :temperature_level, :humidity_level, :acquired_at])
       end
     end
   end

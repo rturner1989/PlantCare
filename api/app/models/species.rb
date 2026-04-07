@@ -70,7 +70,13 @@ class Species < ApplicationRecord
     return nil unless details
 
     species = client.build_species(details)
-    species.save ? species : nil
+
+    unless species.save
+      Rails.logger.warn("Failed to save species from Perenual (ID: #{perenual_id}): #{species.errors.full_messages.join(', ')}")
+      return nil
+    end
+
+    species
   end
 
   def as_json(_options = {})

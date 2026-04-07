@@ -35,13 +35,13 @@ class Plant < ApplicationRecord
   TEMPERATURE_MODIFIERS = { 'warm' => -0.1, 'average' => 0.0, 'cool' => 0.15 }.freeze
   HUMIDITY_MODIFIERS = { 'dry' => -0.1, 'average' => 0.0, 'humid' => 0.15 }.freeze
 
-  belongs_to :room
+  belongs_to :room, counter_cache: true
   belongs_to :species, optional: true
 
   validates :nickname, presence: true
-  validates :light_level, inclusion: { in: %w[bright medium low] }
-  validates :temperature_level, inclusion: { in: %w[warm average cool] }
-  validates :humidity_level, inclusion: { in: %w[dry average humid] }
+  validates :light_level, inclusion: { in: LIGHT_MODIFIERS.keys }
+  validates :temperature_level, inclusion: { in: TEMPERATURE_MODIFIERS.keys }
+  validates :humidity_level, inclusion: { in: HUMIDITY_MODIFIERS.keys }
 
   before_save :calculate_schedule, if: :should_recalculate?
   before_create :set_initial_watered_at
@@ -51,7 +51,7 @@ class Plant < ApplicationRecord
 
     days_until = days_until_water
 
-    if days_until < 0
+    if days_until.negative?
       :overdue
     elsif days_until.zero?
       :due_today
@@ -67,7 +67,7 @@ class Plant < ApplicationRecord
 
     days_until = days_until_feed
 
-    if days_until < 0
+    if days_until.negative?
       :overdue
     elsif days_until.zero?
       :due_today
@@ -143,8 +143,6 @@ class Plant < ApplicationRecord
 
     self.calculated_watering_days = [(species.watering_frequency_days * modifier).round, 1].max
 
-    if species.feeding_frequency_days
-      self.calculated_feeding_days = [(species.feeding_frequency_days * modifier).round, 1].max
-    end
+    self.calculated_feeding_days = [(species.feeding_frequency_days * modifier).round, 1].max if species.feeding_frequency_days
   end
 end

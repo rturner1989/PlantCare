@@ -15,14 +15,14 @@ class Api::V1::PlantsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :ok
     json = response.parsed_body
-    assert json.any? { |p| p['nickname'] == 'Sir Plantalot' }
+    assert(json.any? { |p| p['nickname'] == 'Sir Plantalot' })
   end
 
   test 'index filters by room' do
     get api_v1_plants_path(room_id: @room.id), headers: auth_headers(@user), as: :json
 
     json = response.parsed_body
-    assert json.all? { |p| p['room']['id'] == @room.id }
+    assert(json.all? { |p| p['room']['id'] == @room.id })
   end
 
   test 'index excludes other users plants' do
@@ -101,7 +101,7 @@ class Api::V1::PlantsControllerTest < ActionDispatch::IntegrationTest
 
   test 'create with invalid room returns not found' do
     post api_v1_plants_path, headers: auth_headers(@user),
-      params: { plant: { room_id: 999999, nickname: 'Lost Plant' } }, as: :json
+      params: { plant: { room_id: 999_999, nickname: 'Lost Plant' } }, as: :json
 
     assert_response :not_found
   end

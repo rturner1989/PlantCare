@@ -3,7 +3,10 @@
 # Lightweight wrapper for Perenual API search results that haven't been cached yet.
 # Renders the same JSON shape as Species#as_json but with minimal data.
 class SpeciesSearchResult
-  attr_reader :perenual_id, :common_name, :scientific_name, :image_url
+  attr_reader :perenual_id
+  attr_reader :common_name
+  attr_reader :scientific_name
+  attr_reader :image_url
 
   def initialize(api_data)
     @perenual_id = api_data['id']
