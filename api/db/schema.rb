@@ -10,10 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_194308) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_203112) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
+
+  create_table "plants", force: :cascade do |t|
+    t.date "acquired_at"
+    t.integer "calculated_feeding_days"
+    t.integer "calculated_watering_days"
+    t.datetime "created_at", null: false
+    t.string "humidity_level", default: "average", null: false
+    t.datetime "last_fed_at"
+    t.datetime "last_watered_at"
+    t.string "light_level", default: "medium", null: false
+    t.string "nickname", null: false
+    t.text "notes"
+    t.bigint "room_id", null: false
+    t.bigint "species_id"
+    t.string "temperature_level", default: "average", null: false
+    t.datetime "updated_at", null: false
+    t.index ["room_id"], name: "index_plants_on_room_id"
+    t.index ["species_id"], name: "index_plants_on_species_id"
+  end
 
   create_table "refresh_tokens", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -70,6 +89,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_194308) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "plants", "rooms"
+  add_foreign_key "plants", "species"
   add_foreign_key "refresh_tokens", "users"
   add_foreign_key "rooms", "users"
 end

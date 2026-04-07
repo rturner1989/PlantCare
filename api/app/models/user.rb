@@ -20,6 +20,7 @@ class User < ApplicationRecord
   has_secure_password
 
   has_many :rooms, dependent: :destroy
+  has_many :plants, through: :rooms
   has_many :refresh_tokens, dependent: :destroy
 
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }

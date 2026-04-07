@@ -21,6 +21,7 @@
 #
 class Room < ApplicationRecord
   belongs_to :user
+  has_many :plants, dependent: :destroy
 
   validates :name, presence: true
 
@@ -29,6 +30,7 @@ class Room < ApplicationRecord
       id: id,
       name: name,
       icon: icon,
+      plants_count: plants.size,
       created_at: created_at
     }
   end
