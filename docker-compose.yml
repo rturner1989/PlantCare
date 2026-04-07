@@ -1,0 +1,68 @@
+services:                                                         
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./api:/plant-care-api
+    depends_on:
+      - postgres
+      - redis
+    restart: always
+    tty: true                                                                                                    
+    stdin_open: true
+    env_file:                                                                                                    
+      - .env
+                                                                                                                  
+  postgres:
+    image: postgres:17                                                                                           
+    volumes:                                                      
+      - pg_data:/var/lib/postgresql/data                                                
+    restart: unless-stopped                                                                                      
+    env_file:
+      - .env                                                                                                     
+    environment:                                                  
+      POSTGRES_USER: ${DB_USERNAME}                                                     
+      POSTGRES_PASSWORD: ${DB_PASSWORD}     
+      POSTGRES_DB: ${DB_NAME}                                                                                    
+  
+  redis:                                                                                                         
+    image: redis:latest                                           
+    command: redis-server                                                               
+    volumes:                                
+      - redis:/data
+                                                                                                                  
+  sidekiq:
+    build:                                                                                                       
+      context: ./api                                              
+      dockerfile: Dockerfile                                                            
+    command: bundle exec sidekiq            
+    volumes:
+      - ./api:/plant-care-api
+      - /plant-care-api/tmp
+    depends_on:                                                                                                  
+      - redis
+      - postgres                                                                                                 
+    env_file:                                                     
+      - .env
+                                                                                                      
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    command: npm run dev -- --host
+    volumes:
+      - ./client:/plant-care-client
+      - /plant-care-client/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    env_file:
+      - .env
+                                                                                                                  
+volumes:                                                          
+  pg_data:                                                                              
+  redis:

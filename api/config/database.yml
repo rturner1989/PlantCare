@@ -1,0 +1,19 @@
+default: &default                                                                                                
+  adapter: postgresql                                             
+  encoding: unicode                                                                      
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("DB_HOST", "localhost") %>
+  username: <%= ENV.fetch("DB_USERNAME", "plantcare") %>                                                         
+  password: <%= ENV.fetch("DB_PASSWORD", "plantcare_dev") %>
+                                                                                                                  
+development:                                                      
+  <<: *default                                                                           
+  database: plantcare_development           
+                                                                                                                  
+test:
+  <<: *default                                                                                                   
+  database: plantcare_test                                        
+                                                                                          
+production:                                 
+  <<: *default
+  database: plantcare_production

@@ -1,0 +1,32 @@
+source "https://rubygems.org"                                                                           
+                                                                                          
+gem "rails", "~> 8.1.2"                                                                                 
+gem "pg", "~> 1.1"                                                
+gem "puma", ">= 5.0"                                                                     
+                                            
+# Auth                                                                                                  
+gem "bcrypt", "~> 3.1.7"
+gem "jwt"                                                                                               
+                                                                  
+# CORS                                                                                   
+gem "rack-cors"                             
+
+# Background jobs
+gem "sidekiq"
+
+# Image processing (ActiveStorage)                                                                      
+gem "image_processing", "~> 1.2"
+                                                                                                        
+# HTTP client (for Perenual API)                                                                        
+gem "faraday"                                                                            
+                                                                                                        
+# Performance                                                     
+gem "bootsnap", require: false                                                           
+                                            
+gem "tzinfo-data", platforms: %i[windows jruby]                                                         
+
+group :development, :test do                                                                            
+  gem "debug", platforms: %i[mri windows], require: "debug/prelude"
+  gem "factory_bot_rails"                                                                               
+  gem "faker"                               
+end

@@ -1,0 +1,34 @@
+# Ruby
+api/tmp/
+api/log/
+api/.bundle/
+api/vendor/bundle/
+api/storage/
+api/config/master.key
+api/config/credentials.yml.enc                                                                             
+                                                                                                        
+# Node                                                            
+client/node_modules/                                                                     
+client/dist/                               
+                                                                                                        
+# Docker
+.docker-data/                                                                                           
+                                                                  
+# Environment                                                                            
+.env                                       
+.env.local
+.env.*.local
+                                                                                                        
+# IDE
+.idea/                                                                                                  
+.vscode/                                                          
+*.swp                                                                                    
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Superpowers
+.superpowers/
+docs/superpowers/
