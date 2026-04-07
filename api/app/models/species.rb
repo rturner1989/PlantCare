@@ -32,13 +32,46 @@
 #  index_species_on_source_and_external_id  (source,external_id) UNIQUE WHERE (external_id IS NOT NULL)
 #
 class Species < ApplicationRecord
+  include PgSearch::Model
+
+  pg_search_scope :search,
+    against: [:common_name, :scientific_name],
+    using: {
+      tsearch: { prefix: true },
+      trigram: {}
+    }
+
   validates :common_name, presence: true
   validates :watering_frequency_days, presence: true, numericality: { greater_than: 0 }
   validates :personality, presence: true
 
-  scope :search, ->(query) {
-    where('common_name ILIKE :q OR scientific_name ILIKE :q', q: "%#{query}%")
-  }
+  def self.search_with_api(query)
+    return [] if query.blank?
+
+    local_results = search(query).limit(10).to_a
+    return local_results if local_results.any?
+
+    client = PerenualClient.new
+    api_results = client.search(query)
+
+    # Return search summaries — details fetched on selection, not upfront
+    api_results.first(10).map do |result|
+      existing = find_by(source: 'perenual', external_id: result['id'].to_s)
+      existing || SpeciesSearchResult.new(result)
+    end
+  end
+
+  def self.find_or_fetch_from_api(perenual_id)
+    existing = find_by(source: 'perenual', external_id: perenual_id.to_s)
+    return existing if existing
+
+    client = PerenualClient.new
+    details = client.details(perenual_id)
+    return nil unless details
+
+    species = client.build_species(details)
+    species.save ? species : nil
+  end
 
   def as_json(_options = {})
     {
