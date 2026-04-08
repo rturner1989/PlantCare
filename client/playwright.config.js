@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
-    baseURL: process.env.BASE_URL || 'http://localhost:5173',
+    baseURL: process.env.CI ? 'http://localhost:4173' : 'http://localhost:5173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -19,7 +19,11 @@ export default defineConfig({
     },
   ],
   webServer: process.env.CI
-    ? undefined
+    ? {
+        command: 'npx vite preview --port 4173',
+        url: 'http://localhost:4173',
+        reuseExistingServer: false,
+      }
     : {
         command: 'npm run dev',
         url: 'http://localhost:5173',
