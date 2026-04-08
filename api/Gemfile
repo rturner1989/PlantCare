@@ -29,6 +29,9 @@ gem 'bootsnap', require: false
 
 gem 'tzinfo-data', platforms: [:windows, :jruby]
 
+gem 'brakeman', require: false
+gem 'bundler-audit', require: false
+
 group :development, :test do
   gem 'debug', platforms: [:mri, :windows], require: 'debug/prelude'
   gem 'faker'

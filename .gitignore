@@ -7,9 +7,13 @@ api/storage/
 api/config/master.key
 api/config/credentials.yml.enc                                                                             
                                                                                                         
-# Node                                                            
-client/node_modules/                                                                     
-client/dist/                               
+# Node
+client/node_modules/
+client/dist/
+
+# Playwright
+client/test-results/
+client/playwright-report/                               
                                                                                                         
 # Docker
 .docker-data/                                                                                           
