@@ -18,20 +18,14 @@ run_check() {
   fi
 }
 
-# Parse arguments
-TARGET="${1:-all}"
-
 echo "================================"
-echo "  PlantCare Tests"
+echo "  PlantCare Lint"
 echo "================================"
 
-if [ "$TARGET" = "all" ] || [ "$TARGET" = "api" ]; then
-  run_check "API Tests (Minitest)" "docker compose exec -e RAILS_ENV=test api rails test"
-fi
-
-if [ "$TARGET" = "all" ] || [ "$TARGET" = "client" ]; then
-  run_check "Client Tests (Playwright)" "cd client && npm test"
-fi
+run_check "RuboCop (API)" "docker compose exec api bundle exec rubocop -A"
+run_check "Brakeman (API)" "docker compose exec api bundle exec brakeman --no-pager -q"
+run_check "Bundler Audit (API)" "docker compose exec api bundle exec bundler-audit check --update"
+run_check "Biome (Client)" "cd client && npm run lint:fix"
 
 echo ""
 echo "═══════════════════════════════════════════════"
