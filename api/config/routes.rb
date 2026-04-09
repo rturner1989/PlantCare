@@ -21,6 +21,8 @@ Rails.application.routes.draw do
         end
       end
       resources :species, only: [:index, :show]
+
+      resource :dashboard, only: [:show], controller: 'dashboard'
     end
   end
 
