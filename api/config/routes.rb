@@ -23,6 +23,12 @@ Rails.application.routes.draw do
       resources :species, only: [:index, :show]
 
       resource :dashboard, only: [:show], controller: 'dashboard'
+
+      resource :profile, only: [:show, :update], controller: 'profiles' do
+        scope module: :profile do
+          resource :password, only: [:update]
+        end
+      end
     end
   end
 

@@ -7,6 +7,10 @@
 #     │   ├── RoomsController
 #     │   ├── PlantsController
 #     │   ├── SpeciesController
+#     │   ├── DashboardController
+#     │   ├── ProfilesController
+#     │   │
+#     │   ├── Api::V1::Profile::PasswordsController (nested password resource)
 #     │   │
 #     │   └── Api::V1::Plants::PlantScopedController (before_action :set_plant — nested plant resources)
 #     │       ├── CareLogsController
