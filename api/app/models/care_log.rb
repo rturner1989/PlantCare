@@ -22,7 +22,9 @@
 #  fk_rails_...  (plant_id => plants.id)
 #
 class CareLog < ApplicationRecord
-  CARE_TYPES = %w[watering feeding].freeze
+  WATERING = 'watering'
+  FEEDING = 'feeding'
+  CARE_TYPES = [WATERING, FEEDING].freeze
 
   belongs_to :plant
 
@@ -50,8 +52,8 @@ class CareLog < ApplicationRecord
 
   private def update_plant_timestamps
     case care_type
-    when 'watering' then plant.update!(last_watered_at: performed_at)
-    when 'feeding' then plant.update!(last_fed_at: performed_at)
+    when WATERING then plant.update!(last_watered_at: performed_at)
+    when FEEDING then plant.update!(last_fed_at: performed_at)
     end
   end
 end
