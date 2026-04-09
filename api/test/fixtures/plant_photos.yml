@@ -1,0 +1,21 @@
+# == Schema Information
+#
+# Table name: plant_photos
+#
+#  id         :bigint           not null, primary key
+#  caption    :string
+#  taken_at   :datetime         not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  plant_id   :bigint           not null
+#
+# Indexes
+#
+#  index_plant_photos_on_plant_id               (plant_id)
+#  index_plant_photos_on_plant_id_and_taken_at  (plant_id,taken_at)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (plant_id => plants.id)
+#
+# Photos are created dynamically in tests so ActiveStorage attachments work

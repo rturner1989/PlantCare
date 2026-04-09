@@ -6,9 +6,11 @@
 #     ├── Api::V1::BaseController (before_action :authenticate! — all protected resources)
 #     │   ├── RoomsController
 #     │   ├── PlantsController
-#     │   ├── DashboardController
-#     │   ├── ProfilesController
-#     │   └── (future resource controllers)
+#     │   ├── SpeciesController
+#     │   │
+#     │   └── Api::V1::Plants::PlantScopedController (before_action :set_plant — nested plant resources)
+#     │       ├── CareLogsController
+#     │       └── PlantPhotosController
 #     │
 #     ├── Api::V1::AuthController (shared token issuance + user JSON — unauthenticated)
 #     │   ├── RegistrationsController (POST /registration)
