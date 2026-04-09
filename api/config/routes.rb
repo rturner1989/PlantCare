@@ -17,6 +17,7 @@ Rails.application.routes.draw do
       resources :plants, only: [:index, :show, :create, :update, :destroy] do
         scope module: :plants do
           resources :care_logs, only: [:index, :create]
+          resources :plant_photos, only: [:index, :create, :destroy]
         end
       end
       resources :species, only: [:index, :show]
