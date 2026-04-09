@@ -1,0 +1,31 @@
+# == Schema Information
+#
+# Table name: care_logs
+#
+#  id           :bigint           not null, primary key
+#  care_type    :string           not null
+#  notes        :string
+#  performed_at :datetime         not null
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  plant_id     :bigint           not null
+#
+# Indexes
+#
+#  index_care_logs_on_plant_id                   (plant_id)
+#  index_care_logs_on_plant_id_and_performed_at  (plant_id,performed_at)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (plant_id => plants.id)
+#
+recent_watering:
+  plant: sir_plantalot
+  care_type: watering
+  performed_at: <%= 3.days.ago %>
+
+old_watering:
+  plant: sir_plantalot
+  care_type: watering
+  performed_at: <%= 10.days.ago %>
+  notes: Gave extra water

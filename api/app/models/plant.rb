@@ -37,6 +37,7 @@ class Plant < ApplicationRecord
 
   belongs_to :room, counter_cache: true
   belongs_to :species, optional: true
+  has_many :care_logs, dependent: :destroy
 
   validates :nickname, presence: true
   validates :light_level, inclusion: { in: LIGHT_MODIFIERS.keys }
