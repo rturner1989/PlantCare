@@ -10,10 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_205315) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_09_104307) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
+
+  create_table "care_logs", force: :cascade do |t|
+    t.string "care_type", null: false
+    t.datetime "created_at", null: false
+    t.string "notes"
+    t.datetime "performed_at", null: false
+    t.bigint "plant_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["plant_id", "performed_at"], name: "index_care_logs_on_plant_id_and_performed_at"
+    t.index ["plant_id"], name: "index_care_logs_on_plant_id"
+  end
 
   create_table "plants", force: :cascade do |t|
     t.date "acquired_at"
@@ -90,6 +101,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_205315) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "care_logs", "plants"
   add_foreign_key "plants", "rooms"
   add_foreign_key "plants", "species"
   add_foreign_key "refresh_tokens", "users"

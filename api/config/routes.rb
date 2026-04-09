@@ -14,7 +14,11 @@ Rails.application.routes.draw do
       resource :token, only: [:create]
 
       resources :rooms, only: [:index, :show, :create, :update, :destroy]
-      resources :plants, only: [:index, :show, :create, :update, :destroy]
+      resources :plants, only: [:index, :show, :create, :update, :destroy] do
+        scope module: :plants do
+          resources :care_logs, only: [:index, :create]
+        end
+      end
       resources :species, only: [:index, :show]
     end
   end
