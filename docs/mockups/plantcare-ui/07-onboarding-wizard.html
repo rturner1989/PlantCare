@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare v12 — Onboarding Wizard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --base: #F6FBF4;
+    --mint: #DFF2E2;
+    --lime: #86DB65;
+    --leaf: #32C456;
+    --emerald: #14902F;
+    --forest: #0B3A1A;
+    --forest-2: #124626;
+    --ink: #0A1D0E;
+    --ink-soft: #4A6A51;
+    --coral: #FF6B3D;
+    --sunshine: #FFB83D;
+    --card: #FFFFFF;
+    --shadow-xl: 0 40px 100px -20px rgba(11,58,26,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--base);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage { min-height: 100vh; padding: 56px 40px 80px; }
+
+  .masthead { text-align: center; max-width: 900px; margin: 0 auto 50px; }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--emerald);
+    background: var(--mint); padding: 8px 16px; border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .kicker .dot { width: 8px; height: 8px; background: var(--leaf); border-radius: 50%; }
+  .headline {
+    font-size: 48px; font-weight: 800; line-height: 1.03;
+    letter-spacing: -0.035em; color: var(--ink); margin-bottom: 14px;
+  }
+  .headline em {
+    font-style: normal; color: var(--leaf);
+    position: relative; display: inline-block;
+  }
+  .headline em::after {
+    content: ''; position: absolute;
+    left: -2%; right: -2%; bottom: 5px;
+    height: 12px; background: var(--lime);
+    z-index: -1; border-radius: 4px;
+    transform: skew(-6deg);
+  }
+  .lede {
+    font-size: 16px; font-weight: 400; color: var(--ink-soft);
+    max-width: 640px; margin: 0 auto; line-height: 1.55;
+  }
+
+  /* Phone row */
+  .iphone-row {
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: 30px; flex-wrap: wrap; margin-bottom: 60px;
+  }
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; }
+  .phone-label {
+    margin-top: 18px;
+    font-size: 12px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--emerald);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-label .step-tag {
+    background: var(--leaf); color: var(--card);
+    padding: 4px 10px; border-radius: 100px;
+    font-size: 9px; letter-spacing: 0.1em;
+  }
+
+  .iphone {
+    width: 413px; height: 872px;
+    background: #1A1A1A;
+    border-radius: 55px;
+    padding: 10px;
+    box-shadow:
+      var(--shadow-xl),
+      inset 0 0 0 1.5px rgba(255,255,255,0.08),
+      inset 0 0 0 3px #0A0A0A;
+    position: relative;
+  }
+  .iphone::before {
+    content: ''; position: absolute;
+    left: -2px; top: 180px;
+    width: 3px; height: 36px;
+    background: #0A0A0A; border-radius: 2px 0 0 2px;
+  }
+  .iphone::after {
+    content: ''; position: absolute;
+    right: -2px; top: 200px;
+    width: 3px; height: 72px;
+    background: #0A0A0A; border-radius: 0 2px 2px 0;
+  }
+  .screen {
+    width: 393px; height: 852px;
+    background: linear-gradient(180deg, #F6FBF4 0%, #DFF2E2 50%, #C7ECCA 100%);
+    border-radius: 47px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dynamic-island {
+    position: absolute;
+    top: 11px; left: 50%;
+    transform: translateX(-50%);
+    width: 124px; height: 37px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+  }
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 54px;
+    padding: 18px 32px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 17px; font-weight: 700; color: var(--ink);
+    z-index: 50;
+  }
+  .status-bar .indicators { display: flex; align-items: center; gap: 6px; }
+
+  .content {
+    position: absolute;
+    top: 54px;
+    left: 0; right: 0;
+    bottom: 34px;
+    padding: 22px 22px 22px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .home-indicator {
+    position: absolute;
+    bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 134px; height: 5px;
+    background: var(--ink);
+    border-radius: 100px;
+    z-index: 60;
+  }
+
+  /* Wizard card — same container as auth */
+  .wizard-card {
+    background: var(--card);
+    border-radius: 28px;
+    padding: 24px 24px 22px;
+    box-shadow:
+      0 20px 50px rgba(11,58,26,0.14),
+      0 4px 12px rgba(11,58,26,0.06);
+    border: 1px solid rgba(255,255,255,0.8);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-top: 8px;
+  }
+
+  /* Wizard header with progress */
+  .wiz-header {
+    margin-bottom: 20px;
+  }
+  .progress-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .progress-dots .dot {
+    flex: 1;
+    height: 5px;
+    background: var(--mint);
+    border-radius: 100px;
+    transition: background 300ms ease;
+  }
+  .progress-dots .dot.done { background: var(--leaf); }
+  .progress-dots .dot.active { background: var(--leaf); box-shadow: 0 0 0 3px rgba(50,196,86,0.2); }
+  .step-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--emerald);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .step-label .cancel {
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+
+  /* Content area */
+  .wiz-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .wiz-title {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--forest);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-top: 8px;
+  }
+  .wiz-title em {
+    font-style: italic;
+    color: var(--leaf);
+  }
+  .wiz-subtitle {
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* Footer with buttons */
+  .wiz-footer {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .btn-back {
+    background: var(--mint);
+    color: var(--forest);
+    border: none;
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .btn-next {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, var(--leaf), var(--emerald));
+    color: var(--card);
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    box-shadow:
+      0 6px 16px rgba(20,144,47,0.32),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+    cursor: pointer;
+  }
+  .btn-next::after { content: '→'; font-weight: 800; }
+  .btn-skip {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 700;
+    margin-top: 10px;
+  }
+  .btn-skip a {
+    color: var(--emerald);
+    margin-left: 4px;
+  }
+
+  /* ============================ */
+  /* STEP 1 — WELCOME ILLUSTRATION */
+  /* ============================ */
+  .welcome-illu {
+    text-align: center;
+    padding: 18px 0 12px;
+  }
+  .welcome-illu svg { display: inline-block; }
+
+  /* ============================ */
+  /* STEP 2 — ROOMS LIST          */
+  /* ============================ */
+  .rooms-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .room-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 14px;
+    background: var(--base);
+    border: 1.5px solid var(--mint);
+    border-radius: 14px;
+    cursor: pointer;
+  }
+  .room-option.selected {
+    background: #F1FBEE;
+    border-color: var(--leaf);
+  }
+  .room-option .icon-tile {
+    width: 34px; height: 34px;
+    background: var(--mint);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--emerald);
+    flex-shrink: 0;
+  }
+  .room-option.selected .icon-tile {
+    background: var(--leaf);
+    color: var(--card);
+  }
+  .room-option .r-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .room-option .check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--mint);
+    background: var(--card);
+    flex-shrink: 0;
+  }
+  .room-option.selected .check {
+    background: var(--leaf);
+    border-color: var(--leaf);
+    position: relative;
+  }
+  .room-option.selected .check::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M5 12.5 L10 17.5 L19 7.5' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/13px no-repeat;
+  }
+  .add-custom-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px;
+    background: var(--card);
+    border: 1.5px dashed var(--mint);
+    border-radius: 14px;
+    color: var(--emerald);
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .add-custom-row svg { display: block; }
+
+  /* ============================ */
+  /* STEP 3 — SELECTED PLANT      */
+  /* ============================ */
+  .plant-selected {
+    background: linear-gradient(135deg, var(--forest), var(--forest-2));
+    border-radius: 20px;
+    padding: 18px 18px 16px;
+    color: var(--card);
+    position: relative;
+    overflow: hidden;
+  }
+  .plant-selected::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 85% 100%, rgba(134,219,101,0.2) 0%, transparent 55%);
+  }
+  .plant-selected .species-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--lime);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+    position: relative;
+  }
+  .plant-selected h4 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 2px;
+    position: relative;
+  }
+  .plant-selected .sci-name {
+    font-size: 11px;
+    font-style: italic;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .plant-selected .species-thumb {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 100px;
+    height: 120px;
+    z-index: 1;
+    filter: drop-shadow(-4px 4px 12px rgba(0,0,0,0.3));
+  }
+  .plant-meta {
+    display: flex;
+    gap: 8px;
+    position: relative;
+  }
+  .meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: rgba(255,255,255,0.1);
+    color: var(--lime);
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .nickname-block {
+    margin-top: 14px;
+  }
+  .nickname-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .nickname-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--base);
+    border: 1.5px solid var(--leaf);
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ink);
+    box-shadow: 0 0 0 4px rgba(50,196,86,0.12);
+  }
+  .nickname-hint {
+    font-size: 11px;
+    color: var(--emerald);
+    font-weight: 700;
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* ============================ */
+  /* STEP 4 — ENVIRONMENT QUESTIONS */
+  /* ============================ */
+  .env-block {
+    margin-bottom: 14px;
+  }
+  .env-question {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .env-question svg { display: block; }
+  .segmented {
+    display: flex;
+    gap: 6px;
+    background: var(--mint);
+    padding: 4px;
+    border-radius: 12px;
+  }
+  .segmented-btn {
+    flex: 1;
+    padding: 10px 8px;
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .segmented-btn.active {
+    background: var(--card);
+    color: var(--forest);
+    box-shadow: 0 2px 6px rgba(11,58,26,0.1);
+  }
+
+  .env-note {
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    font-style: italic;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  /* ============================ */
+  /* STEP 5 — DONE CELEBRATION    */
+  /* ============================ */
+  .done-illu {
+    text-align: center;
+    padding: 14px 0 12px;
+    position: relative;
+  }
+  .done-illu svg { display: inline-block; }
+  .done-illu .sparkle {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: var(--sunshine);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(255,184,61,0.8);
+  }
+  .done-illu .sp-1 { top: 20px; left: 30%; }
+  .done-illu .sp-2 { top: 40px; right: 28%; width: 3px; height: 3px; }
+  .done-illu .sp-3 { top: 70px; left: 22%; width: 3px; height: 3px; }
+  .done-illu .sp-4 { top: 15px; right: 32%; }
+  .done-illu .sp-5 { top: 80px; right: 20%; width: 3px; height: 3px; }
+
+  .speech-card {
+    background: var(--forest);
+    border-radius: 16px;
+    padding: 16px 18px;
+    color: var(--card);
+    margin-top: 6px;
+    position: relative;
+  }
+  .speech-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 85% 100%, rgba(255,107,61,0.2) 0%, transparent 55%);
+    border-radius: 16px;
+  }
+  .speech-card .sp-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--lime);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+    position: relative;
+  }
+  .speech-card .sp-quote {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.3;
+    position: relative;
+    padding-left: 10px;
+    border-left: 2px solid var(--coral);
+  }
+
+  /* Done step has no back button, just Enter */
+  .btn-enter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 22px;
+    background: linear-gradient(135deg, var(--leaf), var(--emerald));
+    color: var(--card);
+    border: none;
+    border-radius: 16px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    box-shadow:
+      0 10px 24px rgba(20,144,47,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+    cursor: pointer;
+    margin-top: 18px;
+  }
+  .btn-enter::after { content: '→'; font-size: 18px; }
+
+  /* Notes block */
+  .notes {
+    max-width: 1100px;
+    margin: 40px auto 0;
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 24px;
+    padding: 32px 40px;
+    box-shadow: 0 10px 30px rgba(11,58,26,0.08);
+  }
+  .notes h3 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .notes h3 em { font-style: normal; color: var(--leaf); }
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .note {
+    padding: 18px 20px;
+    background: var(--base);
+    border: 1px solid var(--mint);
+    border-radius: 16px;
+  }
+  .note h4 {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--emerald);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .note p {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .note p strong { color: var(--ink); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="masthead">
+    <div class="kicker"><span class="dot"></span>Direction · Take Thirteen</div>
+    <h1 class="headline">The <em>onboarding wizard</em>.</h1>
+    <p class="lede">After register, a five-step dialog wizard walks the user through setup. Same container as the auth screens — one continuous flow. Takes about a minute, ends with them landing on Today with their first plant visible.</p>
+  </div>
+
+  <div class="iphone-row">
+
+    <!-- STEP 1: WELCOME -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="screen">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="indicators">
+              <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor">
+                <rect x="0" y="6" width="3" height="5" rx="0.5"/>
+                <rect x="5" y="4" width="3" height="7" rx="0.5"/>
+                <rect x="10" y="2" width="3" height="9" rx="0.5"/>
+                <rect x="15" y="0" width="3" height="11" rx="0.5"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 10.5c0.6 0 1-0.4 1-1s-0.4-1-1-1-1 0.4-1 1 0.4 1 1 1z"/></svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+                <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+                <path d="M24 4V8" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
+
+          <div class="content">
+            <div class="wizard-card">
+              <div class="wiz-header">
+                <div class="progress-dots">
+                  <div class="dot active"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                </div>
+                <div class="step-label">
+                  <span>Step 1 of 5</span>
+                  <span class="cancel">✕ Cancel</span>
+                </div>
+              </div>
+
+              <div class="wiz-body">
+                <div class="welcome-illu">
+                  <svg width="160" height="160" viewBox="0 0 160 160">
+                    <defs>
+                      <linearGradient id="welcome-leaf" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#7BE090"/>
+                        <stop offset="100%" stop-color="#14902F"/>
+                      </linearGradient>
+                      <linearGradient id="welcome-leaf-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#86DB65"/>
+                        <stop offset="100%" stop-color="#32C456"/>
+                      </linearGradient>
+                    </defs>
+                    <ellipse cx="80" cy="152" rx="40" ry="5" fill="#000" opacity="0.15"/>
+                    <path d="M 52 110 L 44 152 L 116 152 L 108 110 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="2.2"/>
+                    <ellipse cx="80" cy="110" rx="28" ry="5" fill="#86DB65" stroke="#0B3A1A" stroke-width="2.2"/>
+                    <path d="M 80 110 Q 68 78 58 50" fill="none" stroke="#14902F" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M 80 110 Q 92 78 102 50" fill="none" stroke="#14902F" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M 80 110 Q 80 78 80 40" fill="none" stroke="#14902F" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M 58 50 Q 30 42 28 72 Q 32 92 58 84 Q 68 70 64 48 Z" fill="url(#welcome-leaf)" stroke="#0B3A1A" stroke-width="1.8"/>
+                    <path d="M 58 50 Q 44 66 36 82" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.5"/>
+                    <ellipse cx="42" cy="72" rx="3" ry="4" fill="#0B3A1A"/>
+                    <path d="M 102 50 Q 130 42 132 72 Q 128 92 102 84 Q 92 70 96 48 Z" fill="url(#welcome-leaf)" stroke="#0B3A1A" stroke-width="1.8"/>
+                    <path d="M 102 50 Q 116 66 124 82" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.5"/>
+                    <ellipse cx="118" cy="72" rx="3" ry="4" fill="#0B3A1A"/>
+                    <path d="M 80 40 Q 62 20 80 10 Q 100 18 92 40 Q 86 46 80 40 Z" fill="url(#welcome-leaf-2)" stroke="#0B3A1A" stroke-width="1.8"/>
+                    <!-- Sparkles around the plant -->
+                    <circle cx="20" cy="30" r="2.5" fill="#FFB83D"/>
+                    <circle cx="140" cy="35" r="2.5" fill="#FFB83D"/>
+                    <circle cx="136" cy="82" r="2" fill="#FFB83D"/>
+                    <circle cx="24" cy="88" r="2" fill="#FFB83D"/>
+                    <circle cx="80" cy="4" r="2" fill="#FFB83D"/>
+                  </svg>
+                </div>
+
+                <h1 class="wiz-title">Let's set up your <em>garden</em>.</h1>
+                <p class="wiz-subtitle">We'll ask a few quick questions so we can calculate the perfect care schedule. Takes about a minute.</p>
+              </div>
+
+              <div class="wiz-footer">
+                <button class="btn-next">Let's begin</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <div class="phone-label"><span class="step-tag">01</span>Welcome</div>
+    </div>
+
+    <!-- STEP 2: ROOMS -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="screen">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="indicators">
+              <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor">
+                <rect x="0" y="6" width="3" height="5" rx="0.5"/>
+                <rect x="5" y="4" width="3" height="7" rx="0.5"/>
+                <rect x="10" y="2" width="3" height="9" rx="0.5"/>
+                <rect x="15" y="0" width="3" height="11" rx="0.5"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 10.5c0.6 0 1-0.4 1-1s-0.4-1-1-1-1 0.4-1 1 0.4 1 1 1z"/></svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+                <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+                <path d="M24 4V8" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
+
+          <div class="content">
+            <div class="wizard-card">
+              <div class="wiz-header">
+                <div class="progress-dots">
+                  <div class="dot done"></div>
+                  <div class="dot active"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                </div>
+                <div class="step-label">
+                  <span>Step 2 of 5</span>
+                  <span class="cancel">✕ Cancel</span>
+                </div>
+              </div>
+
+              <div class="wiz-body">
+                <h1 class="wiz-title">Where do your plants <em>live</em>?</h1>
+                <p class="wiz-subtitle">Pick every room that has plants. You can add more later.</p>
+
+                <div class="rooms-list">
+                  <div class="room-option selected">
+                    <div class="icon-tile">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 18V12C3 10 4 9 6 9H18C20 9 21 10 21 12V18M3 18H21M6 9V6C6 5 7 4 8 4H16C17 4 18 5 18 6V9"/>
+                      </svg>
+                    </div>
+                    <div class="r-name">Living room</div>
+                    <div class="check"></div>
+                  </div>
+                  <div class="room-option selected">
+                    <div class="icon-tile">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2V7M6 7C4 7 3 8 3 10V14M6 7H12M12 7V2M12 7C14 7 15 8 15 10V14M3 14H15M3 14V20C3 21 4 22 5 22H13C14 22 15 21 15 20V14M18 3V14"/>
+                      </svg>
+                    </div>
+                    <div class="r-name">Kitchen</div>
+                    <div class="check"></div>
+                  </div>
+                  <div class="room-option selected">
+                    <div class="icon-tile">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 14V19M22 14V19M2 17H22M4 14C4 11 5 10 7 10H17C19 10 20 11 20 14M6 10V7C6 6 7 5 8 5H16C17 5 18 6 18 7V10"/>
+                      </svg>
+                    </div>
+                    <div class="r-name">Bedroom</div>
+                    <div class="check"></div>
+                  </div>
+                  <div class="room-option">
+                    <div class="icon-tile">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 12H20V16C20 18 18 20 16 20H8C6 20 4 18 4 16V12ZM4 12V6C4 5 5 4 6 4C7 4 8 5 8 6V8M16 8H10"/>
+                      </svg>
+                    </div>
+                    <div class="r-name">Bathroom</div>
+                    <div class="check"></div>
+                  </div>
+                  <div class="room-option">
+                    <div class="icon-tile">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="14" rx="2"/>
+                        <path d="M8 4V2M16 4V2M3 10H21"/>
+                      </svg>
+                    </div>
+                    <div class="r-name">Office</div>
+                    <div class="check"></div>
+                  </div>
+                  <div class="add-custom-row">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 5V19M5 12H19"/>
+                    </svg>
+                    Add a custom room
+                  </div>
+                </div>
+              </div>
+
+              <div class="wiz-footer">
+                <button class="btn-back">Back</button>
+                <button class="btn-next">Continue</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <div class="phone-label"><span class="step-tag">02</span>Rooms</div>
+    </div>
+
+    <!-- STEP 3: FIRST PLANT -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="screen">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="indicators">
+              <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor">
+                <rect x="0" y="6" width="3" height="5" rx="0.5"/>
+                <rect x="5" y="4" width="3" height="7" rx="0.5"/>
+                <rect x="10" y="2" width="3" height="9" rx="0.5"/>
+                <rect x="15" y="0" width="3" height="11" rx="0.5"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 10.5c0.6 0 1-0.4 1-1s-0.4-1-1-1-1 0.4-1 1 0.4 1 1 1z"/></svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+                <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+                <path d="M24 4V8" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
+
+          <div class="content">
+            <div class="wizard-card">
+              <div class="wiz-header">
+                <div class="progress-dots">
+                  <div class="dot done"></div>
+                  <div class="dot done"></div>
+                  <div class="dot active"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                </div>
+                <div class="step-label">
+                  <span>Step 3 of 5</span>
+                  <span class="cancel">✕ Cancel</span>
+                </div>
+              </div>
+
+              <div class="wiz-body">
+                <h1 class="wiz-title">Meet your <em>first plant</em>.</h1>
+                <p class="wiz-subtitle">Or skip — you can add plants anytime from the Add button.</p>
+
+                <div class="plant-selected">
+                  <svg class="species-thumb" viewBox="0 0 100 120">
+                    <defs>
+                      <linearGradient id="mini-monst" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#7BE090"/>
+                        <stop offset="100%" stop-color="#14902F"/>
+                      </linearGradient>
+                    </defs>
+                    <ellipse cx="50" cy="114" rx="22" ry="3" fill="#000" opacity="0.25"/>
+                    <path d="M 32 90 L 26 114 L 74 114 L 68 90 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1.5"/>
+                    <ellipse cx="50" cy="90" rx="18" ry="3" fill="#86DB65" stroke="#0B3A1A" stroke-width="1.5"/>
+                    <path d="M 50 90 Q 40 65 30 40" fill="none" stroke="#14902F" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M 50 90 Q 60 65 70 40" fill="none" stroke="#14902F" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M 50 90 Q 50 65 50 35" fill="none" stroke="#14902F" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M 30 40 Q 12 32 12 60 Q 16 76 34 72 Q 44 60 40 38 Z" fill="url(#mini-monst)" stroke="#0B3A1A" stroke-width="1.3"/>
+                    <ellipse cx="20" cy="58" rx="2.5" ry="3" fill="#0B3A1A"/>
+                    <path d="M 70 40 Q 88 32 88 60 Q 84 76 66 72 Q 56 60 60 38 Z" fill="url(#mini-monst)" stroke="#0B3A1A" stroke-width="1.3"/>
+                    <ellipse cx="80" cy="58" rx="2.5" ry="3" fill="#0B3A1A"/>
+                    <path d="M 50 35 Q 38 18 54 10 Q 68 16 62 34 Z" fill="#86DB65" stroke="#0B3A1A" stroke-width="1.3"/>
+                  </svg>
+
+                  <div class="species-label">Species selected</div>
+                  <h4>Monstera Deliciosa</h4>
+                  <div class="sci-name">Swiss cheese plant</div>
+                  <div class="plant-meta">
+                    <div class="meta-pill">🎭 Dramatic</div>
+                    <div class="meta-pill">Easy</div>
+                  </div>
+                </div>
+
+                <div class="nickname-block">
+                  <div class="nickname-label">What should we call them?</div>
+                  <input class="nickname-input" value="Monty" />
+                  <div class="nickname-hint">Nice choice. I already like Monty.</div>
+                </div>
+              </div>
+
+              <div class="wiz-footer">
+                <button class="btn-back">Back</button>
+                <button class="btn-next">Continue</button>
+              </div>
+
+              <div class="btn-skip">
+                Prefer to do this later?<a>Skip for now</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <div class="phone-label"><span class="step-tag">03</span>First plant</div>
+    </div>
+
+    <!-- STEP 4: ENVIRONMENT -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="screen">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="indicators">
+              <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor">
+                <rect x="0" y="6" width="3" height="5" rx="0.5"/>
+                <rect x="5" y="4" width="3" height="7" rx="0.5"/>
+                <rect x="10" y="2" width="3" height="9" rx="0.5"/>
+                <rect x="15" y="0" width="3" height="11" rx="0.5"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 10.5c0.6 0 1-0.4 1-1s-0.4-1-1-1-1 0.4-1 1 0.4 1 1 1z"/></svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+                <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+                <path d="M24 4V8" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
+
+          <div class="content">
+            <div class="wizard-card">
+              <div class="wiz-header">
+                <div class="progress-dots">
+                  <div class="dot done"></div>
+                  <div class="dot done"></div>
+                  <div class="dot done"></div>
+                  <div class="dot active"></div>
+                  <div class="dot"></div>
+                </div>
+                <div class="step-label">
+                  <span>Step 4 of 5</span>
+                  <span class="cancel">✕ Cancel</span>
+                </div>
+              </div>
+
+              <div class="wiz-body">
+                <h1 class="wiz-title">Tell me about <em>Monty's spot</em>.</h1>
+                <p class="wiz-subtitle">I'll calculate the perfect care schedule based on the environment.</p>
+
+                <div class="env-block">
+                  <div class="env-question">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="4"/>
+                      <path d="M12 2V4M12 20V22M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12H4M20 12H22M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+                    </svg>
+                    Light
+                  </div>
+                  <div class="segmented">
+                    <button class="segmented-btn">Low</button>
+                    <button class="segmented-btn active">Medium</button>
+                    <button class="segmented-btn">Bright</button>
+                  </div>
+                </div>
+
+                <div class="env-block">
+                  <div class="env-question">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 4V14.5a4 4 0 1 1-4 0V4a2 2 0 1 1 4 0Z"/>
+                    </svg>
+                    Temperature
+                  </div>
+                  <div class="segmented">
+                    <button class="segmented-btn">Cool</button>
+                    <button class="segmented-btn active">Average</button>
+                    <button class="segmented-btn">Warm</button>
+                  </div>
+                </div>
+
+                <div class="env-block">
+                  <div class="env-question">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z"/>
+                    </svg>
+                    Humidity
+                  </div>
+                  <div class="segmented">
+                    <button class="segmented-btn">Dry</button>
+                    <button class="segmented-btn">Average</button>
+                    <button class="segmented-btn active">Humid</button>
+                  </div>
+                </div>
+
+                <p class="env-note">Not sure? You can update these anytime.</p>
+              </div>
+
+              <div class="wiz-footer">
+                <button class="btn-back">Back</button>
+                <button class="btn-next">Continue</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <div class="phone-label"><span class="step-tag">04</span>Environment</div>
+    </div>
+
+    <!-- STEP 5: DONE -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="screen">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="indicators">
+              <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor">
+                <rect x="0" y="6" width="3" height="5" rx="0.5"/>
+                <rect x="5" y="4" width="3" height="7" rx="0.5"/>
+                <rect x="10" y="2" width="3" height="9" rx="0.5"/>
+                <rect x="15" y="0" width="3" height="11" rx="0.5"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 10.5c0.6 0 1-0.4 1-1s-0.4-1-1-1-1 0.4-1 1 0.4 1 1 1z"/></svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+                <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+                <path d="M24 4V8" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
+
+          <div class="content">
+            <div class="wizard-card">
+              <div class="wiz-header">
+                <div class="progress-dots">
+                  <div class="dot done"></div>
+                  <div class="dot done"></div>
+                  <div class="dot done"></div>
+                  <div class="dot done"></div>
+                  <div class="dot done"></div>
+                </div>
+                <div class="step-label">
+                  <span>All set!</span>
+                </div>
+              </div>
+
+              <div class="wiz-body">
+                <div class="done-illu">
+                  <div class="sparkle sp-1"></div>
+                  <div class="sparkle sp-2"></div>
+                  <div class="sparkle sp-3"></div>
+                  <div class="sparkle sp-4"></div>
+                  <div class="sparkle sp-5"></div>
+                  <svg width="150" height="170" viewBox="0 0 150 170">
+                    <defs>
+                      <linearGradient id="done-leaf" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#9FEB7A"/>
+                        <stop offset="100%" stop-color="#1FA03D"/>
+                      </linearGradient>
+                      <linearGradient id="done-leaf-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#BEF08A"/>
+                        <stop offset="100%" stop-color="#52D05A"/>
+                      </linearGradient>
+                    </defs>
+                    <ellipse cx="75" cy="162" rx="34" ry="5" fill="#000" opacity="0.2"/>
+                    <path d="M 50 120 L 44 162 L 106 162 L 100 120 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="2"/>
+                    <ellipse cx="75" cy="120" rx="25" ry="4" fill="#86DB65" stroke="#0B3A1A" stroke-width="2"/>
+                    <!-- Upright perky stems -->
+                    <path d="M 75 120 Q 65 80 50 45" fill="none" stroke="#1FA03D" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M 75 120 Q 85 80 100 45" fill="none" stroke="#1FA03D" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M 75 120 Q 75 75 75 30" fill="none" stroke="#1FA03D" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M 50 45 Q 22 30 14 60 Q 18 82 48 76 Q 60 60 58 42 Z" fill="url(#done-leaf)" stroke="#0B3A1A" stroke-width="1.8"/>
+                    <ellipse cx="30" cy="60" rx="3" ry="4" fill="#0B3A1A"/>
+                    <path d="M 100 45 Q 128 30 136 60 Q 132 82 102 76 Q 90 60 92 42 Z" fill="url(#done-leaf)" stroke="#0B3A1A" stroke-width="1.8"/>
+                    <ellipse cx="120" cy="60" rx="3" ry="4" fill="#0B3A1A"/>
+                    <path d="M 75 30 Q 55 8 80 2 Q 100 10 92 30 Z" fill="url(#done-leaf-2)" stroke="#0B3A1A" stroke-width="1.8"/>
+                  </svg>
+                </div>
+
+                <h1 class="wiz-title">You're <em>all set</em>, Robert.</h1>
+
+                <div class="speech-card">
+                  <div class="sp-label">🎭 MONTY</div>
+                  <p class="sp-quote">Oh thank god. I thought I'd been abandoned in the shop.</p>
+                </div>
+
+                <button class="btn-enter">Enter your jungle</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <div class="phone-label"><span class="step-tag">05</span>Done</div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <h3>Wizard <em>decisions</em></h3>
+    <div class="notes-grid">
+      <div class="note">
+        <h4>Same container as auth</h4>
+        <p>The wizard card reuses the login/register container exactly — same radius, shadow, padding, gradient background. The user crosses from register → wizard without any visual disruption.</p>
+      </div>
+      <div class="note">
+        <h4>Progress as bars, not dots</h4>
+        <p>5 horizontal bars at the top of the card fill in as you progress. The <strong>active</strong> bar gets a green glow halo; <strong>done</strong> bars are solid leaf; pending bars are mint. More scannable than numbered dots.</p>
+      </div>
+      <div class="note">
+        <h4>Skip on step 3 only</h4>
+        <p>"Add your first plant" is the only optional step. Skip jumps straight to step 5 (no environment questions). If skipped, the Today screen lands with a gentle <strong>empty state</strong> pointing at the FAB.</p>
+      </div>
+      <div class="note">
+        <h4>Rooms: preset + custom</h4>
+        <p>Six common rooms pre-populate (Living / Kitchen / Bedroom / Bathroom / Office / Hallway). User checks the ones they have and can <strong>add custom rooms</strong> via a dashed "+" row. Must pick at least one to continue.</p>
+      </div>
+      <div class="note">
+        <h4>Environment as segmented</h4>
+        <p>Three segmented control groups stacked in one step — Light / Temperature / Humidity. Three options each, pre-default to middle. Faster than paging through three sub-questions. Note about "update anytime" reduces commitment anxiety.</p>
+      </div>
+      <div class="note">
+        <h4>Fraunces in the done speech</h4>
+        <p>Monty's first voice line uses <strong>Fraunces italic 16px</strong> for impact. It's the payoff moment of the whole signup flow — the user meets their plant. Worth the typographic gravity.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

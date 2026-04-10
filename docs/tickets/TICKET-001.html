@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-001: Install Dependencies + Design Tokens</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #f5f5f0;
+  color: #1a1a1a;
+  padding: 40px;
+  line-height: 1.6;
+}
+.ticket {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 32px 40px;
+}
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #666;
+  margin-bottom: 16px;
+}
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 8px; font-size: 15px; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box {
+  width: 18px; height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.criterion span { font-size: 15px; }
+blockquote {
+  border-left: 3px solid #2d6a4f;
+  padding: 12px 16px;
+  margin: 12px 0;
+  background: #f8faf8;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  color: #444;
+}
+code {
+  background: #f0f0ea;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+pre {
+  background: #1a1a2e;
+  color: #d4d4d4;
+  padding: 16px 20px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 12px 0;
+}
+pre code { background: none; padding: 0; color: inherit; }
+.file-list { list-style: none; padding: 0; }
+.file-list li {
+  padding: 8px 12px;
+  background: #f8f8f5;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}
+.file-list .action {
+  font-family: -apple-system, sans-serif;
+  font-size: 11px;
+  color: #888;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.token-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+.token {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #f8f8f5;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: 'SF Mono', Consolas, monospace;
+}
+.token .swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.08);
+  flex-shrink: 0;
+}
+.spec-ref {
+  background: #f8faf8;
+  border: 1px solid #e0e8e0;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 12px 0;
+}
+.spec-ref .ref-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #2d6a4f;
+  margin-bottom: 8px;
+}
+.spec-ref p { font-size: 14px; color: #444; margin-bottom: 8px; }
+.spec-ref p:last-child { margin-bottom: 0; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th { text-align: left; padding: 8px 12px; background: #f5f5f0; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #666; }
+td { padding: 8px 12px; border-top: 1px solid #eee; }
+td code { font-size: 12px; }
+.plan-ref {
+  background: #f5f5f0;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 12px 0;
+}
+.plan-ref .ref-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #666;
+  margin-bottom: 8px;
+}
+.plan-ref ol { font-size: 14px; color: #444; }
+.note-box {
+  background: #fffbeb;
+  border: 1px solid #f0e6c0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #7a6520;
+}
+.note-box strong { color: #5a4a10; }
+</style>
+</head>
+<body>
+
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-001</div>
+    <h1>Install Dependencies + Design Tokens</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High Priority</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Install the frontend dependencies needed for the PlantCare design system (Framer Motion, Vaul, Fontsource fonts, driver.js) and configure the full Tailwind 4 theme with CSS custom properties matching the design spec. This is the foundation — every other ticket depends on these tokens and fonts being available.</p>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li>Install npm packages inside Docker: <code>motion</code>, <code>vaul</code>, <code>@fontsource/plus-jakarta-sans</code>, <code>@fontsource/fraunces</code>, <code>driver.js</code></li>
+      <li>Rewrite <code>client/src/index.css</code> with Tailwind 4 <code>@theme</code> directive defining all palette colours, font families, corner radii, and shadow tokens</li>
+      <li>Add <code>:root</code> CSS custom properties for direct <code>var()</code> access — gradient tokens (<code>--gradient-mint</code>, <code>--gradient-forest</code>), composite shadows (<code>--shadow-fab</code>, <code>--shadow-dock</code>)</li>
+      <li>Import all required font weights via <code>@fontsource</code>: Plus Jakarta Sans (300, 400, 500, 600, 700, 800 + 500i, 700i) and Fraunces (400, 500, 600, 800 + all italic)</li>
+      <li>Set <code>body</code> background to the mint gradient (<code>var(--gradient-mint)</code>)</li>
+      <li>Configure root element with Plus Jakarta Sans as default font family, optimised text rendering, and full-height flex column</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance Criteria</h2>
+    <div class="criterion"><div class="box"></div><span><code>docker compose exec client npm ls motion vaul driver.js</code> shows all packages installed without errors</span></div>
+    <div class="criterion"><div class="box"></div><span>Plus Jakarta Sans renders at 800 weight in the browser (visually distinct from system sans-serif)</span></div>
+    <div class="criterion"><div class="box"></div><span>Fraunces renders at 800 italic weight in the browser (visually distinct serif italic)</span></div>
+    <div class="criterion"><div class="box"></div><span>Tailwind utility classes work with design tokens: <code>bg-leaf</code>, <code>text-ink-soft</code>, <code>rounded-2xl</code>, <code>shadow-sm</code> produce correct styles</span></div>
+    <div class="criterion"><div class="box"></div><span>CSS variables accessible: <code>var(--leaf)</code> resolves to <code>#32C456</code>, <code>var(--gradient-mint)</code> produces the vertical gradient</span></div>
+    <div class="criterion"><div class="box"></div><span>Browser at <code>http://localhost:5173</code> shows the mint gradient background (not solid white)</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> passes with zero errors</span></div>
+  </section>
+
+  <section>
+    <h2>Design References</h2>
+
+    <div class="spec-ref">
+      <div class="ref-label">Design Spec §3.2 — Colour Palette</div>
+      <p>All colours as CSS custom properties. Use the named tokens, not the hex values, in implementation.</p>
+    </div>
+
+    <div class="token-grid">
+      <div class="token"><div class="swatch" style="background:#F6FBF4"></div><code>--base</code> #F6FBF4</div>
+      <div class="token"><div class="swatch" style="background:#DFF2E2"></div><code>--mint</code> #DFF2E2</div>
+      <div class="token"><div class="swatch" style="background:#86DB65"></div><code>--lime</code> #86DB65</div>
+      <div class="token"><div class="swatch" style="background:#32C456"></div><code>--leaf</code> #32C456</div>
+      <div class="token"><div class="swatch" style="background:#14902F"></div><code>--emerald</code> #14902F</div>
+      <div class="token"><div class="swatch" style="background:#0B3A1A"></div><code>--forest</code> #0B3A1A</div>
+      <div class="token"><div class="swatch" style="background:#124626"></div><code>--forest-2</code> #124626</div>
+      <div class="token"><div class="swatch" style="background:#0A1D0E"></div><code>--ink</code> #0A1D0E</div>
+      <div class="token"><div class="swatch" style="background:#4A6A51"></div><code>--ink-soft</code> #4A6A51</div>
+      <div class="token"><div class="swatch" style="background:#FF6B3D"></div><code>--coral</code> #FF6B3D</div>
+      <div class="token"><div class="swatch" style="background:#FFB83D"></div><code>--sunshine</code> #FFB83D</div>
+      <div class="token"><div class="swatch" style="background:#FFFFFF; border: 1px solid #ddd"></div><code>--card</code> #FFFFFF</div>
+    </div>
+
+    <div class="spec-ref">
+      <div class="ref-label">Design Spec §3.3 — Typography</div>
+      <p><strong>Plus Jakarta Sans</strong> — primary UI typeface. Weights: 300, 400, 500, 600, 700, 800. Lean bold — 700 and 800 are default for most text.</p>
+      <p><strong>Fraunces</strong> — editorial display serif with beautiful italic. Desktop page titles and hero speech quotes only. NOT mobile body. Weights: 400, 500, 600, 800 with italic.</p>
+    </div>
+
+    <div class="spec-ref">
+      <div class="ref-label">Design Spec §3.4 — Corner Radii</div>
+      <table>
+        <tr><th>Token</th><th>Value</th><th>Use</th></tr>
+        <tr><td><code>--radius-sm</code></td><td>6px</td><td>Small chips, keyboard keys</td></tr>
+        <tr><td><code>--radius-md</code></td><td>12px</td><td>Task icon tiles, small cards</td></tr>
+        <tr><td><code>--radius-lg</code></td><td>18px</td><td>Task rows, content cards</td></tr>
+        <tr><td><code>--radius-xl</code></td><td>22px</td><td>Plant avatars, medium cards</td></tr>
+        <tr><td><code>--radius-2xl</code></td><td>28px</td><td>Hero card, since ribbon</td></tr>
+        <tr><td><code>--radius-3xl</code></td><td>37px</td><td>Mobile dock pill</td></tr>
+        <tr><td><code>--radius-full</code></td><td>100px</td><td>Pills, badges, buttons</td></tr>
+      </table>
+    </div>
+
+    <div class="spec-ref">
+      <div class="ref-label">Design Spec §3.5 — Shadows</div>
+      <p>All shadows use the forest green tint (<code>rgba(11,58,26,*)</code>) rather than pure black for a warmer result.</p>
+      <table>
+        <tr><th>Token</th><th>Definition</th></tr>
+        <tr><td><code>--shadow-sm</code></td><td><code>0 2px 8px rgba(11,58,26,0.06)</code></td></tr>
+        <tr><td><code>--shadow-md</code></td><td><code>0 10px 30px rgba(11,58,26,0.10)</code></td></tr>
+        <tr><td><code>--shadow-lg</code></td><td><code>0 24px 60px rgba(11,58,26,0.14)</code></td></tr>
+        <tr><td><code>--shadow-xl</code></td><td><code>0 40px 100px -20px rgba(11,58,26,0.30)</code></td></tr>
+      </table>
+    </div>
+
+    <div class="spec-ref">
+      <div class="ref-label">Design Spec §3.6 — Gradient Background</div>
+      <p>All authenticated screens use the mint gradient as the screen background:</p>
+      <pre><code>background: linear-gradient(180deg, #F6FBF4 0%, #DFF2E2 50%, #C7ECCA 100%);</code></pre>
+      <p>Content cards are white with mint borders, floating on the gradient.</p>
+    </div>
+
+    <div class="plan-ref">
+      <div class="ref-label">Implementation Plan — Task 1 Steps</div>
+      <ol>
+        <li><strong>Step 1.1</strong> — <code>docker compose exec client npm install motion vaul @fontsource/plus-jakarta-sans @fontsource/fraunces driver.js</code></li>
+        <li><strong>Step 1.2</strong> — Rewrite <code>index.css</code> with full Tailwind 4 <code>@theme</code> block + <code>:root</code> variables (see plan for complete CSS)</li>
+        <li><strong>Step 1.3</strong> — Temporarily update <code>App.jsx</code> to render both fonts for visual verification</li>
+        <li><strong>Step 1.4</strong> — Start dev server, visually confirm fonts at <code>http://localhost:5173</code></li>
+        <li><strong>Step 1.5</strong> — Run <code>./scripts/lint.sh</code> to confirm clean</li>
+        <li><strong>Step 1.6</strong> — Commit with descriptive message</li>
+      </ol>
+    </div>
+
+    <div class="note-box">
+      <strong>Tailwind 4 note:</strong> Tailwind CSS 4 uses the <code>@theme</code> directive inside CSS files instead of a <code>tailwind.config.js</code> file. Tokens defined in <code>@theme</code> become Tailwind utility classes automatically (e.g. <code>--color-leaf</code> → <code>bg-leaf</code>, <code>text-leaf</code>).
+    </div>
+  </section>
+
+  <section>
+    <h2>Related Files</h2>
+    <ul class="file-list">
+      <li><span>client/src/index.css</span><span class="action">rewrite</span></li>
+      <li><span>client/package.json</span><span class="action">modify</span></li>
+      <li><span>client/package-lock.json</span><span class="action">auto-generated</span></li>
+      <li><span>client/src/App.jsx</span><span class="action">temp modify for font verification</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Notes</h2>
+    <ul>
+      <li>The plan includes the <strong>complete CSS</strong> for <code>index.css</code> in Step 1.2 — use it as the reference, not the spec (the plan translates spec tokens into Tailwind 4 syntax).</li>
+      <li>Font imports use <code>@fontsource</code> packages (self-hosted) not Google Fonts CDN — better for privacy and offline dev.</li>
+      <li>The temporary <code>App.jsx</code> font check in Step 1.3 gets reverted in Task 4 when the real router is set up. Don't worry about it being "wrong" — it's a verification step.</li>
+      <li>Coral (<code>--coral: #FF6B3D</code>) is reserved for urgency/alerts only. Never decorative. This is a design rule to follow in all future tickets.</li>
+      <li>All npm commands run inside Docker: <code>docker compose exec client npm ...</code></li>
+    </ul>
+  </section>
+
+</div>
+
+</body>
+</html>

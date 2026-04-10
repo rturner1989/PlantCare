@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare v6 — Fixed hero + plant states</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --base: #F6FBF4;
+    --mint: #DFF2E2;
+    --lime: #86DB65;
+    --leaf: #32C456;
+    --emerald: #14902F;
+    --forest: #0B3A1A;
+    --forest-2: #124626;
+    --ink: #0A1D0E;
+    --ink-soft: #4A6A51;
+    --coral: #FF6B3D;
+    --sunshine: #FFB83D;
+    --card: #FFFFFF;
+    --shadow-sm: 0 2px 8px rgba(11,58,26,0.06);
+    --shadow-md: 0 10px 30px rgba(11,58,26,0.10);
+    --shadow-lg: 0 24px 60px rgba(11,58,26,0.14);
+    --shadow-xl: 0 40px 100px -20px rgba(11,58,26,0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--base);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage { min-height: 100vh; padding: 56px 40px 80px; }
+
+  .masthead { text-align: center; max-width: 860px; margin: 0 auto 50px; }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--emerald);
+    background: var(--mint); padding: 8px 16px; border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .kicker .dot { width: 8px; height: 8px; background: var(--leaf); border-radius: 50%; }
+  .headline {
+    font-size: 50px; font-weight: 800; line-height: 1.03;
+    letter-spacing: -0.035em; color: var(--ink); margin-bottom: 14px;
+  }
+  .headline em {
+    font-style: normal; color: var(--leaf);
+    position: relative; display: inline-block;
+  }
+  .headline em::after {
+    content: ''; position: absolute;
+    left: -2%; right: -2%; bottom: 5px;
+    height: 13px; background: var(--lime);
+    z-index: -1; border-radius: 4px;
+    transform: skew(-6deg);
+  }
+  .lede {
+    font-size: 16px; font-weight: 400; color: var(--ink-soft);
+    max-width: 620px; margin: 0 auto; line-height: 1.55;
+  }
+
+  .phone-row {
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: 46px; flex-wrap: wrap; margin-bottom: 60px;
+  }
+  .phone {
+    width: 340px; background: var(--base);
+    border-radius: 44px; padding: 10px;
+    box-shadow: var(--shadow-xl); position: relative;
+  }
+  .phone-inner {
+    background: var(--card); border-radius: 36px;
+    padding: 20px 20px 110px; position: relative;
+    overflow: hidden; min-height: 760px;
+  }
+  .notch {
+    position: absolute; top: 12px; left: 50%;
+    transform: translateX(-50%);
+    width: 110px; height: 22px; background: var(--ink);
+    border-radius: 100px; z-index: 20;
+  }
+  .status-bar {
+    display: flex; justify-content: space-between;
+    padding: 8px 14px 20px; font-size: 12px; font-weight: 700; color: var(--ink);
+  }
+
+  /* Header */
+  .today-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 16px; padding: 0 4px;
+  }
+  .today-header .greet { font-size: 13px; color: var(--ink-soft); font-weight: 500; margin-bottom: 4px; }
+  .today-header .name {
+    font-size: 26px; font-weight: 800; color: var(--ink);
+    letter-spacing: -0.025em; line-height: 1.05;
+  }
+  .today-header .name span { color: var(--leaf); }
+  .avatar {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--lime), var(--leaf));
+    border: 3px solid var(--card); box-shadow: var(--shadow-sm);
+    position: relative; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--forest); font-weight: 800;
+  }
+  .avatar .bell {
+    position: absolute; top: -3px; right: -3px;
+    width: 14px; height: 14px; background: var(--coral);
+    border-radius: 50%; border: 2px solid var(--card);
+  }
+
+  .since-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; background: var(--mint);
+    border-radius: 14px; margin-bottom: 24px;
+  }
+  .since-card .time-pill {
+    background: var(--forest); color: var(--lime);
+    padding: 5px 9px; border-radius: 100px;
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .since-card .text {
+    font-size: 12px; color: var(--ink);
+    font-weight: 600; line-height: 1.35;
+  }
+  .since-card .text strong { color: var(--coral); font-weight: 800; }
+
+  /* ================================ */
+  /* HERO — FIXED LAYOUT              */
+  /* ================================ */
+  .hero {
+    background: var(--forest);
+    border-radius: 26px;
+    padding: 22px 22px 22px;
+    color: var(--card);
+    position: relative;
+    margin: 70px 0 26px;
+    min-height: 210px;
+    overflow: visible;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 30% 90%, rgba(255,107,61,0.25) 0%, transparent 55%),
+      radial-gradient(circle at 80% 10%, rgba(134,219,101,0.14) 0%, transparent 50%);
+    border-radius: 26px; pointer-events: none;
+  }
+
+  /* Plant POPS out the top-right, overlapping card by ~26px */
+  .hero-plant {
+    position: absolute;
+    bottom: calc(100% - 28px);
+    right: 12px;
+    width: 140px;
+    height: 180px;
+    z-index: 3;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.35));
+  }
+  .hero-plant svg { display: block; width: 100%; height: 100%; }
+
+  /* Gentle wilt animation for the dramatic state */
+  @keyframes gentle-wilt {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-1.2deg); }
+  }
+  .hero-plant.wilting { animation: gentle-wilt 4s ease-in-out infinite; transform-origin: bottom center; }
+
+  /* Text constrained so it never meets the plant */
+  .hero-body {
+    position: relative;
+    max-width: 190px;
+  }
+
+  .hero h3 {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--lime);
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .hero .speech-quote {
+    font-size: 17px;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1.3;
+    color: var(--card);
+    margin-bottom: 14px;
+    letter-spacing: -0.015em;
+    position: relative;
+    padding-left: 12px;
+    border-left: 3px solid var(--coral);
+  }
+
+  .hero-meta {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: rgba(255,255,255,0.65);
+    font-weight: 600; margin-bottom: 16px; position: relative;
+    flex-wrap: wrap;
+  }
+  .hero-meta .sep { opacity: 0.35; }
+  .hero-meta .overdue-pill {
+    background: rgba(255,107,61,0.22);
+    color: #FFB09A;
+    padding: 3px 8px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--lime); color: var(--forest);
+    padding: 12px 18px; border-radius: 100px;
+    font-size: 13px; font-weight: 800; letter-spacing: -0.01em;
+    position: relative;
+  }
+  .hero-cta::after { content: '→'; font-weight: 800; }
+
+  /* Task list */
+  .today-tasks-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 12px; padding: 0 4px;
+  }
+  .today-tasks-head h4 {
+    font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink);
+  }
+  .today-tasks-head .progress {
+    font-size: 11px; font-weight: 700; color: var(--ink-soft);
+  }
+  .today-tasks-head .progress strong { color: var(--leaf); }
+
+  .p-task {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px; background: var(--card);
+    border: 1px solid var(--mint); border-radius: 18px;
+    margin-bottom: 10px; position: relative;
+  }
+  .p-task.done { background: #F7FDF4; opacity: 0.75; }
+  .p-task.overdue { border-color: rgba(255,107,61,0.3); background: #FFF8F5; }
+
+  .p-task .plant-av {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--mint), var(--lime));
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; overflow: hidden;
+    position: relative;
+    border: 2px solid var(--card);
+    box-shadow: 0 2px 6px rgba(11,58,26,0.12);
+  }
+  .p-task .plant-av svg { display: block; width: 100%; height: 100%; }
+
+  .p-task .p-body { flex: 1; min-width: 0; }
+  .p-task .p-name {
+    font-size: 13px; font-weight: 800; color: var(--ink);
+    letter-spacing: -0.01em; margin-bottom: 2px;
+  }
+  .p-task .p-voice {
+    font-size: 12px; font-style: italic; color: var(--ink-soft);
+    font-weight: 500; line-height: 1.3; margin-bottom: 4px;
+  }
+  .p-task.done .p-voice { text-decoration: line-through; }
+  .p-task .p-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 9px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .p-task .p-tag.water { color: var(--emerald); }
+  .p-task .p-tag.overdue { color: var(--coral); }
+  .p-task .p-tag.mist { color: #2A9FB5; }
+
+  .p-task .check-btn {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid var(--mint);
+    background: var(--card);
+    flex-shrink: 0;
+    margin-top: 3px;
+    position: relative;
+  }
+  .p-task.done .check-btn {
+    background: var(--leaf); border-color: var(--leaf);
+  }
+  .p-task.done .check-btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M5 12.5 L10 17.5 L19 7.5' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/15px no-repeat;
+  }
+  /* Swipe hint */
+  .p-task.overdue::after {
+    content: '← swipe';
+    position: absolute;
+    right: 12px;
+    bottom: 6px;
+    font-size: 8px;
+    font-weight: 700;
+    color: var(--coral);
+    opacity: 0.6;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Dock */
+  .dock-wrap {
+    position: absolute; bottom: 16px; left: 12px; right: 12px;
+    height: 68px;
+  }
+  .dock {
+    position: absolute; inset: 0;
+    background: var(--card); border-radius: 34px;
+    box-shadow:
+      0 -1px 0 rgba(11,58,26,0.04) inset,
+      0 12px 32px rgba(11,58,26,0.12),
+      0 4px 12px rgba(11,58,26,0.06);
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 0 10px;
+  }
+  .dock-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: var(--ink-soft); position: relative; cursor: pointer;
+    width: 54px; padding-top: 2px;
+  }
+  .dock-item svg { display: block; }
+  .dock-item .dock-label {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .dock-item.active { color: var(--forest); }
+  .dock-gap { width: 56px; flex-shrink: 0; }
+
+  .fab {
+    position: absolute; top: -14px; left: 50%;
+    transform: translateX(-50%);
+    width: 54px; height: 54px;
+    background: linear-gradient(135deg, var(--leaf), var(--emerald));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--card);
+    box-shadow:
+      0 0 0 4px var(--card),
+      0 8px 20px rgba(20,144,47,0.4),
+      0 3px 8px rgba(11,58,26,0.2);
+    z-index: 4;
+  }
+  .fab svg { display: block; }
+
+  /* =============================== */
+  /* PLANT STATE PROGRESSION         */
+  /* =============================== */
+  .states-block {
+    max-width: 1100px; margin: 0 auto 50px;
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 28px;
+    padding: 40px 44px;
+    box-shadow: var(--shadow-md);
+  }
+  .states-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 26px;
+  }
+  .states-head h3 {
+    font-size: 24px; font-weight: 800;
+    letter-spacing: -0.025em; color: var(--ink);
+  }
+  .states-head h3 em { font-style: normal; color: var(--leaf); }
+  .states-head .meta {
+    font-size: 11px; font-weight: 700; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .states-intro {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    margin-bottom: 28px;
+    max-width: 720px;
+  }
+  .states-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+  }
+  .state-card {
+    background: var(--base);
+    border: 1px solid var(--mint);
+    border-radius: 18px;
+    padding: 20px 16px 18px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .state-card.parched { border-color: rgba(255,107,61,0.4); background: #FFF8F5; }
+  .state-card.thriving { border-color: var(--leaf); background: linear-gradient(180deg, #F4FDF0, #E8F8DC); }
+
+  .state-illustration {
+    height: 150px;
+    margin: 0 auto 12px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .state-illustration svg { display: block; }
+
+  .state-card .state-label {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--forest);
+    margin-bottom: 4px;
+  }
+  .state-card.parched .state-label { color: var(--coral); }
+  .state-card .state-range {
+    font-size: 10px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .state-card .state-quote {
+    font-size: 11px;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.35;
+    font-weight: 500;
+    min-height: 48px;
+  }
+
+  /* Sparkle + badge on thriving */
+  .sparkle-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 22px; height: 22px;
+    background: var(--leaf);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--card);
+    font-size: 12px;
+  }
+
+  /* =============================== */
+  /* INTERACTION FLOW                */
+  /* =============================== */
+  .flow-block {
+    max-width: 1100px; margin: 0 auto 50px;
+    background: linear-gradient(135deg, var(--forest), var(--forest-2));
+    border-radius: 28px;
+    padding: 40px 44px;
+    color: var(--card);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+  .flow-block::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 85% 20%, rgba(134,219,101,0.14) 0%, transparent 50%);
+  }
+  .flow-block h3 {
+    font-size: 24px; font-weight: 800;
+    letter-spacing: -0.025em;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .flow-block h3 em { font-style: normal; color: var(--leaf); }
+  .flow-block .flow-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 30px;
+    position: relative;
+    max-width: 680px;
+    line-height: 1.55;
+  }
+  .flow-diagram {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+  }
+  .flow-step {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 18px 14px 16px;
+    text-align: center;
+  }
+  .flow-step .icon-box {
+    width: 36px; height: 36px;
+    margin: 0 auto 10px;
+    background: var(--leaf);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--card);
+  }
+  .flow-step .label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 4px;
+  }
+  .flow-step h4 {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--card);
+    margin-bottom: 4px;
+    line-height: 1.25;
+  }
+  .flow-step p {
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.4;
+  }
+  .flow-arrow {
+    color: var(--lime);
+    font-size: 20px;
+    font-weight: 300;
+  }
+
+  /* Source badge examples */
+  .sources-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+  }
+  .source-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--card);
+  }
+  .source-chip .status {
+    font-size: 8px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 100px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .source-chip .status.mvp { background: var(--leaf); color: var(--forest); }
+  .source-chip .status.later { background: rgba(255,255,255,0.12); color: var(--lime); }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="masthead">
+    <div class="kicker"><span class="dot"></span>Direction · Take Seven</div>
+    <h1 class="headline">Fixed hero, <em>five states</em>.</h1>
+    <p class="lede">Hero plant no longer overlaps the text. Badge killed. And here's the full Tamagotchi decay progression — Monty at every state from thriving to parched.</p>
+  </div>
+
+  <div class="phone-row">
+
+    <!-- PHONE 1: Today (fixed) -->
+    <div class="phone">
+      <div class="phone-inner">
+        <div class="notch"></div>
+        <div class="status-bar">
+          <span>9:41</span>
+          <span>●●● ◐ ▮</span>
+        </div>
+
+        <div class="today-header">
+          <div>
+            <div class="greet">Good morning · Wed 9 April</div>
+            <div class="name">Hi, <span>Robert</span></div>
+          </div>
+          <div class="avatar">R<div class="bell"></div></div>
+        </div>
+
+        <div class="since-card">
+          <div class="time-pill">18h ago</div>
+          <div class="text">
+            <strong>3 things changed</strong> since you checked in —<br>Monty's mood dropped, Basil needs feeding
+          </div>
+        </div>
+
+        <div class="hero">
+          <!-- Plant pops ABOVE the card, small overlap -->
+          <div class="hero-plant wilting">
+            <svg viewBox="0 0 140 180">
+              <defs>
+                <linearGradient id="wilt-v6" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#5ED87A"/>
+                  <stop offset="100%" stop-color="#14902F"/>
+                </linearGradient>
+                <linearGradient id="wilt-v6-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#86DB65"/>
+                  <stop offset="100%" stop-color="#32C456"/>
+                </linearGradient>
+              </defs>
+              <ellipse cx="70" cy="172" rx="30" ry="4" fill="#000" opacity="0.25"/>
+              <!-- Pot (sits at the bottom of the SVG, overlapping card top) -->
+              <path d="M 44 140 L 38 172 L 102 172 L 96 140 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="2"/>
+              <ellipse cx="70" cy="140" rx="26" ry="5" fill="#86DB65" stroke="#0B3A1A" stroke-width="2"/>
+              <!-- Drooping stems -->
+              <path d="M 70 140 Q 78 115 90 95 Q 100 82 104 78" fill="none" stroke="#14902F" stroke-width="3" stroke-linecap="round"/>
+              <path d="M 70 140 Q 60 115 44 96 Q 32 85 26 80" fill="none" stroke="#14902F" stroke-width="3" stroke-linecap="round"/>
+              <path d="M 70 140 Q 68 115 62 90 Q 58 70 56 60" fill="none" stroke="#14902F" stroke-width="3" stroke-linecap="round"/>
+              <!-- Drooping leaves -->
+              <path d="M 104 78 Q 128 82 130 105 Q 126 122 104 118 Q 94 105 100 85 Z" fill="url(#wilt-v6)" stroke="#0B3A1A" stroke-width="1.5"/>
+              <path d="M 104 78 Q 118 95 128 110" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.55"/>
+              <ellipse cx="118" cy="100" rx="3" ry="4" fill="#0B3A1A"/>
+              <path d="M 26 80 Q 5 88 7 110 Q 16 128 38 118 Q 44 102 34 85 Z" fill="url(#wilt-v6)" stroke="#0B3A1A" stroke-width="1.5"/>
+              <path d="M 26 80 Q 18 100 14 115" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.55"/>
+              <ellipse cx="20" cy="108" rx="3" ry="4" fill="#0B3A1A"/>
+              <path d="M 56 60 Q 40 42 55 28 Q 76 25 82 50 Q 78 66 56 60 Z" fill="url(#wilt-v6-2)" stroke="#0B3A1A" stroke-width="1.5"/>
+              <path d="M 56 60 Q 66 42 76 32" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.55"/>
+              <ellipse cx="63" cy="44" rx="3" ry="4" fill="#0B3A1A"/>
+              <!-- Sad droplet -->
+              <g transform="translate(30 148)">
+                <path d="M 0 -5 Q -4 -1 -4 3 Q -4 7 0 7 Q 4 7 4 3 Q 4 -1 0 -5 Z" fill="#2A9FB5" opacity="0.7"/>
+              </g>
+            </svg>
+          </div>
+
+          <div class="hero-body">
+            <h3>Monty the Monstera</h3>
+            <p class="speech-quote">I'm wilting. This is, I fear, my villain origin story.</p>
+            <div class="hero-meta">
+              <span>Living room</span>
+              <span class="sep">·</span>
+              <span class="overdue-pill">8 days overdue</span>
+            </div>
+            <span class="hero-cta">Water Monty</span>
+          </div>
+        </div>
+
+        <div class="today-tasks-head">
+          <h4>Today's rituals</h4>
+          <div class="progress"><strong>1</strong> of 3 done</div>
+        </div>
+
+        <div class="p-task overdue">
+          <div class="plant-av">
+            <svg viewBox="0 0 42 42">
+              <path d="M 16 34 L 14 40 L 28 40 L 26 34 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1"/>
+              <path d="M 21 34 Q 19 18 12 8" fill="none" stroke="#14902F" stroke-width="2" stroke-linecap="round"/>
+              <path d="M 21 34 Q 23 18 30 8" fill="none" stroke="#14902F" stroke-width="2" stroke-linecap="round"/>
+              <path d="M 12 8 Q 4 6 4 16 Q 6 22 16 18 Q 20 12 12 8 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1"/>
+              <path d="M 30 8 Q 38 6 38 16 Q 36 22 26 18 Q 22 12 30 8 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="p-body">
+            <div class="p-name">Monty the Monstera</div>
+            <div class="p-voice">"Quickly! Time is a flat circle and I'm crumbling."</div>
+            <span class="p-tag overdue">💧 WATER · 8 DAYS OVERDUE</span>
+          </div>
+          <div class="check-btn"></div>
+        </div>
+
+        <div class="p-task">
+          <div class="plant-av">
+            <svg viewBox="0 0 42 42">
+              <path d="M 16 34 L 14 40 L 28 40 L 26 34 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1"/>
+              <path d="M 17 34 Q 16 8 21 5 Q 26 8 25 34" fill="#32C456" stroke="#0B3A1A" stroke-width="1.2"/>
+              <path d="M 17 22 Q 10 20 10 14 Q 10 10 14 10 L 14 20 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1.2"/>
+              <path d="M 25 24 Q 32 22 32 16 Q 32 12 28 12 L 28 22 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1.2"/>
+              <circle cx="21" cy="4" r="2.5" fill="#FFB83D"/>
+            </svg>
+          </div>
+          <div class="p-body">
+            <div class="p-name">Spike the Cactus</div>
+            <div class="p-voice">"I'm fine. I'm always fine. Don't ask."</div>
+            <span class="p-tag water">💧 WATER · DUE TODAY</span>
+          </div>
+          <div class="check-btn"></div>
+        </div>
+
+        <div class="p-task done">
+          <div class="plant-av">
+            <svg viewBox="0 0 42 42">
+              <path d="M 16 34 L 14 40 L 28 40 L 26 34 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1"/>
+              <path d="M 21 34 Q 15 20 10 12 Q 8 8 12 10 Q 18 18 21 28" fill="#5ED87A" stroke="#0B3A1A" stroke-width="1"/>
+              <path d="M 21 34 Q 27 20 32 12 Q 34 8 30 10 Q 24 18 21 28" fill="#5ED87A" stroke="#0B3A1A" stroke-width="1"/>
+              <path d="M 21 34 Q 21 18 21 6" fill="none" stroke="#14902F" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="p-body">
+            <div class="p-name">Fernie the Boston Fern</div>
+            <div class="p-voice">"Misted and grateful. You're the best."</div>
+            <span class="p-tag mist">💨 MIST · DONE AT 8:12</span>
+          </div>
+          <div class="check-btn"></div>
+        </div>
+
+        <div class="dock-wrap">
+          <div class="dock">
+            <div class="dock-item active">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 11L12 3L21 11V20C21 20.5523 20.5523 21 20 21H15V14H9V21H4C3.44772 21 3 20.5523 3 20V11Z" fill="currentColor" fill-opacity="0.18"/>
+              </svg>
+              <span class="dock-label">Today</span>
+            </div>
+            <div class="dock-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+              </svg>
+              <span class="dock-label">Garden</span>
+            </div>
+            <div class="dock-gap"></div>
+            <div class="dock-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.3-4.3"/>
+              </svg>
+              <span class="dock-label">Discover</span>
+            </div>
+            <div class="dock-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 21C4 17 7 15 12 15C17 15 20 17 20 21"/>
+              </svg>
+              <span class="dock-label">Me</span>
+            </div>
+          </div>
+          <div class="fab">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5V19M5 12H19"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PLANT STATE PROGRESSION -->
+  <div class="states-block">
+    <div class="states-head">
+      <h3>Five states of <em>Monty</em></h3>
+      <span class="meta">Tamagotchi decay</span>
+    </div>
+    <p class="states-intro">
+      The same plant, drawn five ways. State is computed from how far past the watering interval Monty is — 0% just watered, 100% overdue, 150% critical. The SVG illustration swaps. You see the app <strong>getting worse</strong> as you ignore it, not just a timestamp creeping up.
+    </p>
+
+    <div class="states-grid">
+
+      <!-- STATE 1: THRIVING -->
+      <div class="state-card thriving">
+        <div class="sparkle-badge">✦</div>
+        <div class="state-illustration">
+          <svg viewBox="0 0 120 140" width="110" height="130">
+            <defs>
+              <linearGradient id="thrive-leaf" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#7DE08F"/>
+                <stop offset="100%" stop-color="#1FA03D"/>
+              </linearGradient>
+            </defs>
+            <ellipse cx="60" cy="132" rx="26" ry="4" fill="#000" opacity="0.2"/>
+            <path d="M 36 100 L 30 132 L 90 132 L 84 100 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1.8"/>
+            <ellipse cx="60" cy="100" rx="24" ry="4" fill="#86DB65" stroke="#0B3A1A" stroke-width="1.8"/>
+            <!-- Stems reaching UP -->
+            <path d="M 60 100 Q 50 70 38 40" fill="none" stroke="#14902F" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 60 100 Q 70 70 82 40" fill="none" stroke="#14902F" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 60 100 Q 60 70 60 38" fill="none" stroke="#14902F" stroke-width="3" stroke-linecap="round"/>
+            <!-- Perky leaves -->
+            <path d="M 38 40 Q 18 30 14 55 Q 18 72 38 64 Q 46 52 42 38 Z" fill="url(#thrive-leaf)" stroke="#0B3A1A" stroke-width="1.5"/>
+            <ellipse cx="28" cy="50" rx="3" ry="4" fill="#0B3A1A"/>
+            <path d="M 82 40 Q 102 30 106 55 Q 102 72 82 64 Q 74 52 78 38 Z" fill="url(#thrive-leaf)" stroke="#0B3A1A" stroke-width="1.5"/>
+            <ellipse cx="92" cy="50" rx="3" ry="4" fill="#0B3A1A"/>
+            <path d="M 60 38 Q 45 18 60 12 Q 78 18 70 38 Z" fill="#7DE08F" stroke="#0B3A1A" stroke-width="1.5"/>
+            <!-- Sparkles -->
+            <circle cx="18" cy="25" r="2" fill="#FFB83D"/>
+            <circle cx="100" cy="28" r="2" fill="#FFB83D"/>
+            <circle cx="85" cy="15" r="1.5" fill="#FFB83D"/>
+            <circle cx="30" cy="10" r="1.5" fill="#FFB83D"/>
+            <!-- Water droplet (just watered) -->
+            <path d="M 48 95 Q 44 90 44 95 Q 44 100 48 100 Q 52 100 52 95 Q 52 90 48 95 Z" fill="#2A9FB5" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="state-label">Thriving</div>
+        <div class="state-range">0–20% elapsed</div>
+        <div class="state-quote">"I'm having the best day. Every day is the best day."</div>
+      </div>
+
+      <!-- STATE 2: CONTENT -->
+      <div class="state-card">
+        <div class="state-illustration">
+          <svg viewBox="0 0 120 140" width="110" height="130">
+            <ellipse cx="60" cy="132" rx="26" ry="4" fill="#000" opacity="0.18"/>
+            <path d="M 36 100 L 30 132 L 90 132 L 84 100 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1.8"/>
+            <ellipse cx="60" cy="100" rx="24" ry="4" fill="#86DB65" stroke="#0B3A1A" stroke-width="1.8"/>
+            <path d="M 60 100 Q 52 72 42 45" fill="none" stroke="#14902F" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 60 100 Q 68 72 78 45" fill="none" stroke="#14902F" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 60 100 Q 60 72 60 42" fill="none" stroke="#14902F" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 42 45 Q 24 38 20 58 Q 24 72 42 66 Q 48 55 46 42 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1.5"/>
+            <ellipse cx="30" cy="55" rx="3" ry="4" fill="#0B3A1A"/>
+            <path d="M 78 45 Q 96 38 100 58 Q 96 72 78 66 Q 72 55 74 42 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1.5"/>
+            <ellipse cx="90" cy="55" rx="3" ry="4" fill="#0B3A1A"/>
+            <path d="M 60 42 Q 46 22 60 18 Q 76 22 70 42 Z" fill="#5ED87A" stroke="#0B3A1A" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="state-label">Content</div>
+        <div class="state-range">20–70% elapsed</div>
+        <div class="state-quote">"All is well in my little pot. Carry on."</div>
+      </div>
+
+      <!-- STATE 3: THIRSTY -->
+      <div class="state-card">
+        <div class="state-illustration">
+          <svg viewBox="0 0 120 140" width="110" height="130">
+            <ellipse cx="60" cy="132" rx="26" ry="4" fill="#000" opacity="0.18"/>
+            <path d="M 36 100 L 30 132 L 90 132 L 84 100 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1.8"/>
+            <ellipse cx="60" cy="100" rx="24" ry="4" fill="#86DB65" stroke="#0B3A1A" stroke-width="1.8"/>
+            <!-- Stems begin to droop slightly -->
+            <path d="M 60 100 Q 54 75 48 55" fill="none" stroke="#239A3A" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 60 100 Q 66 75 72 55" fill="none" stroke="#239A3A" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 60 100 Q 60 75 58 52" fill="none" stroke="#239A3A" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 48 55 Q 30 55 26 72 Q 30 82 48 74 Q 52 66 50 54 Z" fill="#5CB968" stroke="#0B3A1A" stroke-width="1.5"/>
+            <ellipse cx="36" cy="65" rx="3" ry="4" fill="#0B3A1A"/>
+            <path d="M 72 55 Q 90 55 94 72 Q 90 82 72 74 Q 68 66 70 54 Z" fill="#5CB968" stroke="#0B3A1A" stroke-width="1.5"/>
+            <ellipse cx="84" cy="65" rx="3" ry="4" fill="#0B3A1A"/>
+            <path d="M 58 52 Q 46 34 60 28 Q 72 34 68 52 Z" fill="#82C88A" stroke="#0B3A1A" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="state-label">Thirsty</div>
+        <div class="state-range">70–100% elapsed</div>
+        <div class="state-quote">"I could use a drink. No rush."</div>
+      </div>
+
+      <!-- STATE 4: WILTING -->
+      <div class="state-card">
+        <div class="state-illustration">
+          <svg viewBox="0 0 120 140" width="110" height="130">
+            <ellipse cx="60" cy="132" rx="26" ry="4" fill="#000" opacity="0.2"/>
+            <path d="M 36 100 L 30 132 L 90 132 L 84 100 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1.8"/>
+            <ellipse cx="60" cy="100" rx="24" ry="4" fill="#86DB65" stroke="#0B3A1A" stroke-width="1.8"/>
+            <!-- Stems droop significantly -->
+            <path d="M 60 100 Q 60 80 78 68 Q 88 62 92 60" fill="none" stroke="#2E8B42" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 60 100 Q 60 80 42 68 Q 32 62 28 60" fill="none" stroke="#2E8B42" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 60 100 Q 60 85 58 72 Q 56 62 54 58" fill="none" stroke="#2E8B42" stroke-width="3" stroke-linecap="round"/>
+            <!-- Drooping leaves sideways -->
+            <path d="M 92 60 Q 108 64 106 80 Q 98 90 86 82 Q 80 72 88 58 Z" fill="#7AA982" stroke="#0B3A1A" stroke-width="1.5"/>
+            <ellipse cx="96" cy="74" rx="3" ry="4" fill="#0B3A1A"/>
+            <path d="M 28 60 Q 12 64 14 80 Q 22 90 34 82 Q 40 72 32 58 Z" fill="#7AA982" stroke="#0B3A1A" stroke-width="1.5"/>
+            <ellipse cx="24" cy="74" rx="3" ry="4" fill="#0B3A1A"/>
+            <path d="M 54 58 Q 40 48 44 36 Q 58 32 62 48 Q 60 58 54 58 Z" fill="#93BC9C" stroke="#0B3A1A" stroke-width="1.5"/>
+            <!-- Sad droplet -->
+            <g transform="translate(22 108)">
+              <path d="M 0 -5 Q -4 -1 -4 3 Q -4 7 0 7 Q 4 7 4 3 Q 4 -1 0 -5 Z" fill="#2A9FB5" opacity="0.7"/>
+            </g>
+          </svg>
+        </div>
+        <div class="state-label">Wilting</div>
+        <div class="state-range">100–150% elapsed</div>
+        <div class="state-quote">"I'm wilting. This is, I fear, my villain origin story."</div>
+      </div>
+
+      <!-- STATE 5: PARCHED -->
+      <div class="state-card parched">
+        <div class="state-illustration">
+          <svg viewBox="0 0 120 140" width="110" height="130">
+            <ellipse cx="60" cy="132" rx="26" ry="4" fill="#000" opacity="0.2"/>
+            <path d="M 36 100 L 30 132 L 90 132 L 84 100 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1.8"/>
+            <ellipse cx="60" cy="100" rx="24" ry="4" fill="#CDA968" stroke="#0B3A1A" stroke-width="1.8"/>
+            <!-- Stems collapsed -->
+            <path d="M 60 100 Q 70 95 85 92 Q 98 90 102 90" fill="none" stroke="#A58F4B" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 60 100 Q 50 95 35 92 Q 22 90 18 90" fill="none" stroke="#A58F4B" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 60 100 Q 62 92 66 85 Q 68 80 68 78" fill="none" stroke="#A58F4B" stroke-width="3" stroke-linecap="round"/>
+            <!-- Yellowed, collapsed leaves -->
+            <path d="M 102 90 Q 116 92 114 104 Q 106 112 96 104 Q 92 96 100 88 Z" fill="#D1B86A" stroke="#0B3A1A" stroke-width="1.5"/>
+            <ellipse cx="106" cy="98" rx="3" ry="3" fill="#0B3A1A"/>
+            <path d="M 18 90 Q 4 92 6 104 Q 14 112 24 104 Q 28 96 20 88 Z" fill="#D1B86A" stroke="#0B3A1A" stroke-width="1.5"/>
+            <ellipse cx="14" cy="98" rx="3" ry="3" fill="#0B3A1A"/>
+            <path d="M 68 78 Q 58 68 66 58 Q 76 58 74 72 Q 72 78 68 78 Z" fill="#C9AB65" stroke="#0B3A1A" stroke-width="1.5"/>
+            <!-- Crack in the dirt -->
+            <path d="M 52 104 L 54 112 L 50 118" fill="none" stroke="#8A6F30" stroke-width="1" stroke-linecap="round"/>
+            <path d="M 66 104 L 68 114" fill="none" stroke="#8A6F30" stroke-width="1" stroke-linecap="round"/>
+            <!-- SOS indicator -->
+            <g transform="translate(92 26)">
+              <circle cx="0" cy="0" r="10" fill="#FF6B3D"/>
+              <text x="0" y="3" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="10" font-weight="800" fill="#FFFFFF">!</text>
+            </g>
+          </svg>
+        </div>
+        <div class="state-label">Parched</div>
+        <div class="state-range">150%+ critical</div>
+        <div class="state-quote">"Goodbye, cruel world. Actually no — water. I need water."</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- INTERACTION FLOW: How state updates happen -->
+  <div class="flow-block">
+    <h3>How care <em>actually gets logged</em></h3>
+    <p class="flow-sub">
+      Nothing is magic. Every state change starts with a deliberate user action that creates a <code>CareLog</code> row. The app recomputes the plant's state from the logs. MVP uses the first two entry points. Later phases add more ways to log, all writing to the same table with a <code>source</code> column so we know where each log came from.
+    </p>
+
+    <div class="flow-diagram">
+      <div class="flow-step">
+        <div class="icon-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M9 12L11 14L15 10"/>
+          </svg>
+        </div>
+        <div class="label">01 · User</div>
+        <h4>Tap the task checkbox</h4>
+        <p>Or tap "Water now" on a plant card. Simple, reliable, immediate.</p>
+      </div>
+
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-step">
+        <div class="icon-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L4 7V17L12 22L20 17V7L12 2Z"/>
+            <path d="M12 22V12M4 7L12 12M20 7L12 12"/>
+          </svg>
+        </div>
+        <div class="label">02 · API</div>
+        <h4>POST /care_logs</h4>
+        <p>Writes row with action_type, performed_at, source=manual</p>
+      </div>
+
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-step">
+        <div class="icon-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 2V8H15M3 22V16H9M3 10A9 9 0 0 1 18 6M21 14A9 9 0 0 1 6 18"/>
+          </svg>
+        </div>
+        <div class="label">03 · Model</div>
+        <h4>Plant recomputes</h4>
+        <p>last_watered_at updates, state derives from interval elapsed</p>
+      </div>
+
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-step">
+        <div class="icon-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z"/>
+          </svg>
+        </div>
+        <div class="label">04 · UI</div>
+        <h4>Visual state swaps</h4>
+        <p>Plant SVG re-renders. Drooping Monty becomes thriving Monty.</p>
+      </div>
+    </div>
+
+    <div class="sources-row">
+      <div class="source-chip"><span class="status mvp">MVP</span>Tap checkbox</div>
+      <div class="source-chip"><span class="status mvp">MVP</span>Tap "Water now"</div>
+      <div class="source-chip"><span class="status mvp">MVP</span>Swipe task right</div>
+      <div class="source-chip"><span class="status later">PHASE 1.5</span>iOS widget</div>
+      <div class="source-chip"><span class="status later">PHASE 1.5</span>Siri shortcut</div>
+      <div class="source-chip"><span class="status later">PHASE 2</span>Soil sensor</div>
+      <div class="source-chip"><span class="status later">PHASE 2</span>Home Assistant</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

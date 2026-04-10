@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare v11 — Login + Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --base: #F6FBF4;
+    --mint: #DFF2E2;
+    --lime: #86DB65;
+    --leaf: #32C456;
+    --emerald: #14902F;
+    --forest: #0B3A1A;
+    --forest-2: #124626;
+    --ink: #0A1D0E;
+    --ink-soft: #4A6A51;
+    --coral: #FF6B3D;
+    --card: #FFFFFF;
+    --shadow-sm: 0 2px 8px rgba(11,58,26,0.06);
+    --shadow-md: 0 10px 30px rgba(11,58,26,0.10);
+    --shadow-xl: 0 40px 100px -20px rgba(11,58,26,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--base);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage { min-height: 100vh; padding: 56px 40px 80px; }
+
+  .masthead { text-align: center; max-width: 900px; margin: 0 auto 50px; }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--emerald);
+    background: var(--mint); padding: 8px 16px; border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .kicker .dot { width: 8px; height: 8px; background: var(--leaf); border-radius: 50%; }
+  .headline {
+    font-size: 48px; font-weight: 800; line-height: 1.03;
+    letter-spacing: -0.035em; color: var(--ink); margin-bottom: 14px;
+  }
+  .headline em {
+    font-style: normal; color: var(--leaf);
+    position: relative; display: inline-block;
+  }
+  .headline em::after {
+    content: ''; position: absolute;
+    left: -2%; right: -2%; bottom: 5px;
+    height: 12px; background: var(--lime);
+    z-index: -1; border-radius: 4px;
+    transform: skew(-6deg);
+  }
+  .lede {
+    font-size: 16px; font-weight: 400; color: var(--ink-soft);
+    max-width: 640px; margin: 0 auto; line-height: 1.55;
+  }
+
+  /* Phone row */
+  .iphone-row {
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: 60px; flex-wrap: wrap; margin-bottom: 60px;
+  }
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; }
+  .phone-label {
+    margin-top: 18px;
+    font-size: 12px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--emerald);
+  }
+
+  .iphone {
+    width: 413px; height: 872px;
+    background: #1A1A1A;
+    border-radius: 55px;
+    padding: 10px;
+    box-shadow:
+      var(--shadow-xl),
+      inset 0 0 0 1.5px rgba(255,255,255,0.08),
+      inset 0 0 0 3px #0A0A0A;
+    position: relative;
+  }
+  .iphone::before {
+    content: ''; position: absolute;
+    left: -2px; top: 180px;
+    width: 3px; height: 36px;
+    background: #0A0A0A; border-radius: 2px 0 0 2px;
+  }
+  .iphone::after {
+    content: ''; position: absolute;
+    right: -2px; top: 200px;
+    width: 3px; height: 72px;
+    background: #0A0A0A; border-radius: 0 2px 2px 0;
+  }
+  .screen {
+    width: 393px; height: 852px;
+    background: linear-gradient(180deg, #F6FBF4 0%, #DFF2E2 50%, #C7ECCA 100%);
+    border-radius: 47px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Background leaf decorations — removed, using pure gradient */
+  .leaf-decor { display: none; }
+
+  .dynamic-island {
+    position: absolute;
+    top: 11px; left: 50%;
+    transform: translateX(-50%);
+    width: 124px; height: 37px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+  }
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 54px;
+    padding: 18px 32px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 17px; font-weight: 700; color: var(--ink);
+    z-index: 50;
+  }
+  .status-bar .indicators { display: flex; align-items: center; gap: 6px; }
+
+  .content {
+    position: absolute;
+    top: 54px;
+    left: 0; right: 0;
+    bottom: 34px;
+    padding: 28px 28px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .home-indicator {
+    position: absolute;
+    bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 134px; height: 5px;
+    background: var(--ink);
+    border-radius: 100px;
+    z-index: 60;
+  }
+
+  /* Logo mark above the card */
+  .logo-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 22px;
+    position: relative;
+    z-index: 2;
+  }
+  .logo-mark {
+    width: 62px; height: 62px;
+    background: linear-gradient(135deg, var(--leaf), var(--emerald));
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--card);
+    box-shadow: 0 10px 24px rgba(20,144,47,0.35);
+    margin-bottom: 14px;
+  }
+  .logo-text {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--forest);
+    letter-spacing: -0.025em;
+  }
+  .logo-text em {
+    font-style: normal;
+    color: var(--leaf);
+  }
+
+  /* Auth card */
+  .auth-card {
+    background: var(--card);
+    border-radius: 28px;
+    padding: 32px 28px 28px;
+    box-shadow:
+      0 20px 50px rgba(11,58,26,0.14),
+      0 4px 12px rgba(11,58,26,0.06);
+    position: relative;
+    z-index: 2;
+    border: 1px solid rgba(255,255,255,0.8);
+  }
+
+  .auth-head {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .auth-head h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 30px;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--forest);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .auth-head h1 em {
+    font-style: italic;
+    color: var(--leaf);
+  }
+  .auth-head p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* Form fields */
+  .field {
+    margin-bottom: 14px;
+  }
+  .field-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    padding-left: 2px;
+  }
+  .input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--base);
+    border: 1.5px solid var(--mint);
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .input svg {
+    display: block;
+    color: var(--ink-soft);
+    flex-shrink: 0;
+  }
+  .input input {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    font: inherit;
+    color: inherit;
+    min-width: 0;
+  }
+  .input input::placeholder {
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .input.focus {
+    border-color: var(--leaf);
+    background: var(--card);
+    box-shadow: 0 0 0 4px rgba(50,196,86,0.12);
+  }
+  .input.focus svg { color: var(--emerald); }
+
+  .forgot-row {
+    display: flex;
+    justify-content: flex-end;
+    margin: -6px 0 16px;
+  }
+  .forgot-link {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--emerald);
+    padding: 2px;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, var(--leaf), var(--emerald));
+    color: var(--card);
+    border: none;
+    border-radius: 16px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    box-shadow:
+      0 8px 20px rgba(20,144,47,0.35),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+    cursor: pointer;
+  }
+  .btn-primary::after { content: '→'; font-size: 16px; }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 22px 0 16px;
+  }
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--mint);
+  }
+  .divider-text {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .switch-link {
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .switch-link a {
+    color: var(--emerald);
+    font-weight: 800;
+    margin-left: 4px;
+  }
+
+  /* Password strength indicator */
+  .strength-bar {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .strength-segment {
+    flex: 1;
+    height: 4px;
+    background: var(--mint);
+    border-radius: 100px;
+  }
+  .strength-segment.active { background: var(--leaf); }
+  .strength-segment.strong { background: var(--emerald); }
+  .strength-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--emerald);
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  /* Term footer */
+  .legal {
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-align: center;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-top: 16px;
+    max-width: 260px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .legal a { color: var(--emerald); font-weight: 700; }
+
+  /* Notes block */
+  .notes {
+    max-width: 1000px;
+    margin: 40px auto 0;
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 24px;
+    padding: 32px 40px;
+    box-shadow: var(--shadow-md);
+  }
+  .notes h3 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .notes h3 em { font-style: normal; color: var(--leaf); }
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .note {
+    padding: 18px 20px;
+    background: var(--base);
+    border: 1px solid var(--mint);
+    border-radius: 16px;
+  }
+  .note h4 {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--emerald);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .note p {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .note p strong { color: var(--ink); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="masthead">
+    <div class="kicker"><span class="dot"></span>Direction · Take Twelve</div>
+    <h1 class="headline">The <em>front door</em>.</h1>
+    <p class="lede">Login and register as simple single-screen forms — no wizard, no steps, no ceremony. Matching bold-greens palette and Fraunces italic for the heading. Onboarding wizard comes after registration (next mockup).</p>
+  </div>
+
+  <div class="iphone-row">
+
+    <!-- LOGIN -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="screen">
+
+          <!-- Decorative leaves -->
+          <div class="leaf-decor leaf-decor-1">
+            <svg viewBox="0 0 200 200">
+              <defs>
+                <linearGradient id="leaf-bg-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#5ED87A"/>
+                  <stop offset="100%" stop-color="#14902F"/>
+                </linearGradient>
+              </defs>
+              <path d="M 100 180 Q 80 160 60 130 Q 40 100 50 60 Q 70 30 110 30 Q 150 40 160 80 Q 165 120 140 160 Q 120 180 100 180 Z" fill="url(#leaf-bg-1)" stroke="#0B3A1A" stroke-width="2"/>
+              <path d="M 100 180 Q 100 120 105 60" fill="none" stroke="#0B3A1A" stroke-width="1.5" opacity="0.6"/>
+              <path d="M 100 150 Q 80 140 70 120" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+              <path d="M 100 120 Q 82 108 75 85" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+              <path d="M 100 90 Q 85 76 85 55" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+              <path d="M 105 150 Q 128 140 138 118" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+              <path d="M 105 115 Q 128 105 140 82" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+              <path d="M 105 85 Q 125 72 130 50" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+            </svg>
+          </div>
+
+          <div class="leaf-decor leaf-decor-2">
+            <svg viewBox="0 0 220 220">
+              <defs>
+                <linearGradient id="leaf-bg-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#86DB65"/>
+                  <stop offset="100%" stop-color="#32C456"/>
+                </linearGradient>
+              </defs>
+              <path d="M 110 200 Q 90 180 70 150 Q 45 115 55 70 Q 75 35 115 30 Q 160 35 175 80 Q 185 125 155 170 Q 135 195 110 200 Z" fill="url(#leaf-bg-2)" stroke="#0B3A1A" stroke-width="2"/>
+              <path d="M 110 200 Q 110 130 115 60" fill="none" stroke="#0B3A1A" stroke-width="1.5" opacity="0.6"/>
+              <path d="M 110 160 Q 85 150 75 125" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+              <path d="M 110 120 Q 85 108 78 82" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+              <path d="M 115 160 Q 140 150 152 125" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+              <path d="M 115 115 Q 142 102 155 78" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+            </svg>
+          </div>
+
+          <div class="dynamic-island"></div>
+
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="indicators">
+              <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor">
+                <rect x="0" y="6" width="3" height="5" rx="0.5"/>
+                <rect x="5" y="4" width="3" height="7" rx="0.5"/>
+                <rect x="10" y="2" width="3" height="9" rx="0.5"/>
+                <rect x="15" y="0" width="3" height="11" rx="0.5"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+                <path d="M8 10.5c0.6 0 1-0.4 1-1s-0.4-1-1-1-1 0.4-1 1 0.4 1 1 1z"/>
+              </svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+                <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+                <path d="M24 4V8" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
+
+          <div class="content">
+
+            <div class="logo-block">
+              <div class="logo-mark">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 20A9 9 0 0 1 2 11C2 6.5 6.5 3 12 3C17 3 21 7 21 12C16 12 13 15 11 20Z"/>
+                  <path d="M11 20C13 15 15 11 20 9"/>
+                </svg>
+              </div>
+              <div class="logo-text">Plant<em>Care</em></div>
+            </div>
+
+            <div class="auth-card">
+              <div class="auth-head">
+                <h1>Welcome <em>back</em></h1>
+                <p>Your plants missed you.</p>
+              </div>
+
+              <div class="field">
+                <div class="field-label">Email</div>
+                <div class="input">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <path d="M22 6L12 13L2 6"/>
+                  </svg>
+                  <input type="email" placeholder="robert@example.com" value="robert@example.com" />
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-label">Password</div>
+                <div class="input focus">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input type="password" value="••••••••" />
+                </div>
+              </div>
+
+              <div class="forgot-row">
+                <a class="forgot-link">Forgot password?</a>
+              </div>
+
+              <button class="btn-primary">Log in</button>
+
+              <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">OR</span>
+                <div class="divider-line"></div>
+              </div>
+
+              <div class="switch-link">
+                New to PlantCare?<a>Create an account</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <div class="phone-label">Login</div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="screen">
+
+          <div class="leaf-decor leaf-decor-1">
+            <svg viewBox="0 0 200 200">
+              <defs>
+                <linearGradient id="leaf-bg-3" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#5ED87A"/>
+                  <stop offset="100%" stop-color="#14902F"/>
+                </linearGradient>
+              </defs>
+              <path d="M 100 180 Q 80 160 60 130 Q 40 100 50 60 Q 70 30 110 30 Q 150 40 160 80 Q 165 120 140 160 Q 120 180 100 180 Z" fill="url(#leaf-bg-3)" stroke="#0B3A1A" stroke-width="2"/>
+              <path d="M 100 180 Q 100 120 105 60" fill="none" stroke="#0B3A1A" stroke-width="1.5" opacity="0.6"/>
+              <path d="M 100 150 Q 80 140 70 120" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+              <path d="M 100 120 Q 82 108 75 85" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+              <path d="M 105 150 Q 128 140 138 118" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+              <path d="M 105 115 Q 128 105 140 82" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+            </svg>
+          </div>
+
+          <div class="leaf-decor leaf-decor-2">
+            <svg viewBox="0 0 220 220">
+              <defs>
+                <linearGradient id="leaf-bg-4" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#86DB65"/>
+                  <stop offset="100%" stop-color="#32C456"/>
+                </linearGradient>
+              </defs>
+              <path d="M 110 200 Q 90 180 70 150 Q 45 115 55 70 Q 75 35 115 30 Q 160 35 175 80 Q 185 125 155 170 Q 135 195 110 200 Z" fill="url(#leaf-bg-4)" stroke="#0B3A1A" stroke-width="2"/>
+              <path d="M 110 200 Q 110 130 115 60" fill="none" stroke="#0B3A1A" stroke-width="1.5" opacity="0.6"/>
+              <path d="M 110 160 Q 85 150 75 125" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+              <path d="M 115 160 Q 140 150 152 125" fill="none" stroke="#0B3A1A" stroke-width="1" opacity="0.4"/>
+            </svg>
+          </div>
+
+          <div class="dynamic-island"></div>
+
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="indicators">
+              <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor">
+                <rect x="0" y="6" width="3" height="5" rx="0.5"/>
+                <rect x="5" y="4" width="3" height="7" rx="0.5"/>
+                <rect x="10" y="2" width="3" height="9" rx="0.5"/>
+                <rect x="15" y="0" width="3" height="11" rx="0.5"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+                <path d="M8 10.5c0.6 0 1-0.4 1-1s-0.4-1-1-1-1 0.4-1 1 0.4 1 1 1z"/>
+              </svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+                <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+                <path d="M24 4V8" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
+
+          <div class="content">
+
+            <div class="logo-block">
+              <div class="logo-mark">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 20A9 9 0 0 1 2 11C2 6.5 6.5 3 12 3C17 3 21 7 21 12C16 12 13 15 11 20Z"/>
+                  <path d="M11 20C13 15 15 11 20 9"/>
+                </svg>
+              </div>
+              <div class="logo-text">Plant<em>Care</em></div>
+            </div>
+
+            <div class="auth-card">
+              <div class="auth-head">
+                <h1>Join the <em>jungle</em></h1>
+                <p>Let's get your garden started.</p>
+              </div>
+
+              <div class="field">
+                <div class="field-label">Your name</div>
+                <div class="input">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M4 21C4 17 7 15 12 15C17 15 20 17 20 21"/>
+                  </svg>
+                  <input type="text" placeholder="Robert" value="Robert" />
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-label">Email</div>
+                <div class="input">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <path d="M22 6L12 13L2 6"/>
+                  </svg>
+                  <input type="email" placeholder="you@example.com" value="robert@example.com" />
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-label">Password</div>
+                <div class="input focus">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input type="password" value="••••••••••" />
+                </div>
+                <div class="strength-bar">
+                  <div class="strength-segment strong"></div>
+                  <div class="strength-segment strong"></div>
+                  <div class="strength-segment strong"></div>
+                  <div class="strength-segment"></div>
+                </div>
+                <div class="strength-label">Strong · good work</div>
+              </div>
+
+              <button class="btn-primary" style="margin-top: 18px;">Create account</button>
+
+              <p class="legal">By continuing you agree to our <a>Terms</a> and <a>Privacy</a>.</p>
+
+              <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">OR</span>
+                <div class="divider-line"></div>
+              </div>
+
+              <div class="switch-link">
+                Already have an account?<a>Log in</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <div class="phone-label">Register</div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <h3>Design decisions in <em>v11</em></h3>
+    <div class="notes-grid">
+      <div class="note">
+        <h4>Single screen</h4>
+        <p>Both login and register are one-screen forms. No steps, no progress bar. Returning users and new users both get frictionless access. The multi-step <strong>wizard runs after registration</strong>, not inside it.</p>
+      </div>
+      <div class="note">
+        <h4>Fraunces for the heading</h4>
+        <p>The auth title uses <strong>Fraunces italic</strong> — the same editorial serif we use on desktop page titles. "Welcome <em>back</em>" and "Join the <em>jungle</em>" feel like a warm invitation, not a form label.</p>
+      </div>
+      <div class="note">
+        <h4>Ambient leaf backdrop</h4>
+        <p>Two large stylized monstera leaves are positioned in the background corners at 25% opacity. They anchor the brand visually without competing with the form.</p>
+      </div>
+      <div class="note">
+        <h4>Subtle focus state</h4>
+        <p>The focused field gets a <strong>leaf-green border + 4px soft glow</strong>, and its icon colour shifts from ink-soft to emerald. Mint fill becomes white. Communicates interaction without chrome.</p>
+      </div>
+      <div class="note">
+        <h4>Password strength</h4>
+        <p>Register has a 4-segment strength bar below the password field. Fills in with leaf green as complexity rises. Emerald when "strong". No text validation unless password is weak.</p>
+      </div>
+      <div class="note">
+        <h4>No social login (MVP)</h4>
+        <p>Matches the existing technical spec — custom JWT, no OAuth providers in MVP. Phase 2 could add Google/Apple sign-in if it reduces register friction. "OR" divider is reserved for future use.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
