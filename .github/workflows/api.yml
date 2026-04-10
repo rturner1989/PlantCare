@@ -2,24 +2,36 @@ name: API CI
 
 on:
   pull_request:
-    paths:
-      - 'api/**'
-      - '.github/workflows/api.yml'
   push:
     branches: [main]
     paths:
       - 'api/**'
       - '.github/workflows/api.yml'
 
-defaults:
-  run:
-    working-directory: api
-
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'api/**'
+              - '.github/workflows/api.yml'
+
   lint:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     env:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
+    defaults:
+      run:
+        working-directory: api
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,7 +56,12 @@ jobs:
         run: bundle exec rubocop -f github
 
   security:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -62,7 +79,12 @@ jobs:
         run: bundle exec bundler-audit check --update
 
   test:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
 
     services:
       postgres:
