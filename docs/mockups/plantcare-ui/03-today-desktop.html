@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare v10 — Desktop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --base: #F6FBF4;
+    --mint: #DFF2E2;
+    --lime: #86DB65;
+    --leaf: #32C456;
+    --emerald: #14902F;
+    --forest: #0B3A1A;
+    --forest-2: #124626;
+    --ink: #0A1D0E;
+    --ink-soft: #4A6A51;
+    --coral: #FF6B3D;
+    --sunshine: #FFB83D;
+    --card: #FFFFFF;
+    --shadow-sm: 0 2px 8px rgba(11,58,26,0.06);
+    --shadow-md: 0 10px 30px rgba(11,58,26,0.10);
+    --shadow-lg: 0 24px 60px rgba(11,58,26,0.14);
+    --shadow-xl: 0 40px 100px -20px rgba(11,58,26,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: #E8EEE5;
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage { min-height: 100vh; padding: 56px 40px 80px; }
+
+  .masthead { text-align: center; max-width: 900px; margin: 0 auto 40px; }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--emerald);
+    background: var(--mint); padding: 8px 16px; border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .kicker .dot { width: 8px; height: 8px; background: var(--leaf); border-radius: 50%; }
+  .headline {
+    font-size: 48px; font-weight: 800; line-height: 1.03;
+    letter-spacing: -0.035em; color: var(--ink); margin-bottom: 14px;
+  }
+  .headline em {
+    font-style: normal; color: var(--leaf);
+    position: relative; display: inline-block;
+  }
+  .headline em::after {
+    content: ''; position: absolute;
+    left: -2%; right: -2%; bottom: 5px;
+    height: 12px; background: var(--lime);
+    z-index: -1; border-radius: 4px;
+    transform: skew(-6deg);
+  }
+  .lede {
+    font-size: 16px; font-weight: 400; color: var(--ink-soft);
+    max-width: 640px; margin: 0 auto; line-height: 1.55;
+  }
+
+  /* Browser chrome */
+  .browser {
+    max-width: 1360px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+  }
+  .browser-chrome {
+    height: 44px;
+    background: #E9EEE6;
+    border-bottom: 1px solid #D3DBCF;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 14px;
+  }
+  .browser-chrome .dots {
+    display: flex; gap: 7px;
+  }
+  .browser-chrome .dots span {
+    width: 12px; height: 12px; border-radius: 50%;
+  }
+  .browser-chrome .dots span:nth-child(1) { background: #FF6057; }
+  .browser-chrome .dots span:nth-child(2) { background: #FFBD2E; }
+  .browser-chrome .dots span:nth-child(3) { background: #28C941; }
+  .url-bar {
+    flex: 1;
+    height: 28px;
+    background: var(--card);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    border: 1px solid #D3DBCF;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  .url-bar svg { display: block; }
+
+  /* App layout */
+  .app {
+    display: flex;
+    background: var(--base);
+    min-height: 780px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--card);
+    border-right: 1px solid var(--mint);
+    padding: 28px 20px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px 28px;
+    border-bottom: 1px solid var(--mint);
+    margin-bottom: 24px;
+  }
+  .logo .logo-mark {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--leaf), var(--emerald));
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--card);
+    flex-shrink: 0;
+  }
+  .logo .logo-text {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--forest);
+    letter-spacing: -0.02em;
+  }
+  .logo .logo-text em {
+    font-style: normal;
+    color: var(--leaf);
+  }
+
+  .nav {
+    flex: 1;
+  }
+  .nav-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-soft);
+    padding: 0 12px 10px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    color: var(--ink-soft);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .nav-item svg { display: block; flex-shrink: 0; }
+  .nav-item.active {
+    background: var(--mint);
+    color: var(--forest);
+  }
+  .nav-item.active::before {
+    content: '';
+    width: 4px;
+    height: 22px;
+    background: var(--leaf);
+    border-radius: 100px;
+    margin-right: -4px;
+  }
+  .nav-item .count {
+    margin-left: auto;
+    background: rgba(11,58,26,0.08);
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  .nav-item.active .count {
+    background: var(--leaf);
+    color: var(--card);
+  }
+
+  .nav-divider {
+    height: 1px;
+    background: var(--mint);
+    margin: 16px 10px;
+  }
+
+  /* Add plant CTA */
+  .add-cta {
+    background: linear-gradient(135deg, var(--forest), var(--forest-2));
+    border-radius: 18px;
+    padding: 18px 18px 16px;
+    color: var(--card);
+    position: relative;
+    overflow: hidden;
+    margin-top: 16px;
+  }
+  .add-cta::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 80% 100%, rgba(134,219,101,0.3), transparent 60%);
+  }
+  .add-cta .label {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--lime);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 6px;
+    position: relative;
+  }
+  .add-cta h4 {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 3px;
+    position: relative;
+  }
+  .add-cta p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.4;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .add-cta .add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--lime);
+    color: var(--forest);
+    padding: 9px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 800;
+    position: relative;
+  }
+  .add-cta .add-btn::after { content: '→'; }
+
+  .sidebar-footer {
+    padding-top: 16px;
+    border-top: 1px solid var(--mint);
+    margin-top: 16px;
+  }
+  .footer-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px;
+    border-radius: 10px;
+  }
+  .footer-user .avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--lime), var(--leaf));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--forest);
+    font-weight: 800;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .footer-user .info {
+    flex: 1;
+    min-width: 0;
+  }
+  .footer-user .info .name {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .footer-user .info .meta {
+    font-size: 10px;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  /* =============================== */
+  /* MAIN CONTENT AREA               */
+  /* =============================== */
+  .main {
+    flex: 1;
+    padding: 40px 56px 40px;
+    max-width: calc(100% - 260px);
+    overflow-x: hidden;
+    background: linear-gradient(180deg, #F6FBF4 0%, #DFF2E2 50%, #C7ECCA 100%);
+  }
+
+  .page-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .page-head .greet {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .page-head h1 {
+    font-size: 54px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.035em;
+    line-height: 1;
+    font-family: 'Fraunces', serif;
+  }
+  .page-head h1 em {
+    font-style: italic;
+    color: var(--leaf);
+    font-weight: 600;
+  }
+  .page-head .date-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .page-head .search {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    padding: 10px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--mint);
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    min-width: 240px;
+  }
+  .page-head .search kbd {
+    margin-left: auto;
+    background: var(--mint);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--forest);
+  }
+  .page-head .today-date {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--emerald);
+    background: var(--mint);
+    padding: 6px 14px;
+    border-radius: 100px;
+  }
+
+  /* Hero card — DESKTOP wider layout */
+  .hero {
+    background: linear-gradient(135deg, var(--forest) 0%, var(--forest-2) 100%);
+    border-radius: 28px;
+    padding: 40px 48px 40px;
+    color: var(--card);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 28px;
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 75% 100%, rgba(255,107,61,0.25) 0%, transparent 55%),
+      radial-gradient(circle at 20% 10%, rgba(134,219,101,0.12) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    flex: 1;
+    max-width: 440px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .hero-title .dot {
+    width: 8px; height: 8px;
+    background: var(--coral);
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(255,107,61,0.2);
+  }
+  .hero-title h3 {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--lime);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .hero .speech-quote {
+    font-family: 'Fraunces', serif;
+    font-size: 36px;
+    font-weight: 500;
+    font-style: italic;
+    line-height: 1.15;
+    color: var(--card);
+    margin-bottom: 22px;
+    letter-spacing: -0.02em;
+    position: relative;
+    padding-left: 22px;
+    border-left: 4px solid var(--coral);
+    max-width: 420px;
+  }
+
+  .hero-meta {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px; color: rgba(255,255,255,0.7);
+    font-weight: 600; margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .hero-meta .sep { opacity: 0.35; }
+  .hero-meta .overdue-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--coral);
+    font-weight: 800;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--lime);
+    color: var(--forest);
+    padding: 16px 26px;
+    border-radius: 100px;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    box-shadow: 0 6px 18px rgba(134,219,101,0.35);
+  }
+  .hero-cta::after { content: '→'; font-size: 18px; }
+
+  /* Hero plant — desktop is larger, on the right */
+  .hero-plant-desktop {
+    width: 340px;
+    height: 400px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(-8px 8px 30px rgba(0,0,0,0.4));
+  }
+  .hero-plant-desktop svg { display: block; width: 100%; height: 100%; }
+
+  @keyframes hero-droop-desktop {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(-5deg); }
+  }
+  .hero-plant-desktop { animation: hero-droop-desktop 5s ease-in-out infinite; transform-origin: bottom center; }
+
+  /* Hand-drawn arrow flourish (editorial touch from the reference) */
+  .flourish {
+    position: absolute;
+    pointer-events: none;
+  }
+  .flourish-1 {
+    top: 0;
+    right: 40px;
+    width: 160px;
+    height: 60px;
+    opacity: 0.35;
+  }
+  .flourish-1 svg path {
+    fill: none;
+    stroke: var(--lime);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-dasharray: 4 3;
+  }
+
+  /* =============================== */
+  /* 2-COLUMN BELOW HERO             */
+  /* =============================== */
+  .below-hero {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+  }
+
+  /* Tasks column */
+  .tasks-col { min-width: 0; }
+
+  .section-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+  .section-head h2 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .progress-wrap {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .progress-ring {
+    width: 48px; height: 48px; position: relative;
+  }
+  .progress-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+  .progress-ring circle { fill: none; stroke-width: 4; stroke-linecap: round; }
+  .progress-ring .bg { stroke: var(--mint); }
+  .progress-ring .fg { stroke: var(--leaf); }
+  .progress-ring .fraction {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: var(--ink);
+  }
+  .progress-ring .fraction .num { font-size: 14px; }
+  .progress-ring .fraction .denom { color: var(--ink-soft); font-size: 11px; }
+  .progress-text {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: right;
+    line-height: 1.2;
+  }
+  .progress-text strong { color: var(--leaf); display: block; font-size: 13px; }
+
+  .p-task {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 20px 22px; background: var(--card);
+    border: 1px solid var(--mint); border-radius: 20px;
+    margin-bottom: 12px; position: relative;
+  }
+  .p-task.done { background: #F7FDF4; opacity: 0.75; }
+  .p-task.overdue { border-color: rgba(255,107,61,0.3); background: #FFF8F5; }
+
+  .p-task .plant-av {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--mint), var(--lime));
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; overflow: hidden;
+    border: 2px solid var(--card);
+    box-shadow: 0 2px 8px rgba(11,58,26,0.12);
+  }
+  .p-task .plant-av svg { display: block; width: 100%; height: 100%; }
+  .p-task .p-body { flex: 1; min-width: 0; }
+  .p-task .p-name {
+    font-size: 16px; font-weight: 800; color: var(--ink);
+    letter-spacing: -0.01em; margin-bottom: 4px;
+  }
+  .p-task .p-voice {
+    font-size: 14px; font-style: italic; color: var(--ink-soft);
+    font-weight: 500; line-height: 1.35; margin-bottom: 8px;
+  }
+  .p-task.done .p-voice { text-decoration: line-through; }
+  .p-task .p-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .p-task .p-tag.water { color: var(--emerald); }
+  .p-task .p-tag.overdue { color: var(--coral); }
+  .p-task .p-tag.mist { color: #2A9FB5; }
+  .p-task .check-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2.5px solid var(--mint);
+    background: var(--card);
+    flex-shrink: 0;
+    margin-top: 4px;
+    cursor: pointer;
+  }
+  .p-task.done .check-btn {
+    background: var(--leaf); border-color: var(--leaf);
+    position: relative;
+  }
+  .p-task.done .check-btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M5 12.5 L10 17.5 L19 7.5' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/18px no-repeat;
+  }
+
+  /* Widget column */
+  .widget-col { min-width: 0; }
+
+  .widget {
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 22px;
+    padding: 24px 24px 22px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .widget h3 {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--emerald);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+
+  /* Since widget */
+  .since-widget {
+    background: var(--mint);
+    border: none;
+  }
+  .since-widget h3 {
+    color: var(--forest);
+    margin-bottom: 12px;
+  }
+  .since-widget .change-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0;
+    font-size: 12px;
+    color: var(--ink);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .since-widget .change-item:not(:last-child) {
+    border-bottom: 1px solid rgba(11,58,26,0.08);
+  }
+  .since-widget .change-item::before {
+    content: '●';
+    color: var(--coral);
+    font-size: 10px;
+    margin-top: 2px;
+  }
+  .since-widget .time-small {
+    display: block;
+    font-size: 10px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  /* Stats widget */
+  .stats-widget {
+    background: linear-gradient(135deg, var(--forest), var(--forest-2));
+    border: none;
+    color: var(--card);
+  }
+  .stats-widget::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 85% 100%, rgba(134,219,101,0.18), transparent 55%);
+  }
+  .stats-widget h3 { color: var(--lime); position: relative; }
+  .stats-widget .big-num {
+    font-size: 54px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--card);
+    position: relative;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+  }
+  .stats-widget .big-num em { font-style: italic; color: var(--lime); }
+  .stats-widget .big-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    margin-top: 4px;
+    position: relative;
+  }
+  .stats-widget .sub-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+  }
+  .stats-widget .sub-stat {
+    flex: 1;
+  }
+  .stats-widget .sub-stat .n {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--card);
+    letter-spacing: -0.02em;
+  }
+  .stats-widget .sub-stat .l {
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+
+  /* Discover peek widget */
+  .discover-widget { }
+  .discover-widget .pick-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+  }
+  .discover-widget .pick-row:not(:last-child) {
+    border-bottom: 1px solid var(--mint);
+  }
+  .discover-widget .pick-thumb {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--mint), var(--lime));
+    flex-shrink: 0;
+  }
+  .discover-widget .pick-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .discover-widget .pick-name {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .discover-widget .pick-meta {
+    font-size: 10px;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .discover-widget .arrow-lnk {
+    color: var(--emerald);
+    font-weight: 800;
+    font-size: 14px;
+  }
+
+  /* Notes below desktop */
+  .desktop-notes {
+    max-width: 1100px;
+    margin: 40px auto 0;
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 28px;
+    padding: 36px 44px;
+    box-shadow: var(--shadow-md);
+  }
+  .desktop-notes h3 {
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.025em; color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .desktop-notes h3 em { font-style: normal; color: var(--leaf); }
+  .desktop-notes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .desktop-note {
+    padding: 20px 22px;
+    background: var(--base);
+    border-radius: 16px;
+    border: 1px solid var(--mint);
+  }
+  .desktop-note h4 {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--emerald);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .desktop-note p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .desktop-note p strong { color: var(--ink); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="masthead">
+    <div class="kicker"><span class="dot"></span>Direction · Take Eleven</div>
+    <h1 class="headline">The <em>desktop</em> view.</h1>
+    <p class="lede">Sidebar nav instead of bottom dock. Fraunces display italic for editorial feel. Hero plant goes big on the right side — Monty now renders at 340px with real presence. Two-column layout below gives widgets room to breathe.</p>
+  </div>
+
+  <div class="browser">
+    <div class="browser-chrome">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url-bar">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        plantcare.app/today
+      </div>
+    </div>
+
+    <div class="app">
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="logo">
+          <div class="logo-mark">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 20A9 9 0 0 1 2 11C2 6.5 6.5 3 12 3C17 3 21 7 21 12C16 12 13 15 11 20Z"/>
+              <path d="M11 20C13 15 15 11 20 9"/>
+            </svg>
+          </div>
+          <div class="logo-text">Plant<em>Care</em></div>
+        </div>
+
+        <div class="nav">
+          <div class="nav-label">Navigate</div>
+
+          <div class="nav-item active">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 11L12 3L21 11V20C21 20.5523 20.5523 21 20 21H15V14H9V21H4C3.44772 21 3 20.5523 3 20V11Z" fill="currentColor" fill-opacity="0.18"/>
+            </svg>
+            Today
+            <span class="count">2</span>
+          </div>
+
+          <div class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+            House
+            <span class="count">12</span>
+          </div>
+
+          <div class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.3-4.3"/>
+            </svg>
+            Discover
+          </div>
+
+          <div class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 21C4 17 7 15 12 15C17 15 20 17 20 21"/>
+            </svg>
+            Me
+          </div>
+
+          <div class="add-cta">
+            <div class="label">Quick action</div>
+            <h4>Add a plant</h4>
+            <p>Point your camera at any plant and we'll identify it</p>
+            <span class="add-btn">+ New plant</span>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="footer-user">
+            <div class="avatar">R</div>
+            <div class="info">
+              <div class="name">Robert Turner</div>
+              <div class="meta">12 plants · 4 rooms</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div class="main">
+
+        <div class="page-head">
+          <div>
+            <div class="greet">Wednesday, 9 April</div>
+            <h1>Good morning, <em>Robert</em>.</h1>
+          </div>
+          <div class="date-badge">
+            <div class="search">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              Search plants, species…
+              <kbd>⌘K</kbd>
+            </div>
+            <div class="today-date">3 plants need care today</div>
+          </div>
+        </div>
+
+        <!-- HERO (desktop) -->
+        <div class="hero">
+
+          <!-- Hand-drawn arrow flourish (editorial touch from reference) -->
+          <div class="flourish flourish-1">
+            <svg viewBox="0 0 160 60">
+              <path d="M 10 40 Q 40 10 80 30 Q 120 50 150 20"/>
+            </svg>
+          </div>
+
+          <div class="hero-content">
+            <div class="hero-title">
+              <div class="dot"></div>
+              <h3>Monty the Monstera</h3>
+            </div>
+            <p class="speech-quote">I'm wilting. This is, I fear, my villain origin story.</p>
+            <div class="hero-meta">
+              <span>Living room</span>
+              <span class="sep">·</span>
+              <span class="overdue-inline">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                8 days overdue
+              </span>
+            </div>
+            <span class="hero-cta">Water Monty</span>
+          </div>
+
+          <div class="hero-plant-desktop">
+            <svg viewBox="0 0 230 280">
+              <defs>
+                <linearGradient id="wilt-dt" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#7BE090"/>
+                  <stop offset="100%" stop-color="#14902F"/>
+                </linearGradient>
+                <linearGradient id="wilt-dt-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#86DB65"/>
+                  <stop offset="100%" stop-color="#32C456"/>
+                </linearGradient>
+              </defs>
+              <ellipse cx="125" cy="262" rx="48" ry="6" fill="#000" opacity="0.3"/>
+              <path d="M 85 215 L 76 260 L 174 260 L 165 215 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="2.2"/>
+              <ellipse cx="125" cy="215" rx="40" ry="7" fill="#86DB65" stroke="#0B3A1A" stroke-width="2.2"/>
+              <path d="M 125 215 Q 138 180 155 145 Q 170 120 178 110" fill="none" stroke="#14902F" stroke-width="4" stroke-linecap="round"/>
+              <path d="M 125 215 Q 108 180 85 145 Q 65 118 55 108" fill="none" stroke="#14902F" stroke-width="4" stroke-linecap="round"/>
+              <path d="M 125 215 Q 122 180 115 140 Q 108 105 104 90" fill="none" stroke="#14902F" stroke-width="4" stroke-linecap="round"/>
+              <path d="M 178 110 Q 218 116 218 150 Q 210 175 180 168 Q 168 150 176 120 Z" fill="url(#wilt-dt)" stroke="#0B3A1A" stroke-width="2"/>
+              <path d="M 178 110 Q 195 135 210 155" fill="none" stroke="#0B3A1A" stroke-width="1.2" opacity="0.55"/>
+              <ellipse cx="198" cy="142" rx="4" ry="5" fill="#0B3A1A"/>
+              <ellipse cx="188" cy="158" rx="3" ry="4" fill="#0B3A1A"/>
+              <path d="M 55 108 Q 16 118 18 152 Q 28 178 58 168 Q 72 150 62 118 Z" fill="url(#wilt-dt)" stroke="#0B3A1A" stroke-width="2"/>
+              <path d="M 55 108 Q 40 135 25 155" fill="none" stroke="#0B3A1A" stroke-width="1.2" opacity="0.55"/>
+              <ellipse cx="34" cy="142" rx="4" ry="5" fill="#0B3A1A"/>
+              <ellipse cx="48" cy="158" rx="3" ry="4" fill="#0B3A1A"/>
+              <path d="M 104 90 Q 82 68 100 50 Q 128 44 135 78 Q 128 96 104 90 Z" fill="url(#wilt-dt-2)" stroke="#0B3A1A" stroke-width="2"/>
+              <path d="M 104 90 Q 115 68 128 58" fill="none" stroke="#0B3A1A" stroke-width="1.2" opacity="0.55"/>
+              <ellipse cx="114" cy="72" rx="3" ry="4" fill="#0B3A1A"/>
+              <g transform="translate(78 225)">
+                <path d="M 0 -6 Q -5 -1 -5 4 Q -5 9 0 9 Q 5 9 5 4 Q 5 -1 0 -6 Z" fill="#2A9FB5" opacity="0.8"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 2-column below hero -->
+        <div class="below-hero">
+
+          <!-- Tasks column (left, wider) -->
+          <div class="tasks-col">
+            <div class="section-head">
+              <h2>Today's rituals</h2>
+              <div class="progress-wrap">
+                <div class="progress-text"><strong>1 done</strong>2 to go</div>
+                <div class="progress-ring">
+                  <svg viewBox="0 0 48 48">
+                    <circle class="bg" cx="24" cy="24" r="20"/>
+                    <circle class="fg" cx="24" cy="24" r="20" stroke-dasharray="41.9 125.6" />
+                  </svg>
+                  <div class="fraction"><span class="num">1</span><span class="denom">/3</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-task overdue">
+              <div class="plant-av">
+                <svg viewBox="0 0 56 56">
+                  <path d="M 20 44 L 18 52 L 38 52 L 36 44 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1.3"/>
+                  <path d="M 28 44 Q 26 24 16 12" fill="none" stroke="#14902F" stroke-width="2.4" stroke-linecap="round"/>
+                  <path d="M 28 44 Q 30 24 40 12" fill="none" stroke="#14902F" stroke-width="2.4" stroke-linecap="round"/>
+                  <path d="M 16 12 Q 6 10 6 22 Q 8 28 20 23 Q 25 17 16 12 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1.3"/>
+                  <path d="M 40 12 Q 50 10 50 22 Q 48 28 36 23 Q 31 17 40 12 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1.3"/>
+                </svg>
+              </div>
+              <div class="p-body">
+                <div class="p-name">Monty the Monstera</div>
+                <div class="p-voice">"Quickly! Time is a flat circle and I'm crumbling."</div>
+                <span class="p-tag overdue">💧 WATER · 8 DAYS OVERDUE</span>
+              </div>
+              <div class="check-btn"></div>
+            </div>
+
+            <div class="p-task">
+              <div class="plant-av">
+                <svg viewBox="0 0 56 56">
+                  <path d="M 20 44 L 18 52 L 38 52 L 36 44 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1.3"/>
+                  <path d="M 22 44 Q 20 12 28 7 Q 36 12 34 44" fill="#32C456" stroke="#0B3A1A" stroke-width="1.3"/>
+                  <path d="M 22 28 Q 13 26 13 18 Q 13 13 18 13 L 18 26 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1.3"/>
+                  <path d="M 34 30 Q 43 28 43 20 Q 43 15 38 15 L 38 28 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1.3"/>
+                  <circle cx="28" cy="6" r="3.5" fill="#FFB83D"/>
+                </svg>
+              </div>
+              <div class="p-body">
+                <div class="p-name">Spike the Cactus</div>
+                <div class="p-voice">"I'm fine. I'm always fine. Don't ask."</div>
+                <span class="p-tag water">💧 WATER · DUE TODAY</span>
+              </div>
+              <div class="check-btn"></div>
+            </div>
+
+            <div class="p-task done">
+              <div class="plant-av">
+                <svg viewBox="0 0 56 56">
+                  <path d="M 20 44 L 18 52 L 38 52 L 36 44 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1.3"/>
+                  <path d="M 28 44 Q 20 24 13 16 Q 10 10 15 12 Q 23 22 28 36" fill="#5ED87A" stroke="#0B3A1A" stroke-width="1.3"/>
+                  <path d="M 28 44 Q 36 24 43 16 Q 46 10 41 12 Q 33 22 28 36" fill="#5ED87A" stroke="#0B3A1A" stroke-width="1.3"/>
+                </svg>
+              </div>
+              <div class="p-body">
+                <div class="p-name">Fernie the Boston Fern</div>
+                <div class="p-voice">"Misted and grateful. You're the best."</div>
+                <span class="p-tag mist">💨 MIST · DONE AT 8:12</span>
+              </div>
+              <div class="check-btn"></div>
+            </div>
+          </div>
+
+          <!-- Widget column (right, narrower) -->
+          <div class="widget-col">
+
+            <div class="widget since-widget">
+              <h3>Since you were gone</h3>
+              <div class="change-item">
+                <div>
+                  Monty's mood dropped from Content to Wilting
+                  <small class="time-small">6 hours ago</small>
+                </div>
+              </div>
+              <div class="change-item">
+                <div>
+                  Basil's next feeding is due
+                  <small class="time-small">12 hours ago</small>
+                </div>
+              </div>
+              <div class="change-item">
+                <div>
+                  Fernie's misting schedule shifted — warmer week
+                  <small class="time-small">18 hours ago</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="widget stats-widget">
+              <h3>Your jungle</h3>
+              <div class="big-num">12</div>
+              <div class="big-label">plants across 4 rooms</div>
+              <div class="sub-stats">
+                <div class="sub-stat">
+                  <div class="n">94%</div>
+                  <div class="l">Healthy</div>
+                </div>
+                <div class="sub-stat">
+                  <div class="n">7d</div>
+                  <div class="l">Streak</div>
+                </div>
+                <div class="sub-stat">
+                  <div class="n">34</div>
+                  <div class="l">Photos</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="widget discover-widget">
+              <h3>Discover picks</h3>
+              <div class="pick-row">
+                <div class="pick-thumb"></div>
+                <div class="pick-info">
+                  <div class="pick-name">Calathea Orbifolia</div>
+                  <div class="pick-meta">Humidity lover · chill</div>
+                </div>
+                <span class="arrow-lnk">→</span>
+              </div>
+              <div class="pick-row">
+                <div class="pick-thumb"></div>
+                <div class="pick-info">
+                  <div class="pick-name">Philodendron Pink Princess</div>
+                  <div class="pick-meta">Bright indirect · dramatic</div>
+                </div>
+                <span class="arrow-lnk">→</span>
+              </div>
+              <div class="pick-row">
+                <div class="pick-thumb"></div>
+                <div class="pick-info">
+                  <div class="pick-name">String of Hearts</div>
+                  <div class="pick-meta">Hanging · needy</div>
+                </div>
+                <span class="arrow-lnk">→</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="desktop-notes">
+    <h3>What's different on <em>desktop</em>, and what isn't</h3>
+
+    <div class="desktop-notes-grid">
+      <div class="desktop-note">
+        <h4>Same</h4>
+        <p>Same palette, same core hero card, same personality voice system, same care animation, same progress ring, same data. Desktop is <strong>not a different app</strong> — it's the same app with more room.</p>
+      </div>
+      <div class="desktop-note">
+        <h4>Different — layout</h4>
+        <p>Bottom dock → <strong>left sidebar</strong>. Single column → <strong>2-column content below the hero</strong> (tasks main, widgets right). Hero plant scales from 230px → <strong>340px with more presence</strong>.</p>
+      </div>
+      <div class="desktop-note">
+        <h4>Different — typography</h4>
+        <p>Page titles get <strong>Fraunces italic serif</strong> for editorial weight ("Good morning, <em>Robert</em>"). Hero speech quote uses Fraunces too — 36px italic. Body text stays Plus Jakarta Sans.</p>
+      </div>
+      <div class="desktop-note">
+        <h4>Extra on desktop</h4>
+        <p>Widget column gains room for <strong>"Since you were gone"</strong>, <strong>"Your jungle"</strong> stats, and <strong>"Discover picks"</strong>. These exist on mobile as separate screens or scroll sections; desktop shows them all at once.</p>
+      </div>
+      <div class="desktop-note">
+        <h4>Phase 3 impact</h4>
+        <p>The 3D isometric <strong>Greenhouse</strong> view lives in the House screen on desktop — takes the full content area. Three.js with orbit controls. Mobile gets a simpler tap-to-drill version or stays on the grid.</p>
+      </div>
+      <div class="desktop-note">
+        <h4>Editorial flourishes</h4>
+        <p>One hand-drawn dashed arrow curves above the hero (you can see it faintly behind Monty). Used sparingly — one or two flourishes per page max, never competing with content.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

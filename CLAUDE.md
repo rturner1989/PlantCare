@@ -1,12 +1,14 @@
 # PlantCare
 
-Plant care assistant app. Rails 8 API + React frontend. Learning project for React (user writes all the code), but also designed as a shippable product.
+Plant care assistant app. Rails 8 API + React frontend. Learning project for React — the user drives the frontend work and writes code when they want hands-on practice, but can hand off to Claude for support, scaffolding, or unblocking at any time. Also designed as a shippable product.
 
 ## Current Status
 
-**Backend MVP (Tasks 1-11) — COMPLETE.** All core API endpoints built, 134 tests passing. Ready to move to the React frontend (Tasks 12+).
+**Backend MVP (Tasks 1-11) — COMPLETE.** All core API endpoints built, 134 tests passing. Frontend work starting.
 
-Next task: **Task 12** — React foundation (API client, auth context, routing, layout).
+**Next task: Frontend Plan Task 1** — Install dependencies + design tokens. See `docs/plans/2026-04-10-plantcare-frontend.md`.
+
+**Note:** The old MVP plan (`docs/plans/2026-04-03-plantcare-mvp.md`) Tasks 12-21 are superseded by the new frontend plan.
 
 ## Architecture
 
@@ -102,8 +104,31 @@ docker compose up                   # Start everything
 
 The dollhouse view is the standout product feature — keep data model decisions compatible with it.
 
+## Project Documentation
+
+```
+docs/
+├── specs/                          # Design specs (committed)
+│   ├── 2026-04-03-plantcare-design.md      # Technical spec (data models, API, auth)
+│   └── 2026-04-09-plantcare-ui-design.md   # UI/UX design spec (palette, IA, screens, animations)
+├── plans/                          # Implementation plans (committed)
+│   ├── 2026-04-03-plantcare-mvp.md         # Original MVP plan (backend tasks 1-11 done, frontend tasks 12-21 SUPERSEDED)
+│   └── 2026-04-10-plantcare-frontend.md    # Current frontend plan (tasks 1-14, use this one)
+├── mockups/plantcare-ui/           # HTML mockups (committed, open in browser)
+│   └── 00-12 *.html                        # 13 self-contained mockup files with README
+└── tickets/                        # Work tickets (committed)
+    └── TICKET-NNN.html                     # Generated via /ticket skill
+```
+
+## Skills
+
+- `/pre-commit` — run lint + tests, fix failures, prepare for commit
+- `/ticket` — generate a Jira-style HTML ticket with requirements, acceptance criteria, and design references
+- `/review-ticket` — review completed work against ticket acceptance criteria and design spec
+- `/github-make-pr` — push current branch and create a GitHub pull request
+- `/github-babysit-pr` — watch current PR for CI failures and auto-fix them
+
 ## What Not to Touch
 
-- `docs/superpowers/` is gitignored — never commit it
 - `api/config/master.key` and `credentials.yml.enc` are gitignored
 - `.env` is gitignored; `.env.example` is the template

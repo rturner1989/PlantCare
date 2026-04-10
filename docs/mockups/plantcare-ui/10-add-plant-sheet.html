@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare v15 — Add Plant Bottom Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --base: #F6FBF4;
+    --mint: #DFF2E2;
+    --lime: #86DB65;
+    --leaf: #32C456;
+    --emerald: #14902F;
+    --forest: #0B3A1A;
+    --forest-2: #124626;
+    --ink: #0A1D0E;
+    --ink-soft: #4A6A51;
+    --coral: #FF6B3D;
+    --sunshine: #FFB83D;
+    --card: #FFFFFF;
+    --shadow-xl: 0 40px 100px -20px rgba(11,58,26,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--base);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage { min-height: 100vh; padding: 56px 40px 80px; }
+
+  .masthead { text-align: center; max-width: 900px; margin: 0 auto 50px; }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--emerald);
+    background: var(--mint); padding: 8px 16px; border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .kicker .dot { width: 8px; height: 8px; background: var(--leaf); border-radius: 50%; }
+  .headline {
+    font-size: 48px; font-weight: 800; line-height: 1.03;
+    letter-spacing: -0.035em; color: var(--ink); margin-bottom: 14px;
+  }
+  .headline em {
+    font-style: normal; color: var(--leaf);
+    position: relative; display: inline-block;
+  }
+  .headline em::after {
+    content: ''; position: absolute;
+    left: -2%; right: -2%; bottom: 5px;
+    height: 12px; background: var(--lime);
+    z-index: -1; border-radius: 4px;
+    transform: skew(-6deg);
+  }
+  .lede {
+    font-size: 16px; font-weight: 400; color: var(--ink-soft);
+    max-width: 640px; margin: 0 auto; line-height: 1.55;
+  }
+
+  .iphone-row {
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: 50px; flex-wrap: wrap; margin-bottom: 60px;
+  }
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; }
+  .phone-label {
+    margin-top: 18px;
+    font-size: 12px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--emerald);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-label .tag {
+    background: var(--leaf); color: var(--card);
+    padding: 4px 10px; border-radius: 100px;
+    font-size: 9px; letter-spacing: 0.1em;
+  }
+
+  .iphone {
+    width: 413px; height: 872px;
+    background: #1A1A1A;
+    border-radius: 55px;
+    padding: 10px;
+    box-shadow:
+      var(--shadow-xl),
+      inset 0 0 0 1.5px rgba(255,255,255,0.08),
+      inset 0 0 0 3px #0A0A0A;
+    position: relative;
+  }
+  .iphone::before {
+    content: ''; position: absolute;
+    left: -2px; top: 180px;
+    width: 3px; height: 36px;
+    background: #0A0A0A; border-radius: 2px 0 0 2px;
+  }
+  .iphone::after {
+    content: ''; position: absolute;
+    right: -2px; top: 200px;
+    width: 3px; height: 72px;
+    background: #0A0A0A; border-radius: 0 2px 2px 0;
+  }
+  .screen {
+    width: 393px; height: 852px;
+    background: linear-gradient(180deg, #F6FBF4 0%, #DFF2E2 50%, #C7ECCA 100%);
+    border-radius: 47px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dynamic-island {
+    position: absolute;
+    top: 11px; left: 50%;
+    transform: translateX(-50%);
+    width: 124px; height: 37px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+  }
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 54px;
+    padding: 18px 32px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 17px; font-weight: 700; color: var(--ink);
+    z-index: 50;
+  }
+  .status-bar .indicators { display: flex; align-items: center; gap: 6px; }
+
+  /* Dimmed Today background (fake) */
+  .bg-today {
+    position: absolute;
+    top: 54px;
+    left: 0; right: 0;
+    bottom: 0;
+    padding: 20px 22px;
+    opacity: 0.35;
+    filter: blur(3px);
+  }
+  .bg-today .bg-header {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .bg-today .bg-hero {
+    background: var(--forest);
+    height: 220px;
+    border-radius: 28px;
+    margin-bottom: 14px;
+  }
+  .bg-today .bg-ribbon {
+    background: var(--mint);
+    height: 60px;
+    border-radius: 14px;
+    margin-bottom: 18px;
+  }
+  .bg-today .bg-task {
+    background: var(--card);
+    height: 78px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    border: 1px solid var(--mint);
+  }
+
+  /* Backdrop dim overlay */
+  .backdrop {
+    position: absolute;
+    top: 54px;
+    left: 0; right: 0;
+    bottom: 0;
+    background: rgba(11,58,26,0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
+  /* Bottom sheet */
+  .sheet {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    background: var(--card);
+    border-radius: 28px 28px 0 0;
+    padding: 14px 24px 40px;
+    max-height: 85%;
+    overflow-y: auto;
+    box-shadow: 0 -12px 40px rgba(0,0,0,0.25);
+  }
+  .sheet::-webkit-scrollbar { display: none; }
+
+  /* Sheet with taller variant for step 3 */
+  .sheet.tall {
+    max-height: 94%;
+  }
+
+  .sheet-handle {
+    width: 44px;
+    height: 5px;
+    background: var(--mint);
+    border-radius: 100px;
+    margin: 0 auto 14px;
+  }
+
+  .sheet-head {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .sheet-head h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--forest);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .sheet-head h2 em { font-style: italic; color: var(--leaf); }
+  .sheet-head p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* ============================ */
+  /* PHONE 1 — FAB CHOICE         */
+  /* ============================ */
+  .action-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .action-option {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 18px;
+    background: var(--base);
+    border: 1.5px solid var(--mint);
+    border-radius: 20px;
+    cursor: pointer;
+    position: relative;
+  }
+  .action-option.primary {
+    background: linear-gradient(135deg, var(--forest), var(--forest-2));
+    border: none;
+    color: var(--card);
+  }
+  .action-option.primary::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 85% 100%, rgba(134,219,101,0.25), transparent 55%);
+    border-radius: 20px;
+  }
+  .action-option .icon-tile {
+    width: 52px; height: 52px;
+    border-radius: 16px;
+    background: var(--mint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--emerald);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .action-option.primary .icon-tile {
+    background: var(--leaf);
+    color: var(--card);
+  }
+  .action-option .action-body {
+    flex: 1;
+    position: relative;
+  }
+  .action-option h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+    margin-bottom: 3px;
+  }
+  .action-option.primary h3 { color: var(--card); }
+  .action-option p {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    line-height: 1.35;
+  }
+  .action-option.primary p { color: rgba(255,255,255,0.65); }
+  .action-option .chev {
+    color: var(--ink-soft);
+    font-size: 18px;
+    font-weight: 800;
+    position: relative;
+  }
+  .action-option.primary .chev { color: var(--lime); }
+
+  .sheet-cancel {
+    text-align: center;
+    padding: 14px;
+    background: var(--mint);
+    color: var(--forest);
+    border: none;
+    border-radius: 16px;
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: -0.01em;
+  }
+
+  /* ============================ */
+  /* PHONE 2 — CAMERA + AI RESULT */
+  /* ============================ */
+  .camera-view {
+    background: #0A1D0E;
+    height: 280px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .camera-view::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 60%, rgba(79,201,60,0.15) 0%, transparent 60%),
+      linear-gradient(180deg, rgba(11,58,26,0.5) 0%, transparent 50%);
+  }
+  .camera-view .focus-frame {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    pointer-events: none;
+  }
+  .camera-view .focus-frame .corner {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-color: var(--lime);
+    border-style: solid;
+  }
+  .camera-view .focus-frame .corner.tl { top: 0; left: 0; border-width: 3px 0 0 3px; border-top-left-radius: 8px; }
+  .camera-view .focus-frame .corner.tr { top: 0; right: 0; border-width: 3px 3px 0 0; border-top-right-radius: 8px; }
+  .camera-view .focus-frame .corner.bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-bottom-left-radius: 8px; }
+  .camera-view .focus-frame .corner.br { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-bottom-right-radius: 8px; }
+
+  .camera-view .plant-silhouette {
+    position: relative;
+    z-index: 2;
+  }
+
+  .camera-view .cam-badge {
+    position: absolute;
+    top: 16px; left: 16px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px);
+    color: var(--card);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 3;
+  }
+  .camera-view .cam-badge .pulse {
+    width: 6px; height: 6px;
+    background: var(--coral);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.3); }
+  }
+
+  /* AI result card */
+  .ai-result {
+    background: var(--base);
+    border: 1.5px solid var(--leaf);
+    border-radius: 18px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .ai-result .ai-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--emerald);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ai-result .ai-label svg { display: block; }
+  .ai-result h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--forest);
+    line-height: 1.05;
+    margin-bottom: 4px;
+  }
+  .ai-result .ai-common {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .ai-result .ai-confidence {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ai-result .confidence-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--mint);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .ai-result .confidence-fill {
+    height: 100%;
+    width: 94%;
+    background: linear-gradient(90deg, var(--leaf), var(--lime));
+    border-radius: 100px;
+  }
+  .ai-result .confidence-pct {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--emerald);
+  }
+
+  .sheet-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .btn-secondary {
+    flex: 1;
+    padding: 14px;
+    background: var(--mint);
+    color: var(--forest);
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .btn-primary {
+    flex: 2;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--leaf), var(--emerald));
+    color: var(--card);
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(20,144,47,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-primary::after { content: '→'; font-size: 15px; }
+
+  /* ============================ */
+  /* PHONE 3 — CONFIRM DETAILS    */
+  /* ============================ */
+  .species-mini {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, var(--forest), var(--forest-2));
+    border-radius: 16px;
+    color: var(--card);
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .species-mini::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 90% 100%, rgba(134,219,101,0.18), transparent 55%);
+  }
+  .species-mini .thumb {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    background: var(--leaf);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .species-mini .mini-info {
+    flex: 1;
+    position: relative;
+  }
+  .species-mini .mini-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--lime);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
+  }
+  .species-mini .mini-name {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 500;
+    font-style: italic;
+    line-height: 1.1;
+  }
+  .species-mini .mini-tag {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 3px 8px;
+    background: rgba(255,107,61,0.25);
+    color: var(--coral);
+    border-radius: 100px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .form-block {
+    margin-bottom: 14px;
+  }
+  .form-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    padding-left: 2px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 13px 16px;
+    background: var(--base);
+    border: 1.5px solid var(--mint);
+    border-radius: 13px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .form-input.focus {
+    border-color: var(--leaf);
+    background: var(--card);
+    box-shadow: 0 0 0 4px rgba(50,196,86,0.12);
+  }
+
+  /* Room picker */
+  .room-picker {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .room-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 12px;
+    background: var(--base);
+    border: 1.5px solid var(--mint);
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .room-chip.active {
+    background: var(--leaf);
+    border-color: var(--leaf);
+    color: var(--card);
+  }
+  .room-chip svg { display: block; }
+
+  /* Env compact */
+  .env-mini {
+    display: flex;
+    gap: 4px;
+    background: var(--mint);
+    padding: 3px;
+    border-radius: 10px;
+  }
+  .env-mini button {
+    flex: 1;
+    padding: 8px 4px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .env-mini button.active {
+    background: var(--card);
+    color: var(--forest);
+    box-shadow: 0 2px 4px rgba(11,58,26,0.08);
+  }
+
+  .env-compact-row {
+    margin-bottom: 8px;
+  }
+  .env-compact-row .env-tiny {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 5px;
+  }
+
+  .btn-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, var(--leaf), var(--emerald));
+    color: var(--card);
+    border: none;
+    border-radius: 16px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    box-shadow: 0 8px 20px rgba(20,144,47,0.35);
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  .btn-add::after { content: '→'; font-size: 17px; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="masthead">
+    <div class="kicker"><span class="dot"></span>Direction · Take Sixteen</div>
+    <h1 class="headline">Add plant <em>bottom sheet</em>.</h1>
+    <p class="lede">The FAB opens a sheet asking what you want to do. Choose "Add a plant" → camera opens for AI identification → confirm and save. Vaul-powered, drag-to-dismiss, slides over a dimmed Today screen.</p>
+  </div>
+
+  <div class="iphone-row">
+
+    <!-- PHONE 1: FAB CHOICE -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="screen">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="indicators">
+              <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor">
+                <rect x="0" y="6" width="3" height="5" rx="0.5"/>
+                <rect x="5" y="4" width="3" height="7" rx="0.5"/>
+                <rect x="10" y="2" width="3" height="9" rx="0.5"/>
+                <rect x="15" y="0" width="3" height="11" rx="0.5"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 10.5c0.6 0 1-0.4 1-1s-0.4-1-1-1-1 0.4-1 1 0.4 1 1 1z"/></svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+                <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+                <path d="M24 4V8" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
+
+          <!-- Dimmed Today background -->
+          <div class="bg-today">
+            <div class="bg-header">Hi, Robert</div>
+            <div class="bg-hero"></div>
+            <div class="bg-ribbon"></div>
+            <div class="bg-task"></div>
+            <div class="bg-task"></div>
+          </div>
+          <div class="backdrop"></div>
+
+          <!-- Sheet -->
+          <div class="sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-head">
+              <h2>What can I <em>help</em> with?</h2>
+              <p>Pick an action to get started</p>
+            </div>
+
+            <div class="action-options">
+              <div class="action-option primary">
+                <div class="icon-tile">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                  </svg>
+                </div>
+                <div class="action-body">
+                  <h3>Add a new plant</h3>
+                  <p>Point your camera at any plant — we'll identify it and set up care</p>
+                </div>
+                <div class="chev">→</div>
+              </div>
+
+              <div class="action-option">
+                <div class="icon-tile">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 11a3 3 0 0 1 3 3v0a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-5a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4v1"/>
+                    <path d="M18 14a3 3 0 0 1-3-3v0a3 3 0 0 1 3-3h3a3 3 0 0 1 3 3v5a4 4 0 0 1-4 4h0a4 4 0 0 1-4-4v-1"/>
+                  </svg>
+                </div>
+                <div class="action-body">
+                  <h3>Check a plant's health</h3>
+                  <p>Diagnose issues, yellowing leaves, pests, or general worries</p>
+                </div>
+                <div class="chev">→</div>
+              </div>
+            </div>
+
+            <button class="sheet-cancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label"><span class="tag">1</span>FAB choice sheet</div>
+    </div>
+
+    <!-- PHONE 2: CAMERA + AI RESULT -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="screen">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="indicators">
+              <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor">
+                <rect x="0" y="6" width="3" height="5" rx="0.5"/>
+                <rect x="5" y="4" width="3" height="7" rx="0.5"/>
+                <rect x="10" y="2" width="3" height="9" rx="0.5"/>
+                <rect x="15" y="0" width="3" height="11" rx="0.5"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 10.5c0.6 0 1-0.4 1-1s-0.4-1-1-1-1 0.4-1 1 0.4 1 1 1z"/></svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+                <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+                <path d="M24 4V8" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
+
+          <div class="bg-today">
+            <div class="bg-header">Hi, Robert</div>
+            <div class="bg-hero"></div>
+            <div class="bg-ribbon"></div>
+          </div>
+          <div class="backdrop"></div>
+
+          <div class="sheet tall">
+            <div class="sheet-handle"></div>
+            <div class="sheet-head">
+              <h2>Identify your <em>plant</em></h2>
+              <p>We think we know what this is</p>
+            </div>
+
+            <div class="camera-view">
+              <div class="cam-badge">
+                <div class="pulse"></div>
+                DETECTING
+              </div>
+              <div class="focus-frame">
+                <div class="corner tl"></div>
+                <div class="corner tr"></div>
+                <div class="corner bl"></div>
+                <div class="corner br"></div>
+              </div>
+              <!-- Plant silhouette (faint, as if seen through camera) -->
+              <svg class="plant-silhouette" width="150" height="180" viewBox="0 0 150 180">
+                <defs>
+                  <linearGradient id="cam-leaf" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#5ED87A" stop-opacity="0.7"/>
+                    <stop offset="100%" stop-color="#1FA03D" stop-opacity="0.5"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="75" cy="168" rx="32" ry="4" fill="#000" opacity="0.5"/>
+                <path d="M 52 125 L 44 165 L 106 165 L 98 125 Z" fill="#2A4030" stroke="#1FA03D" stroke-width="1.5" opacity="0.8"/>
+                <ellipse cx="75" cy="125" rx="26" ry="4" fill="#1FA03D" opacity="0.6"/>
+                <path d="M 75 125 Q 68 85 52 48" fill="none" stroke="#1FA03D" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+                <path d="M 75 125 Q 82 85 98 48" fill="none" stroke="#1FA03D" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+                <path d="M 52 48 Q 20 30 14 60 Q 18 85 48 80 Q 62 65 58 46 Z" fill="url(#cam-leaf)" stroke="#1FA03D" stroke-width="1.5"/>
+                <path d="M 98 48 Q 130 30 136 60 Q 132 85 102 80 Q 88 65 92 46 Z" fill="url(#cam-leaf)" stroke="#1FA03D" stroke-width="1.5"/>
+                <path d="M 75 45 Q 58 20 78 10 Q 96 20 88 42 Z" fill="url(#cam-leaf)" stroke="#1FA03D" stroke-width="1.5"/>
+              </svg>
+            </div>
+
+            <div class="ai-result">
+              <div class="ai-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                </svg>
+                AI identified
+              </div>
+              <h4>Monstera deliciosa</h4>
+              <div class="ai-common">Swiss cheese plant · 🎭 Dramatic</div>
+              <div class="ai-confidence">
+                <div class="confidence-bar"><div class="confidence-fill"></div></div>
+                <span class="confidence-pct">94%</span>
+              </div>
+            </div>
+
+            <div class="sheet-actions">
+              <button class="btn-secondary">Not quite</button>
+              <button class="btn-primary">Yes, that's it</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label"><span class="tag">2</span>Camera + AI result</div>
+    </div>
+
+    <!-- PHONE 3: CONFIRM DETAILS -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="screen">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="indicators">
+              <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor">
+                <rect x="0" y="6" width="3" height="5" rx="0.5"/>
+                <rect x="5" y="4" width="3" height="7" rx="0.5"/>
+                <rect x="10" y="2" width="3" height="9" rx="0.5"/>
+                <rect x="15" y="0" width="3" height="11" rx="0.5"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 10.5c0.6 0 1-0.4 1-1s-0.4-1-1-1-1 0.4-1 1 0.4 1 1 1z"/></svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+                <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+                <path d="M24 4V8" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
+
+          <div class="bg-today">
+            <div class="bg-header">Hi, Robert</div>
+            <div class="bg-hero"></div>
+          </div>
+          <div class="backdrop"></div>
+
+          <div class="sheet tall">
+            <div class="sheet-handle"></div>
+            <div class="sheet-head">
+              <h2>Almost <em>there</em></h2>
+              <p>A few details and we're done</p>
+            </div>
+
+            <div class="species-mini">
+              <div class="thumb">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 20A9 9 0 0 1 2 11C2 6.5 6.5 3 12 3C17 3 21 7 21 12C16 12 13 15 11 20Z" fill="currentColor" fill-opacity="0.3"/>
+                  <path d="M11 20C13 15 15 11 20 9"/>
+                </svg>
+              </div>
+              <div class="mini-info">
+                <div class="mini-label">Identified species</div>
+                <div class="mini-name">Monstera deliciosa</div>
+                <div class="mini-tag">🎭 Dramatic</div>
+              </div>
+            </div>
+
+            <div class="form-block">
+              <div class="form-label">Nickname</div>
+              <input class="form-input focus" value="Monty" />
+            </div>
+
+            <div class="form-block">
+              <div class="form-label">Which room?</div>
+              <div class="room-picker">
+                <div class="room-chip active">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 18V12C3 10 4 9 6 9H18C20 9 21 10 21 12V18M3 18H21M6 9V6C6 5 7 4 8 4H16C17 4 18 5 18 6V9"/>
+                  </svg>
+                  Living room
+                </div>
+                <div class="room-chip">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2V7M6 7C4 7 3 8 3 10V14M6 7H12M12 7V2M12 7C14 7 15 8 15 10V14M3 14H15"/>
+                  </svg>
+                  Kitchen
+                </div>
+                <div class="room-chip">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 14V19M22 14V19M2 17H22M4 14C4 11 5 10 7 10H17C19 10 20 11 20 14"/>
+                  </svg>
+                  Bedroom
+                </div>
+                <div class="room-chip">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5V19M5 12H19"/>
+                  </svg>
+                  New
+                </div>
+              </div>
+            </div>
+
+            <div class="form-block">
+              <div class="form-label">Environment at this spot</div>
+              <div class="env-compact-row">
+                <div class="env-tiny">Light</div>
+                <div class="env-mini">
+                  <button>Low</button>
+                  <button class="active">Medium</button>
+                  <button>Bright</button>
+                </div>
+              </div>
+              <div class="env-compact-row">
+                <div class="env-tiny">Humidity</div>
+                <div class="env-mini">
+                  <button>Dry</button>
+                  <button>Average</button>
+                  <button class="active">Humid</button>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn-add">Add Monty to your garden</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label"><span class="tag">3</span>Confirm details</div>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

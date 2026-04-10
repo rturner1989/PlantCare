@@ -1,0 +1,203 @@
+<h2>What aesthetic direction feels right for PlantCare?</h2>
+<p class="subtitle">This decides everything downstream — palette, typography, layout density, illustration style. Pick the mood that matches what you want people to feel when they open the app.</p>
+
+<style>
+  .aesthetic-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+  .swatch-strip {
+    display: flex;
+    height: 50px;
+  }
+  .swatch { flex: 1; }
+  .preview {
+    padding: 28px 24px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .preview-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .preview-sub {
+    font-size: 13px;
+    opacity: 0.7;
+    margin: 0 0 18px;
+  }
+  .mini-plant {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 12px;
+  }
+  .mini-plant .emote {
+    font-size: 32px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .mini-plant .info { flex: 1; }
+  .mini-plant .name { font-weight: 600; font-size: 14px; margin: 0; }
+  .mini-plant .status { font-size: 12px; margin: 2px 0 0; opacity: 0.75; }
+  .vibe-label {
+    padding: 14px 20px;
+    font-size: 13px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+
+  /* A — Cozy Whimsical */
+  .cozy { background: #FAF5EC; color: #3D2E1F; font-family: 'Georgia', 'Fraunces', serif; }
+  .cozy .preview-title { font-family: 'Fraunces', 'Georgia', serif; font-style: italic; color: #6B4423; }
+  .cozy .mini-plant { background: #F1E6CE; }
+  .cozy .mini-plant .emote { background: #E8D5A8; }
+  .cozy .vibe-label { background: #F1E6CE; color: #6B4423; }
+
+  /* B — Modern Botanical */
+  .botanical { background: #FFFFFF; color: #1A2E1F; font-family: 'Inter', -apple-system, sans-serif; }
+  .botanical .preview-title { color: #2D4A32; letter-spacing: -0.02em; }
+  .botanical .mini-plant { background: #F5F8F4; border: 1px solid #E5ECE1; }
+  .botanical .mini-plant .emote { background: #DCE8D5; }
+  .botanical .vibe-label { background: #F5F8F4; color: #4A6B4F; }
+
+  /* C — Playful Vibrant */
+  .vibrant { background: #FFF9F2; color: #2D1B3D; font-family: 'Nunito', 'Quicksand', sans-serif; }
+  .vibrant .preview-title { color: #E85D75; font-weight: 800; }
+  .vibrant .mini-plant { background: #FFE8EC; border: 3px solid #FFCFD6; }
+  .vibrant .mini-plant .emote { background: #FFD479; }
+  .vibrant .vibe-label { background: #FFE8EC; color: #B8456E; font-weight: 600; }
+
+  /* D — Dark Terrarium */
+  .terrarium { background: #0F1C14; color: #D4E8D4; font-family: 'Inter', sans-serif; }
+  .terrarium .preview-title { color: #7BC96F; font-weight: 600; }
+  .terrarium .preview-sub { color: #8FA88F; }
+  .terrarium .mini-plant { background: #1A2D1F; border: 1px solid #2A4030; }
+  .terrarium .mini-plant .emote { background: #2D4A32; }
+  .terrarium .mini-plant .status { color: #8FA88F; }
+  .terrarium .vibe-label { background: #1A2D1F; color: #7BC96F; border-top-color: #2A4030; }
+</style>
+
+<div class="cards">
+  <div class="card" data-choice="cozy" onclick="toggleSelect(this)">
+    <div class="aesthetic-card cozy">
+      <div class="swatch-strip">
+        <div class="swatch" style="background:#FAF5EC"></div>
+        <div class="swatch" style="background:#F1E6CE"></div>
+        <div class="swatch" style="background:#C9A86A"></div>
+        <div class="swatch" style="background:#6B4423"></div>
+        <div class="swatch" style="background:#7A9060"></div>
+      </div>
+      <div class="preview">
+        <div>
+          <p class="preview-title">Good morning, Robert</p>
+          <p class="preview-sub">Your plants are doing well today</p>
+        </div>
+        <div class="mini-plant">
+          <div class="emote">🌿</div>
+          <div class="info">
+            <p class="name">Monty the Monstera</p>
+            <p class="status">feeling dramatic today</p>
+          </div>
+        </div>
+      </div>
+      <div class="vibe-label">
+        <strong>A · Cozy Whimsical</strong> — cream backgrounds, serif italics, hand-written feel, warm and personal
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="botanical" onclick="toggleSelect(this)">
+    <div class="aesthetic-card botanical">
+      <div class="swatch-strip">
+        <div class="swatch" style="background:#FFFFFF"></div>
+        <div class="swatch" style="background:#F5F8F4"></div>
+        <div class="swatch" style="background:#DCE8D5"></div>
+        <div class="swatch" style="background:#4A6B4F"></div>
+        <div class="swatch" style="background:#1A2E1F"></div>
+      </div>
+      <div class="preview">
+        <div>
+          <p class="preview-title">Dashboard</p>
+          <p class="preview-sub">12 plants · 3 need attention</p>
+        </div>
+        <div class="mini-plant">
+          <div class="emote">🌿</div>
+          <div class="info">
+            <p class="name">Monstera Deliciosa</p>
+            <p class="status">Water in 2 days</p>
+          </div>
+        </div>
+      </div>
+      <div class="vibe-label">
+        <strong>B · Modern Botanical</strong> — clean whites, sage accents, Notion-meets-plant-shop, refined and calm
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="vibrant" onclick="toggleSelect(this)">
+    <div class="aesthetic-card vibrant">
+      <div class="swatch-strip">
+        <div class="swatch" style="background:#FFF9F2"></div>
+        <div class="swatch" style="background:#FFE8EC"></div>
+        <div class="swatch" style="background:#FFD479"></div>
+        <div class="swatch" style="background:#E85D75"></div>
+        <div class="swatch" style="background:#6BBF7A"></div>
+      </div>
+      <div class="preview">
+        <div>
+          <p class="preview-title">Hey! 3 plants need love!</p>
+          <p class="preview-sub">Time to be a good plant parent 💚</p>
+        </div>
+        <div class="mini-plant">
+          <div class="emote">😫</div>
+          <div class="info">
+            <p class="name">Monty the Monstera</p>
+            <p class="status">I'M DYING OF THIRST</p>
+          </div>
+        </div>
+      </div>
+      <div class="vibe-label">
+        <strong>C · Playful Vibrant</strong> — coral &amp; mint, chunky rounded type, Duolingo energy, personality-forward
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="terrarium" onclick="toggleSelect(this)">
+    <div class="aesthetic-card terrarium">
+      <div class="swatch-strip">
+        <div class="swatch" style="background:#0F1C14"></div>
+        <div class="swatch" style="background:#1A2D1F"></div>
+        <div class="swatch" style="background:#2D4A32"></div>
+        <div class="swatch" style="background:#7BC96F"></div>
+        <div class="swatch" style="background:#D4E8D4"></div>
+      </div>
+      <div class="preview">
+        <div>
+          <p class="preview-title">Your Jungle</p>
+          <p class="preview-sub">12 plants · last watered 2h ago</p>
+        </div>
+        <div class="mini-plant">
+          <div class="emote">🌿</div>
+          <div class="info">
+            <p class="name">Monstera Deliciosa</p>
+            <p class="status">Thriving · next water Thu</p>
+          </div>
+        </div>
+      </div>
+      <div class="vibe-label">
+        <strong>D · Dark Terrarium</strong> — deep greens, glowing highlights, moody and atmospheric, tech-plant hybrid
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top: 32px; text-align: center;">Click a card to select it, or tell me in the terminal which direction resonates (or if none do — we can explore something else).</p>

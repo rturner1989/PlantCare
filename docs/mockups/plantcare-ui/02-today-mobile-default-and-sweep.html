@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare v9 — Default state + sweep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --base: #F6FBF4;
+    --mint: #DFF2E2;
+    --lime: #86DB65;
+    --leaf: #32C456;
+    --emerald: #14902F;
+    --forest: #0B3A1A;
+    --forest-2: #124626;
+    --ink: #0A1D0E;
+    --ink-soft: #4A6A51;
+    --coral: #FF6B3D;
+    --card: #FFFFFF;
+    --shadow-xl: 0 40px 100px -20px rgba(11,58,26,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--base);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage { min-height: 100vh; padding: 56px 40px 80px; }
+
+  .masthead { text-align: center; max-width: 900px; margin: 0 auto 50px; }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--emerald);
+    background: var(--mint); padding: 8px 16px; border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .kicker .dot { width: 8px; height: 8px; background: var(--leaf); border-radius: 50%; }
+  .headline {
+    font-size: 48px; font-weight: 800; line-height: 1.03;
+    letter-spacing: -0.035em; color: var(--ink); margin-bottom: 14px;
+  }
+  .headline em {
+    font-style: normal; color: var(--leaf);
+    position: relative; display: inline-block;
+  }
+  .headline em::after {
+    content: ''; position: absolute;
+    left: -2%; right: -2%; bottom: 5px;
+    height: 12px; background: var(--lime);
+    z-index: -1; border-radius: 4px;
+    transform: skew(-6deg);
+  }
+  .lede {
+    font-size: 16px; font-weight: 400; color: var(--ink-soft);
+    max-width: 640px; margin: 0 auto; line-height: 1.55;
+  }
+
+  /* iPhone row */
+  .iphone-row {
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: 60px; flex-wrap: wrap; margin-bottom: 60px;
+  }
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; }
+  .phone-label {
+    margin-top: 18px;
+    font-size: 12px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--emerald);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-label .state-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    background: var(--leaf);
+    color: var(--card);
+  }
+
+  .iphone {
+    width: 413px; height: 872px;
+    background: #1A1A1A;
+    border-radius: 55px;
+    padding: 10px;
+    box-shadow:
+      var(--shadow-xl),
+      inset 0 0 0 1.5px rgba(255,255,255,0.08),
+      inset 0 0 0 3px #0A0A0A;
+    position: relative;
+  }
+  .iphone::before {
+    content: ''; position: absolute;
+    left: -2px; top: 180px;
+    width: 3px; height: 36px;
+    background: #0A0A0A; border-radius: 2px 0 0 2px;
+  }
+  .iphone::after {
+    content: ''; position: absolute;
+    right: -2px; top: 200px;
+    width: 3px; height: 72px;
+    background: #0A0A0A; border-radius: 0 2px 2px 0;
+  }
+  .screen {
+    width: 393px; height: 852px;
+    background: var(--card);
+    border-radius: 47px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dynamic-island {
+    position: absolute;
+    top: 11px; left: 50%;
+    transform: translateX(-50%);
+    width: 124px; height: 37px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+  }
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 54px;
+    padding: 18px 32px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 17px; font-weight: 700; color: var(--ink);
+    z-index: 50;
+  }
+  .status-bar .indicators { display: flex; align-items: center; gap: 6px; }
+  .content {
+    position: absolute;
+    top: 54px;
+    left: 0; right: 0;
+    bottom: 34px;
+    padding: 14px 22px 96px;
+    overflow-y: auto;
+  }
+  .content::-webkit-scrollbar { display: none; }
+  .home-indicator {
+    position: absolute;
+    bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 134px; height: 5px;
+    background: var(--ink);
+    border-radius: 100px;
+    z-index: 60;
+  }
+
+  /* Header */
+  .today-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 20px;
+    padding: 0 4px;
+  }
+  .today-header .greet {
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .today-header .name {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+  .today-header .name span { color: var(--leaf); }
+  .avatar {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--lime), var(--leaf));
+    border: 3px solid var(--card);
+    box-shadow: 0 2px 8px rgba(11,58,26,0.1);
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: var(--forest); font-weight: 800;
+  }
+
+  /* Since ribbon — success variant */
+  .since-ribbon {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--mint);
+    border-radius: 14px;
+    margin-bottom: 24px;
+  }
+  .since-ribbon .alert-icon {
+    width: 28px; height: 28px;
+    background: var(--card);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--leaf);
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(11,58,26,0.06);
+  }
+  .since-ribbon .ribbon-text {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .since-ribbon .ribbon-text small {
+    display: block;
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .since-ribbon .time-meta {
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  /* Tasks */
+  .today-tasks-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px; padding: 0 4px;
+  }
+  .today-tasks-head h4 {
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.025em; color: var(--ink);
+  }
+  .progress-wrap {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .progress-ring {
+    width: 44px; height: 44px;
+    position: relative;
+  }
+  .progress-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+  .progress-ring circle { fill: none; stroke-width: 4; stroke-linecap: round; }
+  .progress-ring .bg { stroke: var(--mint); }
+  .progress-ring .fg { stroke: var(--leaf); }
+  .progress-ring .fraction {
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: var(--ink);
+  }
+  .progress-ring .fraction .num { font-size: 13px; }
+  .progress-ring .fraction .denom { color: var(--ink-soft); font-size: 10px; }
+  .progress-text {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: right;
+    line-height: 1.2;
+  }
+  .progress-text strong { color: var(--leaf); display: block; font-size: 12px; }
+
+  .p-task {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 16px; background: var(--card);
+    border: 1px solid var(--mint); border-radius: 20px;
+    margin-bottom: 12px; position: relative;
+  }
+  .p-task.done { background: #F7FDF4; opacity: 0.75; }
+
+  .p-task .plant-av {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--mint), var(--lime));
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; overflow: hidden;
+    border: 2px solid var(--card);
+    box-shadow: 0 2px 8px rgba(11,58,26,0.12);
+  }
+  .p-task .plant-av svg { display: block; width: 100%; height: 100%; }
+  .p-task .p-body { flex: 1; min-width: 0; }
+  .p-task .p-name {
+    font-size: 15px; font-weight: 800; color: var(--ink);
+    letter-spacing: -0.01em; margin-bottom: 3px;
+  }
+  .p-task .p-voice {
+    font-size: 13px; font-style: italic; color: var(--ink-soft);
+    font-weight: 500; line-height: 1.35; margin-bottom: 6px;
+  }
+  .p-task.done .p-voice { text-decoration: line-through; }
+  .p-task .p-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .p-task .p-tag.water { color: var(--emerald); }
+  .p-task .p-tag.done-tag { color: var(--leaf); }
+  .p-task .p-tag.mist { color: #2A9FB5; }
+
+  .p-task .check-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 2.5px solid var(--mint);
+    background: var(--card);
+    flex-shrink: 0;
+    margin-top: 4px;
+    position: relative;
+  }
+  .p-task.done .check-btn {
+    background: var(--leaf); border-color: var(--leaf);
+  }
+  .p-task.done .check-btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M5 12.5 L10 17.5 L19 7.5' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/17px no-repeat;
+  }
+
+  /* Dock */
+  .dock-wrap {
+    position: absolute;
+    bottom: 10px;
+    left: 14px; right: 14px;
+    height: 74px;
+    z-index: 30;
+  }
+  .dock {
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,0.78);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    border-radius: 37px;
+    box-shadow:
+      0 -1px 0 rgba(11,58,26,0.04) inset,
+      0 12px 32px rgba(11,58,26,0.14),
+      0 4px 12px rgba(11,58,26,0.08);
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 0 14px;
+    border: 1px solid rgba(255,255,255,0.6);
+  }
+  .dock-item {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    color: var(--ink-soft); position: relative; cursor: pointer;
+    width: 60px; padding-top: 2px;
+  }
+  .dock-item .dock-label {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .dock-item.active { color: var(--forest); }
+  .dock-gap { width: 62px; flex-shrink: 0; }
+
+  .fab {
+    position: absolute; top: -16px; left: 50%;
+    transform: translateX(-50%);
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, var(--leaf), var(--emerald));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--card);
+    box-shadow:
+      0 0 0 4px var(--card),
+      0 10px 24px rgba(20,144,47,0.4),
+      0 4px 10px rgba(11,58,26,0.22);
+    z-index: 4;
+  }
+
+  /* ============================ */
+  /* SWEEP SEQUENCE DIAGRAM       */
+  /* ============================ */
+  .sweep-block {
+    max-width: 1100px; margin: 0 auto 50px;
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 28px;
+    padding: 40px 44px;
+    box-shadow: 0 10px 30px rgba(11,58,26,0.08);
+  }
+  .sweep-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .sweep-head h3 {
+    font-size: 24px; font-weight: 800;
+    letter-spacing: -0.025em; color: var(--ink);
+  }
+  .sweep-head h3 em { font-style: normal; color: var(--leaf); }
+  .sweep-head .meta {
+    font-size: 11px; font-weight: 700; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .sweep-intro {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    margin-bottom: 28px;
+    max-width: 720px;
+  }
+  .sweep-frames {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .sweep-frame {
+    background: var(--base);
+    border: 1px solid var(--mint);
+    border-radius: 18px;
+    padding: 20px;
+    position: relative;
+  }
+  .sweep-frame .t {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--emerald);
+    margin-bottom: 10px;
+    background: var(--mint);
+    padding: 4px 10px;
+    border-radius: 100px;
+    display: inline-block;
+  }
+  .sweep-frame h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+    margin-bottom: 6px;
+  }
+  .sweep-frame p {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  .sweep-mini {
+    height: 220px;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--mint);
+  }
+  .mini-header {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--mint);
+  }
+  .mini-hero {
+    background: var(--forest);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+    color: var(--card);
+    position: relative;
+    overflow: hidden;
+    min-height: 70px;
+  }
+  .mini-hero .mini-name {
+    font-size: 8px;
+    color: var(--lime);
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .mini-hero .mini-quote {
+    font-size: 9px;
+    font-style: italic;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .mini-ribbon {
+    background: var(--mint);
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 8px;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .mini-ribbon::before {
+    content: '●';
+    color: var(--leaf);
+  }
+  .mini-task-head {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .mini-task {
+    height: 14px;
+    background: var(--base);
+    border: 1px solid var(--mint);
+    border-radius: 6px;
+    margin-bottom: 5px;
+  }
+
+  /* Frame 2: hero fading */
+  .sweep-mini.fading .mini-hero {
+    opacity: 0.4;
+    transform: scale(0.97);
+  }
+
+  /* Frame 3: hero gone, content swept up */
+  .sweep-mini.done .mini-hero {
+    display: none;
+  }
+
+  .motion-arrow {
+    position: absolute;
+    font-size: 16px;
+    color: var(--leaf);
+  }
+  .motion-arrow-1 {
+    top: 50%; right: -14px;
+    transform: translateY(-50%);
+  }
+  .motion-arrow-2 {
+    top: 50%; right: -14px;
+    transform: translateY(-50%);
+  }
+
+  /* Sweep indication arrows inside frame 2 */
+  .sweep-mini.fading::after {
+    content: '↑';
+    position: absolute;
+    right: 16px;
+    top: 120px;
+    color: var(--leaf);
+    font-size: 18px;
+    font-weight: 800;
+    animation: float 1.5s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  /* Edge cases */
+  .edge-cases {
+    max-width: 1100px; margin: 0 auto 50px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .edge-case {
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 18px;
+    padding: 24px 26px;
+    box-shadow: 0 4px 12px rgba(11,58,26,0.04);
+  }
+  .edge-case .n {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--emerald);
+    background: var(--mint);
+    padding: 5px 10px;
+    border-radius: 100px;
+    margin-bottom: 12px;
+  }
+  .edge-case h4 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+    margin-bottom: 8px;
+  }
+  .edge-case p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .edge-case p strong { color: var(--ink); font-weight: 700; }
+  .edge-case p em { font-style: italic; color: var(--emerald); font-weight: 600; }
+
+  /* Framer Motion code block */
+  .code-block {
+    max-width: 1100px; margin: 0 auto;
+    background: var(--ink);
+    border-radius: 24px;
+    padding: 32px 40px;
+    color: #D8EDC8;
+    font-family: 'SF Mono', 'Menlo', Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.55;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-block::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 85% 20%, rgba(134,219,101,0.06), transparent 50%);
+  }
+  .code-head {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--lime);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 16px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .code-head .file {
+    color: rgba(255,255,255,0.4);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    font-weight: 500;
+  }
+  .code-block pre {
+    position: relative;
+    margin: 0;
+    white-space: pre-wrap;
+  }
+  .code-block .tag { color: #F58B70; }
+  .code-block .prop { color: #B8E4A0; }
+  .code-block .str { color: #FFC87A; }
+  .code-block .com { color: #6A8870; font-style: italic; }
+  .code-block .kw { color: #C9A8E8; }
+  .code-block .punc { color: #8AA098; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="masthead">
+    <div class="kicker"><span class="dot"></span>Direction · Take Ten</div>
+    <h1 class="headline">After the tap, <em>the sweep</em>.</h1>
+    <p class="lede">Once Monty's watered, the hero card fades away and the content below sweeps up into the default state. A quiet, calming return to equilibrium.</p>
+  </div>
+
+  <div class="iphone-row">
+
+    <!-- DEFAULT STATE — hero gone, content swept up -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="screen">
+          <div class="dynamic-island"></div>
+
+          <div class="status-bar">
+            <span class="time">9:42</span>
+            <span class="indicators">
+              <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor">
+                <rect x="0" y="6" width="3" height="5" rx="0.5"/>
+                <rect x="5" y="4" width="3" height="7" rx="0.5"/>
+                <rect x="10" y="2" width="3" height="9" rx="0.5"/>
+                <rect x="15" y="0" width="3" height="11" rx="0.5"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+                <path d="M8 10.5c0.6 0 1-0.4 1-1s-0.4-1-1-1-1 0.4-1 1 0.4 1 1 1z"/>
+              </svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+                <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+                <path d="M24 4V8" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
+
+          <div class="content">
+            <div class="today-header">
+              <div>
+                <div class="greet">Good morning · Wed 9 April</div>
+                <div class="name">Hi, <span>Robert</span></div>
+              </div>
+              <div class="avatar">R</div>
+            </div>
+
+            <!-- NO HERO — swept away -->
+
+            <div class="since-ribbon">
+              <div class="alert-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M9 12l2 2 4-4"/>
+                </svg>
+              </div>
+              <div class="ribbon-text">
+                You're on top of things
+                <small>2 rituals done today · 1 left for Spike</small>
+              </div>
+              <div class="time-meta">just now</div>
+            </div>
+
+            <div class="today-tasks-head">
+              <h4>Today's rituals</h4>
+              <div class="progress-wrap">
+                <div class="progress-text"><strong>2 done</strong>1 to go</div>
+                <div class="progress-ring">
+                  <svg viewBox="0 0 44 44">
+                    <circle class="bg" cx="22" cy="22" r="18"/>
+                    <circle class="fg" cx="22" cy="22" r="18" stroke-dasharray="75.4 113" />
+                  </svg>
+                  <div class="fraction"><span class="num">2</span><span class="denom">/3</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-task done">
+              <div class="plant-av">
+                <svg viewBox="0 0 48 48">
+                  <path d="M 18 38 L 16 45 L 32 45 L 30 38 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1.2"/>
+                  <path d="M 24 38 Q 22 20 14 10" fill="none" stroke="#14902F" stroke-width="2.2" stroke-linecap="round"/>
+                  <path d="M 24 38 Q 26 20 34 10" fill="none" stroke="#14902F" stroke-width="2.2" stroke-linecap="round"/>
+                  <path d="M 14 10 Q 5 8 5 19 Q 7 25 18 20 Q 22 14 14 10 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1.2"/>
+                  <path d="M 34 10 Q 43 8 43 19 Q 41 25 30 20 Q 26 14 34 10 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1.2"/>
+                </svg>
+              </div>
+              <div class="p-body">
+                <div class="p-name">Monty the Monstera</div>
+                <div class="p-voice">"Oh. OH. A redemption arc."</div>
+                <span class="p-tag done-tag">💧 WATER · DONE JUST NOW</span>
+              </div>
+              <div class="check-btn"></div>
+            </div>
+
+            <div class="p-task">
+              <div class="plant-av">
+                <svg viewBox="0 0 48 48">
+                  <path d="M 18 38 L 16 45 L 32 45 L 30 38 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1.2"/>
+                  <path d="M 19 38 Q 18 10 24 6 Q 30 10 29 38" fill="#32C456" stroke="#0B3A1A" stroke-width="1.3"/>
+                  <path d="M 19 24 Q 11 22 11 16 Q 11 11 16 11 L 16 22 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1.3"/>
+                  <path d="M 29 26 Q 37 24 37 18 Q 37 13 32 13 L 32 24 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1.3"/>
+                  <circle cx="24" cy="5" r="3" fill="#FFB83D"/>
+                </svg>
+              </div>
+              <div class="p-body">
+                <div class="p-name">Spike the Cactus</div>
+                <div class="p-voice">"I'm fine. I'm always fine. Don't ask."</div>
+                <span class="p-tag water">💧 WATER · DUE TODAY</span>
+              </div>
+              <div class="check-btn"></div>
+            </div>
+
+            <div class="p-task done">
+              <div class="plant-av">
+                <svg viewBox="0 0 48 48">
+                  <path d="M 18 38 L 16 45 L 32 45 L 30 38 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1.2"/>
+                  <path d="M 24 38 Q 17 22 11 14 Q 9 9 13 11 Q 20 20 24 32" fill="#5ED87A" stroke="#0B3A1A" stroke-width="1.2"/>
+                  <path d="M 24 38 Q 31 22 37 14 Q 39 9 35 11 Q 28 20 24 32" fill="#5ED87A" stroke="#0B3A1A" stroke-width="1.2"/>
+                </svg>
+              </div>
+              <div class="p-body">
+                <div class="p-name">Fernie the Boston Fern</div>
+                <div class="p-voice">"Misted and grateful. You're the best."</div>
+                <span class="p-tag done-tag">💨 MIST · DONE AT 8:12</span>
+              </div>
+              <div class="check-btn"></div>
+            </div>
+
+            <div class="dock-wrap">
+              <div class="dock">
+                <div class="dock-item active">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 11L12 3L21 11V20C21 20.5523 20.5523 21 20 21H15V14H9V21H4C3.44772 21 3 20.5523 3 20V11Z" fill="currentColor" fill-opacity="0.18"/>
+                  </svg>
+                  <span class="dock-label">Today</span>
+                </div>
+                <div class="dock-item">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                  </svg>
+                  <span class="dock-label">Garden</span>
+                </div>
+                <div class="dock-gap"></div>
+                <div class="dock-item">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                  </svg>
+                  <span class="dock-label">Discover</span>
+                </div>
+                <div class="dock-item">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M4 21C4 17 7 15 12 15C17 15 20 17 20 21"/>
+                  </svg>
+                  <span class="dock-label">Me</span>
+                </div>
+              </div>
+              <div class="fab">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5V19M5 12H19"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+      <div class="phone-label"><span class="state-tag">Default</span>no hero · swept up</div>
+    </div>
+
+  </div>
+
+  <!-- Sweep sequence -->
+  <div class="sweep-block">
+    <div class="sweep-head">
+      <h3>The <em>fade + sweep</em> sequence</h3>
+      <span class="meta">~0.7s after care animation</span>
+    </div>
+    <p class="sweep-intro">
+      After the care animation wraps (1.8s) and the payoff pause lets Monty celebrate (another 0.6s), the hero exits and the below content glides up to fill the space. Framer Motion's <code>layout</code> prop handles the sweep automatically — you don't write a single line of positioning math.
+    </p>
+
+    <div class="sweep-frames">
+      <div class="sweep-frame">
+        <span class="t">2.4s · Payoff</span>
+        <div class="sweep-mini">
+          <div class="mini-header">Hi, Robert</div>
+          <div class="mini-hero">
+            <div class="mini-name">● MONTY</div>
+            <div class="mini-quote">"Oh. OH. A REDEMPTION ARC."</div>
+          </div>
+          <div class="mini-ribbon">2 things changed</div>
+          <div class="mini-task-head">Today's rituals</div>
+          <div class="mini-task"></div>
+        </div>
+        <h4>Hero still visible</h4>
+        <p>Thriving state — user sees Monty celebrate. "Watered" CTA locked in. Brief 600ms dwell.</p>
+      </div>
+
+      <div class="sweep-frame">
+        <span class="t">2.7s · Fade</span>
+        <div class="sweep-mini fading">
+          <div class="mini-header">Hi, Robert</div>
+          <div class="mini-hero">
+            <div class="mini-name">● MONTY</div>
+            <div class="mini-quote">"Oh. OH. A REDEMPTION ARC."</div>
+          </div>
+          <div class="mini-ribbon">2 things changed</div>
+          <div class="mini-task-head">Today's rituals</div>
+          <div class="mini-task"></div>
+        </div>
+        <h4>Hero fades &amp; scales</h4>
+        <p><code>opacity: 0</code> + <code>scale: 0.96</code> over 300ms ease-out. AnimatePresence exit.</p>
+      </div>
+
+      <div class="sweep-frame">
+        <span class="t">3.1s · Default</span>
+        <div class="sweep-mini done">
+          <div class="mini-header">Hi, Robert</div>
+          <div class="mini-ribbon">2 things changed</div>
+          <div class="mini-task-head">Today's rituals</div>
+          <div class="mini-task"></div>
+          <div class="mini-task"></div>
+          <div class="mini-task"></div>
+        </div>
+        <h4>Swept up to default</h4>
+        <p>400ms spring. Since ribbon &amp; tasks glide into hero's old space. New equilibrium.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edge cases -->
+  <div class="edge-cases">
+    <div class="edge-case">
+      <span class="n">A · Edge case</span>
+      <h4>Multiple overdue plants</h4>
+      <p>If Monty isn't the only urgent one, the hero doesn't vanish — it <strong>cross-fades</strong> to the next most urgent plant. Monty exits, ~200ms gap, then the new hero slides down with Spike (or whoever). Same animation, new data.</p>
+    </div>
+    <div class="edge-case">
+      <span class="n">B · Edge case</span>
+      <h4>All caught up</h4>
+      <p>If watering Monty was the last remaining task, the sweep reveals an <em>"All caught up"</em> celebration where the hero used to be. Confetti, streak counter, next attention date. Dissolves on next visit.</p>
+    </div>
+    <div class="edge-case">
+      <span class="n">C · Edge case</span>
+      <h4>Task-level care</h4>
+      <p>Checking off a task from the list (not the hero) uses the <strong>same animation framework at task-row scale</strong>. Row collapses to done state, progress ring ticks up, check circle springs to filled. Consistent micro-interaction throughout.</p>
+    </div>
+  </div>
+
+  <!-- Framer Motion implementation -->
+  <div class="code-block">
+    <div class="code-head">
+      <span>React · Framer Motion</span>
+      <span class="file">client/src/pages/Today.jsx</span>
+    </div>
+    <pre><span class="com">// The entire sweep is &lt;30 lines. Framer Motion handles the rest.</span>
+
+<span class="kw">import</span> <span class="punc">{</span> <span class="prop">motion</span><span class="punc">,</span> <span class="prop">AnimatePresence</span><span class="punc">,</span> <span class="prop">LayoutGroup</span> <span class="punc">}</span> <span class="kw">from</span> <span class="str">"motion/react"</span><span class="punc">;</span>
+
+<span class="kw">export function</span> <span class="prop">Today</span><span class="punc">()</span> <span class="punc">{</span>
+  <span class="kw">const</span> <span class="punc">{</span> data<span class="punc">:</span> dashboard <span class="punc">}</span> <span class="punc">=</span> <span class="prop">useDashboard</span><span class="punc">();</span>
+  <span class="kw">const</span> urgent <span class="punc">=</span> dashboard<span class="punc">?.</span>most_urgent_plant<span class="punc">;</span>
+
+  <span class="kw">return</span> <span class="punc">(</span>
+    <span class="tag">&lt;LayoutGroup&gt;</span>
+      <span class="tag">&lt;TodayHeader</span> <span class="prop">user</span><span class="punc">=</span><span class="punc">{</span>dashboard<span class="punc">.</span>user<span class="punc">}</span> <span class="tag">/&gt;</span>
+
+      <span class="tag">&lt;AnimatePresence&gt;</span>
+        <span class="punc">{</span>urgent <span class="punc">&amp;&amp;</span> <span class="punc">(</span>
+          <span class="tag">&lt;motion.div</span>
+            <span class="prop">key</span><span class="punc">=</span><span class="punc">{</span>urgent<span class="punc">.</span>id<span class="punc">}</span>                      <span class="com">// key on plant id → cross-fade on change</span>
+            <span class="prop">layout</span>
+            <span class="prop">initial</span><span class="punc">=</span><span class="punc">{{</span> <span class="prop">opacity</span><span class="punc">:</span> <span class="str">0</span><span class="punc">,</span> <span class="prop">scale</span><span class="punc">:</span> <span class="str">0.9</span> <span class="punc">}}</span>
+            <span class="prop">animate</span><span class="punc">=</span><span class="punc">{{</span> <span class="prop">opacity</span><span class="punc">:</span> <span class="str">1</span><span class="punc">,</span> <span class="prop">scale</span><span class="punc">:</span> <span class="str">1</span> <span class="punc">}}</span>
+            <span class="prop">exit</span><span class="punc">=</span><span class="punc">{{</span> <span class="prop">opacity</span><span class="punc">:</span> <span class="str">0</span><span class="punc">,</span> <span class="prop">scale</span><span class="punc">:</span> <span class="str">0.96</span> <span class="punc">}}</span>
+            <span class="prop">transition</span><span class="punc">=</span><span class="punc">{{</span> <span class="prop">duration</span><span class="punc">:</span> <span class="str">0.3</span> <span class="punc">}}</span>
+          <span class="tag">&gt;</span>
+            <span class="tag">&lt;HeroCard</span> <span class="prop">plant</span><span class="punc">=</span><span class="punc">{</span>urgent<span class="punc">}</span> <span class="tag">/&gt;</span>
+          <span class="tag">&lt;/motion.div&gt;</span>
+        <span class="punc">)</span><span class="punc">}</span>
+      <span class="tag">&lt;/AnimatePresence&gt;</span>
+
+      <span class="tag">&lt;motion.div</span> <span class="prop">layout</span><span class="tag">&gt;</span>                            <span class="com">// layout prop = auto FLIP sweep</span>
+        <span class="tag">&lt;SinceRibbon</span> <span class="prop">data</span><span class="punc">=</span><span class="punc">{</span>dashboard<span class="punc">.</span>since<span class="punc">}</span> <span class="tag">/&gt;</span>
+        <span class="tag">&lt;TasksHeader</span> <span class="prop">progress</span><span class="punc">=</span><span class="punc">{</span>dashboard<span class="punc">.</span>progress<span class="punc">}</span> <span class="tag">/&gt;</span>
+        <span class="tag">&lt;TaskList</span> <span class="prop">tasks</span><span class="punc">=</span><span class="punc">{</span>dashboard<span class="punc">.</span>tasks<span class="punc">}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;/motion.div&gt;</span>
+    <span class="tag">&lt;/LayoutGroup&gt;</span>
+  <span class="punc">);</span>
+<span class="punc">}</span></pre>
+  </div>
+
+</div>
+
+</body>
+</html>

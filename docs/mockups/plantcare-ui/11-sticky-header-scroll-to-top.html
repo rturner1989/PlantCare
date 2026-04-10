@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare v16 — Sticky Header</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --base: #F6FBF4;
+    --mint: #DFF2E2;
+    --lime: #86DB65;
+    --leaf: #32C456;
+    --emerald: #14902F;
+    --forest: #0B3A1A;
+    --forest-2: #124626;
+    --ink: #0A1D0E;
+    --ink-soft: #4A6A51;
+    --coral: #FF6B3D;
+    --sunshine: #FFB83D;
+    --card: #FFFFFF;
+    --shadow-xl: 0 40px 100px -20px rgba(11,58,26,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--base);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage { min-height: 100vh; padding: 56px 40px 80px; }
+
+  .masthead { text-align: center; max-width: 900px; margin: 0 auto 40px; }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--emerald);
+    background: var(--mint); padding: 8px 16px; border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .kicker .dot { width: 8px; height: 8px; background: var(--leaf); border-radius: 50%; }
+  .headline {
+    font-size: 48px; font-weight: 800; line-height: 1.03;
+    letter-spacing: -0.035em; color: var(--ink); margin-bottom: 14px;
+  }
+  .headline em {
+    font-style: normal; color: var(--leaf);
+    position: relative; display: inline-block;
+  }
+  .headline em::after {
+    content: ''; position: absolute;
+    left: -2%; right: -2%; bottom: 5px;
+    height: 12px; background: var(--lime);
+    z-index: -1; border-radius: 4px;
+    transform: skew(-6deg);
+  }
+  .lede {
+    font-size: 16px; font-weight: 400; color: var(--ink-soft);
+    max-width: 640px; margin: 0 auto; line-height: 1.55;
+  }
+
+  .iphone-row {
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: 60px; flex-wrap: wrap; margin-bottom: 60px;
+  }
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; }
+  .phone-label {
+    margin-top: 18px;
+    font-size: 12px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--emerald);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-label .tag {
+    background: var(--leaf); color: var(--card);
+    padding: 4px 10px; border-radius: 100px;
+    font-size: 9px; letter-spacing: 0.1em;
+  }
+
+  .iphone {
+    width: 413px; height: 872px;
+    background: #1A1A1A;
+    border-radius: 55px;
+    padding: 10px;
+    box-shadow:
+      var(--shadow-xl),
+      inset 0 0 0 1.5px rgba(255,255,255,0.08),
+      inset 0 0 0 3px #0A0A0A;
+    position: relative;
+  }
+  .iphone::before {
+    content: ''; position: absolute;
+    left: -2px; top: 180px;
+    width: 3px; height: 36px;
+    background: #0A0A0A; border-radius: 2px 0 0 2px;
+  }
+  .iphone::after {
+    content: ''; position: absolute;
+    right: -2px; top: 200px;
+    width: 3px; height: 72px;
+    background: #0A0A0A; border-radius: 0 2px 2px 0;
+  }
+  .screen {
+    width: 393px; height: 852px;
+    background: linear-gradient(180deg, #F6FBF4 0%, #DFF2E2 50%, #C7ECCA 100%);
+    border-radius: 47px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dynamic-island {
+    position: absolute;
+    top: 11px; left: 50%;
+    transform: translateX(-50%);
+    width: 124px; height: 37px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+  }
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 54px;
+    padding: 18px 32px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 17px; font-weight: 700; color: var(--ink);
+    z-index: 80;
+  }
+  .status-bar .indicators { display: flex; align-items: center; gap: 6px; }
+
+  /* ============================ */
+  /* STICKY HEADER                */
+  /* ============================ */
+  .sticky-header {
+    position: absolute;
+    top: 54px;
+    left: 0; right: 0;
+    padding: 10px 14px 12px;
+    background: rgba(255,255,255,0.78);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    border-bottom: 1px solid rgba(223,242,226,0.6);
+    box-shadow: 0 6px 20px rgba(11,58,26,0.08);
+    z-index: 70;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sticky-header .back-btn {
+    width: 38px; height: 38px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid var(--mint);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+  .sticky-header .sticky-plant {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--lime), var(--leaf));
+    border-radius: 13px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--card);
+    box-shadow: 0 2px 6px rgba(11,58,26,0.12);
+    overflow: hidden;
+  }
+  .sticky-header .sticky-plant svg { display: block; width: 100%; height: 100%; }
+  .sticky-header .sticky-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .sticky-header .sticky-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .sticky-header .sticky-meta {
+    font-size: 10px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .sticky-header .sticky-action {
+    padding: 9px 14px;
+    background: linear-gradient(135deg, var(--leaf), var(--emerald));
+    color: var(--card);
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    box-shadow: 0 4px 10px rgba(20,144,47,0.3);
+    flex-shrink: 0;
+  }
+
+  /* Content area — already scrolled */
+  .content {
+    position: absolute;
+    top: 54px;
+    left: 0; right: 0;
+    bottom: 34px;
+    padding: 80px 0 110px;  /* top padding = sticky header height */
+    overflow-y: auto;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  .home-indicator {
+    position: absolute;
+    bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 134px; height: 5px;
+    background: var(--ink);
+    border-radius: 100px;
+    z-index: 60;
+  }
+
+  /* Partial portrait card (scrolled off partially) */
+  .portrait-fade {
+    position: relative;
+    height: 60px;  /* just a sliver visible at top */
+    margin: 0 18px 14px;
+    overflow: hidden;
+    border-radius: 0 0 28px 28px;
+    background: linear-gradient(180deg, var(--forest) 0%, var(--forest-2) 80%, rgba(18,70,38,0.8) 100%);
+    position: relative;
+  }
+  .portrait-fade::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(246,251,244,0.6) 100%);
+  }
+
+  /* Voice quote card */
+  .voice-card {
+    margin: 0 18px 14px;
+    padding: 16px 18px 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 18px;
+    position: relative;
+    border-left: 3px solid var(--leaf);
+  }
+  .voice-card::before {
+    content: '"';
+    position: absolute;
+    top: -4px;
+    left: 14px;
+    font-family: 'Fraunces', serif;
+    font-size: 40px;
+    color: var(--leaf);
+    line-height: 1;
+  }
+  .voice-card p {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--ink);
+    padding-left: 16px;
+  }
+  .voice-card .voice-meta {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 6px;
+    padding-left: 16px;
+  }
+
+  /* Rings card */
+  .rings-card {
+    margin: 0 18px 14px;
+    padding: 18px;
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 18px;
+  }
+  .rings-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+  }
+  .rings-head h4 {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .rings-head .rings-meta {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .rings-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .ring-cell {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .ring-large {
+    width: 54px; height: 54px;
+    position: relative;
+  }
+  .ring-large svg {
+    transform: rotate(-90deg);
+    width: 100%; height: 100%;
+  }
+  .ring-large circle {
+    fill: none;
+    stroke-width: 4;
+    stroke-linecap: round;
+  }
+  .ring-large .bg { stroke: var(--mint); }
+  .ring-large .fg { stroke: var(--leaf); }
+  .ring-large.low .fg { stroke: var(--coral); }
+  .ring-large .center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .ring-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Section card with tabs */
+  .section-card {
+    margin: 14px 18px 0;
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 20px;
+    padding: 14px;
+    box-shadow: 0 2px 8px rgba(11,58,26,0.05);
+  }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--mint);
+    padding: 4px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+  .tab {
+    flex: 1;
+    padding: 9px 4px;
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    cursor: pointer;
+    text-align: center;
+  }
+  .tab.active {
+    background: var(--card);
+    color: var(--forest);
+    box-shadow: 0 2px 6px rgba(11,58,26,0.1);
+  }
+
+  .care-log {
+    padding: 4px 4px 0;
+  }
+  .log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+  }
+  .log-entry:not(:last-child) {
+    border-bottom: 1px solid var(--mint);
+  }
+  .log-icon {
+    width: 34px; height: 34px;
+    background: var(--mint);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .log-icon.water { background: rgba(42,159,181,0.15); color: #2A9FB5; }
+  .log-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .log-action {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .log-note {
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .log-time {
+    font-size: 10px;
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+
+  /* Annotation arrow pointing to sticky header */
+  .annotation {
+    position: absolute;
+    top: 100px;
+    right: -260px;
+    width: 240px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--ink-soft);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    padding: 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 16px;
+    box-shadow: 0 10px 24px rgba(11,58,26,0.08);
+  }
+  .annotation strong {
+    display: block;
+    color: var(--forest);
+    font-weight: 800;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .annotation::before {
+    content: '';
+    position: absolute;
+    top: 28px;
+    left: -12px;
+    width: 12px;
+    height: 12px;
+    background: var(--card);
+    border-left: 1px solid var(--mint);
+    border-bottom: 1px solid var(--mint);
+    transform: rotate(45deg);
+  }
+
+  /* Dock */
+  .dock-wrap {
+    position: absolute;
+    bottom: 10px;
+    left: 14px; right: 14px;
+    height: 74px;
+    z-index: 30;
+  }
+  .dock {
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,0.78);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    border-radius: 37px;
+    box-shadow:
+      0 -1px 0 rgba(11,58,26,0.04) inset,
+      0 12px 32px rgba(11,58,26,0.14),
+      0 4px 12px rgba(11,58,26,0.08);
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 0 14px;
+    border: 1px solid rgba(255,255,255,0.6);
+  }
+  .dock-item {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    color: var(--ink-soft); position: relative; cursor: pointer;
+    width: 60px; padding-top: 2px;
+  }
+  .dock-item .dock-label {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .dock-item.active { color: var(--forest); }
+  .dock-gap { width: 62px; flex-shrink: 0; }
+
+  .fab {
+    position: absolute; top: -16px; left: 50%;
+    transform: translateX(-50%);
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, var(--leaf), var(--emerald));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--card);
+    box-shadow:
+      0 0 0 4px var(--card),
+      0 10px 24px rgba(20,144,47,0.4),
+      0 4px 10px rgba(11,58,26,0.22);
+    z-index: 4;
+  }
+
+  .iphone { position: relative; }
+  .iphone-with-annotation {
+    position: relative;
+  }
+
+  /* Scroll-to-top floating button — visible only when scrolled */
+  .scroll-top {
+    position: absolute;
+    bottom: 100px;
+    right: 18px;
+    width: 46px;
+    height: 46px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 50%;
+    box-shadow:
+      0 8px 20px rgba(11,58,26,0.18),
+      0 2px 6px rgba(11,58,26,0.08),
+      0 0 0 1px var(--mint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--forest);
+    z-index: 50;
+    cursor: pointer;
+  }
+  .scroll-top svg { display: block; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="masthead">
+    <div class="kicker"><span class="dot"></span>Direction · Take Seventeen</div>
+    <h1 class="headline">Sticky <em>header</em> on scroll.</h1>
+    <p class="lede">When you scroll past the portrait on Plant Detail, a compact glass header slides down from the top so you always know which plant you're looking at. Mirrors the bottom dock's glass treatment for consistency.</p>
+  </div>
+
+  <div class="iphone-row">
+
+    <div class="phone-wrap">
+      <div class="iphone-with-annotation">
+        <div class="iphone">
+          <div class="screen">
+            <div class="dynamic-island"></div>
+
+            <div class="status-bar">
+              <span>9:41</span>
+              <span class="indicators">
+                <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor">
+                  <rect x="0" y="6" width="3" height="5" rx="0.5"/>
+                  <rect x="5" y="4" width="3" height="7" rx="0.5"/>
+                  <rect x="10" y="2" width="3" height="9" rx="0.5"/>
+                  <rect x="15" y="0" width="3" height="11" rx="0.5"/>
+                </svg>
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 10.5c0.6 0 1-0.4 1-1s-0.4-1-1-1-1 0.4-1 1 0.4 1 1 1z"/></svg>
+                <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                  <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+                  <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+                  <path d="M24 4V8" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+                </svg>
+              </span>
+            </div>
+
+            <!-- STICKY HEADER — glass effect, visible because user has scrolled -->
+            <div class="sticky-header">
+              <div class="back-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M15 18l-6-6 6-6"/>
+                </svg>
+              </div>
+              <div class="sticky-plant">
+                <svg viewBox="0 0 42 42">
+                  <path d="M 16 34 L 14 40 L 28 40 L 26 34 Z" fill="#DFF2E2" stroke="#0B3A1A" stroke-width="1"/>
+                  <path d="M 21 34 Q 19 18 12 8" fill="none" stroke="#14902F" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M 21 34 Q 23 18 30 8" fill="none" stroke="#14902F" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M 12 8 Q 4 6 4 16 Q 6 22 16 18 Q 20 12 12 8 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1"/>
+                  <path d="M 30 8 Q 38 6 38 16 Q 36 22 26 18 Q 22 12 30 8 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1"/>
+                </svg>
+              </div>
+              <div class="sticky-info">
+                <div class="sticky-name">Monty the Monstera</div>
+                <div class="sticky-meta">Living room · 🎭 Dramatic</div>
+              </div>
+              <div class="sticky-action">Water</div>
+            </div>
+
+            <div class="content">
+
+              <!-- Voice quote — portrait has fully scrolled off, content starts here -->
+              <div class="voice-card">
+                <p>All is well in my little pot. You are tolerable, perhaps even good. Carry on.</p>
+                <div class="voice-meta">Monty · feeling content today</div>
+              </div>
+
+              <!-- Rings -->
+              <div class="rings-card">
+                <div class="rings-head">
+                  <h4>Care status</h4>
+                  <span class="rings-meta">Updated just now</span>
+                </div>
+                <div class="rings-row">
+                  <div class="ring-cell">
+                    <div class="ring-large">
+                      <svg viewBox="0 0 54 54">
+                        <circle class="bg" cx="27" cy="27" r="22"/>
+                        <circle class="fg" cx="27" cy="27" r="22" stroke-dasharray="113 138"/>
+                      </svg>
+                      <div class="center">82%</div>
+                    </div>
+                    <span class="ring-label">Light</span>
+                  </div>
+                  <div class="ring-cell">
+                    <div class="ring-large low">
+                      <svg viewBox="0 0 54 54">
+                        <circle class="bg" cx="27" cy="27" r="22"/>
+                        <circle class="fg" cx="27" cy="27" r="22" stroke-dasharray="62 138"/>
+                      </svg>
+                      <div class="center">45%</div>
+                    </div>
+                    <span class="ring-label">Water</span>
+                  </div>
+                  <div class="ring-cell">
+                    <div class="ring-large">
+                      <svg viewBox="0 0 54 54">
+                        <circle class="bg" cx="27" cy="27" r="22"/>
+                        <circle class="fg" cx="27" cy="27" r="22" stroke-dasharray="121 138"/>
+                      </svg>
+                      <div class="center">88%</div>
+                    </div>
+                    <span class="ring-label">Mood</span>
+                  </div>
+                  <div class="ring-cell">
+                    <div class="ring-large">
+                      <svg viewBox="0 0 54 54">
+                        <circle class="bg" cx="27" cy="27" r="22"/>
+                        <circle class="fg" cx="27" cy="27" r="22" stroke-dasharray="82 138"/>
+                      </svg>
+                      <div class="center">60%</div>
+                    </div>
+                    <span class="ring-label">Feed</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section card with tabs + history -->
+              <div class="section-card">
+                <div class="tabs">
+                  <button class="tab active">History</button>
+                  <button class="tab">Photos</button>
+                  <button class="tab">Care</button>
+                  <button class="tab">Species</button>
+                </div>
+
+                <div class="care-log">
+                  <div class="log-entry">
+                    <div class="log-icon water">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z"/>
+                      </svg>
+                    </div>
+                    <div class="log-body">
+                      <div class="log-action">Watered · 200ml deep soak</div>
+                      <div class="log-note">"Oh. OH. A redemption arc."</div>
+                    </div>
+                    <div class="log-time">2m ago</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Scroll-to-top floating button -->
+            <div class="scroll-top">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 19V5"/>
+                <path d="M5 12l7-7 7 7"/>
+              </svg>
+            </div>
+
+            <div class="dock-wrap">
+              <div class="dock">
+                <div class="dock-item">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 11L12 3L21 11V20C21 20.5523 20.5523 21 20 21H15V14H9V21H4C3.44772 21 3 20.5523 3 20V11Z"/>
+                  </svg>
+                  <span class="dock-label">Today</span>
+                </div>
+                <div class="dock-item active">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity="0.18"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity="0.18"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity="0.18"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity="0.18"/>
+                  </svg>
+                  <span class="dock-label">Garden</span>
+                </div>
+                <div class="dock-gap"></div>
+                <div class="dock-item">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                  </svg>
+                  <span class="dock-label">Discover</span>
+                </div>
+                <div class="dock-item">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M4 21C4 17 7 15 12 15C17 15 20 17 20 21"/>
+                  </svg>
+                  <span class="dock-label">Me</span>
+                </div>
+              </div>
+              <div class="fab">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5V19M5 12H19"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="home-indicator"></div>
+          </div>
+        </div>
+
+        <div class="annotation">
+          <strong>Glass sticky header</strong>
+          Appears as you scroll past the portrait. Back button, compact plant avatar, name + room, quick Water action. Uses the same <code>backdrop-filter</code> glass treatment as the bottom dock for a matching pair.
+        </div>
+      </div>
+      <div class="phone-label"><span class="tag">SCROLLED</span>Sticky header visible</div>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

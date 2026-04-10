@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — v4: IA, FAB, Isometric</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --base: #F6FBF4;
+    --mint: #DFF2E2;
+    --lime: #86DB65;
+    --leaf: #32C456;
+    --emerald: #14902F;
+    --forest: #0B3A1A;
+    --forest-2: #124626;
+    --ink: #0A1D0E;
+    --ink-soft: #4A6A51;
+    --coral: #FF6B3D;
+    --sunshine: #FFB83D;
+    --card: #FFFFFF;
+    --shadow-sm: 0 2px 8px rgba(11,58,26,0.06);
+    --shadow-md: 0 10px 30px rgba(11,58,26,0.10);
+    --shadow-lg: 0 24px 60px rgba(11,58,26,0.14);
+    --shadow-xl: 0 40px 100px -20px rgba(11,58,26,0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--base);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage { min-height: 100vh; padding: 56px 40px 80px; }
+
+  /* Masthead */
+  .masthead { text-align: center; max-width: 860px; margin: 0 auto 40px; }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--emerald);
+    background: var(--mint); padding: 8px 16px; border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .kicker .dot { width: 8px; height: 8px; background: var(--leaf); border-radius: 50%; }
+  .headline {
+    font-size: 48px; font-weight: 800; line-height: 1.04;
+    letter-spacing: -0.035em; color: var(--ink); margin-bottom: 14px;
+  }
+  .headline em {
+    font-style: normal; color: var(--leaf);
+    position: relative; display: inline-block;
+  }
+  .headline em::after {
+    content: ''; position: absolute;
+    left: -2%; right: -2%; bottom: 6px;
+    height: 12px; background: var(--lime);
+    z-index: -1; border-radius: 4px;
+    transform: skew(-6deg);
+  }
+  .lede {
+    font-size: 16px; font-weight: 400; color: var(--ink-soft);
+    max-width: 600px; margin: 0 auto; line-height: 1.55;
+  }
+
+  /* IA proposal block */
+  .ia-block {
+    max-width: 900px; margin: 0 auto 60px;
+    background: var(--card); border: 1px solid var(--mint);
+    border-radius: 28px; padding: 36px 40px;
+    box-shadow: var(--shadow-md);
+  }
+  .ia-block .ia-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 24px;
+  }
+  .ia-block h3 {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink);
+  }
+  .ia-block h3 em { font-style: normal; color: var(--leaf); }
+  .ia-block .ia-head .meta {
+    font-size: 11px; font-weight: 700; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .ia-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+  .ia-slot {
+    padding: 20px 18px 18px;
+    background: var(--base);
+    border: 1px solid var(--mint);
+    border-radius: 18px;
+    position: relative;
+  }
+  .ia-slot.fab {
+    background: linear-gradient(135deg, var(--forest), var(--forest-2));
+    border-color: var(--forest);
+    color: var(--card);
+  }
+  .ia-slot .role {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .ia-slot.fab .role { color: var(--lime); }
+  .ia-slot .slot-icon {
+    width: 36px; height: 36px;
+    background: var(--mint);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--forest);
+    margin-bottom: 12px;
+  }
+  .ia-slot.fab .slot-icon {
+    background: var(--leaf);
+    color: var(--card);
+  }
+  .ia-slot h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+    margin-bottom: 6px;
+  }
+  .ia-slot.fab h4 { color: var(--card); }
+  .ia-slot p {
+    font-size: 11px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .ia-slot.fab p { color: rgba(255,255,255,0.7); }
+
+  /* Phone row */
+  .phone-row {
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: 40px; flex-wrap: wrap; margin-bottom: 56px;
+  }
+  .phone-wrap {
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .phone-label {
+    margin-top: 20px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--emerald);
+  }
+  .phone-label .mvp-tag {
+    display: inline-block;
+    background: var(--leaf);
+    color: var(--card);
+    padding: 3px 8px;
+    border-radius: 100px;
+    margin-right: 8px;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+  .phone-label .future-tag {
+    display: inline-block;
+    background: var(--forest);
+    color: var(--lime);
+    padding: 3px 8px;
+    border-radius: 100px;
+    margin-right: 8px;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+
+  .phone {
+    width: 340px; background: var(--base);
+    border-radius: 44px; padding: 10px;
+    box-shadow: var(--shadow-xl); position: relative;
+  }
+  .phone-inner {
+    background: var(--card); border-radius: 36px;
+    padding: 20px 20px 110px; position: relative;
+    overflow: hidden; min-height: 730px;
+  }
+  .notch {
+    position: absolute; top: 12px; left: 50%;
+    transform: translateX(-50%);
+    width: 110px; height: 22px; background: var(--ink);
+    border-radius: 100px; z-index: 20;
+  }
+  .status-bar {
+    display: flex; justify-content: space-between;
+    padding: 8px 14px 24px; font-size: 12px; font-weight: 700; color: var(--ink);
+  }
+
+  /* Rooms header */
+  .rooms-header { margin-bottom: 20px; padding: 0 4px; }
+  .rooms-header .label {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--emerald); background: var(--mint);
+    padding: 5px 11px; border-radius: 100px; margin-bottom: 12px;
+  }
+  .rooms-header h2 {
+    font-size: 26px; font-weight: 800; color: var(--ink);
+    letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 6px;
+  }
+  .rooms-header h2 span { color: var(--leaf); }
+  .rooms-header .meta { font-size: 12px; color: var(--ink-soft); font-weight: 500; }
+  .rooms-header .meta strong { color: var(--coral); font-weight: 800; }
+
+  /* View toggle (for Garden) */
+  .view-toggle {
+    display: inline-flex;
+    background: var(--mint);
+    border-radius: 100px;
+    padding: 4px;
+    margin-bottom: 18px;
+  }
+  .view-toggle button {
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    padding: 7px 14px;
+    border-radius: 100px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .view-toggle button.active {
+    background: var(--card);
+    color: var(--forest);
+    box-shadow: 0 2px 6px rgba(11,58,26,0.1);
+  }
+  .view-toggle button svg { display: block; }
+
+  /* Room grid */
+  .rooms-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .room-card {
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 20px;
+    padding: 16px 14px 14px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    min-height: 130px;
+  }
+  .room-card.attention { border-color: rgba(255,107,61,0.35); background: #FFF8F5; }
+  .room-card .room-icon-tile {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--mint);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--emerald);
+    margin-bottom: 10px;
+  }
+  .room-card.attention .room-icon-tile { background: rgba(255,107,61,0.15); color: var(--coral); }
+  .room-card .room-name {
+    font-size: 15px; font-weight: 800; color: var(--ink);
+    letter-spacing: -0.01em; margin-bottom: 2px;
+  }
+  .room-card .room-count {
+    font-size: 11px; color: var(--ink-soft); font-weight: 600;
+  }
+  .room-card .plant-dots {
+    display: flex; gap: 3px; margin-top: 10px; align-items: center;
+  }
+  .room-card .plant-dots .dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--lime), var(--leaf));
+    border: 2px solid var(--card);
+    margin-left: -6px;
+  }
+  .room-card .plant-dots .dot:first-child { margin-left: 0; }
+  .room-card .plant-dots .more {
+    font-size: 10px; font-weight: 700;
+    color: var(--ink-soft); margin-left: 4px;
+  }
+  .room-card .attention-badge {
+    position: absolute; top: 12px; right: 12px;
+    font-size: 9px; font-weight: 800;
+    color: var(--coral);
+    background: rgba(255,107,61,0.15);
+    padding: 3px 7px; border-radius: 100px;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+
+  /* ============================ */
+  /* ISOMETRIC HOUSE — full screen */
+  /* ============================ */
+  .iso-scene {
+    background: linear-gradient(180deg, #F6FBF4 0%, #DFF2E2 100%);
+    border-radius: 22px;
+    padding: 8px 8px 14px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .iso-scene::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 80%, rgba(134,219,101,0.25), transparent 60%);
+    pointer-events: none;
+  }
+
+  .iso-house {
+    width: 100%;
+    height: 320px;
+    position: relative;
+  }
+  .iso-house svg { display: block; width: 100%; height: 100%; }
+
+  .iso-legend {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    padding: 0 4px;
+    position: relative;
+  }
+  .iso-legend .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--card);
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink);
+    box-shadow: 0 2px 4px rgba(11,58,26,0.08);
+  }
+  .iso-legend .chip .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--leaf);
+  }
+  .iso-legend .chip.thirsty .dot { background: var(--coral); }
+
+  .iso-hint {
+    text-align: center;
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* Quick attention list below house */
+  .attention-list {
+    margin-top: 10px;
+  }
+  .attention-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    background: #FFF8F5;
+    border: 1px solid rgba(255,107,61,0.2);
+    border-radius: 14px;
+    margin-bottom: 8px;
+  }
+  .attention-item .room-pin {
+    width: 28px; height: 28px;
+    border-radius: 10px;
+    background: rgba(255,107,61,0.15);
+    color: var(--coral);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .attention-item .text {
+    flex: 1;
+    font-size: 12px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .attention-item .text strong { color: var(--ink); font-weight: 800; }
+  .attention-item .chev {
+    color: var(--coral);
+    font-weight: 800;
+    font-size: 14px;
+  }
+
+  /* ================================ */
+  /* BOTTOM NAV v4 — LABELED + FIXED  */
+  /* ================================ */
+  .dock-wrap {
+    position: absolute; bottom: 16px; left: 12px; right: 12px;
+    height: 68px;
+  }
+  .dock {
+    position: absolute; inset: 0;
+    background: var(--card); border-radius: 34px;
+    box-shadow:
+      0 -1px 0 rgba(11,58,26,0.04) inset,
+      0 12px 32px rgba(11,58,26,0.12),
+      0 4px 12px rgba(11,58,26,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 10px;
+  }
+  .dock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--ink-soft);
+    position: relative;
+    cursor: pointer;
+    width: 54px;
+    padding-top: 2px;
+  }
+  .dock-item svg { display: block; }
+  .dock-item .dock-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .dock-item.active { color: var(--forest); }
+  .dock-item.active .dock-label { color: var(--forest); }
+  .dock-gap { width: 56px; flex-shrink: 0; }
+
+  .fab {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 54px; height: 54px;
+    background: linear-gradient(135deg, var(--leaf), var(--emerald));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--card);
+    box-shadow:
+      0 0 0 4px var(--card),
+      0 8px 20px rgba(20,144,47,0.4),
+      0 3px 8px rgba(11,58,26,0.2);
+    z-index: 4;
+  }
+  .fab svg { display: block; }
+  .fab-label {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--forest);
+    white-space: nowrap;
+  }
+
+  /* Comparison callout */
+  .compare-note {
+    max-width: 900px; margin: 0 auto 60px;
+    background: var(--card);
+    border: 1px solid var(--mint);
+    border-radius: 28px;
+    padding: 36px 40px;
+    box-shadow: var(--shadow-md);
+  }
+  .compare-note h3 {
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.02em; color: var(--ink);
+    margin-bottom: 18px;
+  }
+  .compare-note h3 em { font-style: normal; color: var(--leaf); }
+
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 16px;
+  }
+  .compare-col h4 {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--emerald);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .compare-col h4 .tag {
+    font-size: 9px;
+    background: var(--mint);
+    padding: 3px 8px;
+    border-radius: 100px;
+    letter-spacing: 0.05em;
+  }
+  .compare-col h4 .tag.future {
+    background: var(--forest);
+    color: var(--lime);
+  }
+  .compare-col ul {
+    list-style: none;
+    padding: 0;
+  }
+  .compare-col li {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    padding: 6px 0 6px 22px;
+    position: relative;
+  }
+  .compare-col li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 14px;
+    width: 12px; height: 2px;
+    background: var(--leaf);
+    border-radius: 2px;
+  }
+  .compare-col li.minus::before { background: var(--coral); }
+  .compare-col li strong { color: var(--ink); font-weight: 700; }
+
+  .recommend {
+    margin-top: 26px;
+    padding: 18px 22px;
+    background: var(--mint);
+    border-radius: 16px;
+    border-left: 4px solid var(--leaf);
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .recommend strong { color: var(--forest); font-weight: 800; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="masthead">
+    <div class="kicker"><span class="dot"></span>Direction · Take Five</div>
+    <h1 class="headline">Purposeful nav, <em>real rooms</em>.</h1>
+    <p class="lede">IA proposal, FAB nested properly, and a side-by-side of the room grid vs the isometric mobile house so you can pick the MVP approach with eyes open.</p>
+  </div>
+
+  <!-- IA Proposal -->
+  <div class="ia-block">
+    <div class="ia-head">
+      <h3>Proposed <em>information architecture</em></h3>
+      <span class="meta">4 destinations · 1 primary action</span>
+    </div>
+    <div class="ia-grid">
+      <div class="ia-slot">
+        <div class="role">01 · Nav</div>
+        <div class="slot-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11L12 3L21 11V20C21 20.5523 20.5523 21 20 21H15V14H9V21H4C3.44772 21 3 20.5523 3 20V11Z"/>
+          </svg>
+        </div>
+        <h4>Today</h4>
+        <p>Task-mode. What needs care right now. Streak, next attention, hero plant.</p>
+      </div>
+
+      <div class="ia-slot">
+        <div class="role">02 · Nav</div>
+        <div class="slot-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        </div>
+        <h4>Garden</h4>
+        <p>Browse your collection. Room view or list view. Phase 3: dollhouse toggle.</p>
+      </div>
+
+      <div class="ia-slot fab">
+        <div class="role">FAB · Primary</div>
+        <div class="slot-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <h4>Add plant</h4>
+        <p>Camera-first. AI identifies → confirm species → environment questions → save. Your headline feature, centre stage.</p>
+      </div>
+
+      <div class="ia-slot">
+        <div class="role">03 · Nav</div>
+        <div class="slot-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.3-4.3"/>
+          </svg>
+        </div>
+        <h4>Discover</h4>
+        <p>Species library, learn, AI identification without adding. Room for community later.</p>
+      </div>
+
+      <div class="ia-slot">
+        <div class="role">04 · Nav</div>
+        <div class="slot-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21C4 17 7 15 12 15C17 15 20 17 20 21"/>
+          </svg>
+        </div>
+        <h4>Me</h4>
+        <p>Profile, settings, notifications, theme, export. Everything that's about you, not plants.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Side-by-side comparison: Rooms Grid vs Isometric House -->
+  <div class="phone-row">
+
+    <!-- PHONE 1: ROOMS GRID (MVP) -->
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-inner">
+          <div class="notch"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span>●●● ◐ ▮</span>
+          </div>
+
+          <div class="rooms-header">
+            <div class="label">Garden · Rooms</div>
+            <h2>Four <span>rooms</span>,<br>twelve plants.</h2>
+            <div class="meta">All in good health — <strong>except 3 need water</strong></div>
+          </div>
+
+          <div class="view-toggle">
+            <button class="active">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+              Rooms
+            </button>
+            <button>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+              List
+            </button>
+          </div>
+
+          <div class="rooms-grid">
+            <div class="room-card attention">
+              <span class="attention-badge">2 thirsty</span>
+              <div class="room-icon-tile">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 18V12C3 10 4 9 6 9H18C20 9 21 10 21 12V18M3 18H21M3 18V20M21 18V20M6 9V6C6 5 7 4 8 4H16C17 4 18 5 18 6V9"/>
+                </svg>
+              </div>
+              <div class="room-name">Living room</div>
+              <div class="room-count">5 plants</div>
+              <div class="plant-dots">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                <span class="more">+2</span>
+              </div>
+            </div>
+
+            <div class="room-card">
+              <div class="room-icon-tile">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 2V7M6 7C4 7 3 8 3 10V14M6 7H12M12 7V2M12 7C14 7 15 8 15 10V14M3 14H15M3 14V20C3 21 4 22 5 22H13C14 22 15 21 15 20V14M18 3V14M18 14C19 14 20 13 20 12V6M18 14V22"/>
+                </svg>
+              </div>
+              <div class="room-name">Kitchen</div>
+              <div class="room-count">3 plants</div>
+              <div class="plant-dots">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              </div>
+            </div>
+
+            <div class="room-card attention">
+              <span class="attention-badge">1 thirsty</span>
+              <div class="room-icon-tile">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 14V19M22 14V19M2 17H22M4 14C4 11 5 10 7 10H17C19 10 20 11 20 14M6 10V7C6 6 7 5 8 5H16C17 5 18 6 18 7V10"/>
+                </svg>
+              </div>
+              <div class="room-name">Bedroom</div>
+              <div class="room-count">3 plants</div>
+              <div class="plant-dots">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              </div>
+            </div>
+
+            <div class="room-card">
+              <div class="room-icon-tile">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 12H20V16C20 18 18 20 16 20H8C6 20 4 18 4 16V12ZM4 12V6C4 5 5 4 6 4C7 4 8 5 8 6V8M16 8H10"/>
+                  <path d="M12 20V22M14 20V22"/>
+                </svg>
+              </div>
+              <div class="room-name">Bathroom</div>
+              <div class="room-count">1 plant</div>
+              <div class="plant-dots">
+                <div class="dot"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Labeled nav v4 -->
+          <div class="dock-wrap">
+            <div class="dock">
+              <div class="dock-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 11L12 3L21 11V20C21 20.5523 20.5523 21 20 21H15V14H9V21H4C3.44772 21 3 20.5523 3 20V11Z"/>
+                </svg>
+                <span class="dock-label">Today</span>
+              </div>
+              <div class="dock-item active">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity="0.18"/>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity="0.18"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity="0.18"/>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity="0.18"/>
+                </svg>
+                <span class="dock-label">Garden</span>
+              </div>
+              <div class="dock-gap"></div>
+              <div class="dock-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.3-4.3"/>
+                </svg>
+                <span class="dock-label">Discover</span>
+              </div>
+              <div class="dock-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M4 21C4 17 7 15 12 15C17 15 20 17 20 21"/>
+                </svg>
+                <span class="dock-label">Me</span>
+              </div>
+            </div>
+            <div class="fab">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5V19M5 12H19"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label"><span class="mvp-tag">MVP</span>Rooms · grid view</div>
+    </div>
+
+    <!-- PHONE 2: ISOMETRIC HOUSE -->
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-inner">
+          <div class="notch"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span>●●● ◐ ▮</span>
+          </div>
+
+          <div class="rooms-header">
+            <div class="label">Garden · House</div>
+            <h2>Your <span>jungle</span>,<br>from above.</h2>
+            <div class="meta">Tap a room to enter — <strong>3 plants need water</strong></div>
+          </div>
+
+          <div class="view-toggle">
+            <button>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+              Rooms
+            </button>
+            <button class="active">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 10L12 3L21 10L12 17Z"/><path d="M3 10V17L12 24M12 17V24M21 10V17L12 24"/></svg>
+              House
+            </button>
+          </div>
+
+          <div class="iso-scene">
+            <div class="iso-house">
+              <svg viewBox="0 0 300 320" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <linearGradient id="floor" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#DFF2E2"/>
+                    <stop offset="100%" stop-color="#86DB65"/>
+                  </linearGradient>
+                  <linearGradient id="wall-l" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#F6FBF4"/>
+                    <stop offset="100%" stop-color="#DFF2E2"/>
+                  </linearGradient>
+                  <linearGradient id="wall-r" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#DFF2E2"/>
+                    <stop offset="100%" stop-color="#86DB65"/>
+                  </linearGradient>
+                  <linearGradient id="attention-glow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#FF6B3D" stop-opacity="0.4"/>
+                    <stop offset="100%" stop-color="#FF6B3D" stop-opacity="0"/>
+                  </linearGradient>
+                  <filter id="soft-shadow">
+                    <feGaussianBlur stdDeviation="4"/>
+                  </filter>
+                </defs>
+
+                <!-- Ground shadow -->
+                <ellipse cx="150" cy="290" rx="130" ry="18" fill="#0B3A1A" opacity="0.18" filter="url(#soft-shadow)"/>
+
+                <!-- ============ UPSTAIRS ============ -->
+                <!-- Bedroom (upper left) -->
+                <g>
+                  <!-- floor -->
+                  <path d="M 60 100 L 150 55 L 150 95 L 60 140 Z" fill="url(#floor)" stroke="#14902F" stroke-width="1.2"/>
+                  <!-- back wall (left) -->
+                  <path d="M 60 100 L 150 55 L 150 20 L 60 65 Z" fill="url(#wall-l)" stroke="#14902F" stroke-width="1.2"/>
+                  <!-- back wall (front face) — tiny -->
+                  <path d="M 60 100 L 60 65 L 60 65 Z" fill="#DFF2E2"/>
+                  <!-- bed -->
+                  <path d="M 78 110 L 130 84 L 130 98 L 78 124 Z" fill="#FFFFFF" stroke="#14902F" stroke-width="1"/>
+                  <path d="M 130 84 L 140 89 L 140 103 L 130 98 Z" fill="#FFB83D" stroke="#14902F" stroke-width="1"/>
+                  <!-- plant on shelf -->
+                  <circle cx="92" cy="72" r="5" fill="#32C456" stroke="#0B3A1A" stroke-width="1"/>
+                  <path d="M 92 72 Q 88 62 92 58 Q 96 62 92 72" fill="#5ED87A" stroke="#0B3A1A" stroke-width="1"/>
+                  <!-- Label -->
+                  <g transform="translate(75 55)">
+                    <rect x="0" y="0" width="58" height="16" rx="8" fill="#FFFFFF" stroke="#14902F" stroke-width="1"/>
+                    <text x="29" y="11" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" font-weight="800" fill="#0B3A1A">BEDROOM</text>
+                  </g>
+                </g>
+
+                <!-- Bathroom (upper right) -->
+                <g>
+                  <path d="M 150 55 L 240 100 L 240 140 L 150 95 Z" fill="url(#floor)" stroke="#14902F" stroke-width="1.2"/>
+                  <path d="M 150 55 L 240 100 L 240 65 L 150 20 Z" fill="url(#wall-r)" stroke="#14902F" stroke-width="1.2"/>
+                  <!-- tub -->
+                  <path d="M 165 100 L 215 125 L 215 135 L 165 110 Z" fill="#FFFFFF" stroke="#14902F" stroke-width="1"/>
+                  <!-- plant -->
+                  <circle cx="225" cy="80" r="4" fill="#32C456" stroke="#0B3A1A" stroke-width="1"/>
+                  <path d="M 225 80 Q 222 72 225 69 Q 228 72 225 80" fill="#5ED87A" stroke="#0B3A1A" stroke-width="1"/>
+                  <!-- Label -->
+                  <g transform="translate(175 55)">
+                    <rect x="0" y="0" width="58" height="16" rx="8" fill="#FFFFFF" stroke="#14902F" stroke-width="1"/>
+                    <text x="29" y="11" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" font-weight="800" fill="#0B3A1A">BATHROOM</text>
+                  </g>
+                </g>
+
+                <!-- ============ DOWNSTAIRS ============ -->
+                <!-- Living room (lower left) — with ATTENTION -->
+                <g>
+                  <!-- attention glow -->
+                  <ellipse cx="105" cy="200" rx="55" ry="22" fill="url(#attention-glow)"/>
+                  <!-- floor -->
+                  <path d="M 60 200 L 150 155 L 150 195 L 60 240 Z" fill="url(#floor)" stroke="#FF6B3D" stroke-width="1.5"/>
+                  <!-- back wall -->
+                  <path d="M 60 200 L 150 155 L 150 120 L 60 165 Z" fill="url(#wall-l)" stroke="#FF6B3D" stroke-width="1.5"/>
+                  <!-- couch -->
+                  <path d="M 78 205 L 128 180 L 128 200 L 78 225 Z" fill="#F6FBF4" stroke="#14902F" stroke-width="1"/>
+                  <path d="M 128 180 L 140 186 L 140 206 L 128 200 Z" fill="#DFF2E2" stroke="#14902F" stroke-width="1"/>
+                  <!-- Big Monstera on the floor -->
+                  <g transform="translate(115 190)">
+                    <path d="M 0 30 L -6 45 L 6 45 L 0 30 Z" fill="#14902F" stroke="#0B3A1A" stroke-width="1"/>
+                    <path d="M 0 30 Q -3 15 -8 0" fill="none" stroke="#14902F" stroke-width="1.5"/>
+                    <path d="M 0 30 Q 3 10 8 -5" fill="none" stroke="#14902F" stroke-width="1.5"/>
+                    <path d="M -8 0 Q -15 -5 -15 5 Q -12 8 -8 0 Z" fill="#5ED87A" stroke="#0B3A1A" stroke-width="1"/>
+                    <path d="M 8 -5 Q 18 -8 18 3 Q 14 8 8 -5 Z" fill="#5ED87A" stroke="#0B3A1A" stroke-width="1"/>
+                    <path d="M 0 -8 Q -6 -20 6 -20 Q 12 -15 0 -8 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="1"/>
+                  </g>
+                  <!-- Small cactus on coffee table -->
+                  <g transform="translate(88 215)">
+                    <ellipse cx="0" cy="4" rx="5" ry="1.5" fill="#0B3A1A" opacity="0.3"/>
+                    <path d="M -3 0 L -4 4 L 4 4 L 3 0 Z" fill="#14902F"/>
+                    <path d="M -3 0 Q -3 -6 0 -6 Q 3 -6 3 0 Z" fill="#32C456" stroke="#0B3A1A" stroke-width="0.8"/>
+                  </g>
+                  <!-- Label with attention pin -->
+                  <g transform="translate(65 152)">
+                    <rect x="0" y="0" width="80" height="18" rx="9" fill="#FFFFFF" stroke="#FF6B3D" stroke-width="1.5"/>
+                    <circle cx="10" cy="9" r="3" fill="#FF6B3D"/>
+                    <text x="45" y="12" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" font-weight="800" fill="#FF6B3D">LIVING · 2</text>
+                  </g>
+                </g>
+
+                <!-- Kitchen (lower right) -->
+                <g>
+                  <path d="M 150 155 L 240 200 L 240 240 L 150 195 Z" fill="url(#floor)" stroke="#14902F" stroke-width="1.2"/>
+                  <path d="M 150 155 L 240 200 L 240 165 L 150 120 Z" fill="url(#wall-r)" stroke="#14902F" stroke-width="1.2"/>
+                  <!-- counter -->
+                  <path d="M 160 195 L 220 225 L 220 232 L 160 202 Z" fill="#F6FBF4" stroke="#14902F" stroke-width="1"/>
+                  <!-- basil on counter -->
+                  <g transform="translate(180 205)">
+                    <path d="M -3 4 L -4 8 L 4 8 L 3 4 Z" fill="#14902F" stroke="#0B3A1A" stroke-width="0.8"/>
+                    <circle cx="0" cy="0" r="4" fill="#5ED87A" stroke="#0B3A1A" stroke-width="0.8"/>
+                    <path d="M 0 0 L 0 -4 M -2 -2 L 2 -2" stroke="#0B3A1A" stroke-width="0.8"/>
+                  </g>
+                  <g transform="translate(200 215)">
+                    <path d="M -3 4 L -4 8 L 4 8 L 3 4 Z" fill="#14902F" stroke="#0B3A1A" stroke-width="0.8"/>
+                    <circle cx="0" cy="0" r="4" fill="#5ED87A" stroke="#0B3A1A" stroke-width="0.8"/>
+                  </g>
+                  <g transform="translate(165 218)">
+                    <path d="M -2 3 L -3 6 L 3 6 L 2 3 Z" fill="#14902F" stroke="#0B3A1A" stroke-width="0.8"/>
+                    <circle cx="0" cy="0" r="3" fill="#5ED87A" stroke="#0B3A1A" stroke-width="0.8"/>
+                  </g>
+                  <!-- Label -->
+                  <g transform="translate(170 152)">
+                    <rect x="0" y="0" width="64" height="16" rx="8" fill="#FFFFFF" stroke="#14902F" stroke-width="1"/>
+                    <text x="32" y="11" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" font-weight="800" fill="#0B3A1A">KITCHEN · 3</text>
+                  </g>
+                </g>
+              </svg>
+            </div>
+
+            <div class="iso-legend">
+              <div class="chip"><span class="dot"></span>Healthy</div>
+              <div class="chip thirsty"><span class="dot"></span>Needs water</div>
+            </div>
+          </div>
+
+          <!-- Attention list below house -->
+          <div class="attention-list">
+            <div class="attention-item">
+              <div class="room-pin">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2C12 2 5 10 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 10 12 2 12 2Z"/>
+                </svg>
+              </div>
+              <div class="text"><strong>Monty</strong> in Living room · 8 days overdue</div>
+              <div class="chev">→</div>
+            </div>
+          </div>
+
+          <div class="dock-wrap">
+            <div class="dock">
+              <div class="dock-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 11L12 3L21 11V20C21 20.5523 20.5523 21 20 21H15V14H9V21H4C3.44772 21 3 20.5523 3 20V11Z"/>
+                </svg>
+                <span class="dock-label">Today</span>
+              </div>
+              <div class="dock-item active">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity="0.18"/>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity="0.18"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity="0.18"/>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity="0.18"/>
+                </svg>
+                <span class="dock-label">Garden</span>
+              </div>
+              <div class="dock-gap"></div>
+              <div class="dock-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.3-4.3"/>
+                </svg>
+                <span class="dock-label">Discover</span>
+              </div>
+              <div class="dock-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M4 21C4 17 7 15 12 15C17 15 20 17 20 21"/>
+                </svg>
+                <span class="dock-label">Me</span>
+              </div>
+            </div>
+            <div class="fab">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5V19M5 12H19"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label"><span class="future-tag">PHASE 3</span>Rooms · isometric house</div>
+    </div>
+
+  </div>
+
+  <!-- Comparison -->
+  <div class="compare-note">
+    <h3>Grid <em>vs</em> Isometric on mobile</h3>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <h4><span class="tag">MVP</span>Grid</h4>
+        <ul>
+          <li>Scannable — you see all rooms at a glance in 2 seconds</li>
+          <li>Scales to 8+ rooms without getting cramped</li>
+          <li>Attention badges are unmissable</li>
+          <li>Plant dots give per-room collection preview</li>
+          <li>Ships in a weekend — no 3D work, no custom illustration</li>
+          <li class="minus">Less distinctive — looks like most room-based apps</li>
+          <li class="minus">Doesn't show spatial relationships between rooms</li>
+        </ul>
+      </div>
+      <div class="compare-col">
+        <h4><span class="tag future">PHASE 3</span>Isometric house</h4>
+        <ul>
+          <li>Visually unforgettable — the screenshot that sells the app</li>
+          <li>Plants are <strong>literally</strong> where they live — spatial memory matches reality</li>
+          <li>Personality system gets ambient expression (a dramatic plant could wilt visibly in its room)</li>
+          <li>Natural upgrade path to interactive 3D (pan, zoom, click-through)</li>
+          <li class="minus">Illustration-heavy — every room needs custom SVG</li>
+          <li class="minus">Struggles past ~6 rooms; needs scrolling or zoom</li>
+          <li class="minus">Attention signals are subtler than badges</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="recommend">
+      <strong>Recommendation:</strong> Ship the grid for MVP. It's the honest answer — it gets plant care into your hands faster, scales to any number of rooms, and leaves the isometric house as a Phase 3 hero moment where it deserves dedicated illustration time. The IA stays identical between both views, so the isometric becomes a <em>toggle</em> inside Garden alongside "Rooms grid" and "List view" — three ways to look at the same data. That's the "view toggle" pill you can see at the top of both phones.
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
