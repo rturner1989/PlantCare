@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-002: API Client (fetch wrapper)</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #f5f5f0;
+  color: #1a1a1a;
+  padding: 40px;
+  line-height: 1.6;
+}
+.ticket {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 32px 40px;
+}
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #666;
+  margin-bottom: 16px;
+}
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 8px; font-size: 15px; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box {
+  width: 18px; height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.criterion span { font-size: 15px; }
+blockquote {
+  border-left: 3px solid #2d6a4f;
+  padding: 12px 16px;
+  margin: 12px 0;
+  background: #f8faf8;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  color: #444;
+}
+code {
+  background: #f0f0ea;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+pre {
+  background: #1a1a2e;
+  color: #d4d4d4;
+  padding: 16px 20px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 12px 0;
+}
+pre code { background: none; padding: 0; color: inherit; }
+.file-list { list-style: none; padding: 0; }
+.file-list li {
+  padding: 8px 12px;
+  background: #f8f8f5;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}
+.file-list .action {
+  font-family: -apple-system, sans-serif;
+  font-size: 11px;
+  color: #888;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.spec-ref {
+  background: #f8faf8;
+  border: 1px solid #e0e8e0;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 12px 0;
+}
+.spec-ref .ref-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #2d6a4f;
+  margin-bottom: 8px;
+}
+.spec-ref p { font-size: 14px; color: #444; margin-bottom: 8px; }
+.spec-ref p:last-child { margin-bottom: 0; }
+.plan-ref {
+  background: #f5f5f0;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 12px 0;
+}
+.plan-ref .ref-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #666;
+  margin-bottom: 8px;
+}
+.plan-ref ol { font-size: 14px; color: #444; }
+.note-box {
+  background: #fffbeb;
+  border: 1px solid #f0e6c0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #7a6520;
+}
+.note-box strong { color: #5a4a10; }
+</style>
+</head>
+<body>
+
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-002</div>
+    <h1>API Client (fetch wrapper)</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High Priority</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Create a custom fetch wrapper that handles JWT authentication, automatic token refresh on 401 responses, and request queueing during refresh. This is the foundational API layer — every protected API call flows through this module. Access tokens are stored in a JavaScript closure (never localStorage), and the refresh token lives in an httpOnly cookie managed by the browser.</p>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li>Create <code>client/src/api/client.js</code> exporting: <code>apiFetch</code>, <code>apiGet</code>, <code>apiPost</code>, <code>apiPatch</code>, <code>apiDelete</code>, <code>setAccessToken</code>, <code>getAccessToken</code></li>
+      <li>Store access token in a module-scoped closure variable — never in <code>localStorage</code>, <code>sessionStorage</code>, or cookies</li>
+      <li>Automatically attach <code>Authorization: Bearer &lt;token&gt;</code> header to all requests when a token exists</li>
+      <li>On 401 response, attempt token refresh via <code>POST /api/v1/token</code> (credentials: include), then retry the original request once</li>
+      <li>Queue concurrent requests during a refresh — don't fire multiple refresh calls simultaneously</li>
+      <li>Handle <code>FormData</code> bodies (for photo uploads) by removing <code>Content-Type</code> header so the browser sets the multipart boundary</li>
+      <li>Return <code>null</code> for 204 No Content responses, parsed JSON for all others</li>
+      <li>Throw structured errors with <code>status</code> and <code>body</code> properties on non-OK responses</li>
+      <li>Throw <code>"Session expired"</code> error when refresh fails (caller handles redirect to login)</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance Criteria</h2>
+    <div class="criterion"><div class="box"></div><span><code>client/src/api/client.js</code> exists and exports all 7 functions listed in requirement 1</span></div>
+    <div class="criterion"><div class="box"></div><span>Access token is stored in a module-scoped <code>let</code> variable — no calls to <code>localStorage</code> or <code>sessionStorage</code> anywhere in the file</span></div>
+    <div class="criterion"><div class="box"></div><span><code>apiFetch</code> attaches <code>Authorization: Bearer</code> header when token is set</span></div>
+    <div class="criterion"><div class="box"></div><span>On 401, the wrapper calls <code>POST /api/v1/token</code> with <code>credentials: 'include'</code> and retries the original request with the new token</span></div>
+    <div class="criterion"><div class="box"></div><span>Concurrent 401s during refresh are queued (not duplicated) — <code>isRefreshing</code> flag + <code>refreshQueue</code> array pattern</span></div>
+    <div class="criterion"><div class="box"></div><span><code>apiPost</code> with a <code>FormData</code> body does NOT set <code>Content-Type: application/json</code></span></div>
+    <div class="criterion"><div class="box"></div><span>Failed requests throw an <code>Error</code> with <code>.status</code> and <code>.body</code> properties</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> passes with zero errors</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/run_tests.sh client</code> passes (app still loads without import errors)</span></div>
+  </section>
+
+  <section>
+    <h2>Design References</h2>
+
+    <div class="spec-ref">
+      <div class="ref-label">Technical Spec — Auth Strategy</div>
+      <p><strong>Access token:</strong> 15-minute expiry, stored in memory on the client. Sent via <code>Authorization: Bearer</code> header.</p>
+      <p><strong>Refresh token:</strong> 30-day expiry, stored as an httpOnly cookie. Used to obtain new access tokens.</p>
+      <p>This means the client never directly handles the refresh token — it's sent automatically by the browser with <code>credentials: 'include'</code>.</p>
+    </div>
+
+    <div class="spec-ref">
+      <div class="ref-label">API Endpoints Used by This Module</div>
+      <p><code>POST /api/v1/token</code> — exchange refresh cookie for a new access token. Returns <code>{ access_token }</code>.</p>
+      <p>All other endpoints use <code>Authorization: Bearer &lt;access_token&gt;</code> for authentication.</p>
+    </div>
+
+    <div class="plan-ref">
+      <div class="ref-label">Implementation Plan — Task 2 Steps</div>
+      <ol>
+        <li><strong>Step 2.1</strong> — Create <code>client/src/api/client.js</code> with the full fetch wrapper (see plan for complete code)</li>
+        <li><strong>Step 2.2</strong> — Create a Playwright test verifying the app still loads with the new module imported</li>
+        <li><strong>Step 2.3</strong> — Run lint</li>
+        <li><strong>Step 2.4</strong> — Run tests</li>
+        <li><strong>Step 2.5</strong> — Commit</li>
+      </ol>
+    </div>
+
+    <div class="note-box">
+      <strong>Security note:</strong> The access token MUST NOT touch localStorage or sessionStorage. The entire security model depends on the token being ephemeral (memory only) so that XSS attacks cannot exfiltrate it. The refresh token is httpOnly — JavaScript cannot access it at all.
+    </div>
+  </section>
+
+  <section>
+    <h2>Related Files</h2>
+    <ul class="file-list">
+      <li><span>client/src/api/client.js</span><span class="action">create</span></li>
+      <li><span>client/tests/api-client.spec.js</span><span class="action">create</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Notes</h2>
+    <ul>
+      <li>The plan includes the <strong>complete implementation</strong> for <code>client.js</code> in Step 2.1 — use it as the reference.</li>
+      <li>The <code>_retried</code> flag on the options object prevents infinite refresh loops — a retried request that still gets 401 should NOT trigger another refresh.</li>
+      <li>This module has no UI — it's pure logic. The AuthContext (Task 3) consumes it.</li>
+      <li>The Vite proxy is already configured: <code>/api/*</code> routes to the Rails API container on port 3000. No CORS needed in dev.</li>
+      <li>The Playwright test is minimal — just confirms the app still loads after the module is added to the import graph. Real integration tests come later with the auth forms.</li>
+    </ul>
+  </section>
+
+</div>
+
+</body>
+</html>

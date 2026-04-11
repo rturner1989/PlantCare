@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-003: Auth Context + useAuth Hook</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #f5f5f0;
+  color: #1a1a1a;
+  padding: 40px;
+  line-height: 1.6;
+}
+.ticket {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 32px 40px;
+}
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #666;
+  margin-bottom: 16px;
+}
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 8px; font-size: 15px; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box {
+  width: 18px; height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.criterion span { font-size: 15px; }
+blockquote {
+  border-left: 3px solid #2d6a4f;
+  padding: 12px 16px;
+  margin: 12px 0;
+  background: #f8faf8;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  color: #444;
+}
+code {
+  background: #f0f0ea;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+pre {
+  background: #1a1a2e;
+  color: #d4d4d4;
+  padding: 16px 20px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 12px 0;
+}
+pre code { background: none; padding: 0; color: inherit; }
+.file-list { list-style: none; padding: 0; }
+.file-list li {
+  padding: 8px 12px;
+  background: #f8f8f5;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}
+.file-list .action {
+  font-family: -apple-system, sans-serif;
+  font-size: 11px;
+  color: #888;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.spec-ref {
+  background: #f8faf8;
+  border: 1px solid #e0e8e0;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 12px 0;
+}
+.spec-ref .ref-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #2d6a4f;
+  margin-bottom: 8px;
+}
+.spec-ref p { font-size: 14px; color: #444; margin-bottom: 8px; }
+.spec-ref p:last-child { margin-bottom: 0; }
+.plan-ref {
+  background: #f5f5f0;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 12px 0;
+}
+.plan-ref .ref-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #666;
+  margin-bottom: 8px;
+}
+.plan-ref ol { font-size: 14px; color: #444; }
+.note-box {
+  background: #fffbeb;
+  border: 1px solid #f0e6c0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #7a6520;
+}
+.note-box strong { color: #5a4a10; }
+.mockup-preview {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+.mockup-preview iframe {
+  width: 100%;
+  height: 300px;
+  border: none;
+}
+.mockup-preview .label {
+  padding: 8px 14px;
+  background: #f5f5f0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+}
+</style>
+</head>
+<body>
+
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-003</div>
+    <h1>Auth Context + useAuth Hook</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High Priority</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Create the React auth context that manages user session state — login, register, logout, and automatic session restoration on page load. Wraps the API client from TICKET-002 into a React-friendly provider pattern. Every component that needs to know "who is logged in?" will consume this context via the <code>useAuth()</code> hook.</p>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li>Create <code>AuthContext</code> with a provider that exposes: <code>user</code>, <code>loading</code>, <code>error</code>, <code>login()</code>, <code>register()</code>, <code>logout()</code>, <code>refreshToken()</code>, <code>setError()</code></li>
+      <li>On mount, attempt session restoration by calling <code>POST /api/v1/token</code> (refresh cookie). If successful, fetch user profile and populate <code>user</code> state</li>
+      <li><code>login(email, password)</code> calls <code>POST /api/v1/session</code>, stores the access token via <code>setAccessToken()</code>, and sets user state from the response</li>
+      <li><code>register(name, email, password, passwordConfirmation)</code> calls <code>POST /api/v1/registration</code>, same token/user flow as login</li>
+      <li><code>logout()</code> calls <code>DELETE /api/v1/session</code>, clears access token and user state. Gracefully handles already-expired tokens</li>
+      <li><code>loading</code> is <code>true</code> during initial session restoration — components should show a loading state, not a flash of the login page</li>
+      <li>Create <code>useAuth()</code> hook that throws a helpful error if used outside the provider</li>
+      <li>Memoize the context value to prevent unnecessary re-renders of consuming components</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance Criteria</h2>
+    <div class="criterion"><div class="box"></div><span><code>client/src/context/AuthContext.jsx</code> exists and exports <code>AuthContext</code> and <code>AuthProvider</code></span></div>
+    <div class="criterion"><div class="box"></div><span><code>client/src/hooks/useAuth.js</code> exists and exports <code>useAuth</code></span></div>
+    <div class="criterion"><div class="box"></div><span><code>useAuth()</code> throws <code>"useAuth must be used within an AuthProvider"</code> when called outside the provider</span></div>
+    <div class="criterion"><div class="box"></div><span><code>AuthProvider</code> calls <code>POST /api/v1/token</code> on mount to restore session from refresh cookie</span></div>
+    <div class="criterion"><div class="box"></div><span><code>login()</code> sets access token via the API client's <code>setAccessToken</code> and populates <code>user</code> state</span></div>
+    <div class="criterion"><div class="box"></div><span><code>register()</code> sets access token and populates <code>user</code> state</span></div>
+    <div class="criterion"><div class="box"></div><span><code>logout()</code> calls <code>DELETE /api/v1/session</code>, then clears both token and user — even if the DELETE fails</span></div>
+    <div class="criterion"><div class="box"></div><span><code>loading</code> starts as <code>true</code> and becomes <code>false</code> after mount refresh resolves (success or failure)</span></div>
+    <div class="criterion"><div class="box"></div><span>Context value is wrapped in <code>useMemo</code> with appropriate dependency array</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> passes with zero errors</span></div>
+  </section>
+
+  <section>
+    <h2>Design References</h2>
+
+    <div class="spec-ref">
+      <div class="ref-label">Technical Spec — Auth Flow</div>
+      <p><strong>Access token:</strong> 15-minute expiry, stored in memory. Sent via <code>Authorization: Bearer</code> header.</p>
+      <p><strong>Refresh token:</strong> 30-day expiry, httpOnly cookie. Browser sends automatically with <code>credentials: 'include'</code>.</p>
+      <p><strong>Session restore:</strong> On page load, POST to <code>/api/v1/token</code>. If 200, use the new access token to GET <code>/api/v1/profile</code> and hydrate user state. If 401, user is logged out.</p>
+    </div>
+
+    <div class="spec-ref">
+      <div class="ref-label">API Endpoints Used</div>
+      <p><code>POST /api/v1/session</code> — body: <code>{ session: { email, password } }</code> — returns: <code>{ access_token, user }</code></p>
+      <p><code>POST /api/v1/registration</code> — body: <code>{ user: { name, email, password, password_confirmation } }</code> — returns: <code>{ access_token, user }</code></p>
+      <p><code>DELETE /api/v1/session</code> — no body — returns: 204</p>
+      <p><code>POST /api/v1/token</code> — no body (refresh cookie sent automatically) — returns: <code>{ access_token }</code></p>
+      <p><code>GET /api/v1/profile</code> — returns: <code>{ id, email, name, timezone }</code></p>
+    </div>
+
+    <div class="spec-ref">
+      <div class="ref-label">UI Spec §6 — Auth Screens (context for how this is consumed)</div>
+      <p>Login and register are single-screen forms. The <code>loading</code> state from AuthContext determines whether to show a spinner or redirect to the login page — avoids the "flash of login screen" on refresh.</p>
+    </div>
+
+    <div class="mockup-preview">
+      <div class="label">Mockup: Auth Login + Register (downstream consumer)</div>
+      <iframe src="../mockups/plantcare-ui/06-auth-login-register.html"></iframe>
+    </div>
+
+    <div class="plan-ref">
+      <div class="ref-label">Implementation Plan — Task 3 Steps</div>
+      <ol>
+        <li><strong>Step 3.1</strong> — Create <code>client/src/context/AuthContext.jsx</code> with full provider (see plan for complete code)</li>
+        <li><strong>Step 3.2</strong> — Create <code>client/src/hooks/useAuth.js</code> with context consumer + error guard</li>
+        <li><strong>Step 3.3</strong> — Run lint</li>
+        <li><strong>Step 3.4</strong> — Commit</li>
+      </ol>
+    </div>
+
+    <div class="note-box">
+      <strong>Dependency:</strong> This ticket depends on TICKET-002 (API Client). The <code>AuthProvider</code> imports <code>apiPost</code>, <code>apiDelete</code>, and <code>setAccessToken</code> from <code>../api/client.js</code>. Complete TICKET-002 first.
+    </div>
+  </section>
+
+  <section>
+    <h2>Related Files</h2>
+    <ul class="file-list">
+      <li><span>client/src/context/AuthContext.jsx</span><span class="action">create</span></li>
+      <li><span>client/src/hooks/useAuth.js</span><span class="action">create</span></li>
+      <li><span>client/src/api/client.js</span><span class="action">dependency (from TICKET-002)</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Notes</h2>
+    <ul>
+      <li>The plan includes the <strong>complete implementation</strong> for both files in Steps 3.1 and 3.2 — use them as the reference.</li>
+      <li>The <code>refreshToken</code> function in the context makes a direct <code>fetch()</code> call (not <code>apiFetch</code>) because it needs to bypass the API client's own refresh logic — otherwise you'd get infinite recursion.</li>
+      <li>After a successful refresh, the context fetches <code>GET /api/v1/profile</code> to get the user object. The login/register endpoints return the user directly, so no extra call needed there.</li>
+      <li><code>useCallback</code> on all action functions prevents unnecessary effect re-fires in consuming components.</li>
+      <li>The <code>AuthProvider</code> will be wired into the component tree in Task 4 (Router + App Shell). For now, just create the files — they don't need to be imported anywhere yet.</li>
+      <li>Error state (<code>setError</code>) is exposed so forms can clear errors when the user starts typing again.</li>
+    </ul>
+  </section>
+
+</div>
+
+</body>
+</html>
