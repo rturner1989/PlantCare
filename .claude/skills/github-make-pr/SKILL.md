@@ -26,8 +26,6 @@ gh pr create --title "..." --body "$(cat <<'EOF'
 ## Test plan
 - [ ] Tests pass locally
 - [ ] CI pipeline passes
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
 EOF
 )"
 ```
