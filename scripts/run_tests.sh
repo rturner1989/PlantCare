@@ -30,7 +30,7 @@ if [ "$TARGET" = "all" ] || [ "$TARGET" = "api" ]; then
 fi
 
 if [ "$TARGET" = "all" ] || [ "$TARGET" = "client" ]; then
-  run_check "Client Tests (Playwright)" "cd client && npm test"
+  run_check "Client Tests (Playwright)" "cd client && npm install --silent && npx playwright install --with-deps 2>/dev/null; npm test"
 fi
 
 echo ""
