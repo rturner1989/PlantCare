@@ -1,9 +1,9 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import { apiPost, apiDelete, setAccessToken } from '../api/client'
+import { apiDelete, apiPost, setAccessToken } from '../api/client'
 
-export const AuthContext = createContext();
+export const AuthContext = createContext(null)
 
-export const useAuthContext = () => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -94,4 +94,4 @@ export const useAuthContext = () => {
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-};
+}
