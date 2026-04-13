@@ -8,6 +8,13 @@
 
 **Tech Stack:** React 19, React Router 7, TanStack Query 5, Tailwind CSS 4, Framer Motion (motion/react), Vaul (bottom sheets), Playwright (E2E testing)
 
+**Performance guidelines:** This plan follows the Vercel React best-practices rules (`~/.claude/skills/react-best-practices`). The most load-bearing ones baked in:
+- **`bundle-dynamic-imports`** — Task 4 splits every page into its own chunk via `React.lazy` + `<Suspense>`
+- **`async-parallel`** — Task 6 fires room creations in parallel with `Promise.all`
+- **`rerender-use-deferred-value`** — Tasks 6 and 12 use `useDeferredValue` on species-search input
+- **`rerender-simple-expression-in-memo`** — Task 11 avoids `useMemo` for trivial arithmetic
+- `useCallback` is used only when the callback crosses a memoization boundary (e.g. feeds into a `useMemo`'d context value), not as a reflex
+
 ---
 
 ## File Structure
@@ -925,15 +932,29 @@ export default function NotFound() {
 }
 ```
 
-- [ ] 4.6 — Rewrite `client/src/App.jsx` with the router and provider tree:
+- [ ] 4.6 — Rewrite `client/src/App.jsx` with the router, provider tree, and route-level code splitting:
+
+Pages are loaded with `React.lazy()` so each screen becomes its own chunk — the initial bundle only contains the router, providers, layout, and whichever page the user lands on. Subsequent pages are fetched on navigation. `<Suspense>` wraps `<Routes>` to show a fallback while a chunk loads.
 
 ```jsx
+import { lazy, Suspense } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotFound from './pages/NotFound'
+
+// Route-level code splitting: each page ships as its own chunk
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const Welcome = lazy(() => import('./pages/Welcome'))
+const Today = lazy(() => import('./pages/Today'))
+const House = lazy(() => import('./pages/House'))
+const PlantDetail = lazy(() => import('./pages/PlantDetail'))
+const Discover = lazy(() => import('./pages/Discover'))
+const Me = lazy(() => import('./pages/Me'))
+const AddPlant = lazy(() => import('./pages/AddPlant'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -944,7 +965,16 @@ const queryClient = new QueryClient({
   },
 })
 
-// Lazy load pages
+function RouteFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-dvh">
+      <div className="w-8 h-8 border-3 border-leaf border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
+}
+
+// Placeholder used until each page is built in later tasks. Remove once all
+// pages exist.
 function PlaceholderPage({ title }) {
   return (
     <div className="p-6 lg:p-10">
@@ -959,36 +989,42 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<PlaceholderPage title="Login" />} />
-            <Route path="/register" element={<PlaceholderPage title="Register" />} />
-            <Route path="/welcome" element={<PlaceholderPage title="Welcome" />} />
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<PlaceholderPage title="Login" />} />
+              <Route path="/register" element={<PlaceholderPage title="Register" />} />
+              <Route path="/welcome" element={<PlaceholderPage title="Welcome" />} />
 
-            {/* Protected routes */}
-            <Route
-              element={
-                <ProtectedRoute>
-                  <Layout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<PlaceholderPage title="Today" />} />
-              <Route path="house" element={<PlaceholderPage title="House" />} />
-              <Route path="plants/:id" element={<PlaceholderPage title="Plant Detail" />} />
-              <Route path="discover" element={<PlaceholderPage title="Discover" />} />
-              <Route path="me" element={<PlaceholderPage title="Me" />} />
-              <Route path="add-plant" element={<PlaceholderPage title="Add Plant" />} />
-            </Route>
+              {/* Protected routes */}
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <Layout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<PlaceholderPage title="Today" />} />
+                <Route path="house" element={<PlaceholderPage title="House" />} />
+                <Route path="plants/:id" element={<PlaceholderPage title="Plant Detail" />} />
+                <Route path="discover" element={<PlaceholderPage title="Discover" />} />
+                <Route path="me" element={<PlaceholderPage title="Me" />} />
+                <Route path="add-plant" element={<PlaceholderPage title="Add Plant" />} />
+              </Route>
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>
   )
 }
 ```
+
+> **Note on later tasks:** as each page is built in Tasks 5, 6, 9, 10, 11, 12, 14, replace the matching `<PlaceholderPage .../>` element with the lazy-imported component (e.g. `element={<Login />}`). The `lazy()` imports above are declared up front so you only add one line per task.
+
+> **React best-practices applied:** `bundle-dynamic-imports` — heavy route components are deferred so the landing screen doesn't download the entire app.
 
 - [ ] 4.7 — Update `client/src/main.jsx` (minor cleanup, keep StrictMode):
 
@@ -1438,7 +1474,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 - [ ] 6.1 — Create `client/src/pages/Welcome.jsx` with 5-step wizard:
 
 ```jsx
-import { useCallback, useState } from 'react'
+import { useCallback, useDeferredValue, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiGet, apiPost } from '../api/client'
 import { useAuth } from '../hooks/useAuth'
@@ -1485,32 +1521,46 @@ export default function Welcome() {
     }
   }, [customRoom, selectedRooms])
 
-  const searchSpecies = useCallback(async (query) => {
-    setSpeciesQuery(query)
-    if (query.length < 2) {
+  // Species search: store the raw input separately from the query we actually
+  // send to the API, then defer that value so typing stays responsive and we
+  // don't fire a request per keystroke. useDeferredValue is React's built-in
+  // way to say "this downstream work is non-urgent".
+  const deferredSpeciesQuery = useDeferredValue(speciesQuery)
+
+  useEffect(() => {
+    if (deferredSpeciesQuery.length < 2) {
       setSpeciesResults([])
       return
     }
 
-    try {
-      const results = await apiGet(`/api/v1/species?q=${encodeURIComponent(query)}`)
-      setSpeciesResults(results)
-    } catch {
-      setSpeciesResults([])
+    let cancelled = false
+    apiGet(`/api/v1/species?q=${encodeURIComponent(deferredSpeciesQuery)}`)
+      .then((results) => {
+        if (!cancelled) setSpeciesResults(results)
+      })
+      .catch(() => {
+        if (!cancelled) setSpeciesResults([])
+      })
+
+    return () => {
+      cancelled = true
     }
-  }, [])
+  }, [deferredSpeciesQuery])
 
   const handleCreateRooms = useCallback(async () => {
     setSubmitting(true)
     try {
-      const rooms = []
-      for (const roomName of selectedRooms) {
-        const preset = PRESET_ROOMS.find((r) => r.name === roomName)
-        const room = await apiPost('/api/v1/rooms', {
-          room: { name: roomName, icon: preset?.icon || null },
-        })
-        rooms.push(room)
-      }
+      // Room creations are independent — fire them in parallel with Promise.all
+      // instead of awaiting each one sequentially. Applies React best-practice
+      // rule: async-parallel.
+      const rooms = await Promise.all(
+        selectedRooms.map((roomName) => {
+          const preset = PRESET_ROOMS.find((r) => r.name === roomName)
+          return apiPost('/api/v1/rooms', {
+            room: { name: roomName, icon: preset?.icon || null },
+          })
+        }),
+      )
       setCreatedRooms(rooms)
       setStep(3)
     } catch {
@@ -1678,7 +1728,7 @@ export default function Welcome() {
           <input
             type="text"
             value={speciesQuery}
-            onChange={(e) => searchSpecies(e.target.value)}
+            onChange={(e) => setSpeciesQuery(e.target.value)}
             className="w-full px-4 py-3 rounded-xl bg-card border border-mint text-ink text-sm outline-none focus:border-leaf mb-3"
             placeholder="Search species (e.g. Monstera, Snake Plant...)"
           />
@@ -1981,11 +2031,10 @@ export function useDeleteRoom() {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiDelete, apiGet, apiPatch, apiPost } from '../api/client'
 
-export function usePlants(params = {}) {
-  const queryParams = params.roomId ? `?room_id=${params.roomId}` : ''
+export function usePlants(roomId) {
   return useQuery({
-    queryKey: ['plants', params],
-    queryFn: () => apiGet(`/api/v1/plants${queryParams}`),
+    queryKey: roomId ? ['plants', { roomId }] : ['plants'],
+    queryFn: () => apiGet(`/api/v1/plants${roomId ? `?room_id=${roomId}` : ''}`),
   })
 }
 
@@ -3161,7 +3210,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 - [ ] 11.1 — Create `client/src/pages/PlantDetail.jsx`:
 
 ```jsx
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { usePlant, useCareLogs, useLogCare, usePlantPhotos } from '../hooks/usePlants'
 import PlantAvatar from '../components/PlantAvatar'
@@ -3181,27 +3230,29 @@ export default function PlantDetail() {
   const { data: photos } = usePlantPhotos(id)
   const logCare = useLogCare(id)
 
-  const careState = useMemo(() => (plant ? getCareState(plant) : 'content'), [plant])
+  // Derived values computed inline — getCareState/getVoiceLine are cheap pure
+  // functions and the ring percentages are basic arithmetic, so useMemo would
+  // cost more than it saves. React best-practice rule:
+  // rerender-simple-expression-in-memo.
+  const careState = plant ? getCareState(plant) : 'content'
   const stateConfig = CARE_STATE_CONFIG[careState]
-  const voice = useMemo(
-    () => (plant ? getVoiceLine(plant.species?.personality || 'chill', careState, plant.id) : ''),
-    [plant, careState],
-  )
+  const voice = plant ? getVoiceLine(plant.species?.personality || 'chill', careState, plant.id) : ''
 
-  // Care ring values
-  const waterPercent = useMemo(() => {
-    if (!plant?.calculated_watering_days || !plant?.days_until_water) return 50
+  const waterPercent =
+    plant?.calculated_watering_days && plant?.days_until_water
+      ? Math.min(
+          100,
+          Math.max(0, ((plant.calculated_watering_days - plant.days_until_water) / plant.calculated_watering_days) * 100),
+        )
+      : 50
 
-    const elapsed = plant.calculated_watering_days - plant.days_until_water
-    return Math.min(100, Math.max(0, (elapsed / plant.calculated_watering_days) * 100))
-  }, [plant])
-
-  const feedPercent = useMemo(() => {
-    if (!plant?.calculated_feeding_days || !plant?.days_until_feed) return 50
-
-    const elapsed = plant.calculated_feeding_days - plant.days_until_feed
-    return Math.min(100, Math.max(0, (elapsed / plant.calculated_feeding_days) * 100))
-  }, [plant])
+  const feedPercent =
+    plant?.calculated_feeding_days && plant?.days_until_feed
+      ? Math.min(
+          100,
+          Math.max(0, ((plant.calculated_feeding_days - plant.days_until_feed) / plant.calculated_feeding_days) * 100),
+        )
+      : 50
 
   if (isLoading) {
     return (
@@ -3568,7 +3619,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 - [ ] 12.1 — Create `client/src/pages/AddPlant.jsx`:
 
 ```jsx
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useDeferredValue, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Drawer } from 'vaul'
 import { useRooms } from '../hooks/useRooms'
@@ -3589,7 +3640,11 @@ export default function AddPlant() {
   const navigate = useNavigate()
   const { data: rooms } = useRooms()
   const createPlant = useCreatePlant()
-  const { data: speciesResults } = useSpeciesSearch(speciesQuery)
+  // Defer the query value fed into TanStack so we don't fire a request per
+  // keystroke — React will keep the input responsive and run the search with
+  // the latest stable value. Rule: rerender-use-deferred-value.
+  const deferredQuery = useDeferredValue(speciesQuery)
+  const { data: speciesResults } = useSpeciesSearch(deferredQuery)
 
   const handleSelectSpecies = useCallback((species) => {
     setSelectedSpecies(species)
