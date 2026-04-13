@@ -12,7 +12,9 @@ export default function Logo({ size = 'md', markOnly = false, className = '', to
 
   const children = (
     <>
-      <div className={`${markClasses} flex items-center justify-center text-white font-extrabold bg-[image:var(--gradient-brand)]`}>
+      <div
+        className={`${markClasses} flex items-center justify-center text-white font-extrabold bg-[image:var(--gradient-brand)]`}
+      >
         P
       </div>
       {!markOnly && <span className={`${wordClasses} font-extrabold text-ink`}>PlantCare</span>}
@@ -20,7 +22,11 @@ export default function Logo({ size = 'md', markOnly = false, className = '', to
   )
 
   if (to) {
-    return <Link to={to} className={`${baseClasses} no-underline`}>{children}</Link>
+    return (
+      <Link to={to} className={`${baseClasses} no-underline`}>
+        {children}
+      </Link>
+    )
   }
 
   return <div className={baseClasses}>{children}</div>

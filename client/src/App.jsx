@@ -8,24 +8,23 @@
  * └── components/    shared building blocks used by layouts AND pages
  */
 
-import { lazy, Suspense } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
-
-import AppLayout from './layouts/AppLayout'
 import ProtectedRoute from './components/ProtectedRoute'
+import { AuthProvider } from './context/AuthContext'
+import AppLayout from './layouts/AppLayout'
 import NotFound from './pages/NotFound'
 
-const Login = lazy(() => import('./pages/Login'))
-const Register = lazy(() => import('./pages/Register'))
-const Welcome = lazy(() => import('./pages/Welcome'))
-const Today = lazy(() => import('./pages/Today'))
-const House = lazy(() => import('./pages/House'))
-const PlantDetail = lazy(() => import('./pages/PlantDetail'))
-const Discover = lazy(() => import('./pages/Discover'))
-const Me = lazy(() => import('./pages/Me'))
-const AddPlant = lazy(() => import('./pages/AddPlant'))
+// const Login = lazy(() => import('./pages/Login'))
+// const Register = lazy(() => import('./pages/Register'))
+// const Welcome = lazy(() => import('./pages/Welcome'))
+// const Today = lazy(() => import('./pages/Today'))
+// const House = lazy(() => import('./pages/House'))
+// const PlantDetail = lazy(() => import('./pages/PlantDetail'))
+// const Discover = lazy(() => import('./pages/Discover'))
+// const Me = lazy(() => import('./pages/Me'))
+// const AddPlant = lazy(() => import('./pages/AddPlant'))
 
 const queryClient = new QueryClient({
   defaultOptions: {

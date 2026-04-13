@@ -1,5 +1,5 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHouse, faMagnifyingGlass, faPlus, faSun, faUser } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import Logo from './Logo'
@@ -32,7 +32,9 @@ function SidebarNavLink({ to, label, icon, count }) {
           <span className="flex-1">{label}</span>
 
           {count !== undefined && (
-            <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${ isActive ? 'bg-leaf text-card' : 'bg-forest/[0.08] text-ink' }`} >
+            <span
+              className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isActive ? 'bg-leaf text-card' : 'bg-forest/[0.08] text-ink'}`}
+            >
               {count}
             </span>
           )}
@@ -61,7 +63,11 @@ export default function Sidebar() {
       </nav>
 
       <div className="px-4 pb-4">
-        <button type="button" onClick={() => navigate('/add-plant')} className="w-full p-4 rounded-lg text-white cursor-pointer border-0 bg-[image:var(--gradient-forest)]">
+        <button
+          type="button"
+          onClick={() => navigate('/add-plant')}
+          className="w-full p-4 rounded-lg text-white cursor-pointer border-0 bg-[image:var(--gradient-forest)]"
+        >
           <div className="flex items-center gap-2 text-lime">
             <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
             <span className="text-sm font-extrabold">New plant</span>
