@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
@@ -13,5 +14,15 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './tests/setup.js',
+    // Component/unit tests live in tests/ mirroring the src/ layout
+    // (e.g. src/components/ui/Action.jsx → tests/components/ui/Action.test.jsx).
+    // Vitest picks up .test.js / .test.jsx; Playwright handles .spec.js.
+    include: ['tests/**/*.test.{js,jsx}'],
+    css: false,
   },
 })
