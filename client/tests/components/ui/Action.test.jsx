@@ -79,9 +79,7 @@ describe('Action', () => {
           Off
         </Action>,
       )
-      // Action deliberately keeps role="link" on the disabled span so screen
-      // readers still announce it as a link — we assert on tag + aria-disabled
-      // instead of querying by role.
+
       const el = screen.getByText('Off')
       expect(el.tagName).toBe('SPAN')
       expect(el).toHaveAttribute('aria-disabled', 'true')
@@ -91,7 +89,6 @@ describe('Action', () => {
   describe('styling', () => {
     it('applies variant classes by default', () => {
       render(<Action variant="primary">Hello</Action>)
-      // primary includes `rounded-full` — cheap signal that the variant wired up
       expect(screen.getByRole('button')).toHaveClass('rounded-full')
     })
 
@@ -103,7 +100,6 @@ describe('Action', () => {
       )
       const button = screen.getByRole('button', { name: 'Test' })
       expect(button).toHaveClass('extra-class')
-      // fab variant has this width
       expect(button.className).toContain('w-[54px]')
     })
 
@@ -114,15 +110,10 @@ describe('Action', () => {
         </Action>,
       )
       const button = screen.getByRole('button')
-      // User className is applied
       expect(button).toHaveClass('only-mine')
-      // No variant visuals
       expect(button.className).not.toContain('rounded-full')
       expect(button.className).not.toContain('bg-[image:')
-      // No focus ring
       expect(button.className).not.toContain('focus-visible:ring')
-      // Element-level resets (border-0, cursor-pointer) still apply — they're
-      // not "variant styling", they're "make <button> behave sanely".
     })
   })
 
