@@ -1,8 +1,10 @@
 import { faHouse, faMagnifyingGlass, faPlus, faSun, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import Logo from './Logo'
+import Action from './ui/Action'
+import Badge from './ui/Badge'
 
 // TODO: replace hardcoded counts with real data once dashboard + house queries land.
 // Today = tasks due today; House = total plants.
@@ -31,13 +33,9 @@ function SidebarNavLink({ to, label, icon, count }) {
           <FontAwesomeIcon icon={icon} className="w-5 h-5" />
           <span className="flex-1">{label}</span>
 
-          {count !== undefined && (
-            <span
-              className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isActive ? 'bg-leaf text-card' : 'bg-forest/[0.08] text-ink'}`}
-            >
-              {count}
-            </span>
-          )}
+          <Badge scheme={isActive ? 'leaf' : 'forest'} variant={isActive ? 'solid' : 'soft'}>
+            {count}
+          </Badge>
         </>
       )}
     </NavLink>
@@ -46,7 +44,6 @@ function SidebarNavLink({ to, label, icon, count }) {
 
 export default function Sidebar() {
   const { user } = useAuth()
-  const navigate = useNavigate()
 
   return (
     <aside className="hidden lg:flex flex-col w-[260px] h-dvh bg-card border-r border-mint fixed left-0 top-0 z-40">
@@ -63,18 +60,14 @@ export default function Sidebar() {
       </nav>
 
       <div className="px-4 pb-4">
-        <button
-          type="button"
-          onClick={() => navigate('/add-plant')}
-          className="w-full p-4 rounded-lg text-white cursor-pointer border-0 bg-[image:var(--gradient-forest)]"
-        >
+        <Action to="/add-plant" variant="cta-card">
           <div className="flex items-center gap-2 text-lime">
             <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
             <span className="text-sm font-extrabold">New plant</span>
           </div>
 
-          <p className="text-xs text-lime/70 mt-1 text-left">Add a new plant to your collection</p>
-        </button>
+          <p className="text-xs text-lime/70 mt-1">Add a new plant to your collection</p>
+        </Action>
       </div>
 
       {user && (

@@ -130,6 +130,21 @@ docs/
 - `/github-make-pr` — push current branch and create a GitHub pull request
 - `/github-babysit-pr` — watch current PR for CI failures and auto-fix them
 
+## Code Style
+
+### Naming
+
+- **Be explicit with variable names.** No single-letter or ultra-short abbreviations (`s`, `x`, `fn`, `cfg`, `tmp`) — even in tiny helper functions. Use `schemeRecipe` not `s`, `handleSubmit` not `fn`, `roomCount` not `rc`. A reader should understand what a variable holds without scrolling up to the declaration.
+- **One-letter names are OK only for loop iterators** in short loops (`for (const [i, plant] of plants.entries())`). Even then, prefer the domain name (`plant`) over `item` or `el`.
+- **Destructuring names follow the same rule.** `const { scheme, variant } = props` beats `const { s, v } = props`.
+- **`...kwargs` is the project convention for rest parameters**, not `...rest`. See `feedback_kwargs_naming.md` if you need the reasoning.
+
+### Components
+
+- **Primitives live in `client/src/components/ui/`** — pure, domain-agnostic, reusable across any app (Action, Badge, future Input/Card/etc).
+- **Domain components live in `client/src/components/`** at the root (Dock, Sidebar, HeroCard, RoomCard, etc). The rule: "would I copy-paste this into a different React app unchanged?" If yes → `ui/`. If no → root.
+- **Two-axis prop convention for primitives:** `variant` for the style/preset choice, `scheme` for the colour/palette choice. Keep the names consistent across components so a `variant="solid"` or `scheme="coral"` behaves predictably wherever you see it.
+
 ## What Not to Touch
 
 - `api/config/master.key` and `credentials.yml.enc` are gitignored

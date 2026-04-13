@@ -14,8 +14,10 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider } from './context/AuthContext'
 import AppLayout from './layouts/AppLayout'
-import NotFound from './pages/NotFound'
 
+// Route-level code splitting — each page ships as its own JS chunk, fetched on demand.
+// Uncomment pages as they're built in tickets 5+.
+const NotFound = lazy(() => import('./pages/NotFound'))
 // const Login = lazy(() => import('./pages/Login'))
 // const Register = lazy(() => import('./pages/Register'))
 // const Welcome = lazy(() => import('./pages/Welcome'))
