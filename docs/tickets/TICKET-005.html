@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-005: Auth screens — Login and Register</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 70px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.page { background: #2d6a4f; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 360px; border: none; background: #fff; }
+.mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.rails-map code { white-space: nowrap; }
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+.forward { background: #eef4ff; border-left: 3px solid #4a6fa5; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #2a3a5a; }
+.forward strong { color: #1a2a5a; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-005</div>
+    <h1>Auth screens — Login and Register</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Replace the <code>/login</code> and <code>/register</code> placeholders from ticket 4 with real forms users can actually submit. Login uses the existing <code>AuthContext.login()</code> method; Register uses <code>AuthContext.register()</code>. Both surface API errors inline and disable the submit button while a request is in flight.</p>
+    <p>In one sentence: <strong>a user can sign up, sign in, and get bounced to the right place afterwards.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">01</span>Tokens</div>
+      <div class="plan-step done"><span class="num">02</span>API</div>
+      <div class="plan-step done"><span class="num">03</span>Auth ctx</div>
+      <div class="plan-step done"><span class="num">04</span>Shell</div>
+      <div class="plan-step current"><span class="num">05</span>Auth UI</div>
+      <div class="plan-step"><span class="num">06</span>Onboard</div>
+      <div class="plan-step"><span class="num">07</span>Hooks</div>
+      <div class="plan-step"><span class="num">08–14</span>Screens</div>
+    </div>
+    <p><strong>What came before:</strong> ticket 3 built the <code>AuthContext</code> with working <code>login()</code>, <code>register()</code>, and <code>logout()</code> methods — they hit the API, store the token, and set the user. Ticket 4 wired <code>/login</code> and <code>/register</code> routes to placeholder pages. This ticket fills those placeholders with real UI.</p>
+    <p><strong>What this unlocks:</strong> ticket 6 (onboarding wizard) starts at <code>/welcome</code> after a successful registration. Without real Login/Register, no one can get into the app — so every remaining ticket needs this one to land first.</p>
+    <p><strong>Mental model:</strong> Rails' <code>SessionsController#new</code>/<code>#create</code> plus a <code>UsersController#new</code>/<code>#create</code>, but the form state lives on the client and the submit hits a JSON endpoint instead of a Rails action.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <p>Two pages plus a two-line tweak to <code>App.jsx</code>.</p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind page">page</span><span class="name">client/src/pages/Login.jsx</span>
+        <div class="role">Email + password form. On submit, calls <code>useAuth().login()</code>. If login succeeds, navigates to the location the user was originally trying to reach (read from <code>useLocation().state.from</code>) — falling back to <code>/</code> if there isn't one. If it fails, shows the API error message inline. Submit button is disabled while the request is in flight.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind page">page</span><span class="name">client/src/pages/Register.jsx</span>
+        <div class="role">Name + email + password + password confirmation form. On submit, calls <code>useAuth().register()</code>. On success, navigates to <code>/welcome</code> so the onboarding wizard can take over. On failure, shows API validation errors (duplicate email, password too short, passwords don't match). Same loading/disabled behaviour as Login.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span><span class="name">client/src/App.jsx</span>
+        <div class="role">Replace the Login and Register <code>PlaceholderPage</code> elements with the real lazy-imported components. This is the one-line-per-task integration pattern the plan's Task 4 set up — each future screen ticket does the same swap.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li><strong>Login form submits to the auth context.</strong> Email + password fields, controlled inputs, submit button. On submit, await <code>login(email, password)</code>. On success, navigate to <code>location.state?.from?.pathname</code> if present, else <code>/</code>.</li>
+      <li><strong>Register form submits to the auth context.</strong> Name, email, password, password confirmation. On submit, await <code>register(name, email, password, passwordConfirmation)</code>. On success, navigate to <code>/welcome</code>.</li>
+      <li><strong>API errors render inline.</strong> Bad credentials, duplicate email, weak password etc. should show a human-readable error message near the form — not a toast, not a console error. The <code>AuthContext</code> already stores the error; read it via <code>useAuth().error</code>.</li>
+      <li><strong>Loading state.</strong> While a submission is in flight, the submit button is disabled and shows a loading indicator (spinner or "Signing in…" text). This prevents double-submits.</li>
+      <li><strong>Cross-linking.</strong> Login has a "Need an account? Register" link; Register has a "Already have an account? Log in" link.</li>
+      <li><strong>Visual matches mockup 06.</strong> Logo at top, centred form, mint gradient background, rounded card, big primary button. The spec has specific colour/radius tokens — use those.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Visiting <code>/login</code> shows a real form, not the placeholder page.</span></div>
+    <div class="criterion"><div class="box"></div><span>Submitting with a wrong password shows an error message inline within a second.</span></div>
+    <div class="criterion"><div class="box"></div><span>Submitting a valid login from a ProtectedRoute redirect (e.g. you tried to visit <code>/house</code> while logged out) lands you on <code>/house</code> — not <code>/</code>.</span></div>
+    <div class="criterion"><div class="box"></div><span>Submitting valid registration lands you on <code>/welcome</code>.</span></div>
+    <div class="criterion"><div class="box"></div><span>Registering with a mismatched password confirmation shows an error inline.</span></div>
+    <div class="criterion"><div class="box"></div><span>Registering with an already-taken email shows the server-side "email already taken" error inline.</span></div>
+    <div class="criterion"><div class="box"></div><span>The submit button is visibly disabled during an in-flight request — double-clicking it doesn't fire two requests (check Network tab).</span></div>
+    <div class="criterion"><div class="box"></div><span>Refreshing the page after login keeps you logged in (session restore from ticket 3 still works).</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> and <code>./scripts/run_tests.sh client</code> pass.</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+    <div class="mockup-preview">
+      <div class="label"><span>Auth — Login and Register</span><a href="../mockups/plantcare-ui/06-auth-login-register.html" target="_blank">Open ↗</a></div>
+      <iframe src="../mockups/plantcare-ui/06-auth-login-register.html"></iframe>
+    </div>
+    <p><strong>Design spec §7 (auth):</strong></p>
+    <blockquote>
+      No social login in MVP — custom JWT auth only. Full-bleed mint gradient background, centred card with rounded-2xl corners, 420px max width on desktop. Primary button is a forest→emerald gradient with white label. Inline error messages in coral, above the submit button.
+    </blockquote>
+    <p><strong>Plan reference:</strong> Task 5 has a full worked example with Tailwind classes for the form layout, token placement, and error rendering. Treat it as one way to solve this — read it, then build your version.</p>
+    <a class="plan-link" href="../plans/2026-04-10-plantcare-frontend.md">docs/plans/2026-04-10-plantcare-frontend.md → Task 5</a>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+    <div class="learn">
+      <strong>React Router v7's location <code>state</code> channel.</strong> When ProtectedRoute redirected the unauth user to <code>/login</code>, it called <code>&lt;Navigate to="/login" state={{ from: location }} /&gt;</code> — that <code>state</code> object travels with the navigation. Login reads it back via <code>useLocation().state?.from?.pathname</code> to know where to bounce them after auth. Canonical "redirect back to where I was going" pattern in modern React Router. Worth a five-minute docs read if you haven't seen it before — it's the React idiom for what Rails does with <code>store_location</code> + <code>after_sign_in_path_for</code>.
+    </div>
+    <div class="learn">
+      <strong>The async-submit lifecycle — and the <code>finally</code> block.</strong> Shape of a submit handler in modern React: <code>e.preventDefault()</code> first (otherwise the browser does a full-page form post and the SPA resets), then <code>setSubmitting(true)</code>, then <code>try { await login(...) }</code>, then either navigate-on-success or set-error-on-fail, then <code>setSubmitting(false)</code> in a <code>finally</code> block. The <code>finally</code> matters — if you only flip submitting back to false on success, a failed login leaves the button permanently disabled. Easy bug to ship.
+    </div>
+    <div class="learn">
+      <strong>Why the error lives in AuthContext, not local <code>useState</code>.</strong> <code>AuthContext</code> already exposes <code>error</code> and <code>setError</code> — read them via <code>useAuth()</code>. If you put error in a local <code>useState</code> inside Login, you'd be duplicating state that already exists in context, AND you'd lose the ability to clear it from elsewhere (e.g. when the user starts editing in the Register page). When the same value can come from two places, you get "why is my error stuck on screen" bugs. Single source of truth.
+    </div>
+    <div class="learn">
+      <strong>Disabling the button isn't just polish.</strong> Without <code>disabled={submitting}</code>, a fast double-click fires two POST requests in parallel — and you can race yourself into duplicate sessions or stale-state bugs. The disabled+pending pattern prevents it cheaply. Verify in the Network tab: even if you mash the submit button, you should see exactly one request per click.
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <table class="rails-map">
+      <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>form_with model: @user</code></td><td>Controlled <code>&lt;form&gt;</code> + <code>useState</code> per field</td><td>You own every keystroke; no <code>authenticity_token</code> needed (JWT handles auth)</td></tr>
+        <tr><td><code>SessionsController#create</code></td><td><code>useAuth().login()</code> called from the submit handler</td><td>The controller logic already lives in <code>AuthContext</code></td></tr>
+        <tr><td><code>redirect_to after_sign_in_path_for(user)</code></td><td><code>navigate(location.state?.from ?? '/')</code></td><td>Client-side; no HTTP redirect, just a route change</td></tr>
+        <tr><td><code>flash[:alert] = "Invalid email or password"</code></td><td><code>useAuth().error</code> rendered above the submit button</td><td>Error lives in context so it survives re-renders</td></tr>
+        <tr><td><code>params.expect(user: [...])</code></td><td>Manually build the object in the submit handler</td><td>No strong params on the client — server still validates</td></tr>
+        <tr><td><code>validates :password_confirmation</code></td><td>Local check before calling <code>register()</code></td><td>Client-side for UX; server validates for real</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li>client/src/pages/Login.jsx <span class="action">create</span></li>
+      <li>client/src/pages/Register.jsx <span class="action">create</span></li>
+      <li>client/src/App.jsx <span class="action">update (swap placeholders)</span></li>
+      <li>client/tests/auth.spec.js <span class="action">optional smoke test</span></li>
+    </ul>
+    <p style="font-size: 13px; color: #666; margin-top: 12px;">This is a shape hint, not a spec. If you'd rather extract a shared <code>AuthCard</code> component for the layout wrapper, do it.</p>
+  </section>
+
+  <section>
+    <h2>Forward compatibility notes</h2>
+    <div class="forward">
+      <strong>Login must read <code>location.state.from</code>.</strong> Ticket 4's ProtectedRoute sets this when redirecting unauth users. If you skip reading it, a user trying to visit <code>/house</code> → forced to <code>/login</code> → successful login → lands on <code>/</code> instead of <code>/house</code>. That's a subtle but annoying UX bug.
+    </div>
+    <div class="forward">
+      <strong>Register must navigate to <code>/welcome</code>.</strong> Ticket 6 (onboarding) assumes any newly-registered user lands at <code>/welcome</code> ready for the 5-step wizard. Don't navigate to <code>/</code> — the onboarding flow wouldn't fire.
+    </div>
+    <div class="forward">
+      <strong>Don't pre-build password reset / forgot password.</strong> Not in MVP. If the mockup hints at it, leave the link as a visual placeholder.
+    </div>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li>The <code>AuthContext</code> methods already throw on error — wrap the call in try/catch in your submit handler so you can toggle the submitting state correctly in <code>finally</code>.</li>
+      <li>Don't store the password in refs or log it anywhere — it's a controlled input that should only ever exist in state briefly.</li>
+      <li>If <code>submitting</code> and the error from context are both falsy, you can show a subtle hint like "Don't have an account yet?" in the footer. Keep it minimal.</li>
+      <li>When you're done: run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, commit on a feature branch, then open a PR.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>

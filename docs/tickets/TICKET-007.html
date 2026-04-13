@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-007: TanStack Query hooks — the data layer</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 70px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #4a6fa5; color: #fff; margin-right: 8px; vertical-align: middle; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.rails-map code { white-space: nowrap; }
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+.forward { background: #eef4ff; border-left: 3px solid #4a6fa5; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #2a3a5a; }
+.forward strong { color: #1a2a5a; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-007</div>
+    <h1>TanStack Query hooks — the data layer</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-medium">Medium</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Wrap every REST endpoint the app will call in a TanStack Query hook. This ticket produces no visible UI — it builds the plumbing that every screen from ticket 9 onwards will consume. When it's done, a component can write <code>const { data, isLoading } = useRooms()</code> and get a cached, auto-refetched list of the user's rooms for free.</p>
+    <p>In one sentence: <strong>convert the raw <code>apiGet</code>/<code>apiPost</code> wrapper into a library of cacheable, auto-invalidating hooks.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">01</span>Tokens</div>
+      <div class="plan-step done"><span class="num">02</span>API</div>
+      <div class="plan-step done"><span class="num">03</span>Auth ctx</div>
+      <div class="plan-step done"><span class="num">04</span>Shell</div>
+      <div class="plan-step done"><span class="num">05</span>Auth UI</div>
+      <div class="plan-step done"><span class="num">06</span>Onboard</div>
+      <div class="plan-step current"><span class="num">07</span>Hooks</div>
+      <div class="plan-step"><span class="num">08–14</span>Screens</div>
+    </div>
+    <p><strong>What came before:</strong> ticket 2 gave you <code>api/client.js</code> — a raw fetch wrapper that handles JWT + refresh. It's fine for one-shot calls (onboarding uses it) but it doesn't cache, dedupe, or refetch on invalidation. Ticket 4 already mounted <code>QueryClientProvider</code> in <code>App.jsx</code> so <code>useQuery</code> and <code>useMutation</code> have a cache to attach to.</p>
+    <p><strong>What this unlocks:</strong> every single screen ticket from here on. Today (9), House (10), PlantDetail (11), AddPlant (12), Me (14) — they all consume these hooks. This is the glue that makes the screens feel instant.</p>
+    <p><strong>Mental model:</strong> this is the React equivalent of a set of Rails controller actions plus ActiveRecord relations plus <code>Rails.cache</code>, all rolled together. A <code>useQuery</code> hook <em>is</em> a controller action that fetches, caches the result keyed by its arguments, and automatically hands the data to the caller.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <p>Five hook files, one per domain. No UI — every file exports named functions that return <code>{ data, isLoading, error }</code> (for queries) or <code>{ mutate, isPending }</code> (for mutations).</p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind">hook</span><span class="name">client/src/hooks/useDashboard.js</span>
+        <div class="role">Single read hook wrapping <code>GET /api/v1/dashboard</code>. Returns plants needing water, plants needing feeding, upcoming care, and stats. The Today screen (ticket 9) is the one consumer.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind">hook</span><span class="name">client/src/hooks/useRooms.js</span>
+        <div class="role">Read + write hooks for the rooms resource: <code>useRooms()</code>, <code>useRoom(id)</code>, <code>useCreateRoom()</code>, <code>useUpdateRoom()</code>, <code>useDeleteRoom()</code>. Mutations invalidate the <code>['rooms']</code> query key so the UI auto-refreshes. The House screen (ticket 10) and onboarding (ticket 6, although onboarding uses bare apiPost instead) consume these.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind">hook</span><span class="name">client/src/hooks/usePlants.js</span>
+        <div class="role">The biggest file. Read hooks: <code>usePlants(roomId)</code>, <code>usePlant(id)</code>, <code>useCareLogs(plantId)</code>, <code>usePlantPhotos(plantId)</code>. Mutation hooks: <code>useCreatePlant()</code>, <code>useUpdatePlant()</code>, <code>useDeletePlant()</code>, <code>useLogCare(plantId)</code>, <code>useUploadPhoto(plantId)</code>, <code>useDeletePhoto(plantId)</code>. Mutations invalidate the right keys: logging care invalidates <code>['plants', id]</code>, <code>['plants']</code>, <code>['careLogs', plantId]</code>, AND <code>['dashboard']</code> (because the dashboard might change).</div>
+      </div>
+      <div class="artifact">
+        <span class="kind">hook</span><span class="name">client/src/hooks/useSpecies.js</span>
+        <div class="role"><code>useSpeciesSearch(query)</code> with a longer <code>staleTime</code> (5 minutes — species data barely changes) and <code>enabled: query.length &gt;= 2</code> to avoid firing with empty input. Also <code>useSpecies(id)</code> for loading one species by id.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind">hook</span><span class="name">client/src/hooks/useProfile.js</span>
+        <div class="role"><code>useProfile()</code>, <code>useUpdateProfile()</code>, <code>useChangePassword()</code>. Mutation invalidates <code>['profile']</code>. The Me screen (ticket 14) is the consumer.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li><strong>Every API endpoint has a hook.</strong> Compare your hooks against the "API Reference" section at the top of the frontend plan. Every endpoint in that list must map to one of the hooks in these files.</li>
+      <li><strong>Consistent query key shape.</strong> Resource-level queries use <code>[resourceName]</code> (e.g. <code>['rooms']</code>, <code>['plants']</code>). Item-level queries use <code>[resourceName, id]</code> (e.g. <code>['plants', 42]</code>). Scoped queries use <code>[parent, parentId, child]</code> (e.g. <code>['careLogs', plantId]</code>). Inconsistency here will bite you during invalidation.</li>
+      <li><strong>Mutations invalidate the right keys.</strong> Creating a room invalidates <code>['rooms']</code>. Logging care invalidates <code>['careLogs', plantId]</code>, <code>['plants', plantId]</code>, <code>['plants']</code>, AND <code>['dashboard']</code>. Think about what queries would go stale when this mutation succeeds and invalidate them all.</li>
+      <li><strong>Conditional fetching via <code>enabled</code>.</strong> <code>usePlant(id)</code> should <code>enabled: !!id</code> so it doesn't fire with <code>undefined</code>. <code>useSpeciesSearch(q)</code> should <code>enabled: q.length &gt;= 2</code> so single-character searches don't hit the API.</li>
+      <li><strong><code>usePlants</code> accepts a primitive <code>roomId</code>, not an object.</strong> The plan was previously passing <code>params = {}</code> as a default which burns a new object on every render; the corrected signature is <code>usePlants(roomId)</code>. Follow the corrected shape.</li>
+      <li><strong>No UI in this ticket.</strong> Don't build a throwaway test page. The hooks get exercised by ticket 9 (Today) immediately after this one.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Every endpoint in the plan's "API Reference" section has a corresponding hook in one of the five files.</span></div>
+    <div class="criterion"><div class="box"></div><span>Opening the React Query DevTools (if installed) shows the queries appearing with the expected keys when consumed.</span></div>
+    <div class="criterion"><div class="box"></div><span>Query keys follow the convention documented in the requirements (use Grep to verify no stray shapes).</span></div>
+    <div class="criterion"><div class="box"></div><span>Every mutation has an <code>onSuccess</code> that calls <code>queryClient.invalidateQueries</code> on at least one key.</span></div>
+    <div class="criterion"><div class="box"></div><span>Searching for <code>useQuery({</code> and <code>useMutation({</code> across the five files returns only what you expect — no stray imports or unused hooks.</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> and <code>./scripts/run_tests.sh client</code> pass.</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+    <p>No mockups — this ticket is pure plumbing. The primary reference is the frontend plan's "API Reference" section (top of the file) and Task 7.</p>
+    <p><strong>Plan reference:</strong> Task 7 has every hook written out, already corrected per the earlier React best-practices review (parallel <code>Promise.all</code>, primitive <code>roomId</code> param, no object defaults).</p>
+    <a class="plan-link" href="../plans/2026-04-10-plantcare-frontend.md">docs/plans/2026-04-10-plantcare-frontend.md → Task 7</a>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+    <div class="learn">
+      <strong>Why hooks instead of <code>useEffect</code> + <code>fetch</code>.</strong> The 2021 pattern you probably remember: <code>useEffect(() =&gt; { setLoading(true); fetch(url).then(setData).catch(setError).finally(...); }, [...])</code>, plus a manual abort controller, plus a cleanup function, plus duplicate logic in every component that needs the same data. TanStack Query handles all of that — plus caching, deduplication, refetch-on-focus, retries, background updates, and pagination — for free. If you find yourself reaching for <code>useEffect</code> + <code>fetch</code> in this codebase, stop and reach for <code>useQuery</code>. The only place that still uses bare <code>apiGet</code>/<code>apiPost</code> is onboarding (ticket 6), where one-shot writes don't benefit from a cache.
+    </div>
+    <div class="learn">
+      <strong><code>useQuery</code>.</strong> Takes a <code>queryKey</code> (an array that uniquely identifies this fetch) and a <code>queryFn</code> (an async function that fetches the data). Returns <code>{ data, isLoading, error, refetch }</code>. TanStack handles caching, deduplication, and background refetching automatically. Two components calling <code>useQuery({ queryKey: ['rooms'] })</code> only fire one network request — TanStack dedupes by key.
+    </div>
+    <div class="learn">
+      <strong><code>useMutation</code>.</strong> Takes a <code>mutationFn</code> and optional <code>onSuccess</code>/<code>onError</code>. Returns <code>{ mutate, mutateAsync, isPending, isError }</code>. You call <code>mutate(payload)</code> from an event handler. Mutations don't automatically invalidate anything — you have to tell them what to invalidate in <code>onSuccess</code>. This is the most common new-to-TanStack confusion: the cache doesn't magically know your POST changed the rooms list, you have to call <code>queryClient.invalidateQueries({ queryKey: ['rooms'] })</code> yourself.
+    </div>
+    <div class="learn">
+      <strong>Query keys are arrays — and they form a hierarchy.</strong> <code>['plants']</code> is the "all plants" query. <code>['plants', 42]</code> is "plant 42". <code>['plants', 42, 'photos']</code> is "plant 42's photos". TanStack treats these as a tree for invalidation: calling <code>invalidateQueries({ queryKey: ['plants'] })</code> also invalidates <code>['plants', 42]</code> and <code>['plants', 42, 'photos']</code>. Design your keys with this in mind so a single invalidate call cascades correctly — and so a misplaced extra key (like a stray object literal) doesn't accidentally split a query into two cache entries that never invalidate together.
+    </div>
+    <div class="learn">
+      <strong><code>staleTime</code> vs <code>gcTime</code>.</strong> <code>staleTime</code> is how long TanStack considers the cached data "fresh" (no refetch needed). <code>gcTime</code> is how long it keeps the data in memory after the last component unsubscribes. The <code>QueryClient</code> default we set in ticket 4 (<code>staleTime: 1000 * 60 * 2</code>) is fine for most things. Species search gets a longer staleTime because species data barely changes between sessions. Don't reach for these unless you have a specific freshness requirement.
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <table class="rails-map">
+      <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>Room.all</code> in a controller action</td><td><code>useRooms()</code> returning <code>{ data }</code></td><td>Cached across components — multiple callers, one request</td></tr>
+        <tr><td><code>Room.find(params[:id])</code></td><td><code>useRoom(id)</code></td><td><code>enabled: !!id</code> is the equivalent of checking params before calling find</td></tr>
+        <tr><td><code>Room.create!(room_params)</code> inside <code>create</code> action</td><td><code>useCreateRoom().mutate(data)</code></td><td>Mutation invalidates <code>['rooms']</code> on success</td></tr>
+        <tr><td>Turbo Streams refreshing an index after create</td><td><code>queryClient.invalidateQueries({ queryKey: ['rooms'] })</code></td><td>Declarative — "this data is now stale, refetch whatever's displaying it"</td></tr>
+        <tr><td><code>Rails.cache.fetch('rooms', expires_in: 2.minutes)</code></td><td><code>staleTime: 1000 * 60 * 2</code></td><td>Client-side cache, scoped to the session</td></tr>
+        <tr><td>N+1 query worries</td><td>Not a thing — one fetch per hook, cached by key</td><td>Each hook maps to one endpoint; backend decides what to include</td></tr>
+        <tr><td><code>before_action :set_plant</code></td><td><code>const { data: plant } = usePlant(id)</code> at top of component</td><td>Fetching-as-data-dependency, not controller filter</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li>client/src/hooks/useDashboard.js <span class="action">create</span></li>
+      <li>client/src/hooks/useRooms.js <span class="action">create</span></li>
+      <li>client/src/hooks/usePlants.js <span class="action">create</span></li>
+      <li>client/src/hooks/useSpecies.js <span class="action">create</span></li>
+      <li>client/src/hooks/useProfile.js <span class="action">create</span></li>
+    </ul>
+    <p style="font-size: 13px; color: #666; margin-top: 12px;">Shape hint — you could split <code>usePlants.js</code> further (e.g. <code>usePlantPhotos.js</code> as its own file) if it gets unwieldy. Plan keeps it together for convenience.</p>
+  </section>
+
+  <section>
+    <h2>Forward compatibility notes</h2>
+    <div class="forward">
+      <strong>Consistent query keys are a forward-compat contract.</strong> If ticket 9 invalidates <code>['plants']</code> after logging care, it's relying on every plants query using that key shape. If you introduce <code>['plantList']</code> somewhere, you'll have a ghost query that never refreshes. Grep for <code>queryKey:</code> before finishing to make sure nothing's off-shape.</div>
+    <div class="forward">
+      <strong><code>useLogCare</code> must invalidate <code>['dashboard']</code>.</strong> Ticket 9's Today screen reads from <code>useDashboard()</code>. Logging care changes what Today shows — if you don't invalidate the dashboard key, the task row will stay rendered even after the user taps "done". The plan has the full invalidation list; match it exactly.
+    </div>
+    <div class="forward">
+      <strong>Ticket 12 (Add Plant) will call <code>useSpeciesSearch</code> with <code>useDeferredValue</code>.</strong> This ticket's responsibility is just to expose <code>useSpeciesSearch(query)</code> — the debouncing is ticket 12's job. Don't bake a debounce into the hook; it's the caller's decision.
+    </div>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li>Don't bother testing these hooks in isolation. They're thin wrappers around <code>apiGet</code>/<code>apiPost</code>; ticket 9 will exercise them for real immediately.</li>
+      <li>If you see a "useQueryClient must be used within a QueryClientProvider" error, something's importing a hook from outside the provider tree — double-check ticket 4's App.jsx wraps everything in <code>&lt;QueryClientProvider&gt;</code>.</li>
+      <li>When you're done: run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, commit on a feature branch, then open a PR.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>

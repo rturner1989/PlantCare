@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-004: App shell — router, protected routes, responsive nav</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #f5f5f0;
+  color: #1a1a1a;
+  padding: 40px;
+  line-height: 1.6;
+}
+.ticket {
+  max-width: 960px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 32px 40px;
+}
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #666;
+  margin-bottom: 16px;
+}
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+
+/* Big picture / progress strip */
+.plan-strip {
+  display: flex;
+  gap: 4px;
+  margin: 16px 0 20px;
+  flex-wrap: wrap;
+}
+.plan-step {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 8px;
+  text-align: center;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f0f0ea;
+  color: #888;
+  border: 1px solid transparent;
+}
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+/* What you're building — artifact cards */
+.artifact-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+.artifact {
+  padding: 14px 18px;
+  background: #f8faf8;
+  border-left: 3px solid #2d6a4f;
+  border-radius: 0 8px 8px 0;
+}
+.artifact .name {
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.artifact .role {
+  font-size: 14px;
+  color: #444;
+  margin-top: 4px;
+}
+.artifact .kind {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: #1a1a2e;
+  color: #fff;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.artifact .kind.page { background: #2d6a4f; }
+.artifact .kind.component { background: #1a1a2e; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+
+/* Shape diagram */
+.shape {
+  background: #1a1a2e;
+  color: #d4d4d4;
+  border-radius: 8px;
+  padding: 20px 24px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  margin-top: 12px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* Criteria */
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box {
+  width: 18px; height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.criterion span { font-size: 15px; }
+
+/* Mockup previews */
+.mockup-preview {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+.mockup-preview iframe {
+  width: 100%;
+  height: 360px;
+  border: none;
+  background: #fff;
+}
+.mockup-preview .label {
+  padding: 10px 14px;
+  background: #f5f5f0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+.mockup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 720px) { .mockup-grid { grid-template-columns: 1fr; } }
+
+blockquote {
+  border-left: 3px solid #2d6a4f;
+  padding: 12px 16px;
+  margin: 12px 0;
+  background: #f8faf8;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  color: #444;
+}
+code {
+  background: #f0f0ea;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'SF Mono', Consolas, monospace;
+}
+.learn {
+  background: #fff8e8;
+  border-left: 3px solid #f4a261;
+  padding: 14px 18px;
+  border-radius: 0 8px 8px 0;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #4a3a1a;
+}
+.learn strong { color: #7a5a1a; }
+.plan-link {
+  display: inline-block;
+  padding: 8px 14px;
+  background: #f0f0ea;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #444;
+  text-decoration: none;
+  margin-top: 8px;
+}
+.plan-link:hover { background: #e6e6de; }
+/* Rails ↔ React map */
+.rails-map {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 8px;
+}
+.rails-map th {
+  text-align: left;
+  padding: 10px 12px;
+  background: #1a1a2e;
+  color: #fff;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+.rails-map td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.rails-map code { white-space: nowrap; }
+
+.file-list { list-style: none; padding: 0; }
+.file-list li {
+  padding: 10px 14px;
+  background: #f8f8f5;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}
+.file-list .action {
+  font-family: inherit;
+  font-size: 11px;
+  color: #888;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-004</div>
+    <h1>App shell — router, protected routes, responsive nav</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Build the persistent frame — the sidebar, dock, and router — that every page in PlantCare will live inside. A user refreshing the app either lands in the logged-in shell (sidebar on desktop, glass dock on mobile) or gets bounced to <code>/login</code>. Clicking any nav item routes to a placeholder page for now — future tickets replace those placeholders with real screens one at a time.</p>
+    <p>In one sentence: <strong>a user can log in, see an empty-but-navigable app, and get a proper 404 if they wander off the map.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <p>This is the fourth of fourteen tickets in the frontend plan. The foundation is nearly complete — once this ships, we have everything we need to start building actual screens.</p>
+
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">01</span>Tokens</div>
+      <div class="plan-step done"><span class="num">02</span>API client</div>
+      <div class="plan-step done"><span class="num">03</span>Auth context</div>
+      <div class="plan-step current"><span class="num">04</span>App shell</div>
+      <div class="plan-step"><span class="num">05</span>Auth screens</div>
+      <div class="plan-step"><span class="num">06</span>Onboarding</div>
+      <div class="plan-step"><span class="num">07</span>Query hooks</div>
+      <div class="plan-step"><span class="num">08–14</span>Screens &amp; polish</div>
+    </div>
+
+    <p><strong>What came before:</strong> tickets 1–3 gave you the design tokens (fonts, colours, CSS variables), the <code>api/client.js</code> fetch wrapper with auto-refresh, and the <code>AuthContext</code> that holds the current user. None of it is visible to the end user yet — they're plumbing.</p>
+
+    <p><strong>What you're unlocking:</strong> ticket 5 (real Login/Register screens) and ticket 6 (onboarding wizard) both need routes to live on and a logged-in shell to land in afterwards. Ticket 9 (Today dashboard) needs the sidebar/dock to render around it. Every remaining screen ticket slots into the shell you're building here.</p>
+
+    <p><strong>Mental model:</strong> this ticket is Rails' <code>app/views/layouts/application.html.erb</code> + <code>routes.rb</code> + a <code>before_action :authenticate</code> filter, all at once. If you think of it that way, it's not as many new concepts as the file list suggests.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <p>Seven concrete artifacts. When this ticket is done, each of these will exist and have a clear job:</p>
+
+    <div class="artifact-list">
+
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span><span class="name">client/src/App.jsx</span>
+        <div class="role">The top-level component that wires everything together: <code>QueryClientProvider</code> → <code>AuthProvider</code> → <code>BrowserRouter</code> → <code>&lt;Routes&gt;</code>. Currently just renders <code>&lt;div&gt;PlantCare&lt;/div&gt;</code>; becomes the router declaration and provider tree. Nothing else renders pages — this file is the map.</div>
+      </div>
+
+      <div class="artifact">
+        <span class="kind component">component</span><span class="name">client/src/components/ProtectedRoute.jsx</span>
+        <div class="role">A small wrapper component whose only job is "am I logged in?". If yes, it renders its children. If no, it redirects to <code>/login</code> — and remembers where the user was trying to go so Login can bounce them back after they authenticate. While the initial session-restore is still in flight, it shows a spinner instead of either state (this is what prevents the login-screen flash on refresh).</div>
+      </div>
+
+      <div class="artifact">
+        <span class="kind component">component</span><span class="name">client/src/components/Layout.jsx</span>
+        <div class="role">The persistent "frame" that wraps every authenticated page. Renders the Sidebar, the Dock, and a <code>&lt;main&gt;</code> area containing React Router's <code>&lt;Outlet /&gt;</code> — which is the slot where the current page's content appears. When you navigate from Today → House, only the Outlet's contents change; the sidebar and dock stay put.</div>
+      </div>
+
+      <div class="artifact">
+        <span class="kind component">component</span><span class="name">client/src/components/Dock.jsx</span>
+        <div class="role">The mobile-only floating glass nav bar, pinned to the bottom of the screen. Four nav items (Today / House / Discover / Me) with a FAB "+" button in the middle for Add Plant. Active tab is highlighted. The FAB's click handler navigates to <code>/add-plant</code> — the actual Add Plant flow is ticket 12. Hidden on screens ≥1024px.</div>
+      </div>
+
+      <div class="artifact">
+        <span class="kind component">component</span><span class="name">client/src/components/Sidebar.jsx</span>
+        <div class="role">The desktop-only fixed left sidebar. Logo, nav items with labels, "Add a plant" CTA card near the bottom, and the signed-in user's avatar/email at the foot. Visible only on screens ≥1024px (the inverse of the Dock).</div>
+      </div>
+
+      <div class="artifact">
+        <span class="kind page">page</span><span class="name">client/src/pages/NotFound.jsx</span>
+        <div class="role">The 404 page. Renders for any route that doesn't match — wrong URL, typo, stale bookmark. Not much to it: a friendly "this page has wilted away" message and a link back to Today. Lives outside the protected <code>&lt;Layout&gt;</code> so it doesn't try to render the sidebar/dock frame for someone who isn't logged in.</div>
+      </div>
+
+      <div class="artifact">
+        <span class="kind rewrite">extend</span><span class="name">client/tests/app.spec.js</span>
+        <div class="role">Existing Playwright smoke test — extend it with one more assertion: hitting a bogus URL renders the 404 page. No need to test the auth redirect here; ticket 5 covers that once real Login exists.</div>
+      </div>
+
+    </div>
+
+    <p style="margin-top: 20px;"><strong>Structurally, the running app looks like this:</strong></p>
+    <div class="shape">&lt;App&gt;
+  └── &lt;QueryClientProvider&gt;        ← TanStack Query cache (ticket 7 fills it)
+       └── &lt;AuthProvider&gt;           ← already built in ticket 3
+            └── &lt;BrowserRouter&gt;
+                 └── &lt;Suspense&gt;      ← catches lazy-loaded page chunks
+                      └── &lt;Routes&gt;
+                           │
+                           ├── /login       → Login  (placeholder for now)
+                           ├── /register    → Register (placeholder)
+                           ├── /welcome     → Welcome (placeholder)
+                           │
+                           ├── &lt;ProtectedRoute&gt;
+                           │    └── &lt;Layout&gt;                    ← sidebar + dock
+                           │         └── &lt;Outlet /&gt;             ← current page renders here
+                           │              ├── /           → Today     (placeholder)
+                           │              ├── /house      → House     (placeholder)
+                           │              ├── /plants/:id → PlantDetail (placeholder)
+                           │              ├── /discover   → Discover  (placeholder)
+                           │              ├── /me         → Me        (placeholder)
+                           │              └── /add-plant  → AddPlant  (placeholder)
+                           │
+                           └── *  → NotFound</div>
+
+    <p style="margin-top: 16px; font-size: 14px; color: #666;">The placeholder pages are literally a heading and a "coming soon" line — just enough to prove the routing works. Future tickets swap each one for the real thing.</p>
+  </section>
+
+  <section>
+    <h2>Requirements (what "done" looks like)</h2>
+    <ol>
+      <li><strong>Routing is in place.</strong> Public routes exist for <code>/login</code>, <code>/register</code>, <code>/welcome</code>. Protected routes exist for <code>/</code> (Today), <code>/house</code>, <code>/plants/:id</code>, <code>/discover</code>, <code>/me</code>, <code>/add-plant</code>. Unknown paths render the 404 page.</li>
+      <li><strong>Auth gating works without a flash.</strong> Unauthenticated users visiting a protected route get redirected to <code>/login</code>. While the AuthContext is still resolving the session on initial load, the app shows a loading spinner — never the login screen briefly, then the real content.</li>
+      <li><strong>Redirect-back on login.</strong> If an unauthenticated user tries to visit <code>/house</code>, they get redirected to <code>/login</code>, and the location they were trying to reach is remembered so login can bounce them back. (You won't be able to fully test this until real Login exists in ticket 5 — but the plumbing should be there now.)</li>
+      <li><strong>Mobile and desktop each get the right frame.</strong> Viewports &lt;1024px show the glass dock; viewports ≥1024px show the sidebar. Only one is visible at a time.</li>
+      <li><strong>Route-level code splitting.</strong> Each page is loaded on demand so the initial JS bundle only contains the shell + landing page. See the React notes below for why this matters and how <code>React.lazy</code> + <code>&lt;Suspense&gt;</code> fit together.</li>
+      <li><strong>404 page.</strong> Lives outside the protected layout, matches the app's design language, has a link home.</li>
+      <li><strong>Smoke test extended.</strong> The existing Playwright test still passes, plus a new assertion that hitting a bogus URL renders the 404.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria (testable in a browser)</h2>
+    <div class="criterion"><div class="box"></div><span>Visiting <code>/this-does-not-exist</code> shows the 404 page, not a blank screen or a crash.</span></div>
+    <div class="criterion"><div class="box"></div><span>Visiting any protected route while logged out redirects to <code>/login</code>.</span></div>
+    <div class="criterion"><div class="box"></div><span>Refreshing the page while logged in does NOT briefly flash the login screen before showing the real content.</span></div>
+    <div class="criterion"><div class="box"></div><span>Clicking a nav item in the dock or sidebar changes the URL and swaps the content in the main area, without a full page reload.</span></div>
+    <div class="criterion"><div class="box"></div><span>Mobile viewport (&lt;1024px): glass dock visible at bottom, sidebar not rendered.</span></div>
+    <div class="criterion"><div class="box"></div><span>Desktop viewport (≥1024px): sidebar visible on left, dock not rendered.</span></div>
+    <div class="criterion"><div class="box"></div><span>Clicking the FAB ("+") navigates to <code>/add-plant</code> (which shows its placeholder page for now).</span></div>
+    <div class="criterion"><div class="box"></div><span>DevTools → Network: navigating from <code>/</code> to <code>/house</code> fetches a new JS chunk that wasn't loaded before.</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> and <code>./scripts/run_tests.sh client</code> both pass.</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+
+    <div class="mockup-grid">
+      <div class="mockup-preview">
+        <div class="label"><span>Mobile — glass dock + FAB</span><a href="../mockups/plantcare-ui/01-today-mobile-urgent-and-care-animation.html" target="_blank">Open ↗</a></div>
+        <iframe src="../mockups/plantcare-ui/01-today-mobile-urgent-and-care-animation.html"></iframe>
+      </div>
+      <div class="mockup-preview">
+        <div class="label"><span>Desktop — sidebar nav</span><a href="../mockups/plantcare-ui/03-today-desktop.html" target="_blank">Open ↗</a></div>
+        <iframe src="../mockups/plantcare-ui/03-today-desktop.html"></iframe>
+      </div>
+    </div>
+
+    <p>In these mockups you're only building the <strong>persistent frame</strong> — the sidebar on desktop, the dock + FAB on mobile. Everything <em>inside</em> that frame (the hero card, the "today's rituals" list, the plant illustrations) is ticket 9's job. Think of it like building a picture frame before the painting exists: the frame needs to be the right shape and sit in the right place, but it's deliberately empty for now.</p>
+
+    <p><strong>Canonical navigation (design spec §4.1)</strong> — four destinations plus one persistent primary action. Don't add a fifth nav item without explicit discussion:</p>
+    <blockquote>
+      <strong>Today</strong> — "What needs me right now?"<br>
+      <strong>House</strong> — "Show me what I own"<br>
+      <strong>+ (FAB)</strong> — Add Plant (primary action)<br>
+      <strong>Discover</strong> — "Show me what I don't own"<br>
+      <strong>Me</strong> — Profile, settings, account
+    </blockquote>
+
+    <p><strong>Mobile vs desktop frame (design spec §4.3 — the spec calls this "chrome", meaning the persistent wrapper around content):</strong></p>
+    <blockquote>
+      <strong>Mobile:</strong> Bottom dock with 4 labelled icons + floating FAB. Glass treatment. Safe area-aware.<br><br>
+      <strong>Desktop:</strong> Left sidebar with labelled nav items (plant counts visible), dedicated "Add a plant" CTA card, user avatar at the bottom. No bottom dock.
+    </blockquote>
+
+    <p><strong>Plan reference:</strong> Task 4 in the frontend plan has a worked example with full code for every artifact listed above. It's one way to solve this — not the only way. Use it as a second opinion when you get stuck, not a script to transcribe.</p>
+
+    <a class="plan-link" href="../plans/2026-04-10-plantcare-frontend.md">docs/plans/2026-04-10-plantcare-frontend.md → Task 4</a>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up before you start</h2>
+
+    <div class="learn">
+      <strong>React Router's layout-route pattern and <code>&lt;Outlet /&gt;</code>.</strong> React Router lets you nest routes so a parent route renders "chrome" and its child routes render into a hole in that chrome. The hole is called <code>&lt;Outlet /&gt;</code>. Mental model: Rails' <code>yield</code> inside <code>application.html.erb</code>. Your <code>Layout</code> component renders the sidebar/dock and then an <code>&lt;Outlet /&gt;</code> where the matched child route's element appears. When the URL changes from <code>/</code> to <code>/house</code>, only the Outlet's contents re-render.
+    </div>
+
+    <div class="learn">
+      <strong>The "protected route" pattern.</strong> React Router doesn't ship a built-in auth guard — you wrap a route element in a component that checks your auth context and either renders <code>children</code> or redirects. The tricky part is what you render <em>while the auth state is still being determined</em> (e.g. while the refresh-token request is in flight on boot). Three possible states: <strong>loading → spinner</strong>, <strong>no user → <code>&lt;Navigate to="/login" /&gt;</code></strong>, <strong>user → <code>children</code></strong>. Pick the wrong render for "loading" and you get the login-flash bug.
+    </div>
+
+    <div class="learn">
+      <strong><code>React.lazy</code> + <code>&lt;Suspense&gt;</code>.</strong> <code>React.lazy(() =&gt; import('./pages/Today'))</code> tells Vite to put that page in its own JS chunk. When React tries to render it, the import happens — and because it's async, React "suspends" the tree until the chunk arrives. A <code>&lt;Suspense fallback={...}&gt;</code> parent somewhere above the lazy component catches the suspension and shows your fallback UI in the meantime. Miss the Suspense boundary and you get a runtime error. Why bother? Without lazy loading, the initial bundle contains every page in the app even though the user only needs one of them on first paint. With it, each page ships separately and is fetched when someone navigates to it.
+    </div>
+
+    <div class="learn">
+      <strong>Redirect-back with router <code>state</code>.</strong> <code>&lt;Navigate to="/login" state={{ from: location }} /&gt;</code> stashes the current location on the navigation. Then <code>Login</code> can read it back via <code>useLocation().state?.from</code> and navigate there after successful auth. You'll fully wire this in ticket 5, but ProtectedRoute needs to set it up now.
+    </div>
+
+    <div class="learn">
+      <strong>Don't touch the AuthContext refresh flow.</strong> <code>refreshToken</code> inside <code>AuthContext.jsx</code> uses bare <code>fetch</code> instead of the <code>apiGet</code> wrapper on purpose — routing the refresh call through <code>apiFetch</code> would create a 401 → refresh → 401 loop. Same for <code>refreshAccessToken</code> in <code>api/client.js</code>. If something looks inconsistent there, it isn't. Leave it alone.
+    </div>
+
+    <div class="learn">
+      <strong>Tailwind breakpoints default to min-width.</strong> <code>lg:flex</code> means "flex at ≥1024px". For "only on mobile" elements, use the default classes and hide them with <code>lg:hidden</code>. For "only on desktop", use <code>hidden lg:flex</code>. Fewer media queries than you'd expect.
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <p>The pieces of this ticket translated into the Rails idioms you already know. Use this as a translation key when the React terminology stops making sense — mentally swap the right-hand column for the left.</p>
+    <table class="rails-map">
+      <thead>
+        <tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>app/views/layouts/application.html.erb</code></td>
+          <td><code>Layout.jsx</code></td>
+          <td>The persistent frame around every authenticated page</td>
+        </tr>
+        <tr>
+          <td><code>&lt;%= yield %&gt;</code></td>
+          <td><code>&lt;Outlet /&gt;</code></td>
+          <td>The slot where child route content appears</td>
+        </tr>
+        <tr>
+          <td><code>config/routes.rb</code></td>
+          <td><code>&lt;Routes&gt;</code> + <code>&lt;Route&gt;</code> inside <code>App.jsx</code></td>
+          <td>Declarative route table, lives in code not config</td>
+        </tr>
+        <tr>
+          <td><code>before_action :authenticate_user!</code></td>
+          <td><code>&lt;ProtectedRoute&gt;</code> wrapper component</td>
+          <td>Guards pages behind auth — wraps the element instead of filtering the action</td>
+        </tr>
+        <tr>
+          <td><code>redirect_to login_path</code></td>
+          <td><code>&lt;Navigate to="/login" /&gt;</code></td>
+          <td>React Router's declarative redirect; returned from render instead of called imperatively</td>
+        </tr>
+        <tr>
+          <td><code>rescue_from ActionController::RoutingError</code></td>
+          <td><code>&lt;Route path="*" element={&lt;NotFound /&gt;} /&gt;</code></td>
+          <td>Catch-all route for unmatched URLs</td>
+        </tr>
+        <tr>
+          <td><code>current_user</code> helper</td>
+          <td><code>useAuth()</code> hook reading <code>AuthContext</code></td>
+          <td>Already built in ticket 3 — just consume it</td>
+        </tr>
+        <tr>
+          <td><code>link_to 'Today', root_path</code></td>
+          <td><code>&lt;NavLink to="/"&gt;Today&lt;/NavLink&gt;</code></td>
+          <td>Client-side nav, no full page reload; <code>NavLink</code> adds an "active" class automatically</td>
+        </tr>
+        <tr>
+          <td>Rails asset pipeline precompile</td>
+          <td><code>vite build</code> with <code>React.lazy</code> chunks</td>
+          <td>Vite splits each lazy-imported page into its own JS chunk, fetched on demand</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li>client/src/App.jsx <span class="action">rewrite</span></li>
+      <li>client/src/main.jsx <span class="action">minor tidy</span></li>
+      <li>client/src/components/ProtectedRoute.jsx <span class="action">create</span></li>
+      <li>client/src/components/Layout.jsx <span class="action">create</span></li>
+      <li>client/src/components/Dock.jsx <span class="action">create</span></li>
+      <li>client/src/components/Sidebar.jsx <span class="action">create</span></li>
+      <li>client/src/pages/NotFound.jsx <span class="action">create</span></li>
+      <li>client/tests/app.spec.js <span class="action">extend</span></li>
+    </ul>
+    <p style="font-size: 13px; color: #666; margin-top: 12px;">This is a shape hint, not a spec. If you find a cleaner split during implementation (e.g. inlining the Dock icon SVGs somewhere central, or naming something differently) — follow your nose.</p>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li>Placeholder pages need to be barely more than a heading. A single <code>PlaceholderPage({ title })</code> component you reuse for all six is fine — future tickets replace them one at a time.</li>
+      <li>If you see a "component suspended while responding to synchronous input" warning after adding <code>React.lazy</code>, the fix is almost always "move the <code>&lt;Suspense&gt;</code> one level up" until it wraps <code>&lt;Routes&gt;</code>.</li>
+      <li>The dock's FAB navigates to <code>/add-plant</code>. Don't try to make it open a bottom sheet now — Vaul bottom sheets are ticket 12's job.</li>
+      <li>SVG icons in the plan's Dock/Sidebar examples are inline and fine as-is for now. Swapping to an icon library later is trivial.</li>
+      <li>When you're done: run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, commit on a feature branch, then open a PR.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>
