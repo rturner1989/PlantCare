@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-008: Shared components and personality system</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 70px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.util { background: #6a4a8f; }
+.artifact .kind.data { background: #2d6a4f; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 360px; border: none; background: #fff; }
+.mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+.mockup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 720px) { .mockup-grid { grid-template-columns: 1fr; } }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.rails-map code { white-space: nowrap; }
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+.forward { background: #eef4ff; border-left: 3px solid #4a6fa5; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #2a3a5a; }
+.forward strong { color: #1a2a5a; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-008</div>
+    <h1>Shared components and personality system</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-medium">Medium</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Build the reusable visual building blocks — progress rings, plant avatars, task rows, hero cards, the "since you were gone" ribbon, room cards — plus the personality system that drives plant voice lines. Every screen in tickets 9–11 will compose these.</p>
+    <p>In one sentence: <strong>build the Lego bricks that the Today, House, and PlantDetail screens will click together.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">01</span>Tokens</div>
+      <div class="plan-step done"><span class="num">02</span>API</div>
+      <div class="plan-step done"><span class="num">03</span>Auth ctx</div>
+      <div class="plan-step done"><span class="num">04</span>Shell</div>
+      <div class="plan-step done"><span class="num">05</span>Auth UI</div>
+      <div class="plan-step done"><span class="num">06</span>Onboard</div>
+      <div class="plan-step done"><span class="num">07</span>Hooks</div>
+      <div class="plan-step current"><span class="num">08</span>Primitives</div>
+      <div class="plan-step"><span class="num">09–14</span>Screens</div>
+    </div>
+    <p><strong>What came before:</strong> ticket 1 gave you the design tokens (colours, fonts, radii) as CSS variables. The components here use those tokens via Tailwind classes and custom properties.</p>
+    <p><strong>What this unlocks:</strong> ticket 9 (Today) imports <code>HeroCard</code>, <code>SinceRibbon</code>, <code>TaskRow</code>, <code>ProgressRing</code>. Ticket 10 (House) imports <code>RoomCard</code> + <code>PlantAvatar</code>. Ticket 11 (PlantDetail) imports <code>ProgressRing</code> + <code>PlantAvatar</code>. This ticket feeds three consumers.</p>
+    <p><strong>Mental model:</strong> these are Rails partials with a typed interface. <code>_plant_avatar.html.erb</code> except instead of locals you pass props, and the "template" is a JSX function.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <p>Six reusable components, one utility, and two data files for the personality system. None of them fetch data — they're all props-in, JSX-out.</p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind">component</span><span class="name">client/src/components/ProgressRing.jsx</span>
+        <div class="role">SVG circular progress indicator. Props: <code>value</code> (0–100), <code>size</code>, <code>strokeWidth</code>, <code>color</code>, <code>children</code> (centred content, e.g. an emoji or a number). Used on Today (task progress), PlantDetail (water/feed/mood rings), and potentially Me (streak).</div>
+      </div>
+      <div class="artifact">
+        <span class="kind">component</span><span class="name">client/src/components/PlantAvatar.jsx</span>
+        <div class="role">Small illustrated plant tile. Props: <code>species</code>, <code>size</code>. Uses a lookup on <code>species.common_name</code> or a fallback to a generic pot. Phase 3 will replace this with a real illustration library — for MVP, coloured SVG or emoji is fine.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind">component</span><span class="name">client/src/components/TaskRow.jsx</span>
+        <div class="role">A single care task row: plant avatar, plant name, voice quote, care type icon, and a check button. Props: <code>plant</code>, <code>careType</code> ('watering' | 'feeding'), <code>voiceQuote</code>, <code>done</code>, <code>onComplete</code>. When <code>done</code> is true, the check button renders as a filled tick.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind">component</span><span class="name">client/src/components/HeroCard.jsx</span>
+        <div class="role">The forest-gradient urgent plant hero. Props: <code>plant</code>, <code>onWater</code>. Shows the plant's nickname, a personality-driven speech quote, room + overdue days, and a "Water &lt;name&gt; →" CTA. This is the signature visual moment of the app — treat it with care.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind">component</span><span class="name">client/src/components/SinceRibbon.jsx</span>
+        <div class="role">The compact since-you-were-gone ribbon. Props: <code>urgent</code> (boolean), <code>title</code>, <code>subtitle</code>. Mint background with a coral alert icon if urgent, green checkmark if not. Used at the top of Today.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind">component</span><span class="name">client/src/components/RoomCard.jsx</span>
+        <div class="role">Room tile for the House grid. Props: <code>room</code>, <code>attentionCount</code>, <code>onClick</code>. Shows room name, icon, plant count, and an attention badge (coral dot + count) if any plants need care. Clicking invokes the onClick prop.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind util">util</span><span class="name">client/src/utils/careStatus.js</span>
+        <div class="role">Pure function: <code>getCareState(plant)</code> returns one of <code>thriving</code>, <code>content</code>, <code>thirsty</code>, <code>parched</code>, <code>dying</code> based on <code>water_status</code>, <code>feed_status</code>, and <code>days_until_water</code>. Also exports <code>getDaysDisplay(days)</code> for human-readable "8 days overdue" / "due in 3 days" etc.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind data">data</span><span class="name">client/src/personality/states.js</span>
+        <div class="role">Config map from care state to visual values. <code>CARE_STATE_CONFIG = { thriving: { emoji, label, color }, ... }</code>. Referenced by every component that renders state.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind data">data</span><span class="name">client/src/personality/voices.js</span>
+        <div class="role">The voice line library and <code>getVoiceLine(personality, state, plantId)</code> selector. Exports a lookup table keyed by personality (<code>dramatic</code>, <code>prickly</code>, <code>chill</code>, <code>needy</code>, <code>stoic</code>) then by care state, with an array of quote strings each. The selector uses the plant id as a deterministic seed so the same plant keeps saying the same line across renders — no "jumping voice lines" when components re-render.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li><strong>Every component renders standalone.</strong> Given only its props, each component produces valid JSX without needing a parent provider or a specific context.</li>
+      <li><strong>No data fetching inside components.</strong> Props in, JSX out. If a component needs plant data, it takes a <code>plant</code> prop — it does not call <code>usePlant</code> internally. This is so they can be composed inside different parents without duplicating queries.</li>
+      <li><strong>Care state covers all five levels.</strong> <code>getCareState</code> must be exhaustive — every possible <code>water_status</code>/<code>feed_status</code> combination should return one of the five defined states. No <code>undefined</code>.</li>
+      <li><strong>Voice selection is deterministic per plant.</strong> Given the same <code>(personality, state, plantId)</code>, <code>getVoiceLine</code> must return the same quote. Use something like <code>quotes[plantId % quotes.length]</code> so re-renders don't cause the voice to flicker between different lines.</li>
+      <li><strong>Personality lookup handles unknown personalities.</strong> If a species has a personality string we haven't written lines for, fall back to <code>chill</code> rather than crashing.</li>
+      <li><strong>Visuals match the mockups.</strong> Hero card uses the forest→forest-2 gradient. Progress rings use a smooth SVG arc, not a CSS conic-gradient hack. RoomCard matches mockup 05's tile layout.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Every component in the artifact list exists and exports a default function component.</span></div>
+    <div class="criterion"><div class="box"></div><span>None of the component files import from <code>@tanstack/react-query</code> — they're pure presentation.</span></div>
+    <div class="criterion"><div class="box"></div><span><code>getCareState</code> returns a valid state string for a plant with every combination of <code>water_status</code> and <code>feed_status</code> values in the API.</span></div>
+    <div class="criterion"><div class="box"></div><span><code>getVoiceLine(personality, state, plantId)</code> returns the same string on repeat calls with the same arguments (test it in the Rails console for the React equivalent — a browser console.log works).</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> and <code>./scripts/run_tests.sh client</code> pass.</span></div>
+    <div class="criterion"><div class="box"></div><span>At least one component is imported and rendered somewhere to verify it works in context (a throwaway <code>/playground</code> route is fine, or just wait for ticket 9 which will use them).</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+    <div class="mockup-grid">
+      <div class="mockup-preview">
+        <div class="label"><span>Care logging + plant states</span><a href="../mockups/plantcare-ui/04-plant-states-and-care-logging-flow.html" target="_blank">Open ↗</a></div>
+        <iframe src="../mockups/plantcare-ui/04-plant-states-and-care-logging-flow.html"></iframe>
+      </div>
+      <div class="mockup-preview">
+        <div class="label"><span>Rooms grid (for RoomCard)</span><a href="../mockups/plantcare-ui/05-ia-and-rooms-grid-vs-isometric.html" target="_blank">Open ↗</a></div>
+        <iframe src="../mockups/plantcare-ui/05-ia-and-rooms-grid-vs-isometric.html"></iframe>
+      </div>
+    </div>
+    <p><strong>Design spec §6 (personality system):</strong></p>
+    <blockquote>
+      Species have a <code>personality</code> attribute (dramatic, prickly, chill, needy, stoic) that drives voice lines per care state. Voice lines are editorial — short, character-driven quotes that feel like the plant is speaking. A Monstera with <code>personality: dramatic</code> in state <code>parched</code> might say "I'm literally dying in here." A cactus with <code>personality: prickly</code> in the same state says "I've had worse."
+    </blockquote>
+    <p><strong>Plan reference:</strong> Task 8 has the full component code and the personality config + voice library in bulk.</p>
+    <a class="plan-link" href="../plans/2026-04-10-plantcare-frontend.md">docs/plans/2026-04-10-plantcare-frontend.md → Task 8</a>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+    <div class="learn">
+      <strong>Pure components: props in, JSX out — and why it matters here.</strong> Every component in this ticket takes data via props and returns JSX. None of them call <code>useQuery</code> or fetch their own data. This isn't just style — it's so the same component can be rendered in different contexts (Today, House, PlantDetail) without each render duplicating the network request. Data fetching belongs to the page-level component; presentation belongs to the shared one. Mental model: a Rails partial with locals, except the "locals" are typed by JSX and the partial physically can't hit the database because it has no access to the API client.
+    </div>
+    <div class="learn">
+      <strong>Don't <code>useMemo</code> trivial expressions.</strong> Tempting to wrap arithmetic, string formatting, or small filters in <code>useMemo</code> "for performance". Don't. The memoization bookkeeping (storing the result, comparing deps on every render) costs more than the calculation, and React Compiler is going to fight you on it later. Reach for <code>useMemo</code> only when (a) the work is genuinely expensive — sorting hundreds of items, complex object building — or (b) the result feeds a dependency array that needs reference stability. This is Vercel's <code>rerender-simple-expression-in-memo</code> rule and it's a genuine reversal from advice you may have heard four years ago.
+    </div>
+    <div class="learn">
+      <strong>Functions called during render must be deterministic.</strong> <code>getVoiceLine(personality, state, plantId)</code> is called from inside a component's JSX. React may re-render that component many times per second during animations — every time, it calls <code>getVoiceLine</code> again. If the function picks a random voice line, the plant's quote will flicker between options on every render. Use <code>quotes[plantId % quotes.length]</code> (or any deterministic seed-to-index mapping) so the output is stable for a given input. The general rule: anything called during render should be pure — same input, same output, no side effects. This is one of those things hobbyist-era React often gets wrong because the bug only surfaces once you start animating.
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <table class="rails-map">
+      <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>render 'plants/avatar', plant: plant</code></td><td><code>&lt;PlantAvatar plant={plant} /&gt;</code></td><td>Props are typed (sort of) — no more "what locals does this partial want?"</td></tr>
+        <tr><td><code>helper_method :care_state_for</code></td><td><code>getCareState(plant)</code> imported from <code>utils/careStatus.js</code></td><td>Plain function; no <code>include</code> pollution</td></tr>
+        <tr><td>I18n.t with interpolation</td><td><code>getVoiceLine(personality, state, plantId)</code></td><td>Hand-rolled selector because voice lines are character-driven, not localised</td></tr>
+        <tr><td><code>content_tag :div, class: 'card'</code></td><td>JSX: <code>&lt;div className="card"&gt;</code></td><td>No tag builder — just write the HTML</td></tr>
+        <tr><td>Partial with yield blocks</td><td>Component with <code>children</code> prop</td><td>Same idea, different name</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li>client/src/components/ProgressRing.jsx <span class="action">create</span></li>
+      <li>client/src/components/PlantAvatar.jsx <span class="action">create</span></li>
+      <li>client/src/components/TaskRow.jsx <span class="action">create</span></li>
+      <li>client/src/components/HeroCard.jsx <span class="action">create</span></li>
+      <li>client/src/components/SinceRibbon.jsx <span class="action">create</span></li>
+      <li>client/src/components/RoomCard.jsx <span class="action">create</span></li>
+      <li>client/src/utils/careStatus.js <span class="action">create</span></li>
+      <li>client/src/personality/states.js <span class="action">create</span></li>
+      <li>client/src/personality/voices.js <span class="action">create</span></li>
+    </ul>
+    <p style="font-size: 13px; color: #666; margin-top: 12px;">Shape hint. You can split voice lines across multiple files if the library grows unwieldy, but one <code>voices.js</code> file is fine for MVP.</p>
+  </section>
+
+  <section>
+    <h2>Forward compatibility notes</h2>
+    <div class="forward">
+      <strong>No data-fetching inside components.</strong> If you find yourself wanting to call <code>usePlant</code> inside <code>HeroCard</code>, stop — pass the plant as a prop instead. Components that fetch their own data are hard to compose, test, and reason about. The screens that consume these (ticket 9+) will do the fetching and pass the data down.
+    </div>
+    <div class="forward">
+      <strong>Voice selection must be deterministic.</strong> Ticket 9's Today screen may re-render several times per second during animations. If <code>getVoiceLine</code> picks randomly, the plant's voice will flicker between lines on every render. Use <code>quotes[plantId % quotes.length]</code> or similar so the output is stable for a given plant.
+    </div>
+    <div class="forward">
+      <strong>Phase 3 will swap PlantAvatar for real illustrations.</strong> Keep the prop shape simple (<code>species</code>, <code>size</code>) so a future version can drop in without breaking callers. Don't bake in colour-specific logic that a real illustration won't have.
+    </div>
+    <div class="forward">
+      <strong>RoomCard's <code>attentionCount</code> is computed by the House screen, not by RoomCard itself.</strong> The House screen will loop over <code>plants</code> per room and tally the ones that need water/feed. RoomCard just renders the number it's given.
+    </div>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li>The ProgressRing SVG math isn't trivial — the plan has a worked version with the correct <code>strokeDasharray</code>/<code>strokeDashoffset</code> calculation. Use it as a reference so you don't spend an hour on circumference math.</li>
+      <li>Framer Motion animations are ticket 13's job. Don't add <code>motion</code> wrappers here.</li>
+      <li>Icons are inline SVG for now. If you want to swap to a library like lucide-react later, fine — but it's not required for this ticket.</li>
+      <li>When you're done: run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, commit on a feature branch, then open a PR.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>

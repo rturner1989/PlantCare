@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-010: House screen — rooms grid and list view</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 70px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #2d6a4f; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 420px; border: none; background: #fff; }
+.mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.rails-map code { white-space: nowrap; }
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+.forward { background: #eef4ff; border-left: 3px solid #4a6fa5; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #2a3a5a; }
+.forward strong { color: #1a2a5a; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-010</div>
+    <h1>House screen — rooms grid and list view</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Build the House screen at <code>/house</code> — the "show me everything I own" browser. Two view modes (Rooms grid + flat List) with a search input. Clicking a plant takes you to the plant detail page (which is still a placeholder from ticket 4; ticket 11 builds it).</p>
+    <p>In one sentence: <strong>one screen that gives the user two ways to browse their whole collection.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">01</span>Tokens</div>
+      <div class="plan-step done"><span class="num">02</span>API</div>
+      <div class="plan-step done"><span class="num">03</span>Auth</div>
+      <div class="plan-step done"><span class="num">04</span>Shell</div>
+      <div class="plan-step done"><span class="num">05</span>Auth UI</div>
+      <div class="plan-step done"><span class="num">06</span>Onboard</div>
+      <div class="plan-step done"><span class="num">07</span>Hooks</div>
+      <div class="plan-step done"><span class="num">08</span>Primitives</div>
+      <div class="plan-step done"><span class="num">09</span>Today</div>
+      <div class="plan-step current"><span class="num">10</span>House</div>
+      <div class="plan-step"><span class="num">11–14</span>Detail &amp; polish</div>
+    </div>
+    <p><strong>What came before:</strong> ticket 7 built <code>useRooms()</code> and <code>usePlants()</code>. Ticket 8 built <code>RoomCard</code> and <code>PlantAvatar</code>. Ticket 4 wired the <code>/house</code> route.</p>
+    <p><strong>What this unlocks:</strong> ticket 11 (PlantDetail) is reached by tapping a plant on this screen — House is the primary entry point for the detail page. The Greenhouse 3D view in Phase 3 will be a third view-mode toggle on this same screen; keep the view-mode state structure open to that.</p>
+    <p><strong>Mental model:</strong> a Rails <code>PlantsController#index</code> action with two view templates (<code>index_rooms.html.erb</code> and <code>index_list.html.erb</code>) and a JS toggle — except the toggle is <code>useState</code> and both templates are in the same component.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <p>One page component plus the App.jsx swap. All the visual building blocks are already done in ticket 8.</p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind">page</span><span class="name">client/src/pages/House.jsx</span>
+        <div class="role">Holds two pieces of local state: <code>viewMode</code> ('Rooms' or 'List') and <code>searchQuery</code> (string). Fetches via <code>useRooms()</code> and <code>usePlants()</code>. When in Rooms mode, renders a grid of RoomCards with plant counts and attention badges. When in List mode, renders a flat, filtered list of plant tiles. Search filters the list view by nickname + species name. Tapping a room in Rooms mode switches to List mode filtered to that room. Tapping a plant navigates to <code>/plants/:id</code>.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span><span class="name">client/src/App.jsx</span>
+        <div class="role">Swap the <code>/house</code> placeholder for the lazy-imported <code>House</code> page.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li><strong>Header with view-mode toggle.</strong> "House" title + pill-style toggle with three options: Rooms, List, (Greenhouse — shown as disabled/"coming soon"). Default view is Rooms.</li>
+      <li><strong>Search input.</strong> Placed near the toggle. Type to filter; results update as you type. In Rooms mode, the search is either hidden or filters by room name (design choice — keep it simple). In List mode, it filters the flat plant list by nickname or species common name.</li>
+      <li><strong>Rooms view.</strong> Grid of <code>RoomCard</code>s (responsive: 1 column on small, 2 on medium, 3 on large). Each card shows room name, icon, plant count, and an attention badge if any of that room's plants have <code>water_status === 'overdue'</code>. The attention count is computed by House, not by RoomCard.</li>
+      <li><strong>List view.</strong> Flat list of plant tiles. Each tile shows a PlantAvatar, nickname, species common name, room name, and a small care-status indicator (💧 for water-due, 🌱 for feed-due). Tap → <code>/plants/:id</code>.</li>
+      <li><strong>Room filter.</strong> Tapping a RoomCard switches to List mode with <code>roomId</code> stored in state so the list is filtered to that room. A "back to all rooms" or "clear filter" affordance returns to List showing everything.</li>
+      <li><strong>Empty states.</strong> If the user has zero rooms, show a nudge toward onboarding or adding a plant. If a room has zero plants, its RoomCard shows "0 plants" but is still clickable.</li>
+      <li><strong>Loading state.</strong> Spinner while rooms/plants are loading on first visit. Cache hit on subsequent visits means no spinner.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Visiting <code>/house</code> shows the Rooms grid by default.</span></div>
+    <div class="criterion"><div class="box"></div><span>Clicking the List pill switches to a flat list of every plant the user owns.</span></div>
+    <div class="criterion"><div class="box"></div><span>Typing in the search box filters the list as you type — no submit button needed.</span></div>
+    <div class="criterion"><div class="box"></div><span>Clicking a RoomCard switches to List mode with the list filtered to that room.</span></div>
+    <div class="criterion"><div class="box"></div><span>A room with at least one overdue plant shows an attention badge on its card.</span></div>
+    <div class="criterion"><div class="box"></div><span>Clicking any plant tile navigates to <code>/plants/:id</code> (which still renders a placeholder from ticket 4 — that's fine for this ticket).</span></div>
+    <div class="criterion"><div class="box"></div><span>Navigating away and back shows cached content immediately — no loading flicker.</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> and <code>./scripts/run_tests.sh client</code> pass.</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+    <div class="mockup-preview">
+      <div class="label"><span>IA + rooms grid vs isometric</span><a href="../mockups/plantcare-ui/05-ia-and-rooms-grid-vs-isometric.html" target="_blank">Open ↗</a></div>
+      <iframe src="../mockups/plantcare-ui/05-ia-and-rooms-grid-vs-isometric.html"></iframe>
+    </div>
+    <p><strong>Design spec §4.1 (IA):</strong></p>
+    <blockquote>
+      House answers "show me what I own." Has three view modes that toggle inside the House route, not separate routes: Rooms (grid of room tiles), List (flat list of plants), and Greenhouse (3D isometric view, Phase 3). Phase 1 ships Rooms + List; Greenhouse is a visible-but-disabled toggle option.
+    </blockquote>
+    <p><strong>Plan reference:</strong> Task 10 has the component with the view-mode toggle, the memoised <code>roomAttention</code> lookup, and the filtered plants logic.</p>
+    <a class="plan-link" href="../plans/2026-04-10-plantcare-frontend.md">docs/plans/2026-04-10-plantcare-frontend.md → Task 10</a>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+    <div class="learn">
+      <strong>Local UI state vs. server state — the most useful distinction in modern React.</strong> <code>viewMode</code> and <code>searchQuery</code> are UI state: they only matter while the user is on this screen, and the source of truth is the user's interactions. They live in <code>useState</code>. The rooms and plants data is server state: shared across the app, cached, refetchable, possibly stale, and the source of truth is the server. It lives in TanStack Query, never in <code>useState</code>. Knowing which kind a value is — and putting it in the right place — is half the battle of structuring a React app well. The most common architectural smell in React codebases is mixing the two: <code>useState</code> seeded from a <code>fetch</code> in <code>useEffect</code> with a manual loading/error/refetch dance. Don't.
+    </div>
+    <div class="learn">
+      <strong>Multiple parallel queries.</strong> <code>const { data: rooms } = useRooms(); const { data: plants } = usePlants();</code> fires two requests in parallel on mount. TanStack handles them independently — they don't block each other. You can render the rooms grid as soon as rooms arrive and show a loading state for the plants list separately, or wait for both. Either pattern is fine; the requests themselves are always parallel. Mental model: it's like writing two scopes at the top of a Rails controller and trusting Rails not to serialise them — except here, each query is also cached.
+    </div>
+    <div class="learn">
+      <strong><code>useMemo</code> for derived data with multiple inputs.</strong> The <code>roomAttention</code> map (roomId → count of plants needing care) and the <code>filteredPlants</code> array are derived from <code>rooms</code>, <code>plants</code>, AND <code>searchQuery</code>. Wrap them in <code>useMemo(() =&gt; ..., [rooms, plants, searchQuery])</code> so they only recompute when an input actually changes. Without it, every keystroke in the search box re-runs the entire filter even if only <code>viewMode</code> changed. Same rule from ticket 9: memoize when there's real work; don't memoize trivia.
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <table class="rails-map">
+      <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>PlantsController#index</code> with <code>?view=rooms</code></td><td><code>useState('Rooms')</code> for view mode</td><td>View mode is local UI state, not in the URL — simpler and cheap</td></tr>
+        <tr><td><code>@rooms = current_user.rooms.includes(:plants)</code></td><td><code>useRooms()</code> + <code>usePlants()</code></td><td>Two requests, cached independently — no eager loading needed</td></tr>
+        <tr><td><code>@plants.where("name ILIKE ?", "%#{q}%")</code></td><td><code>plants.filter(p =&gt; p.nickname.toLowerCase().includes(q))</code></td><td>Client-side filter for small collections</td></tr>
+        <tr><td><code>link_to plant.name, plant_path(plant)</code></td><td><code>&lt;button onClick={() =&gt; navigate(\`/plants/${p.id}\`)}&gt;</code></td><td>Or <code>&lt;Link to={\`/plants/${p.id}\`}&gt;</code> for a proper link</td></tr>
+        <tr><td>N+1 worry when counting plants per room</td><td><code>usePlants()</code> returns all plants once; you count in <code>useMemo</code></td><td>One fetch, local aggregation — no performance cliff</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li>client/src/pages/House.jsx <span class="action">create</span></li>
+      <li>client/src/App.jsx <span class="action">update</span></li>
+    </ul>
+    <p style="font-size: 13px; color: #666; margin-top: 12px;">Shape hint. If the rooms grid and list view become substantial, you might split them into <code>HouseRoomsView</code> and <code>HouseListView</code> subcomponents in the same file. Optional.</p>
+  </section>
+
+  <section>
+    <h2>Forward compatibility notes</h2>
+    <div class="forward">
+      <strong>Keep view-mode state open for a third option.</strong> Phase 3 adds a 3D isometric "Greenhouse" view as a third toggle option. Your <code>viewMode</code> state should be a string (not a boolean), and the toggle should render a map over an array of modes — so adding a new mode is a one-line change, not a rewrite.
+    </div>
+    <div class="forward">
+      <strong>Room filter is client-side, not a query param.</strong> When the user taps a room to enter the filtered list, keep the filter in local state (<code>filteredRoomId</code>). Don't push it to the URL as <code>?room_id=X</code> — that would break the "back button returns to Rooms grid" behaviour. (Later, you could add URL state for deep linking, but not now.)
+    </div>
+    <div class="forward">
+      <strong>Plant tile click uses <code>useNavigate</code>, not <code>&lt;Link&gt;</code>.</strong> Or both work, but pick one. If you use <code>&lt;Link&gt;</code>, you lose the ability to handle card-level clicks vs. button-inside-card clicks cleanly. <code>useNavigate</code> inside an onClick is more flexible for compound cards.
+    </div>
+    <div class="forward">
+      <strong>The List view's plant tile is the fastest path to PlantDetail.</strong> Ticket 11 depends on this navigation working. The placeholder page from ticket 4 is still mounted at <code>/plants/:id</code>, so clicking will show that placeholder until ticket 11 swaps it. That's expected behaviour.
+    </div>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li>The Greenhouse toggle option should be visibly disabled ("Coming Phase 3") rather than hidden — it sets user expectations and reinforces the design spec's three-modes IA.</li>
+      <li>Don't debounce the search input for this ticket. Client-side filter, instant results, no API call per keystroke. The only debounced search in the app is species search (onboarding + AddPlant), which hits the API.</li>
+      <li>If <code>useRooms</code> or <code>usePlants</code> errors (e.g. auth expired mid-session), render a simple error state — don't let the screen be blank.</li>
+      <li>When you're done: run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, commit on a feature branch, then open a PR.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>

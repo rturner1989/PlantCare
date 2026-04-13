@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-009: Today dashboard</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 70px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #2d6a4f; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 420px; border: none; background: #fff; }
+.mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+.mockup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 720px) { .mockup-grid { grid-template-columns: 1fr; } }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.rails-map code { white-space: nowrap; }
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+.forward { background: #eef4ff; border-left: 3px solid #4a6fa5; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #2a3a5a; }
+.forward strong { color: #1a2a5a; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-009</div>
+    <h1>Today dashboard — the signature home screen</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Build the Today screen at <code>/</code>. Greeting, a conditional urgent hero card, the since-you-were-gone ribbon, and a list of care tasks sorted by urgency. This is the first "real" screen the user sees every day — it needs to feel fast and obvious.</p>
+    <p>In one sentence: <strong>show the user what needs their attention right now, and let them tap to water or feed each plant.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">01</span>Tokens</div>
+      <div class="plan-step done"><span class="num">02</span>API</div>
+      <div class="plan-step done"><span class="num">03</span>Auth</div>
+      <div class="plan-step done"><span class="num">04</span>Shell</div>
+      <div class="plan-step done"><span class="num">05</span>Auth UI</div>
+      <div class="plan-step done"><span class="num">06</span>Onboard</div>
+      <div class="plan-step done"><span class="num">07</span>Hooks</div>
+      <div class="plan-step done"><span class="num">08</span>Primitives</div>
+      <div class="plan-step current"><span class="num">09</span>Today</div>
+      <div class="plan-step"><span class="num">10–14</span>Screens</div>
+    </div>
+    <p><strong>What came before:</strong> ticket 7 built <code>useDashboard()</code> and <code>useLogCare()</code>. Ticket 8 built <code>HeroCard</code>, <code>SinceRibbon</code>, <code>TaskRow</code>, <code>ProgressRing</code>, and the personality voice system. Ticket 4 wired the route; ticket 5 made sure the user can actually get here logged in.</p>
+    <p><strong>What this unlocks:</strong> ticket 13 (animations) enhances the care interactions on this screen with Framer Motion. Ticket 14 (polish) may add a Me avatar button to the header. This screen is also the litmus test for the data-layer/components split — if the composition feels awkward, that's a sign ticket 8 needs a prop reshuffle.</p>
+    <p><strong>Mental model:</strong> Rails' <code>DashboardController#show</code> action with a single view template that renders a few partials. Here the "controller" is <code>useDashboard()</code> and the "partials" are <code>HeroCard</code> + <code>SinceRibbon</code> + <code>TaskRow</code>.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <p>One page component plus the one-line App.jsx swap.</p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind">page</span><span class="name">client/src/pages/Today.jsx</span>
+        <div class="role">Fetches dashboard data via <code>useDashboard()</code>, derives the task list and the most urgent plant from the response, and composes <code>HeroCard</code> + <code>SinceRibbon</code> + a list of <code>TaskRow</code>s. Handles three states: loading (spinner), empty (no tasks), populated (normal flow). Each task row has its own <code>useLogCare</code> mutation so tapping "water" or "feed" fires the right request and the dashboard refetches automatically.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span><span class="name">client/src/App.jsx</span>
+        <div class="role">Swap the <code>/</code> index route's <code>PlaceholderPage</code> for the lazy-imported <code>Today</code> page.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li><strong>Greeting + date.</strong> "Good morning / afternoon / evening" based on local time, followed by the user's name. Eyebrow date like "Wed 9 April" above. On desktop, use the Fraunces italic display font for the headline (editorial moment).</li>
+      <li><strong>Conditional hero card.</strong> If any plants are in <code>water_status === 'overdue'</code>, render a HeroCard for the single most urgent one (most negative <code>days_until_water</code>). Otherwise, hide the hero entirely and let the ritual list rise to the top.</li>
+      <li><strong>Since ribbon.</strong> Always rendered. Urgent variant (coral alert icon) if any tasks exist. Non-urgent variant (green check icon) if no tasks. Title and subtitle adapt to the state.</li>
+      <li><strong>Task list.</strong> Merge <code>plants_needing_water</code> and <code>plants_needing_feeding</code> from the dashboard response into a single array of tasks, each with <code>{ plant, careType }</code>. Sort by urgency: overdue first, then due_today, then due_soon.</li>
+      <li><strong>Progress indicator.</strong> Header for the "Today's rituals" section shows "<code>N done / M to go</code>" and a small ProgressRing (from ticket 8). Since this ticket doesn't track "done" state on the client (logging care refetches the dashboard, which removes the plant from the list), <code>done</code> is always 0 — the ring reflects "tasks remaining vs. originally loaded", or just hide the count for MVP.</li>
+      <li><strong>Task row actions.</strong> Each TaskRow has a check button. Tapping it fires <code>useLogCare(plant.id).mutate({ care_type: task.careType })</code>. The mutation invalidates <code>['dashboard']</code>, so the row disappears on the next render automatically.</li>
+      <li><strong>Empty state.</strong> If <code>tasks.length === 0</code> and no hero, show a calm "no tasks today" message. If the user has zero plants total, nudge them toward adding one via the FAB.</li>
+      <li><strong>Derived state in render, not in <code>useEffect</code>.</strong> The task list, the urgent plant, the totals — all computed inline (or via <code>useMemo</code> for non-trivial work). Never sync them into state via <code>useEffect</code>.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Visiting <code>/</code> while logged in shows the greeting with the user's name.</span></div>
+    <div class="criterion"><div class="box"></div><span>If the dashboard endpoint returns at least one overdue plant, the HeroCard is visible.</span></div>
+    <div class="criterion"><div class="box"></div><span>If all plants are healthy, the HeroCard is hidden and the ritual list is empty or near-empty.</span></div>
+    <div class="criterion"><div class="box"></div><span>Tapping the check on a TaskRow fires a <code>POST /care_logs</code> request and removes that row within a second (refetch).</span></div>
+    <div class="criterion"><div class="box"></div><span>The task list is ordered with overdue plants first.</span></div>
+    <div class="criterion"><div class="box"></div><span>If the user has zero plants, the empty state nudges them to add one.</span></div>
+    <div class="criterion"><div class="box"></div><span>Loading spinner appears briefly on first load, not on subsequent navigations within the same session (cache hit).</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> and <code>./scripts/run_tests.sh client</code> pass.</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+    <div class="mockup-grid">
+      <div class="mockup-preview">
+        <div class="label"><span>Today mobile — urgent state</span><a href="../mockups/plantcare-ui/01-today-mobile-urgent-and-care-animation.html" target="_blank">Open ↗</a></div>
+        <iframe src="../mockups/plantcare-ui/01-today-mobile-urgent-and-care-animation.html"></iframe>
+      </div>
+      <div class="mockup-preview">
+        <div class="label"><span>Today mobile — default state</span><a href="../mockups/plantcare-ui/02-today-mobile-default-and-sweep.html" target="_blank">Open ↗</a></div>
+        <iframe src="../mockups/plantcare-ui/02-today-mobile-default-and-sweep.html"></iframe>
+      </div>
+    </div>
+    <div class="mockup-preview">
+      <div class="label"><span>Today desktop</span><a href="../mockups/plantcare-ui/03-today-desktop.html" target="_blank">Open ↗</a></div>
+      <iframe src="../mockups/plantcare-ui/03-today-desktop.html"></iframe>
+    </div>
+    <p><strong>Design spec §5 (Today):</strong></p>
+    <blockquote>
+      Today is the signature screen. Urgent state shows the hero card front and centre; default state collapses the hero and lets the ritual list rise. The transition between states is animated (ticket 13's job) but the data shape is the same — it's just whether the hero plant is present or absent.
+    </blockquote>
+    <p><strong>Plan reference:</strong> Task 9 has the full component with the task-list sorting logic and the <code>WaterableHeroCard</code>/<code>WaterableTaskRow</code> wrapper pattern (module-level subcomponents, not inline).</p>
+    <a class="plan-link" href="../plans/2026-04-10-plantcare-frontend.md">docs/plans/2026-04-10-plantcare-frontend.md → Task 9</a>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+    <div class="learn">
+      <strong><code>useMemo</code> for non-trivial derived arrays.</strong> Building the task list is a filter + merge + sort across the dashboard data. That's enough real work that wrapping it in <code>useMemo(() =&gt; ..., [data])</code> is worth it — the sort won't re-run unless <code>data</code> actually changes. Compare with ticket 11, where the percentage math is trivial and shouldn't be memoised. Rule of thumb: if you'd hesitate to do this work inside a tight render loop, memoize it. If it's a one-line arithmetic expression, don't.
+    </div>
+    <div class="learn">
+      <strong>Module-level subcomponents, NOT inline.</strong> <code>WaterableHeroCard</code> and <code>WaterableTaskRow</code> (the small wrappers that call <code>useLogCare</code> per row) live at module level in <code>Today.jsx</code> — NOT inside the <code>Today</code> function body. Defining a component inside another component creates a brand-new component type on every render of the parent. React can't reconcile a "different type" with the previous render, so it unmounts and remounts the entire subtree. State resets, animations restart, focus is lost, the network request fires twice. Totally invisible until you have child state — then very confusing. This is Vercel's <code>rerender-no-inline-components</code> rule and it's exactly the kind of subtle "renders happen more than you think" bug that a hobbyist React era doesn't teach you.
+    </div>
+    <div class="learn">
+      <strong>Derive during render, don't sync via <code>useEffect</code>.</strong> The task list, the urgent plant, the totals — all computed inline (or via <code>useMemo</code> for the heavier ones). Never store these in <code>useState</code> and use <code>useEffect</code> to keep them in sync with <code>data</code>. That pattern was common in the React 16/17 era and is now an explicit anti-pattern in the React docs. If a value can be derived from props or other state, derive it; don't store it. The rule of thumb: ask "what's the source of truth for this value?" — if the answer is "another piece of state", you don't need a second piece of state.
+    </div>
+    <div class="learn">
+      <strong>TanStack Query's cache makes navigation feel instant.</strong> When you leave Today and come back within a few minutes, the cached dashboard data renders immediately (no spinner) and TanStack triggers a silent background refetch to update it. The user sees instant content followed by a quiet refresh. This is the <code>staleTime: 1000 * 60 * 2</code> default we set on the QueryClient in ticket 4 doing its job. You don't need to do anything to get this — but it's worth knowing why the app feels fast (and why your loading states should be calibrated for the empty cache, not the warm one).
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <table class="rails-map">
+      <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>DashboardController#show</code></td><td><code>useDashboard()</code> hook + <code>Today.jsx</code> page</td><td>The "controller" is the hook; the "view" is the JSX</td></tr>
+        <tr><td><code>@tasks = @plants_needing_water + @plants_needing_feeding</code></td><td><code>const tasks = useMemo(() =&gt; merge + sort, [data])</code></td><td>Same computation, runs on the client</td></tr>
+        <tr><td><code>render 'rituals/row', task: task</code> in a loop</td><td><code>tasks.map(task =&gt; &lt;TaskRow key={...} ... /&gt;)</code></td><td><code>key</code> prop is essential — React uses it to track identity across re-renders</td></tr>
+        <tr><td><code>button_to water_path(plant), method: :post</code></td><td><code>onClick={() =&gt; logCare.mutate(...)}</code></td><td>No form; mutation fires directly from the click</td></tr>
+        <tr><td>Turbo refreshing <code>#today_tasks</code> after care logged</td><td><code>queryClient.invalidateQueries(['dashboard'])</code> inside <code>useLogCare</code>'s <code>onSuccess</code></td><td>Declarative; set up once in ticket 7</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li>client/src/pages/Today.jsx <span class="action">create</span></li>
+      <li>client/src/App.jsx <span class="action">update</span></li>
+      <li>client/tests/today.spec.js <span class="action">optional smoke test</span></li>
+    </ul>
+    <p style="font-size: 13px; color: #666; margin-top: 12px;">Shape hint. The plan puts the <code>WaterableHeroCard</code>/<code>WaterableTaskRow</code> wrappers in the same file. If you'd rather break them out, fine — just keep them at module level.</p>
+  </section>
+
+  <section>
+    <h2>Forward compatibility notes</h2>
+    <div class="forward">
+      <strong>Keep the HeroCard and TaskRow composition boring.</strong> Ticket 13 (animations) will wrap these in Framer Motion components (<code>motion.div</code>, <code>AnimatePresence</code>) to add the care-animation flourish. The simpler the composition here, the easier that wrap-and-animate is later.
+    </div>
+    <div class="forward">
+      <strong><code>useLogCare</code> per row is intentional.</strong> Each TaskRow wrapper calls its own <code>useLogCare</code>. This means each row has independent pending/success state, which matters once ticket 13 animates the check-circle on successful mutate. Don't consolidate to a single top-level mutation hook — you'd lose per-row loading state.
+    </div>
+    <div class="forward">
+      <strong>Don't track "done" tasks on the client.</strong> When the user taps water, the mutation invalidates the dashboard, the dashboard refetches, and the plant drops out of the needing-water list. No client-side "isDone" state needed. If you feel tempted to add one, stop — you're fighting the data flow.
+    </div>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li>The FAB in the dock already routes to <code>/add-plant</code> (ticket 4). Don't duplicate it on Today.</li>
+      <li>If the dashboard query fails (network, auth expiry that bypassed refresh), render a simple error state with a "try again" button. Don't let the screen be blank.</li>
+      <li>On desktop, the Fraunces italic headline is a deliberate editorial moment — don't swap it for the body font. Design spec §3 is specific about this.</li>
+      <li>When you're done: run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, commit on a feature branch, then open a PR.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-006: Onboarding wizard</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 70px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.page { background: #2d6a4f; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 420px; border: none; background: #fff; }
+.mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.rails-map code { white-space: nowrap; }
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+.forward { background: #eef4ff; border-left: 3px solid #4a6fa5; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #2a3a5a; }
+.forward strong { color: #1a2a5a; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-006</div>
+    <h1>Onboarding wizard — first rooms and first plant</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>A five-step wizard at <code>/welcome</code> that newly-registered users land on. By the time they finish, they have at least one room, one species picked, and one plant created — so Today and House aren't empty on first visit.</p>
+    <p>In one sentence: <strong>walk a brand-new user from zero to a populated app in under two minutes.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">01</span>Tokens</div>
+      <div class="plan-step done"><span class="num">02</span>API</div>
+      <div class="plan-step done"><span class="num">03</span>Auth ctx</div>
+      <div class="plan-step done"><span class="num">04</span>Shell</div>
+      <div class="plan-step done"><span class="num">05</span>Auth UI</div>
+      <div class="plan-step current"><span class="num">06</span>Onboard</div>
+      <div class="plan-step"><span class="num">07</span>Hooks</div>
+      <div class="plan-step"><span class="num">08–14</span>Screens</div>
+    </div>
+    <p><strong>What came before:</strong> ticket 5 wired Register to navigate here. The API endpoints for <code>POST /rooms</code>, <code>GET /species?q=</code>, and <code>POST /plants</code> are all in place.</p>
+    <p><strong>What this unlocks:</strong> the Today (ticket 9) and House (ticket 10) screens need real data to render anything useful — onboarding guarantees at least one room and one plant exist per user by the time they land on Today. Also, the species-search pattern here is the prototype for the species search in ticket 12 (Add Plant flow).</p>
+    <p><strong>Mental model:</strong> there's no direct Rails parallel — Rails rarely does multi-step wizards without hand-rolling the session-state management. Closest analogy: a five-action controller where each action hands off to the next, except here it's all one component and <code>step</code> lives in <code>useState</code>.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <p>One page component (it's big, but it's genuinely one thing) plus a one-line App.jsx swap.</p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind page">page</span><span class="name">client/src/pages/Welcome.jsx</span>
+        <div class="role">A single component that holds <code>step</code> (1–5) in state and conditionally renders the right step's UI. Each step has its own "next" button that advances the step counter. Steps 2 and 4 submit real API calls before advancing: step 2 creates rooms in parallel via <code>Promise.all</code>, step 4 creates the first plant. Step 5 navigates to <code>/</code>.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span><span class="name">client/src/App.jsx</span>
+        <div class="role">Swap the <code>/welcome</code> placeholder for the lazy-imported <code>Welcome</code> page.</div>
+      </div>
+    </div>
+
+    <p style="margin-top: 20px;"><strong>Step-by-step state machine:</strong></p>
+    <div class="shape">step 1 → "Let's set up your garden"    [Continue]
+     │
+step 2 → Pick rooms                      [Create rooms] ──→ Promise.all(POST /rooms)
+     │                                                              │
+     │←────────────────────────────────────────────────────────────┘
+     ↓
+step 3 → Pick your first species         [Continue] (uses GET /species?q=)
+     │                                    ↑
+     │                                    └── search input, debounced via useDeferredValue
+     ↓
+step 4 → Pick environment                [Create plant] ──→ POST /plants
+     │   (light / temperature / humidity)                          │
+     │←────────────────────────────────────────────────────────────┘
+     ↓
+step 5 → "You're all set"                [Let's go] ──→ navigate('/')</div>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li><strong>Progress bar.</strong> A thin bar at the top of every step showing <code>N / 5</code> completion. Transitions smoothly between steps.</li>
+      <li><strong>Step 1 — Welcome.</strong> Plant emoji, "Let's set up your garden" headline, short copy, single "Continue" button that advances to step 2.</li>
+      <li><strong>Step 2 — Rooms.</strong> A grid of preset rooms (Living Room, Bedroom, Kitchen, Bathroom, Office, Balcony) the user can toggle on/off. A custom-room input lets them add their own. Selected rooms are listed below. "Create rooms" fires all the <code>POST /rooms</code> requests in parallel via <code>Promise.all</code> and advances on success. Disabled if zero rooms selected.</li>
+      <li><strong>Step 3 — Species search.</strong> Text input, results list. The input feels responsive while typing — no request per keystroke. Clicking a result picks the species and advances. Optional nickname field can be left blank (we default to the species common name).</li>
+      <li><strong>Step 4 — Environment.</strong> Three grouped toggle rows: light (low / medium / bright), temperature (cool / average / warm), humidity (dry / average / humid). Defaults set to medium/average/average. "Create plant" fires <code>POST /plants</code> with the first selected room and advances.</li>
+      <li><strong>Step 5 — Done.</strong> "You're all set" celebration copy, "Let's go" button that navigates to <code>/</code>.</li>
+      <li><strong>Back button.</strong> Every step (except 1 and 5) has a way to go back to the previous step. Back preserves in-progress state (you don't lose your room selections by going back from step 3).</li>
+      <li><strong>Parallel room creation.</strong> When submitting step 2, room POSTs must fire in parallel (<code>Promise.all</code>), not sequentially. This is the Vercel React best-practice <code>async-parallel</code> rule.</li>
+      <li><strong>Debounced species search.</strong> Typing in the search box must not fire a request per keystroke. Use <code>useDeferredValue</code> to hold a "settled" copy of the query and drive the API call from that instead of the raw input.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Registering a new user lands on <code>/welcome</code> step 1.</span></div>
+    <div class="criterion"><div class="box"></div><span>Clicking "Continue" on step 1 advances to step 2, and the progress bar shows 2/5.</span></div>
+    <div class="criterion"><div class="box"></div><span>Selecting three rooms and clicking "Create rooms" shows exactly three <code>POST /rooms</code> requests firing in parallel in DevTools Network tab (not one after another).</span></div>
+    <div class="criterion"><div class="box"></div><span>Typing "mon" fast into the species search does not fire one <code>GET /species</code> per keystroke — you should see at most one or two requests settle on the final value.</span></div>
+    <div class="criterion"><div class="box"></div><span>Finishing step 5 and clicking "Let's go" navigates to <code>/</code>, and Today shows the rooms and plant you just created.</span></div>
+    <div class="criterion"><div class="box"></div><span>Clicking "Back" on step 3 returns to step 2 with your previously selected rooms still ticked.</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> and <code>./scripts/run_tests.sh client</code> pass.</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+    <div class="mockup-preview">
+      <div class="label"><span>Onboarding wizard — all 5 steps</span><a href="../mockups/plantcare-ui/07-onboarding-wizard.html" target="_blank">Open ↗</a></div>
+      <iframe src="../mockups/plantcare-ui/07-onboarding-wizard.html"></iframe>
+    </div>
+    <p><strong>Design spec §8 (onboarding):</strong></p>
+    <blockquote>
+      Post-registration, linear dialog-style flow. 5 steps on the same gradient container as auth. Progress bars (not dots) at the top of each card. Each step is a single primary action — no sub-choices that derail the flow.
+    </blockquote>
+    <p><strong>Plan reference:</strong> Task 6 has the full code including the preset room list, environment option labels, and the species-search effect structure (already updated to use <code>useDeferredValue</code> and <code>Promise.all</code> per the earlier review).</p>
+    <a class="plan-link" href="../plans/2026-04-10-plantcare-frontend.md">docs/plans/2026-04-10-plantcare-frontend.md → Task 6</a>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+    <div class="learn">
+      <strong><code>useDeferredValue</code> — new since React 18.</strong> Takes a value and returns a "slightly delayed" copy. React keeps the input responsive by letting the raw value update immediately, but defers the downstream work (here, the species API call) until React gets a quiet moment. It's the built-in way to say "this work is non-urgent" without writing a manual <code>setTimeout</code> debounce. Usage: <code>const deferredQuery = useDeferredValue(speciesQuery)</code>, then drive your fetch effect from <code>deferredQuery</code>. This is one of the most useful additions in React 18 and post-dates your hobby learning — worth a real read of the docs.
+    </div>
+    <div class="learn">
+      <strong><code>Promise.all</code> for independent work.</strong> Fire independent async operations with <code>await Promise.all(items.map(item =&gt; apiPost(...)))</code>, never a <code>for</code> loop with an <code>await</code> inside. The for-loop version runs sequentially — 5 rooms × 200ms each = 1 second. The <code>Promise.all</code> version runs them in parallel — ~200ms total. This is Vercel's <code>async-parallel</code> rule and it's the single most common React performance bug. (More of a JS rule than a React rule, but Vercel calls it out because it bites React apps constantly.)
+    </div>
+    <div class="learn">
+      <strong>Why this ticket uses bare <code>apiPost</code> instead of TanStack Query.</strong> Onboarding is a linear, fire-and-forget flow — submit data, advance, done. Nothing to cache, nothing to refetch, nothing to invalidate. TanStack Query earns its keep when multiple components share data over time; here, the rooms and plant you create are written and the user moves on. Use the <code>api/client.js</code> wrapper directly. Reaching for TanStack here would be like using ActiveRecord callbacks for a one-shot insert from a rake task — overkill.
+    </div>
+    <div class="learn">
+      <strong>Derive during render, don't sync via <code>useEffect</code>.</strong> A common trap from the React 16/17 era: storing a computed value in <code>useState</code> and using <code>useEffect</code> to "keep it in sync" with the source. <code>const progressPercent = (step / totalSteps) * 100</code> is computed inline on every render — React already re-renders when <code>step</code> changes, so any inline expression is automatically up-to-date. The "useEffect to sync derived state" pattern is now an explicit anti-pattern in the React docs. If something can be derived from props or state, derive it; don't store it.
+    </div>
+    <div class="learn">
+      <strong>Effect cleanup with a cancel flag.</strong> Your species-search effect fires <code>apiGet</code> when <code>deferredQuery</code> changes. If the user advances to step 4 while a request is still in flight, the response will arrive after the component has moved on — and calling <code>setSpeciesResults</code> at that point either crashes (on older React) or fires a "set state on unmounted component" warning. The fix is the cancel-flag pattern: <code>let cancelled = false; ...; return () =&gt; { cancelled = true }</code>, then check <code>if (!cancelled) setState(...)</code> before every set. This is the React idiom for "I started something async; here's how I clean it up if I'm no longer the right component to handle the result."
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <table class="rails-map">
+      <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Multi-action controller with session state</td><td>Single component with <code>useState</code> for step + form data</td><td>All state lives in one place — much simpler</td></tr>
+        <tr><td><code>Room.create!</code> in a loop</td><td><code>Promise.all(rooms.map(r =&gt; apiPost('/api/v1/rooms', { room: r })))</code></td><td>Parallel, not sequential</td></tr>
+        <tr><td><code>@species = Species.search(params[:q])</code></td><td><code>apiGet('/api/v1/species?q=...')</code> in a <code>useEffect</code> keyed on the deferred query</td><td>Client owns the request lifecycle</td></tr>
+        <tr><td><code>flash[:notice] = "Welcome!"</code></td><td>Step 5 celebration copy inline</td><td>No toast; the success IS the screen</td></tr>
+        <tr><td><code>redirect_to root_path</code></td><td><code>navigate('/', { replace: true })</code></td><td><code>replace: true</code> means back-button won't return to onboarding</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li>client/src/pages/Welcome.jsx <span class="action">create</span></li>
+      <li>client/src/App.jsx <span class="action">update</span></li>
+    </ul>
+    <p style="font-size: 13px; color: #666; margin-top: 12px;">Shape hint, not a spec. If you'd rather split each step into its own component and pass <code>step</code> + setters as props, go for it — just keep the wizard state in the parent.</p>
+  </section>
+
+  <section>
+    <h2>Forward compatibility notes</h2>
+    <div class="forward">
+      <strong>Species search pattern becomes ticket 12's starting point.</strong> The Add Plant flow in ticket 12 reuses the same search UX. When you build it here, prefer structure that will lift cleanly into a reusable bit later — but don't extract it now. You only know the right shape once you've written the second version.
+    </div>
+    <div class="forward">
+      <strong>First plant goes into the first selected room.</strong> The plan's logic: step 4 uses <code>createdRooms[0].id</code> as the <code>room_id</code>. That's fine for MVP. A future enhancement could let the user pick which room — don't build that now, but don't hard-code anything that would block it either.
+    </div>
+    <div class="forward">
+      <strong><code>navigate('/', { replace: true })</code> on finish.</strong> Using <code>replace</code> means the browser back button from Today won't bounce the user back into onboarding. Without <code>replace</code>, they'd get sent back through the wizard on every accidental back-swipe.
+    </div>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li>The species search effect needs a cancel flag (<code>let cancelled = false</code> + cleanup function) to handle the case where the user advances past step 3 while a request is still in flight. Without it, you get a "set state on unmounted component" warning.</li>
+      <li>Don't use TanStack Query here just because ticket 7 sets it up. Onboarding is fire-and-forget; direct <code>apiPost</code>/<code>apiGet</code> is the right tool.</li>
+      <li>If the user refreshes mid-wizard, they lose their progress and start at step 1 again. That's acceptable for MVP. Don't try to persist to localStorage.</li>
+      <li>When you're done: run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, commit on a feature branch, then open a PR.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>
