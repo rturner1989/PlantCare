@@ -85,6 +85,8 @@ docker compose up                   # Start everything
 ./scripts/reset_db.sh               # Drop, create, migrate, seed
 ./scripts/console.sh                # Rails console
 ./scripts/bash.sh                   # Shell into API container
+./scripts/npm_install.sh            # Install client deps into container volume (run after package.json changes)
+./scripts/npm_install.sh ci         # Pass-through: runs `npm ci` in the client container
 ```
 
 ## Branch Protection

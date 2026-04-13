@@ -64,6 +64,7 @@
   --shadow-dock: 0 12px 32px rgba(11, 58, 26, 0.14), 0 4px 12px rgba(11, 58, 26, 0.08);
   --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #dff2e2 50%, #c7ecca 100%);
   --gradient-forest: linear-gradient(135deg, var(--forest), var(--forest-2));
+  --gradient-brand: linear-gradient(135deg, var(--leaf), var(--emerald));
 
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   color: var(--ink);
