@@ -12,7 +12,7 @@ module Api
           if current_user.update(password_params)
             render json: { message: 'Password updated' }
           else
-            render json: { errors: current_user.errors.full_messages }, status: :unprocessable_content
+            render json: { errors: current_user.errors.messages }, status: :unprocessable_content
           end
         end
 

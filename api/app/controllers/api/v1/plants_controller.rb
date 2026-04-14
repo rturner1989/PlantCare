@@ -23,7 +23,7 @@ module Api
         if plant.save
           render json: plant, status: :created
         else
-          render json: { errors: plant.errors.full_messages }, status: :unprocessable_content
+          render json: { errors: plant.errors.messages }, status: :unprocessable_content
         end
       end
 
@@ -31,7 +31,7 @@ module Api
         if @plant.update(plant_params)
           render json: @plant
         else
-          render json: { errors: @plant.errors.full_messages }, status: :unprocessable_content
+          render json: { errors: @plant.errors.messages }, status: :unprocessable_content
         end
       end
 

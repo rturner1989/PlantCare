@@ -40,16 +40,13 @@ export default function Register() {
 
   const navigate = useNavigate()
   const { register } = useAuth()
-  const { submitting, handleSubmit } = useFormSubmit({
-    action: () => {
-      // Client-side mismatch check — saves a round-trip and surfaces the same
-      // error shape (thrown Error → toast) as any server-side validation.
-      // Server still validates for real.
-      if (password !== passwordConfirmation) {
-        throw new Error('Passwords do not match')
-      }
-      return register(name, email, password, passwordConfirmation)
-    },
+  // No client-side password-match check — Rails `has_secure_password` returns
+  // `password_confirmation: ["doesn't match Password"]` alongside every other
+  // validation failure (email taken, password too short, etc), so letting the
+  // server validate guarantees the user sees ALL errors on a single submit
+  // instead of a short-circuited subset.
+  const { submitting, handleSubmit, fieldErrors, formRef } = useFormSubmit({
+    action: () => register(name, email, password, passwordConfirmation),
     successMessage: 'Account created — welcome to PlantCare!',
     errorMessage: 'Registration failed',
     onSuccess: () => navigate('/welcome', { replace: true }),
@@ -66,7 +63,7 @@ export default function Register() {
       </h1>
 
       <div className="w-full max-w-auth">
-        <form onSubmit={handleSubmit}>
+        <form ref={formRef} onSubmit={handleSubmit}>
           <Card className="shadow-[var(--shadow-md)]">
             <CardBody className="space-y-4">
               <TextInput
@@ -77,6 +74,7 @@ export default function Register() {
                 required
                 placeholder="Your name"
                 autoComplete="name"
+                error={fieldErrors.name}
               />
 
               <TextInput
@@ -87,6 +85,7 @@ export default function Register() {
                 required
                 placeholder="you@example.com"
                 autoComplete="email"
+                error={fieldErrors.email}
               />
 
               <div>
@@ -99,8 +98,9 @@ export default function Register() {
                   minLength={8}
                   placeholder="At least 8 characters"
                   autoComplete="new-password"
+                  error={fieldErrors.password}
                 />
-                {password.length > 0 && (
+                {password.length > 0 && !fieldErrors.password && (
                   <div className="flex gap-1 mt-2">
                     {[0, 1, 2, 3].map((i) => (
                       <div
@@ -122,6 +122,7 @@ export default function Register() {
                 required
                 placeholder="Confirm your password"
                 autoComplete="new-password"
+                error={fieldErrors.passwordConfirmation}
               />
             </CardBody>
 

@@ -1,23 +1,29 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useToast } from '../context/ToastContext'
+import { ValidationError } from '../errors/ValidationError'
 
 /**
  * useFormSubmit — wraps the common "async form submit" lifecycle used by
  * auth forms (Login, Register), onboarding steps, Add Plant, profile update,
  * password change, and any other form in the app that follows the same
- * shape: preventDefault → submitting=true → await action → toast on both
- * paths → submitting=false.
+ * shape: preventDefault → submitting=true → await action → handle result
+ * (toast or field errors) → submitting=false.
  *
  * Usage:
  *
- *   const { submitting, handleSubmit } = useFormSubmit({
+ *   const { submitting, handleSubmit, fieldErrors, formRef } = useFormSubmit({
  *     action: () => login(email, password),
  *     successMessage: 'Welcome back!',
  *     errorMessage: 'Login failed',
  *     onSuccess: () => navigate(from, { replace: true }),
  *   })
  *
- *   return <form onSubmit={handleSubmit}>...</form>
+ *   return (
+ *     <form ref={formRef} onSubmit={handleSubmit}>
+ *       <TextInput name="email" error={fieldErrors.email} ... />
+ *       ...
+ *     </form>
+ *   )
  *
  * Design notes:
  *
@@ -33,17 +39,37 @@ import { useToast } from '../context/ToastContext'
  * - `onSuccess` is a callback, not a navigate prop. Consumers decide what
  *   happens after success: navigate, close a modal, refetch, or nothing.
  *
- * - On error, the hook prefers the thrown error's `.message` and falls back
- *   to `errorMessage` if the error has none. If neither is available, it
- *   shows a generic "Something went wrong".
+ * - Two error paths:
+ *   1. `ValidationError` (server 422 or client-side throw) → errors land in
+ *      `fieldErrors` keyed by field name. No toast — the inline UI already
+ *      tells the user what's wrong.
+ *   2. Any other Error → toast only. Falls back to `errorMessage` and then
+ *      "Something went wrong" if no message is available.
+ *
+ * - After a ValidationError, the hook focuses the first invalid field inside
+ *   the form (found via `[aria-invalid="true"]` on the `formRef` element).
+ *   Consumers attach `formRef` to their <form> element so the focus lookup
+ *   is scoped correctly if there's more than one form on the page.
  */
 export function useFormSubmit({ action, successMessage, errorMessage, onSuccess }) {
   const [submitting, setSubmitting] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState({})
+  const formRef = useRef(null)
   const toast = useToast()
+
+  // Focus the first invalid field after React commits the new aria-invalid
+  // attributes. Runs on every fieldErrors change but early-returns when the
+  // object is empty (set at the start of each submit, or on initial mount).
+  useEffect(() => {
+    if (Object.keys(fieldErrors).length === 0) return
+    const firstInvalid = formRef.current?.querySelector('[aria-invalid="true"]')
+    firstInvalid?.focus()
+  }, [fieldErrors])
 
   async function handleSubmit(e) {
     e.preventDefault()
     setSubmitting(true)
+    setFieldErrors({})
     try {
       await action()
       if (successMessage) {
@@ -51,11 +77,15 @@ export function useFormSubmit({ action, successMessage, errorMessage, onSuccess 
       }
       onSuccess?.()
     } catch (err) {
-      toast.error(err.message || errorMessage || 'Something went wrong')
+      if (err instanceof ValidationError) {
+        setFieldErrors(err.fields)
+      } else {
+        toast.error(err.message || errorMessage || 'Something went wrong')
+      }
     } finally {
       setSubmitting(false)
     }
   }
 
-  return { submitting, handleSubmit }
+  return { submitting, handleSubmit, fieldErrors, formRef }
 }

@@ -17,7 +17,7 @@ module Api
           if log.save
             render json: log, status: :created
           else
-            render json: { errors: log.errors.full_messages }, status: :unprocessable_content
+            render json: { errors: log.errors.messages }, status: :unprocessable_content
           end
         end
 

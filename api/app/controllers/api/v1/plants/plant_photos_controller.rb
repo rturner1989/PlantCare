@@ -16,7 +16,7 @@ module Api
           if photo.save
             render json: photo, status: :created
           else
-            render json: { errors: photo.errors.full_messages }, status: :unprocessable_content
+            render json: { errors: photo.errors.messages }, status: :unprocessable_content
           end
         end
 

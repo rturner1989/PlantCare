@@ -1,3 +1,20 @@
+import { ValidationError } from '../errors/ValidationError'
+
+// Rails attribute names are snake_case (`password_confirmation`); React form
+// state uses camelCase (`passwordConfirmation`). This bridges the two at the
+// API boundary so ValidationError.fields is camelCase everywhere the UI reads
+// from it.
+function snakeToCamel(snake) {
+  return snake.replace(/_([a-z])/g, (_, char) => char.toUpperCase())
+}
+
+// Guards against `errors` being an array-of-strings (the old shape), a plain
+// string, or `null`. Only a plain object with at least one key counts as
+// field-keyed — otherwise fall through to the generic error path.
+function isFieldKeyedErrorsObject(errors) {
+  return errors !== null && typeof errors === 'object' && !Array.isArray(errors) && Object.keys(errors).length > 0
+}
+
 let accessToken = null
 
 export function setAccessToken(newAccessToken) {
@@ -98,7 +115,23 @@ export async function apiFetch(url, options = {}) {
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}))
-    const error = new Error(body.error || body.errors?.[0] || `Request failed: ${response.status}`)
+
+    // Rails 422 with a field-keyed errors object becomes a ValidationError.
+    // Shape: { errors: { email: ["has already been taken"], ... } }
+    // Snake-case attributes are translated to camelCase to match React state.
+    if (response.status === 422 && isFieldKeyedErrorsObject(body.errors)) {
+      const fields = {}
+      for (const [snakeField, messages] of Object.entries(body.errors)) {
+        const camelField = snakeToCamel(snakeField)
+        fields[camelField] = Array.isArray(messages) ? messages[0] : String(messages)
+      }
+      const validationError = new ValidationError(fields)
+      validationError.status = response.status
+      validationError.body = body
+      throw validationError
+    }
+
+    const error = new Error(body.error || `Request failed: ${response.status}`)
     error.status = response.status
     error.body = body
     throw error

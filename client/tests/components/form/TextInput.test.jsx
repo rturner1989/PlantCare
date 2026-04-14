@@ -69,4 +69,48 @@ describe('TextInput', () => {
       expect(labelEl).toHaveClass('mb-6')
     })
   })
+
+  describe('error state', () => {
+    it('renders the error message when error is a non-empty string', () => {
+      render(<TextInput label="Email" type="email" error="has already been taken" />)
+      expect(screen.getByText('has already been taken')).toBeInTheDocument()
+    })
+
+    it('marks the input as aria-invalid="true" when error is set', () => {
+      render(<TextInput label="Email" type="email" error="has already been taken" />)
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('points aria-describedby at the error message element', () => {
+      render(<TextInput label="Email" type="email" error="has already been taken" />)
+      const input = screen.getByRole('textbox')
+      const describedById = input.getAttribute('aria-describedby')
+      expect(describedById).toBeTruthy()
+      const errorEl = document.getElementById(describedById)
+      expect(errorEl).toHaveTextContent('has already been taken')
+    })
+
+    it('does not set aria-invalid when there is no error', () => {
+      render(<TextInput label="Email" type="email" />)
+      const input = screen.getByRole('textbox')
+      expect(input).not.toHaveAttribute('aria-invalid')
+      expect(input).not.toHaveAttribute('aria-describedby')
+    })
+
+    it('prefers the error message over the hint when both are set', () => {
+      render(<TextInput label="Password" type="password" hint="At least 8 characters" error="is too short" />)
+      expect(screen.getByText('is too short')).toBeInTheDocument()
+      expect(screen.queryByText('At least 8 characters')).not.toBeInTheDocument()
+    })
+
+    it('falls back to showing the hint when error is cleared', () => {
+      const { rerender } = render(
+        <TextInput label="Password" type="password" hint="At least 8 characters" error="is too short" />,
+      )
+      expect(screen.queryByText('At least 8 characters')).not.toBeInTheDocument()
+
+      rerender(<TextInput label="Password" type="password" hint="At least 8 characters" error={undefined} />)
+      expect(screen.getByText('At least 8 characters')).toBeInTheDocument()
+    })
+  })
 })
