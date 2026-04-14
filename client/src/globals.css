@@ -33,6 +33,7 @@
   --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
   --font-display: "Fraunces", Georgia, serif;
 
+  --radius-xs: 5px;
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 18px;
@@ -84,4 +85,66 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+}
+
+/* Custom max-width utility for the floating auth card. 420px sits nicely
+ * between Tailwind's max-w-sm (384px) and max-w-md (448px) — narrow enough
+ * to feel like a focused form, wide enough for comfortable input padding.
+ */
+@utility max-w-auth {
+  max-width: 420px;
+}
+
+/* Toast progress bar — two animations on one element:
+ *   1. `toast-progress-shrink` shrinks the bar's width from 100% to 0% over
+ *      the toast's duration. Uses width (not transform: scaleX) so the
+ *      diagonal stripe background pattern keeps its true size as the bar
+ *      shrinks instead of getting squashed.
+ *   2. `toast-progress-stripes` loops the background-position, creating the
+ *      classic barber-pole "moving stripes" effect that signals "this is
+ *      actively counting down". 1s per full tile cycle.
+ * Duration is supplied per-instance via a `--toast-duration` custom property.
+ */
+@keyframes toast-progress-shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+@keyframes toast-progress-stripes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -20px 0;
+  }
+}
+
+@utility toast-progress {
+  animation:
+    toast-progress-shrink var(--toast-duration, 4000ms) linear forwards,
+    toast-progress-stripes 1s linear infinite;
+  background-image: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.25) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.25) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 20px 20px;
+}
+
+/* Respect users who prefer reduced motion — keep the shrink (it's informational,
+ * tells them how long until dismiss) but stop the decorative stripe loop.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .toast-progress {
+    animation: toast-progress-shrink var(--toast-duration, 4000ms) linear forwards;
+  }
 }

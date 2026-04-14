@@ -141,9 +141,74 @@ docs/
 
 ### Components
 
-- **Primitives live in `client/src/components/ui/`** — pure, domain-agnostic, reusable across any app (Action, Badge, future Input/Card/etc).
-- **Domain components live in `client/src/components/`** at the root (Dock, Sidebar, HeroCard, RoomCard, etc). The rule: "would I copy-paste this into a different React app unchanged?" If yes → `ui/`. If no → root.
-- **Two-axis prop convention for primitives:** `variant` for the style/preset choice, `scheme` for the colour/palette choice. Keep the names consistent across components so a `variant="solid"` or `scheme="coral"` behaves predictably wherever you see it.
+Three buckets, chosen by the component's purpose — not its reusability:
+
+- **`client/src/components/ui/`** — general-purpose primitives that work anywhere in the app and would survive being copy-pasted into a different React app unchanged. Action, Badge, Card, Logo. Future: Button, Icon, Dialog, Tooltip.
+- **`client/src/components/form/`** — form-specific primitives that encode form UX conventions (label association, hint/error slots, required/disabled, autoComplete). TextInput today. Future: Textarea, Select, Checkbox, Radio, FormField wrapper.
+- **`client/src/components/`** at the root — domain components that know about PlantCare's data shapes (rooms, plants, care state, personality). Dock, Sidebar, ProtectedRoute today. Future: HeroCard, TaskRow, RoomCard, PlantAvatar, SinceRibbon.
+
+**Rule of thumb:**
+- Building a form? Reach into `form/`.
+- Building general chrome or a one-off clickable? Reach into `ui/`.
+- Building something that touches a Plant, Room, or CareLog? It's a domain component — lives at the root.
+
+Components that are genuinely general-purpose (Action is used as both "form submit button" and "nav FAB") stay in `ui/`, not `form/`. When in doubt, ask: "would this make sense in an app that doesn't have forms?" Yes → `ui/`. No → `form/`.
+
+**Two-axis prop convention for primitives:** `variant` for the style/preset choice, `scheme` for the colour/palette choice. Keep the names consistent across components so a `variant="solid"` or `scheme="coral"` behaves predictably wherever you see it.
+
+### Client directory layout
+
+The `client/` tree is organised by *role*, not by feature. Every file has one obvious home based on what kind of thing it is. Keep it this way — don't invent new top-level folders without a real reason.
+
+```
+client/
+├── src/
+│   ├── api/              # fetch wrapper + API client (api/client.js)
+│   ├── components/
+│   │   ├── ui/           # general-purpose primitives (Action, Badge, Card, Logo, Toast)
+│   │   ├── form/         # form-specific primitives (TextInput, future: Select, Checkbox)
+│   │   └── *.jsx         # domain components at the root (Sidebar, Dock, ProtectedRoute)
+│   ├── context/          # React contexts + their providers (AuthContext, ToastContext)
+│   ├── hooks/            # custom hooks (useAuth, useFormSubmit)
+│   ├── layouts/          # route layout shells (AppLayout, AuthLayout, SiteLayout)
+│   ├── pages/            # route-level page components (Login, Register, NotFound)
+│   ├── App.jsx           # route table + provider tree
+│   ├── main.jsx          # ReactDOM entry point
+│   └── globals.css       # Tailwind @theme tokens + @utility classes
+└── tests/                # mirrors src/ exactly — see "Tests" below
+```
+
+**Rules:**
+- **Contexts live in `context/`, not `components/`.** Even though a Provider is technically a component, its job is state plumbing — group it with the other contexts.
+- **Custom hooks live in `hooks/`.** Includes both generic hooks (`useFormSubmit`) and context-reader hooks (`useAuth`). A hook that only wraps `useContext` still lives here, not next to the context file.
+- **Pages vs layouts:** a *page* is the thing rendered for a single route. A *layout* is the persistent frame that wraps several pages via `<Outlet />`.
+- **Don't colocate.** No `Foo.jsx` + `Foo.test.jsx` + `Foo.module.css` clusters. Tests mirror `src/` inside `tests/`; styles live in Tailwind classes or `globals.css`.
+
+### Tests
+
+Tests live in `client/tests/`, mirroring `client/src/` one-for-one. A source file at `src/hooks/useFormSubmit.js` has its test at `tests/hooks/useFormSubmit.test.jsx`. No colocated tests.
+
+- **`.test.jsx` / `.test.js`** — Vitest unit/integration tests (React Testing Library, `renderHook`, `vi.mock`).
+- **`.spec.js`** — Playwright end-to-end tests, under `tests/pages/` or `tests/e2e/`.
+
+The two extensions are how Vitest and Playwright tell their files apart — don't cross them. If you're writing a Vitest test it's `.test.jsx`, if it's Playwright it's `.spec.js`.
+
+### Extract as you go
+
+Build components and hooks *when a second copy appears*, not up-front and not after the third. The goal is to catch duplication the moment it's obvious, while the second use case is still fresh in your head — that's when you know the right shape for the abstraction.
+
+**Worked examples from this project:**
+- **`Action`** extracted when Login's submit button, the "sign up" link, and the floating nav button all wanted the same rounded/sized/tappable surface with different variants.
+- **`Card` / `CardBody` / `CardFooter`** extracted when Login and Register both wanted the same padded container — compound components so the layout slots stay explicit.
+- **`TextInput`** extracted when stacking `<label>` + `<input>` + hint markup in every form became line noise, AND when autofill on duplicate `id`s started causing React warnings.
+- **`Toast` + `ToastContext`** extracted when Login and Register both needed to surface inline API errors — became the Rails-flash-style single source of truth for transient messages.
+- **`useFormSubmit`** extracted when Login and Register had identical `preventDefault → setSubmitting → try/await/catch/finally → toast → onSuccess` handlers. Two copies was enough; the third form would have baked the pattern in wrong.
+
+**Rules:**
+- **First use: inline it.** Premature extraction guesses at an API you don't have evidence for.
+- **Second use: extract it.** Two copies is the signal. Don't wait for three — by then you're mid-ticket on the third and tempted to copy-paste "just this once".
+- **Name for the job, not the shape.** `useFormSubmit`, not `useAsyncHandler`. `Action`, not `ClickableThing`.
+- **Extraction is part of the current ticket.** Don't split it out to "a followup" — it goes in the same branch as the code that made it necessary.
 
 ## What Not to Touch
 

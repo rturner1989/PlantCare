@@ -60,7 +60,11 @@ export async function apiFetch(url, options = {}) {
     ...options.headers,
   }
 
-  if (accessToken) {
+  // Snapshot whether this request was sent with an access token. If it wasn't
+  // (e.g. the user is logging in), a 401 is a real auth failure, not an
+  // expired session — there's nothing to refresh.
+  const hadAccessToken = accessToken !== null
+  if (hadAccessToken) {
     headers.Authorization = `Bearer ${accessToken}`
   }
 
@@ -75,8 +79,13 @@ export async function apiFetch(url, options = {}) {
     credentials: 'include',
   })
 
-  // On 401, attempt token refresh and retry once
-  if (response.status === 401 && !options._retried) {
+  // On 401 for an authenticated request, try refreshing the access token once
+  // and retry. For unauthenticated requests (login/register), or if the refresh
+  // itself fails, we fall through and let the original 401's error body
+  // propagate via the `if (!response.ok)` block below — that way the user sees
+  // Rails' actual message ("Invalid email or password") instead of a generic
+  // client-side "Session expired".
+  if (response.status === 401 && !options._retried && hadAccessToken) {
     try {
       const newToken = await refreshAccessToken()
       headers.Authorization = `Bearer ${newToken}`
@@ -87,8 +96,8 @@ export async function apiFetch(url, options = {}) {
         _retried: true,
       })
     } catch {
-      // Refresh failed — caller handles the 401
-      throw new Error('Session expired')
+      // Refresh failed — fall through. The original 401 response is still
+      // assigned to `response` and will throw with Rails' real error below.
     }
   }
 
