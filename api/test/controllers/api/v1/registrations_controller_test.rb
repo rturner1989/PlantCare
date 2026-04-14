@@ -5,7 +5,7 @@ require 'test_helper'
 class Api::V1::RegistrationsControllerTest < ActionDispatch::IntegrationTest
   test 'register with valid params creates user and returns token' do
     post api_v1_registration_path, params: {
-      user: { email: 'new@example.com', name: 'New User', password: 'password123', password_confirmation: 'password123' }
+      user: { email: 'new@example.com', name: 'New User', password: 'greenthumb99', password_confirmation: 'greenthumb99' }
     }, as: :json
 
     assert_response :created
@@ -28,7 +28,7 @@ class Api::V1::RegistrationsControllerTest < ActionDispatch::IntegrationTest
 
   test 'register with duplicate email returns error' do
     post api_v1_registration_path, params: {
-      user: { email: 'john@doe.com', name: 'New', password: 'password123', password_confirmation: 'password123' }
+      user: { email: 'john@doe.com', name: 'New', password: 'greenthumb99', password_confirmation: 'greenthumb99' }
     }, as: :json
 
     assert_response :unprocessable_entity
@@ -36,7 +36,7 @@ class Api::V1::RegistrationsControllerTest < ActionDispatch::IntegrationTest
 
   test 'register sets refresh token cookie' do
     post api_v1_registration_path, params: {
-      user: { email: 'new@example.com', name: 'New User', password: 'password123', password_confirmation: 'password123' }
+      user: { email: 'new@example.com', name: 'New User', password: 'greenthumb99', password_confirmation: 'greenthumb99' }
     }, as: :json
 
     assert_response :created

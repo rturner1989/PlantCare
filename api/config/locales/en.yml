@@ -43,3 +43,10 @@ en:
               # "Password" is the humanised attribute name interpolated into
               # the stock message. Replacing with a plain-English version.
               confirmation: "does not match the password"
+            password:
+              # Custom symbols raised from User#password_composition and
+              # User#password_not_common — the wording here is what the
+              # user sees inline under the password field.
+              missing_letter: "must contain at least one letter"
+              missing_digit: "must contain at least one number"
+              too_common: "is too common — pick something less guessable"

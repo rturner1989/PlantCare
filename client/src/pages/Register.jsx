@@ -96,7 +96,7 @@ export default function Register() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={8}
-                  placeholder="At least 8 characters"
+                  placeholder="8+ characters with a letter and a number"
                   autoComplete="new-password"
                   error={fieldErrors.password}
                 />

@@ -17,9 +17,9 @@
 john:
   name: John Doe
   email: john@doe.com
-  password_digest: <%= BCrypt::Password.create("password123") %>
+  password_digest: <%= BCrypt::Password.create("greenthumb99") %>
 
 jane:
   name: Jane Doe
   email: jane@doe.com
-  password_digest: <%= BCrypt::Password.create("password123") %>
+  password_digest: <%= BCrypt::Password.create("greenthumb99") %>
