@@ -41,7 +41,15 @@ export default function Register() {
   const navigate = useNavigate()
   const { register } = useAuth()
   const { submitting, handleSubmit } = useFormSubmit({
-    action: () => register(name, email, password, passwordConfirmation),
+    action: () => {
+      // Client-side mismatch check — saves a round-trip and surfaces the same
+      // error shape (thrown Error → toast) as any server-side validation.
+      // Server still validates for real.
+      if (password !== passwordConfirmation) {
+        throw new Error('Passwords do not match')
+      }
+      return register(name, email, password, passwordConfirmation)
+    },
     successMessage: 'Account created — welcome to PlantCare!',
     errorMessage: 'Registration failed',
     onSuccess: () => navigate('/welcome', { replace: true }),

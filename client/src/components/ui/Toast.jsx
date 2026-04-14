@@ -140,9 +140,15 @@ export default function ToastContainer({ toasts, onDismiss }) {
   return (
     <div className="fixed top-4 right-4 z-50 flex flex-col gap-3 pointer-events-none">
       <AnimatePresence>
-        {toasts.map((t) => (
-          <motion.div key={t.id} layout className="pointer-events-auto" {...motionProps}>
-            <Toast id={t.id} kind={t.kind} message={t.message} duration={t.duration} onDismiss={onDismiss} />
+        {toasts.map((toastItem) => (
+          <motion.div key={toastItem.id} layout className="pointer-events-auto" {...motionProps}>
+            <Toast
+              id={toastItem.id}
+              kind={toastItem.kind}
+              message={toastItem.message}
+              duration={toastItem.duration}
+              onDismiss={onDismiss}
+            />
           </motion.div>
         ))}
       </AnimatePresence>

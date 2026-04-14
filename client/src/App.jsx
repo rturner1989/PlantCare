@@ -52,13 +52,7 @@ function PlaceholderPage({ title }) {
   )
 }
 
-// TODO: remove `bypass` once real auth is wired up.
-function ProtectedAppLayout({ bypass = false }) {
-  if (bypass && import.meta.env.DEV) {
-    console.warn('[ProtectedAppLayout] auth bypass active — DEV build only')
-    return <AppLayout />
-  }
-
+function ProtectedAppLayout() {
   return (
     <ProtectedRoute>
       <AppLayout />
@@ -80,7 +74,7 @@ export default function App() {
                 <Route path="/welcome" element={<PlaceholderPage title="Welcome" />} />
 
                 {/* Protected routes */}
-                <Route element={<ProtectedAppLayout bypass={false} />}>
+                <Route element={<ProtectedAppLayout />}>
                   <Route index element={<PlaceholderPage title="Today" />} />
 
                   <Route path="house" element={<PlaceholderPage title="House" />} />

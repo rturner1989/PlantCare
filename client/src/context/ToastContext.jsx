@@ -8,7 +8,7 @@ export function ToastProvider({ children }) {
   const idCounter = useRef(0)
 
   const dismissToast = useCallback((id) => {
-    setToasts((current) => current.filter((t) => t.id !== id))
+    setToasts((current) => current.filter((toastItem) => toastItem.id !== id))
   }, [])
 
   const showToast = useCallback(({ kind = 'info', message, duration = 4000, persist = false }) => {
@@ -21,7 +21,7 @@ export function ToastProvider({ children }) {
 
     if (!persist && duration > 0) {
       setTimeout(() => {
-        setToasts((current) => current.filter((t) => t.id !== id))
+        setToasts((current) => current.filter((toastItem) => toastItem.id !== id))
       }, duration)
     }
 

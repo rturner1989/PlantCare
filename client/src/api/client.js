@@ -85,16 +85,11 @@ export async function apiFetch(url, options = {}) {
   // propagate via the `if (!response.ok)` block below — that way the user sees
   // Rails' actual message ("Invalid email or password") instead of a generic
   // client-side "Session expired".
-  if (response.status === 401 && !options._retried && hadAccessToken) {
+  if (response.status === 401 && hadAccessToken) {
     try {
       const newToken = await refreshAccessToken()
       headers.Authorization = `Bearer ${newToken}`
-      response = await fetch(url, {
-        ...options,
-        headers,
-        credentials: 'include',
-        _retried: true,
-      })
+      response = await fetch(url, { ...options, headers, credentials: 'include' })
     } catch {
       // Refresh failed — fall through. The original 401 response is still
       // assigned to `response` and will throw with Rails' real error below.
