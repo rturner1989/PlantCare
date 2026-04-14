@@ -29,3 +29,17 @@
 
 en:
   hello: "Hello world"
+
+  # Override default ActiveRecord validation messages where Rails' defaults
+  # read awkwardly in the UI. Keys mirror the model / attribute hierarchy —
+  # `activerecord.errors.models.<model>.attributes.<attr>.<validator>`.
+  activerecord:
+    errors:
+      models:
+        user:
+          attributes:
+            password_confirmation:
+              # Rails default: "doesn't match Password" — reads oddly because
+              # "Password" is the humanised attribute name interpolated into
+              # the stock message. Replacing with a plain-English version.
+              confirmation: "does not match the password"
