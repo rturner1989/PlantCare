@@ -1,6 +1,7 @@
-import { faHouse, faMagnifyingGlass, faPlus, faSun, faUser } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRightFromBracket, faHouse, faMagnifyingGlass, faPlus, faSun } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NavLink } from 'react-router-dom'
+import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
 import Logo from './Logo'
 import Action from './ui/Action'
@@ -8,11 +9,14 @@ import Badge from './ui/Badge'
 
 // TODO: replace hardcoded counts with real data once dashboard + house queries land.
 // Today = tasks due today; House = total plants.
+//
+// Note: `/me` is intentionally NOT listed here — on desktop the user accesses
+// their profile by clicking the avatar in the sidebar footer. The Dock keeps
+// its Me entry because mobile has no sidebar avatar to click.
 const navItems = [
   { to: '/', label: 'Today', icon: faSun, count: 2 },
   { to: '/house', label: 'House', icon: faHouse, count: 12 },
   { to: '/discover', label: 'Discover', icon: faMagnifyingGlass },
-  { to: '/me', label: 'Me', icon: faUser },
 ]
 
 function SidebarNavLink({ to, label, icon, count }) {
@@ -43,7 +47,16 @@ function SidebarNavLink({ to, label, icon, count }) {
 }
 
 export default function Sidebar() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
+  const toast = useToast()
+
+  // TODO: this logout action will move into the Me profile page in ticket 14.
+  // For now it lives in the sidebar user footer so we have a way out while
+  // building and testing the rest of the app.
+  async function handleLogout() {
+    await logout()
+    toast.success('Logged out')
+  }
 
   return (
     <aside className="hidden lg:flex flex-col w-[260px] h-dvh bg-card border-r border-mint fixed left-0 top-0 z-40">
@@ -72,14 +85,29 @@ export default function Sidebar() {
 
       {user && (
         <div className="px-4 pb-6 border-t border-mint pt-4">
-          <div className="flex items-center gap-3">
-            <div className="w-[38px] h-[38px] rounded-full bg-mint flex items-center justify-center text-emerald font-bold text-sm">
-              {user.name?.[0]?.toUpperCase() || '?'}
-            </div>
-            <div>
-              <p className="text-sm font-bold text-ink">{user.name}</p>
-              <p className="text-xs text-ink-soft">{user.email}</p>
-            </div>
+          <div className="flex items-center gap-2">
+            <Action
+              to="/me"
+              variant="unstyled"
+              aria-label="View profile"
+              className="flex items-center gap-3 flex-1 min-w-0 p-1 rounded-md hover:bg-mint/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2"
+            >
+              <div className="w-[38px] h-[38px] rounded-full bg-mint flex items-center justify-center text-emerald font-bold text-sm shrink-0">
+                {user.name?.[0]?.toUpperCase() || '?'}
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-sm font-bold text-ink truncate">{user.name}</p>
+                <p className="text-xs text-ink-soft truncate">{user.email}</p>
+              </div>
+            </Action>
+            <Action
+              onClick={handleLogout}
+              variant="unstyled"
+              aria-label="Log out"
+              className="text-ink-soft hover:text-coral transition-colors p-1 rounded-md shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2"
+            >
+              <FontAwesomeIcon icon={faArrowRightFromBracket} className="w-4 h-4" />
+            </Action>
           </div>
         </div>
       )}

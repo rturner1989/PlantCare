@@ -3,10 +3,37 @@ import { apiDelete, apiPost, setAccessToken } from '../api/client'
 
 export const AuthContext = createContext(null)
 
+// Session hint — a non-sensitive boolean in localStorage that tells us
+// whether this browser has ever successfully logged in / is still holding a
+// session. The real refresh token stays in the httpOnly cookie where JS can't
+// touch it; the hint only controls whether we bother probing `/api/v1/token`
+// on mount, so anonymous page loads don't produce a noisy 401 in DevTools.
+const SESSION_HINT_KEY = 'plantcare:session-hint'
+
+function hasSessionHint() {
+  try {
+    return localStorage.getItem(SESSION_HINT_KEY) === 'true'
+  } catch {
+    // localStorage may be unavailable (incognito quota, SSR, disabled cookies)
+    return false
+  }
+}
+
+function setSessionHint(value) {
+  try {
+    if (value) {
+      localStorage.setItem(SESSION_HINT_KEY, 'true')
+    } else {
+      localStorage.removeItem(SESSION_HINT_KEY)
+    }
+  } catch {
+    // fail silently
+  }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
 
   const refreshToken = useCallback(async () => {
     try {
@@ -18,6 +45,7 @@ export function AuthProvider({ children }) {
       if (!response.ok) {
         setUser(null)
         setAccessToken(null)
+        setSessionHint(false)
         return false
       }
 
@@ -36,45 +64,46 @@ export function AuthProvider({ children }) {
         return true
       }
 
+      setSessionHint(false)
       return false
     } catch {
       setUser(null)
       setAccessToken(null)
+      setSessionHint(false)
       return false
     }
   }, [])
 
-  // On mount: attempt to restore session from refresh cookie
+  // On mount: only attempt to restore session if we have a hint that one
+  // exists. Skips the refresh probe entirely for fresh visitors and
+  // post-logout visitors, avoiding the 401 noise in DevTools.
   useEffect(() => {
+    if (!hasSessionHint()) {
+      setLoading(false)
+      return
+    }
     refreshToken().finally(() => setLoading(false))
   }, [refreshToken])
 
+  // login/register throw on failure — callers are responsible for displaying
+  // the error (via the toast context, typically). Keeping this context focused
+  // on auth state (user + loading) rather than UI state (errors).
   const login = useCallback(async (email, password) => {
-    setError(null)
-    try {
-      const data = await apiPost('/api/v1/session', { session: { email, password } })
-      setAccessToken(data.access_token)
-      setUser(data.user)
-      return data.user
-    } catch (err) {
-      setError(err.message || 'Login failed')
-      throw err
-    }
+    const data = await apiPost('/api/v1/session', { session: { email, password } })
+    setAccessToken(data.access_token)
+    setUser(data.user)
+    setSessionHint(true)
+    return data.user
   }, [])
 
   const register = useCallback(async (name, email, password, passwordConfirmation) => {
-    setError(null)
-    try {
-      const data = await apiPost('/api/v1/registration', {
-        user: { name, email, password, password_confirmation: passwordConfirmation },
-      })
-      setAccessToken(data.access_token)
-      setUser(data.user)
-      return data.user
-    } catch (err) {
-      setError(err.message || 'Registration failed')
-      throw err
-    }
+    const data = await apiPost('/api/v1/registration', {
+      user: { name, email, password, password_confirmation: passwordConfirmation },
+    })
+    setAccessToken(data.access_token)
+    setUser(data.user)
+    setSessionHint(true)
+    return data.user
   }, [])
 
   const logout = useCallback(async () => {
@@ -85,12 +114,13 @@ export function AuthProvider({ children }) {
     } finally {
       setAccessToken(null)
       setUser(null)
+      setSessionHint(false)
     }
   }, [])
 
   const value = useMemo(
-    () => ({ user, loading, error, login, register, logout, refreshToken, setError }),
-    [user, loading, error, login, register, logout, refreshToken],
+    () => ({ user, loading, login, register, logout, refreshToken }),
+    [user, loading, login, register, logout, refreshToken],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

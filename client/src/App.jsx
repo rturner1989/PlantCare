@@ -13,13 +13,14 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider } from './context/AuthContext'
+import { ToastProvider } from './context/ToastContext'
 import AppLayout from './layouts/AppLayout'
 
 // Route-level code splitting — each page ships as its own JS chunk, fetched on demand.
 // Uncomment pages as they're built in tickets 5+.
 const NotFound = lazy(() => import('./pages/NotFound'))
-// const Login = lazy(() => import('./pages/Login'))
-// const Register = lazy(() => import('./pages/Register'))
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
 // const Welcome = lazy(() => import('./pages/Welcome'))
 // const Today = lazy(() => import('./pages/Today'))
 // const House = lazy(() => import('./pages/House'))
@@ -51,13 +52,7 @@ function PlaceholderPage({ title }) {
   )
 }
 
-// TODO: remove `bypass` once real auth is wired up.
-function ProtectedAppLayout({ bypass = false }) {
-  if (bypass && import.meta.env.DEV) {
-    console.warn('[ProtectedAppLayout] auth bypass active — DEV build only')
-    return <AppLayout />
-  }
-
+function ProtectedAppLayout() {
   return (
     <ProtectedRoute>
       <AppLayout />
@@ -69,29 +64,31 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
-          <Suspense fallback={<RouteFallback />}>
-            <Routes>
-              {/* Public + Onboarding routes */}
-              <Route path="/login" element={<PlaceholderPage title="Login" />} />
-              <Route path="/register" element={<PlaceholderPage title="Register" />} />
-              <Route path="/welcome" element={<PlaceholderPage title="Welcome" />} />
+        <ToastProvider>
+          <BrowserRouter>
+            <Suspense fallback={<RouteFallback />}>
+              <Routes>
+                {/* Public + Onboarding routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/welcome" element={<PlaceholderPage title="Welcome" />} />
 
-              {/* Protected routes */}
-              <Route element={<ProtectedAppLayout bypass={false} />}>
-                <Route index element={<PlaceholderPage title="Today" />} />
+                {/* Protected routes */}
+                <Route element={<ProtectedAppLayout />}>
+                  <Route index element={<PlaceholderPage title="Today" />} />
 
-                <Route path="house" element={<PlaceholderPage title="House" />} />
-                <Route path="plants/:id" element={<PlaceholderPage title="Plant Detail" />} />
-                <Route path="discover" element={<PlaceholderPage title="Discover" />} />
-                <Route path="me" element={<PlaceholderPage title="Me" />} />
-                <Route path="add-plant" element={<PlaceholderPage title="Add Plant" />} />
-              </Route>
+                  <Route path="house" element={<PlaceholderPage title="House" />} />
+                  <Route path="plants/:id" element={<PlaceholderPage title="Plant Detail" />} />
+                  <Route path="discover" element={<PlaceholderPage title="Discover" />} />
+                  <Route path="me" element={<PlaceholderPage title="Me" />} />
+                  <Route path="add-plant" element={<PlaceholderPage title="Add Plant" />} />
+                </Route>
 
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </ToastProvider>
       </AuthProvider>
     </QueryClientProvider>
   )

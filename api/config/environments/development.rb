@@ -3,6 +3,11 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # Allow requests from the Docker service hostname. Vite's dev proxy uses
+  # `changeOrigin: true` which rewrites the Host header to `api:3000`, and
+  # Rails 8's default host allowlist rejects that as a blocked host (403).
+  config.hosts << "api"
+
   # Make code changes take effect immediately without server restart.
   config.enable_reloading = true
 
