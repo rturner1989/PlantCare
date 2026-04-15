@@ -169,6 +169,7 @@ client/
 │   │   ├── form/         # form-specific primitives (TextInput, future: Select, Checkbox)
 │   │   └── *.jsx         # domain components at the root (Sidebar, Dock, ProtectedRoute)
 │   ├── context/          # React contexts + their providers (AuthContext, ToastContext)
+│   ├── errors/           # named Error subclasses per failure mode (ValidationError, future: NotFoundError, RateLimitError)
 │   ├── hooks/            # custom hooks (useAuth, useFormSubmit)
 │   ├── layouts/          # route layout shells (AppLayout, AuthLayout, SiteLayout)
 │   ├── pages/            # route-level page components (Login, Register, NotFound)
@@ -180,6 +181,7 @@ client/
 
 **Rules:**
 - **Contexts live in `context/`, not `components/`.** Even though a Provider is technically a component, its job is state plumbing — group it with the other contexts.
+- **Errors live in `errors/`, one class per file.** Named after the condition (`ValidationError`, `NotFoundError`), not the HTTP code. Thin `Error` subclasses — no React dependencies so they can be thrown from `api/client.js`. Catch with `instanceof`, not property sniffing. Don't export a barrel — import directly from the specific file (bundle-size rule).
 - **Custom hooks live in `hooks/`.** Includes both generic hooks (`useFormSubmit`) and context-reader hooks (`useAuth`). A hook that only wraps `useContext` still lives here, not next to the context file.
 - **Pages vs layouts:** a *page* is the thing rendered for a single route. A *layout* is the persistent frame that wraps several pages via `<Outlet />`.
 - **Don't colocate.** No `Foo.jsx` + `Foo.test.jsx` + `Foo.module.css` clusters. Tests mirror `src/` inside `tests/`; styles live in Tailwind classes or `globals.css`.
