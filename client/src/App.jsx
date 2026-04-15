@@ -21,7 +21,7 @@ import AppLayout from './layouts/AppLayout'
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
-// const Welcome = lazy(() => import('./pages/Welcome'))
+const Welcome = lazy(() => import('./pages/Welcome'))
 // const Today = lazy(() => import('./pages/Today'))
 // const House = lazy(() => import('./pages/House'))
 // const PlantDetail = lazy(() => import('./pages/PlantDetail'))
@@ -71,7 +71,7 @@ export default function App() {
                 {/* Public + Onboarding routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/welcome" element={<PlaceholderPage title="Welcome" />} />
+                <Route path="/welcome" element={<Welcome />} />
 
                 {/* Protected routes */}
                 <Route element={<ProtectedAppLayout />}>
