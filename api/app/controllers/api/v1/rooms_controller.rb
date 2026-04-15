@@ -18,7 +18,7 @@ module Api
         if room.save
           render json: room, status: :created
         else
-          render json: { errors: room.errors.full_messages }, status: :unprocessable_content
+          render json: { errors: room.errors.messages }, status: :unprocessable_content
         end
       end
 
@@ -26,7 +26,7 @@ module Api
         if @room.update(room_params)
           render json: @room
         else
-          render json: { errors: @room.errors.full_messages }, status: :unprocessable_content
+          render json: { errors: @room.errors.messages }, status: :unprocessable_content
         end
       end
 

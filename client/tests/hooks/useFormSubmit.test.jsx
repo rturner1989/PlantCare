@@ -2,6 +2,7 @@ import { act, render, renderHook, screen, waitFor } from '@testing-library/react
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { ToastProvider } from '../../src/context/ToastContext'
+import { ValidationError } from '../../src/errors/ValidationError'
 import { useFormSubmit } from '../../src/hooks/useFormSubmit'
 
 // Wrapper with the real ToastProvider so useToast() inside the hook resolves
@@ -167,6 +168,111 @@ describe('useFormSubmit', () => {
 
       await userEvent.click(screen.getByRole('button', { name: 'submit' }))
       expect(await screen.findByRole('alert')).toHaveTextContent('Login failed')
+    })
+  })
+
+  describe('ValidationError handling', () => {
+    it('routes a ValidationError into fieldErrors instead of the toast', async () => {
+      const action = vi.fn().mockRejectedValue(new ValidationError({ email: 'has already been taken' }))
+      const { result } = renderHook(() => useFormSubmit({ action, errorMessage: 'Registration failed' }), { wrapper })
+
+      await act(async () => {
+        await result.current.handleSubmit(makeEvent())
+      })
+
+      expect(result.current.fieldErrors).toEqual({ email: 'has already been taken' })
+    })
+
+    it('does NOT fire a toast for ValidationErrors — the inline UI already speaks for them', async () => {
+      const action = vi.fn().mockRejectedValue(new ValidationError({ email: 'has already been taken' }))
+
+      function NoToastTestForm() {
+        const { handleSubmit } = useFormSubmit({ action, errorMessage: 'Registration failed' })
+        return (
+          <form onSubmit={handleSubmit}>
+            <button type="submit">submit</button>
+          </form>
+        )
+      }
+
+      render(
+        <ToastProvider>
+          <NoToastTestForm />
+        </ToastProvider>,
+      )
+
+      await userEvent.click(screen.getByRole('button', { name: 'submit' }))
+      await waitFor(() => expect(action).toHaveBeenCalled())
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    })
+
+    it('clears previous fieldErrors at the start of each submit', async () => {
+      let shouldFail = true
+      const action = vi.fn(() => {
+        if (shouldFail) {
+          throw new ValidationError({ email: 'has already been taken' })
+        }
+        return Promise.resolve()
+      })
+      const { result } = renderHook(() => useFormSubmit({ action }), { wrapper })
+
+      // First submit — validation failure populates fieldErrors
+      await act(async () => {
+        await result.current.handleSubmit(makeEvent())
+      })
+      expect(result.current.fieldErrors).toEqual({ email: 'has already been taken' })
+
+      // Second submit — action succeeds, fieldErrors should have been cleared
+      shouldFail = false
+      await act(async () => {
+        await result.current.handleSubmit(makeEvent())
+      })
+      expect(result.current.fieldErrors).toEqual({})
+    })
+
+    it('exposes a formRef the consumer attaches to the <form> element', () => {
+      const action = vi.fn().mockResolvedValue(undefined)
+      const { result } = renderHook(() => useFormSubmit({ action }), { wrapper })
+      expect(result.current.formRef).toBeDefined()
+      expect(result.current.formRef.current).toBeNull() // not yet attached in a renderHook context
+    })
+
+    it('focuses the first aria-invalid input inside formRef after a ValidationError', async () => {
+      const action = vi.fn().mockRejectedValue(
+        new ValidationError({
+          email: 'has already been taken',
+          passwordConfirmation: "doesn't match Password",
+        }),
+      )
+
+      function FocusTestForm() {
+        const { handleSubmit, fieldErrors, formRef } = useFormSubmit({ action })
+        return (
+          <form ref={formRef} onSubmit={handleSubmit}>
+            <input aria-label="email" aria-invalid={fieldErrors.email ? 'true' : undefined} />
+            <input
+              aria-label="passwordConfirmation"
+              aria-invalid={fieldErrors.passwordConfirmation ? 'true' : undefined}
+            />
+            <button type="submit">submit</button>
+          </form>
+        )
+      }
+
+      render(
+        <ToastProvider>
+          <FocusTestForm />
+        </ToastProvider>,
+      )
+
+      await userEvent.click(screen.getByRole('button', { name: 'submit' }))
+
+      // The email input is the first aria-invalid child, so focus should land there
+      await waitFor(() => {
+        expect(screen.getByLabelText('email')).toHaveFocus()
+      })
     })
   })
 })

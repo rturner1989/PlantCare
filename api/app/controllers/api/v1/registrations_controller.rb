@@ -9,7 +9,7 @@ module Api
         if user.save
           render json: issue_tokens(user), status: :created
         else
-          render json: { errors: user.errors.full_messages }, status: :unprocessable_content
+          render json: { errors: user.errors.messages }, status: :unprocessable_content
         end
       end
 

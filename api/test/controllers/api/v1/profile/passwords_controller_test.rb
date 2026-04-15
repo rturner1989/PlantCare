@@ -9,7 +9,7 @@ class Api::V1::Profile::PasswordsControllerTest < ActionDispatch::IntegrationTes
 
   test 'update with correct current password' do
     patch api_v1_profile_password_path, headers: auth_headers(@user),
-      params: { current_password: 'password123', user: { password: 'newpassword1', password_confirmation: 'newpassword1' } }, as: :json
+      params: { current_password: 'greenthumb99', user: { password: 'newpassword1', password_confirmation: 'newpassword1' } }, as: :json
 
     assert_response :ok
     assert @user.reload.authenticate('newpassword1')
@@ -26,14 +26,14 @@ class Api::V1::Profile::PasswordsControllerTest < ActionDispatch::IntegrationTes
 
   test 'update with mismatched confirmation fails' do
     patch api_v1_profile_password_path, headers: auth_headers(@user),
-      params: { current_password: 'password123', user: { password: 'newpassword1', password_confirmation: 'different' } }, as: :json
+      params: { current_password: 'greenthumb99', user: { password: 'newpassword1', password_confirmation: 'different' } }, as: :json
 
     assert_response :unprocessable_content
   end
 
   test 'update requires authentication' do
     patch api_v1_profile_password_path,
-      params: { current_password: 'password123', user: { password: 'newpassword1', password_confirmation: 'newpassword1' } }, as: :json
+      params: { current_password: 'greenthumb99', user: { password: 'newpassword1', password_confirmation: 'newpassword1' } }, as: :json
 
     assert_response :unauthorized
   end
