@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_09_115431) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_15_203142) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -117,6 +117,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_115431) do
     t.string "image_url"
     t.string "light_requirement"
     t.string "personality", default: "chill", null: false
+    t.boolean "popular", default: false, null: false
     t.string "scientific_name"
     t.string "source", default: "seed", null: false
     t.decimal "temperature_max", precision: 4, scale: 1
@@ -125,6 +126,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_115431) do
     t.datetime "updated_at", null: false
     t.integer "watering_frequency_days", null: false
     t.index ["common_name"], name: "index_species_on_common_name"
+    t.index ["popular"], name: "index_species_on_popular", where: "(popular = true)"
     t.index ["scientific_name"], name: "index_species_on_scientific_name"
     t.index ["source", "external_id"], name: "index_species_on_source_and_external_id", unique: true, where: "(external_id IS NOT NULL)"
   end

@@ -244,9 +244,14 @@ species_data = [
 ]
 
 species_data.each do |data|
-  Species.find_or_create_by!(common_name: data[:common_name]) do |s|
-    s.assign_attributes(data.merge(source: 'seed'))
-  end
+  species = Species.find_or_initialize_by(common_name: data[:common_name])
+  species.assign_attributes(
+    data.merge(
+      source: 'seed',
+      popular: Species::POPULAR_NAMES.include?(data[:common_name])
+    )
+  )
+  species.save!
 end
 
-puts "Seeded #{species_data.length} plant species"
+puts "Seeded #{species_data.length} plant species (#{Species::POPULAR_NAMES.length} popular)"
