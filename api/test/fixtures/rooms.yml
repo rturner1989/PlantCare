@@ -21,7 +21,7 @@
 living_room:
   user: john
   name: Living Room
-  icon: sofa
+  icon: couch
 
 bedroom:
   user: john
@@ -31,4 +31,4 @@ bedroom:
 janes_kitchen:
   user: jane
   name: Kitchen
-  icon: utensils
+  icon: kitchen

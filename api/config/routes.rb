@@ -13,6 +13,9 @@ Rails.application.routes.draw do
       resource :session, only: [:create, :destroy]
       resource :token, only: [:create]
 
+      namespace :rooms do
+        resources :presets, only: :index
+      end
       resources :rooms, only: [:index, :show, :create, :update, :destroy]
       resources :plants, only: [:index, :show, :create, :update, :destroy] do
         scope module: :plants do
