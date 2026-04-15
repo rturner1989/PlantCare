@@ -1,3 +1,8 @@
+import { NetworkError } from '../errors/NetworkError'
+import { NotFoundError } from '../errors/NotFoundError'
+import { RateLimitError } from '../errors/RateLimitError'
+import { ServerError } from '../errors/ServerError'
+import { UnauthorizedError } from '../errors/UnauthorizedError'
 import { ValidationError } from '../errors/ValidationError'
 
 // Rails attribute names are snake_case (`password_confirmation`); React form
@@ -90,11 +95,19 @@ export async function apiFetch(url, options = {}) {
     delete headers['Content-Type']
   }
 
-  let response = await fetch(url, {
-    ...options,
-    headers,
-    credentials: 'include',
-  })
+  // fetch() rejects before any response arrives (offline, DNS, CORS preflight
+  // blocked). Translate to NetworkError so consumers can distinguish "no
+  // internet" from "server said no".
+  let response
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers,
+      credentials: 'include',
+    })
+  } catch {
+    throw new NetworkError()
+  }
 
   // On 401 for an authenticated request, try refreshing the access token once
   // and retry. For unauthenticated requests (login/register), or if the refresh
@@ -115,6 +128,7 @@ export async function apiFetch(url, options = {}) {
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}))
+    const serverMessage = body.error
 
     // Rails 422 with a field-keyed errors object becomes a ValidationError.
     // Shape: { errors: { email: ["has already been taken"], ... } }
@@ -131,7 +145,17 @@ export async function apiFetch(url, options = {}) {
       throw validationError
     }
 
-    const error = new Error(body.error || `Request failed: ${response.status}`)
+    // Map HTTP status codes to named Error subclasses so consumers can
+    // handle each failure mode explicitly (see client/src/errors/). The
+    // subclass provides a sensible default message; Rails' body.error
+    // overrides it when present.
+    if (response.status === 401) throw new UnauthorizedError(serverMessage)
+    if (response.status === 404) throw new NotFoundError(serverMessage)
+    if (response.status === 429) throw new RateLimitError(serverMessage)
+    if (response.status >= 500) throw new ServerError(serverMessage, response.status)
+
+    // Anything else (400, 403, 418...) falls through to a generic Error.
+    const error = new Error(serverMessage || `Request failed: ${response.status}`)
     error.status = response.status
     error.body = body
     throw error
