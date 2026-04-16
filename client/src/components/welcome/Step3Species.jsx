@@ -7,13 +7,10 @@ import Action from '../ui/Action'
 import Badge from '../ui/Badge'
 
 // Species search has two modes, selected by query length:
-//   - short query (< 2 chars) → hit /api/v1/species with no q, which the
-//     backend answers with curated popular picks. This is the empty-state
-//     suggestion list.
-//   - longer query → pg_search on common/scientific names, with Perenual
-//     API fallback for unseeded species.
-// Both modes share the same endpoint so TanStack Query caches per key
-// transparently — retyping a previous search hits the cache.
+//   - short query (< 2 chars) → /api/v1/species with no q, answered by the
+//     backend with curated popular picks (the empty-state suggestions).
+//   - longer query → pg_search + Perenual fallback.
+// Both share the endpoint so TanStack Query caches per key transparently.
 function useSpeciesSearch(query) {
   const isSearching = query.length >= 2
   return useQuery({
@@ -38,14 +35,11 @@ function SpeciesRow({ species }) {
   )
 }
 
-export default function Step3Species({ onComplete }) {
+export default function Step3Species({ onBack, onComplete }) {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
   const [nickname, setNickname] = useState('')
 
-  // useDeferredValue keeps typing responsive while the downstream fetch
-  // catches up — React treats the deferred read as non-urgent. The deferred
-  // string feeds into useSpeciesSearch's queryKey so Query caches per term.
   const deferredQuery = useDeferredValue(query)
   const { data: results = [] } = useSpeciesSearch(deferredQuery)
 
@@ -60,63 +54,90 @@ export default function Step3Species({ onComplete }) {
   }
 
   return (
-    <div className="w-full max-w-sm">
-      <h2 className="text-2xl font-extrabold text-ink mb-2 tracking-tight">Add your first plant</h2>
-      <p className="text-sm text-ink-soft mb-6">Search for a species or skip for now.</p>
+    <div className="flex flex-col flex-1">
+      <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight">
+        Meet your <em className="not-italic text-leaf">first plant</em>.
+      </h1>
+      <p className="mt-3 text-sm text-ink-soft font-medium leading-snug">
+        Or skip — you can add plants anytime from the Add button.
+      </p>
 
-      {!selected && (
-        <SearchField
-          label="Search species"
-          placeholder="e.g. Monstera, Snake Plant..."
-          query={query}
-          onQueryChange={setQuery}
-          results={results}
-          onSelect={handleSelect}
-          getOptionKey={(species) => species.id ?? species.common_name}
-          renderOption={(species) => <SpeciesRow species={species} />}
-        />
-      )}
-
-      {selected && (
-        <div className="mb-4">
-          <div className="p-4 rounded-2xl text-white mb-4" style={{ background: 'var(--gradient-forest)' }}>
-            <p className="text-lg font-extrabold">{selected.common_name}</p>
-            {selected.scientific_name && <p className="text-sm italic opacity-80">{selected.scientific_name}</p>}
-            <div className="flex gap-2 mt-2">
-              {selected.personality && (
-                <span className="text-xs font-bold bg-lime/20 text-lime px-2 py-1 rounded-full">
-                  {selected.personality}
-                </span>
-              )}
-              {selected.difficulty && (
-                <span className="text-xs font-bold bg-white/20 text-white px-2 py-1 rounded-full">
-                  {selected.difficulty}
-                </span>
-              )}
-            </div>
-          </div>
-
-          <TextInput
-            label="Nickname"
-            type="text"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            placeholder={selected.common_name}
+      <div className="mt-5">
+        {!selected && (
+          <SearchField
+            label="Search species"
+            placeholder="e.g. Monstera, Snake Plant..."
+            query={query}
+            onQueryChange={setQuery}
+            results={results}
+            onSelect={handleSelect}
+            getOptionKey={(species) => species.id ?? species.common_name}
+            renderOption={(species) => <SpeciesRow species={species} />}
           />
+        )}
 
-          <Action variant="unstyled" onClick={clearSelection} className="mt-2 text-xs text-ink-soft underline">
-            Choose a different species
-          </Action>
-        </div>
-      )}
+        {selected && (
+          <div>
+            <div className="p-4 rounded-2xl text-white" style={{ background: 'var(--gradient-forest)' }}>
+              <p className="text-[9px] font-extrabold text-lime uppercase tracking-wider mb-1">Species selected</p>
+              <p className="text-lg font-extrabold">{selected.common_name}</p>
+              {selected.scientific_name && <p className="text-xs italic opacity-70">{selected.scientific_name}</p>}
+              <div className="flex gap-2 mt-3">
+                {selected.personality && (
+                  <span className="text-[10px] font-bold bg-white/10 text-lime px-2.5 py-1 rounded-full">
+                    {selected.personality}
+                  </span>
+                )}
+                {selected.difficulty && (
+                  <span className="text-[10px] font-bold bg-white/10 text-lime px-2.5 py-1 rounded-full">
+                    {selected.difficulty}
+                  </span>
+                )}
+              </div>
+            </div>
 
-      <Action
-        variant={selected ? 'primary' : 'secondary'}
-        onClick={() => onComplete(selected, nickname)}
-        className="w-full mt-4"
-      >
-        {selected ? 'Continue' : 'Skip for now'}
-      </Action>
+            <div className="mt-4">
+              <TextInput
+                label="What should we call them?"
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder={selected.common_name}
+                hint={
+                  nickname
+                    ? `Nice choice. I already like ${nickname}.`
+                    : `Leave blank and we'll call them ${selected.common_name}.`
+                }
+              />
+            </div>
+
+            <Action variant="unstyled" onClick={clearSelection} className="mt-3 text-xs text-ink-soft underline">
+              Choose a different species
+            </Action>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-auto pt-6 flex gap-2.5">
+        <Action variant="secondary" onClick={onBack}>
+          Back
+        </Action>
+        <Action
+          variant="primary"
+          onClick={() => onComplete(selected, nickname)}
+          disabled={!selected}
+          className="flex-1"
+        >
+          Continue
+        </Action>
+      </div>
+
+      <p className="mt-3 text-center text-xs text-ink-soft font-bold">
+        Prefer to do this later?{' '}
+        <Action variant="unstyled" onClick={() => onComplete(null, '')} className="text-emerald">
+          Skip for now
+        </Action>
+      </p>
     </div>
   )
 }

@@ -2,18 +2,25 @@ import Action from '../ui/Action'
 
 export default function Step1Intro({ onNext }) {
   return (
-    <div className="w-full max-w-sm text-center">
-      <div className="text-6xl mb-6">🌿</div>
-      <h1 className="font-display text-4xl font-extrabold italic text-ink mb-4 tracking-tight">
+    <>
+      <div className="text-center py-3" aria-hidden="true">
+        <div className="text-7xl">🌿</div>
+      </div>
+
+      <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight mt-2">
         {"Let's set up your "}
-        <em className="text-leaf">garden</em>
+        <em className="not-italic text-leaf">garden</em>.
       </h1>
-      <p className="text-ink-soft mb-8">
-        {"We'll get your rooms ready and add your first plant. It only takes a minute."}
+
+      <p className="mt-3 text-sm text-ink-soft font-medium leading-snug">
+        {"We'll ask a few quick questions so we can calculate the perfect care schedule. Takes about a minute."}
       </p>
-      <Action variant="primary" onClick={onNext}>
-        Get started
-      </Action>
-    </div>
+
+      <div className="mt-auto pt-6">
+        <Action variant="primary" onClick={onNext} className="w-full">
+          {"Let's begin"}
+        </Action>
+      </div>
+    </>
   )
 }

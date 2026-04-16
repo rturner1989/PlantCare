@@ -1,3 +1,4 @@
+import { faDroplet, faSun, faTemperatureHalf } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react'
 import { apiPost } from '../../api/client'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
@@ -5,9 +6,14 @@ import SegmentedControl from '../form/SegmentedControl'
 import Action from '../ui/Action'
 
 const ENVIRONMENT_FIELDS = [
-  { key: 'light_level', label: 'Light', options: ['low', 'medium', 'bright'] },
-  { key: 'temperature_level', label: 'Temperature', options: ['cool', 'average', 'warm'] },
-  { key: 'humidity_level', label: 'Humidity', options: ['dry', 'average', 'humid'] },
+  { key: 'light_level', label: 'Light', icon: faSun, options: ['low', 'medium', 'bright'] },
+  {
+    key: 'temperature_level',
+    label: 'Temperature',
+    icon: faTemperatureHalf,
+    options: ['cool', 'average', 'warm'],
+  },
+  { key: 'humidity_level', label: 'Humidity', icon: faDroplet, options: ['dry', 'average', 'humid'] },
 ]
 
 const DEFAULT_ENVIRONMENT = {
@@ -16,7 +22,7 @@ const DEFAULT_ENVIRONMENT = {
   humidity_level: 'average',
 }
 
-export default function Step4Environment({ species, nickname, roomId, onComplete }) {
+export default function Step4Environment({ species, nickname, roomId, onBack, onComplete }) {
   const [environment, setEnvironment] = useState(DEFAULT_ENVIRONMENT)
 
   const { submitting, handleSubmit, formRef } = useFormSubmit({
@@ -34,26 +40,43 @@ export default function Step4Environment({ species, nickname, roomId, onComplete
     errorMessage: 'Could not add plant',
   })
 
+  const plantLabel = nickname || species?.common_name || 'your plant'
+
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="w-full max-w-sm">
-      <h2 className="text-2xl font-extrabold text-ink mb-2 tracking-tight">{"How's the environment?"}</h2>
-      <p className="text-sm text-ink-soft mb-6">{"This helps us calculate your plant's care schedule."}</p>
+    <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col flex-1">
+      <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight">
+        {'Tell me about '}
+        <em className="not-italic text-leaf">{plantLabel}&rsquo;s spot</em>.
+      </h1>
+      <p className="mt-3 text-sm text-ink-soft font-medium leading-snug">
+        {"I'll calculate the perfect care schedule based on the environment."}
+      </p>
 
-      {ENVIRONMENT_FIELDS.map(({ key, label, options }) => (
-        <SegmentedControl
-          key={key}
-          label={label}
-          value={environment[key]}
-          onChange={(next) => setEnvironment((prev) => ({ ...prev, [key]: next }))}
-          options={options}
-        />
-      ))}
+      <div className="mt-5">
+        {ENVIRONMENT_FIELDS.map(({ key, label, icon, options }) => (
+          <SegmentedControl
+            key={key}
+            label={label}
+            icon={icon}
+            value={environment[key]}
+            onChange={(next) => setEnvironment((prev) => ({ ...prev, [key]: next }))}
+            options={options}
+          />
+        ))}
 
-      <p className="text-xs text-ink-soft mb-6">Not sure? You can update anytime.</p>
+        <p className="text-center text-xs text-ink-soft font-medium italic mt-2">
+          Not sure? You can update these anytime.
+        </p>
+      </div>
 
-      <Action type="submit" variant="primary" disabled={submitting} className="w-full">
-        {submitting ? 'Adding plant...' : 'Continue'}
-      </Action>
+      <div className="mt-auto pt-6 flex gap-2.5">
+        <Action variant="secondary" onClick={onBack}>
+          Back
+        </Action>
+        <Action type="submit" variant="primary" disabled={submitting} className="flex-1">
+          {submitting ? 'Adding plant...' : 'Continue'}
+        </Action>
+      </div>
     </form>
   )
 }

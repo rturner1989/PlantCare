@@ -1,32 +1,41 @@
 import { useAuth } from '../../hooks/useAuth'
 import Action from '../ui/Action'
-import Card from '../ui/Card'
 
 export default function Step5Done({ species, nickname, onFinish }) {
   const { user } = useAuth()
+  const plantName = nickname || species?.common_name
 
   return (
-    <div className="w-full max-w-sm text-center">
-      <div className="text-6xl mb-6">✨</div>
-      <h1 className="font-display text-4xl font-extrabold italic text-ink mb-4 tracking-tight">
+    <div className="flex flex-col flex-1">
+      <div className="text-center py-3" aria-hidden="true">
+        <div className="text-7xl">✨</div>
+      </div>
+
+      <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight mt-2">
         {"You're "}
-        <em className="text-leaf">all set</em>
-        {user?.name ? `, ${user.name}` : ''}
+        <em className="not-italic text-leaf">all set</em>
+        {user?.name ? `, ${user.name.split(' ')[0]}` : ''}.
       </h1>
-      <p className="text-ink-soft mb-6">Your garden is ready. Time to start caring.</p>
 
       {species && (
-        <Card className="p-4 border-l-4 mb-6 text-left" style={{ borderLeftColor: 'var(--leaf)' }}>
-          <p className="text-sm italic text-ink-soft font-display">
+        <div
+          className="mt-4 p-4 rounded-2xl text-white relative overflow-hidden"
+          style={{ background: 'var(--gradient-forest)' }}
+        >
+          <p className="text-[9px] font-extrabold text-lime uppercase tracking-wider mb-1.5">
+            {species.personality ? `🎭 ${plantName?.toUpperCase() ?? ''}` : plantName?.toUpperCase()}
+          </p>
+          <p className="font-display text-base italic font-medium leading-snug pl-2.5 border-l-2 border-coral">
             {'"I\'m having the best day. Every day is the best day."'}
           </p>
-          <p className="text-xs text-ink-soft mt-2 font-bold">{`- ${nickname || species.common_name}`}</p>
-        </Card>
+        </div>
       )}
 
-      <Action variant="primary" onClick={onFinish}>
-        Enter your jungle
-      </Action>
+      <div className="mt-auto pt-6">
+        <Action variant="primary" onClick={onFinish} className="w-full">
+          Enter your jungle
+        </Action>
+      </div>
     </div>
   )
 }
