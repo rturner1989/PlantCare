@@ -42,7 +42,7 @@ export default function Step3Species({
   })
 
   const deferredQuery = useDeferredValue(query)
-  const { data: results = [] } = useSpeciesSearch(deferredQuery)
+  const { data: results = [], isFetching } = useSpeciesSearch(deferredQuery)
 
   // Preload images of visible results into the browser cache so when the
   // user picks one, the selected-species card shows the photo immediately
@@ -88,8 +88,9 @@ export default function Step3Species({
               onQueryChange={setQuery}
               results={results}
               onSelect={handleSelect}
-              getOptionKey={(species) => species.id ?? species.common_name}
+              getOptionKey={(species) => species.id ?? species.perenual_id ?? species.common_name}
               renderOption={(species) => <SpeciesRow species={species} />}
+              loading={isFetching}
             />
           )}
 
