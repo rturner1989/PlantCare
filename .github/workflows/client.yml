@@ -56,9 +56,43 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+
+    # E2E tests hit a real Rails backend — the onboarding flow's value is
+    # in the server round-trips (register, room CRUD, species search,
+    # onboarding completion). We mirror the local dev stack: postgres +
+    # Rails on :3000, Vite dev server on :5173 proxying /api → :3000.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: plantcare
+          POSTGRES_PASSWORD: plantcare_dev
+          POSTGRES_DB: plantcare_development
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U plantcare"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      RAILS_ENV: development
+      DB_HOST: localhost
+      DB_USERNAME: plantcare
+      DB_PASSWORD: plantcare_dev
+      JWT_SECRET: test_jwt_secret_for_ci_only
+      VITE_API_URL: http://localhost:3000
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          working-directory: api
+          bundler-cache: true
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -67,7 +101,7 @@ jobs:
           cache: npm
           cache-dependency-path: client/package-lock.json
 
-      - name: Install dependencies
+      - name: Install client dependencies
         run: npm ci
 
       - name: Cache Playwright browsers
@@ -85,13 +119,34 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
-      - name: Build app
-        run: npm run build
+      - name: Prepare database
+        working-directory: api
+        run: bin/rails db:prepare
+
+      - name: Start Rails API
+        working-directory: api
+        run: |
+          bin/rails server -p 3000 -b 0.0.0.0 > /tmp/rails.log 2>&1 &
+          echo $! > /tmp/rails.pid
+          for i in {1..30}; do
+            if curl -sf http://localhost:3000/up > /dev/null; then
+              echo "Rails ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Rails failed to start"
+          cat /tmp/rails.log
+          exit 1
 
       - name: Run Playwright tests
         run: npm test
         env:
           CI: true
+
+      - name: Stop Rails API
+        if: always()
+        run: kill "$(cat /tmp/rails.pid)" 2>/dev/null || true
 
       - name: Upload test artifacts
         if: failure()
@@ -101,4 +156,5 @@ jobs:
           path: |
             client/test-results/
             client/playwright-report/
+            /tmp/rails.log
           retention-days: 7
