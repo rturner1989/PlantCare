@@ -32,8 +32,11 @@ import { useId } from 'react'
  */
 
 const LABEL_TEXT = 'text-xs font-bold text-ink-soft uppercase tracking-wider'
+// text-base (16px) specifically — iOS Safari auto-zooms into any input
+// below 16px on focus and doesn't zoom back out, which breaks the layout
+// of every form-bearing page.
 const INPUT_BASE =
-  'mt-1 w-full px-4 py-3 rounded-md bg-mint/50 border text-ink text-sm font-semibold transition-all focus:outline-none focus:ring-4'
+  'mt-1 w-full px-4 py-3 rounded-md bg-mint/50 border text-ink text-base font-semibold transition-all focus:outline-none focus:ring-4'
 const INPUT_VALID = 'border-mint focus:border-leaf focus:ring-leaf/20'
 const INPUT_INVALID = 'border-coral focus:border-coral focus:ring-coral/20'
 

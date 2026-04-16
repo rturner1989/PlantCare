@@ -74,4 +74,46 @@ class UserTest < ActiveSupport::TestCase
                         password_confirmation: 'greenthumb99')
     assert_equal 'test@example.com', user.email
   end
+
+  test 'onboarded? is false for new users' do
+    user = users(:john)
+    assert_nil user.onboarding_completed_at
+    assert_not user.onboarded?
+  end
+
+  test 'onboarded? becomes true once onboarding_completed_at is set' do
+    user = users(:john)
+    user.update!(onboarding_completed_at: Time.current)
+    assert user.onboarded?
+  end
+
+  test 'complete_onboarding! sets the timestamp and flips onboarded?' do
+    user = users(:john)
+    assert_not user.onboarded?
+
+    freeze_time do
+      user.complete_onboarding!
+      assert user.onboarded?
+      assert_equal Time.current, user.onboarding_completed_at
+    end
+  end
+
+  test 'complete_onboarding! is idempotent — does not bump the timestamp' do
+    user = users(:john)
+    user.complete_onboarding!
+    original = user.onboarding_completed_at
+
+    travel 1.day do
+      user.complete_onboarding!
+      assert_in_delta original.to_f, user.reload.onboarding_completed_at.to_f, 0.001
+    end
+  end
+
+  test 'as_json exposes onboarded boolean' do
+    user = users(:john)
+    assert_equal false, user.as_json[:onboarded]
+
+    user.update!(onboarding_completed_at: Time.current)
+    assert_equal true, user.as_json[:onboarded]
+  end
 end

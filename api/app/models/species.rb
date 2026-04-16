@@ -15,6 +15,7 @@
 #  image_url               :string
 #  light_requirement       :string
 #  personality             :string           default("chill"), not null
+#  popular                 :boolean          default(FALSE), not null
 #  scientific_name         :string
 #  source                  :string           default("seed"), not null
 #  temperature_max         :decimal(4, 1)
@@ -28,11 +29,25 @@
 # Indexes
 #
 #  index_species_on_common_name             (common_name)
+#  index_species_on_popular                 (popular) WHERE (popular = true)
 #  index_species_on_scientific_name         (scientific_name)
 #  index_species_on_source_and_external_id  (source,external_id) UNIQUE WHERE (external_id IS NOT NULL)
 #
 class Species < ApplicationRecord
   include PgSearch::Model
+
+  # Species surfaced as empty-state suggestions in the onboarding search
+  # picker (before the user has typed anything). Curated for beginner
+  # friendliness + iconic status. The seed reads this list and flags
+  # matching rows with `popular: true` on insert/update.
+  POPULAR_NAMES = [
+    'Monstera Deliciosa',
+    'Snake Plant',
+    'Pothos',
+    'Spider Plant',
+    'ZZ Plant',
+    'Aloe Vera'
+  ].freeze
 
   pg_search_scope :search,
     against: [:common_name, :scientific_name],
@@ -40,6 +55,8 @@ class Species < ApplicationRecord
       tsearch: { prefix: true },
       trigram: {}
     }
+
+  scope :popular, -> { where(popular: true) }
 
   validates :common_name, presence: true
   validates :watering_frequency_days, presence: true, numericality: { greater_than: 0 }
@@ -94,6 +111,7 @@ class Species < ApplicationRecord
       difficulty: difficulty,
       growth_rate: growth_rate,
       personality: personality,
+      popular: popular,
       description: description,
       care_tips: care_tips,
       image_url: image_url

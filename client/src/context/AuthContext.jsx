@@ -106,6 +106,11 @@ export function AuthProvider({ children }) {
     return data.user
   }, [])
 
+  const markOnboarded = useCallback(async () => {
+    const updatedUser = await apiPost('/api/v1/onboarding/completion', {})
+    setUser(updatedUser)
+  }, [])
+
   const logout = useCallback(async () => {
     try {
       await apiDelete('/api/v1/session')
@@ -119,8 +124,8 @@ export function AuthProvider({ children }) {
   }, [])
 
   const value = useMemo(
-    () => ({ user, loading, login, register, logout, refreshToken }),
-    [user, loading, login, register, logout, refreshToken],
+    () => ({ user, loading, login, register, logout, refreshToken, markOnboarded }),
+    [user, loading, login, register, logout, refreshToken, markOnboarded],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

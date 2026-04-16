@@ -12,7 +12,8 @@
 #
 # Indexes
 #
-#  index_rooms_on_user_id  (user_id)
+#  index_rooms_on_user_id                 (user_id)
+#  index_rooms_on_user_id_and_lower_name  (user_id, lower((name)::text)) UNIQUE
 #
 # Foreign Keys
 #
@@ -21,7 +22,7 @@
 living_room:
   user: john
   name: Living Room
-  icon: sofa
+  icon: couch
 
 bedroom:
   user: john
@@ -31,4 +32,4 @@ bedroom:
 janes_kitchen:
   user: jane
   name: Kitchen
-  icon: utensils
+  icon: kitchen

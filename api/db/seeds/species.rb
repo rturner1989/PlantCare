@@ -15,7 +15,8 @@ species_data = [
     growth_rate: 'fast',
     personality: 'dramatic',
     description: 'A popular tropical plant known for its large, split leaves. Native to Central American rainforests.',
-    care_tips: 'Likes to dry out slightly between waterings. Appreciates a moss pole for climbing. Wipe leaves to keep them dust-free.'
+    care_tips: 'Likes to dry out slightly between waterings. Appreciates a moss pole for climbing. Wipe leaves to keep them dust-free.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Monstera_deliciosa2.jpg/330px-Monstera_deliciosa2.jpg'
   },
   {
     common_name: 'Snake Plant',
@@ -31,7 +32,8 @@ species_data = [
     growth_rate: 'slow',
     personality: 'chill',
     description: 'An extremely resilient plant with tall, upright leaves. One of the best air-purifying plants.',
-    care_tips: 'Very drought-tolerant. Overwatering is the most common mistake. Let soil dry completely between waterings.'
+    care_tips: 'Very drought-tolerant. Overwatering is the most common mistake. Let soil dry completely between waterings.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Snake_Plant_%28Sansevieria_trifasciata_%27Laurentii%27%29.jpg/330px-Snake_Plant_%28Sansevieria_trifasciata_%27Laurentii%27%29.jpg'
   },
   {
     common_name: 'Pothos',
@@ -47,7 +49,8 @@ species_data = [
     growth_rate: 'fast',
     personality: 'chill',
     description: 'A trailing vine with heart-shaped leaves. Extremely easy to care for and propagate.',
-    care_tips: 'Tolerates low light but grows faster in bright indirect light. Let top inch of soil dry between waterings.'
+    care_tips: 'Tolerates low light but grows faster in bright indirect light. Let top inch of soil dry between waterings.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Money_Plant_%28Epipremnum_aureum%29_4.jpg/330px-Money_Plant_%28Epipremnum_aureum%29_4.jpg'
   },
   {
     common_name: 'Cactus',
@@ -63,7 +66,8 @@ species_data = [
     growth_rate: 'slow',
     personality: 'prickly',
     description: 'Desert-adapted plants that store water in their stems. Come in a huge variety of shapes and sizes.',
-    care_tips: 'Water only when soil is completely dry. Needs lots of direct sunlight. Use well-draining cactus soil.'
+    care_tips: 'Water only when soil is completely dry. Needs lots of direct sunlight. Use well-draining cactus soil.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Various_Cactaceae.jpg/330px-Various_Cactaceae.jpg'
   },
   {
     common_name: 'Boston Fern',
@@ -79,7 +83,8 @@ species_data = [
     growth_rate: 'moderate',
     personality: 'needy',
     description: 'A lush, feathery fern that loves humidity. Beautiful hanging plant but requires consistent care.',
-    care_tips: 'Keep soil consistently moist but not soggy. Mist regularly or use a humidity tray. Brown tips mean it needs more humidity.'
+    care_tips: 'Keep soil consistently moist but not soggy. Mist regularly or use a humidity tray. Brown tips mean it needs more humidity.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Boston_Fern_%282873392811%29.png/330px-Boston_Fern_%282873392811%29.png'
   },
   {
     common_name: 'Fiddle Leaf Fig',
@@ -95,7 +100,8 @@ species_data = [
     growth_rate: 'moderate',
     personality: 'dramatic',
     description: 'A stunning tree with large, violin-shaped leaves. A statement plant that can be finicky about its environment.',
-    care_tips: 'Hates being moved. Sensitive to drafts and temperature changes. Water when top 2 inches of soil are dry. Wipe leaves monthly.'
+    care_tips: 'Hates being moved. Sensitive to drafts and temperature changes. Water when top 2 inches of soil are dry. Wipe leaves monthly.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Starr_031108-0130_Ficus_lyrata.jpg/330px-Starr_031108-0130_Ficus_lyrata.jpg'
   },
   {
     common_name: 'Spider Plant',
@@ -111,7 +117,8 @@ species_data = [
     growth_rate: 'fast',
     personality: 'chill',
     description: 'A classic houseplant that produces baby spiderettes on long stems. Excellent air purifier.',
-    care_tips: 'Very forgiving. Brown tips usually mean fluoride in water — try filtered water. Produces babies when slightly root-bound.'
+    care_tips: 'Very forgiving. Brown tips usually mean fluoride in water — try filtered water. Produces babies when slightly root-bound.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Hierbabuena_0611_Revised.jpg/330px-Hierbabuena_0611_Revised.jpg'
   },
   {
     common_name: 'Peace Lily',
@@ -127,7 +134,8 @@ species_data = [
     growth_rate: 'moderate',
     personality: 'dramatic',
     description: 'An elegant plant with glossy leaves and white flower-like spathes. Dramatically wilts when thirsty but recovers quickly.',
-    care_tips: 'Will dramatically droop when it needs water — don\'t panic, it recovers fast. Prefers filtered light. Blooms more with brighter light.'
+    care_tips: 'Will dramatically droop when it needs water — don\'t panic, it recovers fast. Prefers filtered light. Blooms more with brighter light.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Spathiphyllum_cochlearispathum_RTBG.jpg/330px-Spathiphyllum_cochlearispathum_RTBG.jpg'
   },
   {
     common_name: 'Aloe Vera',
@@ -143,7 +151,8 @@ species_data = [
     growth_rate: 'moderate',
     personality: 'stoic',
     description: 'A practical succulent with thick, gel-filled leaves. The gel has soothing and healing properties.',
-    care_tips: 'Water deeply but infrequently. Must have well-draining soil. Leaves turning brown means too much direct sun.'
+    care_tips: 'Water deeply but infrequently. Must have well-draining soil. Leaves turning brown means too much direct sun.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Aloe_vera_flower_inset.png/330px-Aloe_vera_flower_inset.png'
   },
   {
     common_name: 'Rubber Plant',
@@ -159,7 +168,8 @@ species_data = [
     growth_rate: 'moderate',
     personality: 'stoic',
     description: 'A bold, architectural plant with thick, glossy leaves. Easier to care for than its relative the Fiddle Leaf Fig.',
-    care_tips: 'Wipe leaves to maintain their shine. Allow top inch of soil to dry between waterings. Can tolerate some neglect.'
+    care_tips: 'Wipe leaves to maintain their shine. Allow top inch of soil to dry between waterings. Can tolerate some neglect.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Ficus_elastica_leaves_02.JPG/330px-Ficus_elastica_leaves_02.JPG'
   },
   {
     common_name: 'ZZ Plant',
@@ -175,7 +185,8 @@ species_data = [
     growth_rate: 'slow',
     personality: 'stoic',
     description: 'Nearly indestructible with glossy, waxy leaves. Stores water in its rhizomes so tolerates serious neglect.',
-    care_tips: 'Thrives on neglect. Water only when completely dry. One of the best low-light plants. Avoid overwatering at all costs.'
+    care_tips: 'Thrives on neglect. Water only when completely dry. One of the best low-light plants. Avoid overwatering at all costs.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Zamioculcas_zamiifolia_1.jpg/330px-Zamioculcas_zamiifolia_1.jpg'
   },
   {
     common_name: 'Calathea',
@@ -191,7 +202,8 @@ species_data = [
     growth_rate: 'moderate',
     personality: 'needy',
     description: 'Known for their stunning patterned leaves that fold up at night (prayer movements). Beautiful but demanding.',
-    care_tips: 'Very sensitive to tap water — use filtered or rainwater. Needs high humidity. Crispy edges mean low humidity. Keep soil evenly moist.'
+    care_tips: 'Very sensitive to tap water — use filtered or rainwater. Needs high humidity. Crispy edges mean low humidity. Keep soil evenly moist.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Starr_080716-9470_Calathea_crotalifera.jpg/330px-Starr_080716-9470_Calathea_crotalifera.jpg'
   },
   {
     common_name: 'String of Pearls',
@@ -207,7 +219,8 @@ species_data = [
     growth_rate: 'fast',
     personality: 'dramatic',
     description: 'A trailing succulent with round, bead-like leaves. Stunning in a hanging planter.',
-    care_tips: 'Water only when pearls start to look slightly deflated. Very prone to root rot if overwatered. Needs good drainage.'
+    care_tips: 'Water only when pearls start to look slightly deflated. Very prone to root rot if overwatered. Needs good drainage.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Senecio_rowleyanus_leaves.jpg/330px-Senecio_rowleyanus_leaves.jpg'
   },
   {
     common_name: 'Jade Plant',
@@ -223,7 +236,8 @@ species_data = [
     growth_rate: 'slow',
     personality: 'stoic',
     description: 'A classic succulent that can live for decades, developing a thick trunk over time. Symbol of good luck.',
-    care_tips: 'Water when soil is completely dry. Can handle direct sun. Wrinkled leaves mean it needs water. Very long-lived with proper care.'
+    care_tips: 'Water when soil is completely dry. Can handle direct sun. Wrinkled leaves mean it needs water. Very long-lived with proper care.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Crassula_ovata_700.jpg/330px-Crassula_ovata_700.jpg'
   },
   {
     common_name: 'Philodendron',
@@ -239,14 +253,20 @@ species_data = [
     growth_rate: 'fast',
     personality: 'chill',
     description: 'A diverse genus of tropical plants. Heart-leaf varieties trail beautifully, while tree types grow upright.',
-    care_tips: 'Easy-going and forgiving. Yellow leaves usually mean overwatering. Let top inch of soil dry between waterings.'
+    care_tips: 'Easy-going and forgiving. Yellow leaves usually mean overwatering. Let top inch of soil dry between waterings.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Philodendron_giganteum_-_Laeken_Royal_Greenhouses_-_Royal_Castle_of_Laeken_-_Brussels%2C_Belgium_-_DSC07236.jpg/330px-Philodendron_giganteum_-_Laeken_Royal_Greenhouses_-_Royal_Castle_of_Laeken_-_Brussels%2C_Belgium_-_DSC07236.jpg'
   }
 ]
 
 species_data.each do |data|
-  Species.find_or_create_by!(common_name: data[:common_name]) do |s|
-    s.assign_attributes(data.merge(source: 'seed'))
-  end
+  species = Species.find_or_initialize_by(common_name: data[:common_name])
+  species.assign_attributes(
+    data.merge(
+      source: 'seed',
+      popular: Species::POPULAR_NAMES.include?(data[:common_name])
+    )
+  )
+  species.save!
 end
 
-puts "Seeded #{species_data.length} plant species"
+puts "Seeded #{species_data.length} plant species (#{Species::POPULAR_NAMES.length} popular)"

@@ -4,7 +4,11 @@ module Api
   module V1
     class SpeciesController < BaseController
       def index
-        results = Species.search_with_api(params[:q])
+        results = if params[:q].present?
+          Species.search_with_api(params[:q])
+        else
+          Species.popular.order(:common_name).limit(10)
+        end
 
         render json: results
       end

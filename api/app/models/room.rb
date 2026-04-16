@@ -14,17 +14,29 @@
 #
 # Indexes
 #
-#  index_rooms_on_user_id  (user_id)
+#  index_rooms_on_user_id                 (user_id)
+#  index_rooms_on_user_id_and_lower_name  (user_id, lower((name)::text)) UNIQUE
 #
 # Foreign Keys
 #
 #  fk_rails_...  (user_id => users.id)
 #
 class Room < ApplicationRecord
+  ICONS = %w[couch kitchen bed bath desk].freeze
+
+  PRESETS = [
+    { name: 'Living Room', icon: 'couch' },
+    { name: 'Kitchen', icon: 'kitchen' },
+    { name: 'Bedroom', icon: 'bed' },
+    { name: 'Bathroom', icon: 'bath' },
+    { name: 'Office', icon: 'desk' }
+  ].freeze
+
   belongs_to :user
   has_many :plants, dependent: :destroy
 
-  validates :name, presence: true
+  validates :name, presence: true, uniqueness: { scope: :user_id, case_sensitive: false }
+  validates :icon, inclusion: { in: ICONS }, allow_blank: true
 
   def as_json(_options = {})
     {

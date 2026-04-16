@@ -41,4 +41,16 @@ class SpeciesTest < ActiveSupport::TestCase
     results = Species.search('unicorn')
     assert_empty results
   end
+
+  test 'popular scope returns only flagged species' do
+    results = Species.popular
+    assert_includes results.map(&:common_name), 'Monstera Deliciosa'
+    assert_includes results.map(&:common_name), 'Snake Plant'
+    assert_not_includes results.map(&:common_name), 'Cactus'
+  end
+
+  test 'popular defaults to false for new species' do
+    species = Species.new(common_name: 'Orchid', watering_frequency_days: 7, personality: 'needy')
+    assert_not species.popular
+  end
 end

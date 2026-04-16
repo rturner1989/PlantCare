@@ -75,10 +75,20 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  /* Paint the gradient on <html> so iOS PWA standalone mode extends it
+   * into the safe-area insets (notch, home indicator). If it lives on
+   * <body>, the insets render as the default white behind the body. */
+  background: var(--gradient-mint);
+}
+
 body {
   margin: 0;
   background: var(--gradient-mint);
   min-height: 100dvh;
+  /* Lock horizontal scroll — iOS sometimes overflows by a pixel or two
+   * after zooming, and no layout in the app should scroll horizontally. */
+  overflow-x: hidden;
 }
 
 #root {
@@ -93,6 +103,19 @@ body {
  */
 @utility max-w-auth {
   max-width: 420px;
+}
+
+/* Card-surface reveal: used anywhere a panel replaces another panel in
+ * place and we want the new one to feel intentional rather than snap in. */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Toast progress bar — two animations on one element:

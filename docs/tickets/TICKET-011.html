@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-011: Data-driven popular species rankings</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+.badge.priority-low { background: #a8dadc; color: #1a1a1a; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 80px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.page { background: #2d6a4f; }
+.artifact .kind.component { background: #1a1a2e; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.hook { background: #4a6fa5; }
+.artifact .kind.util { background: #6a4a8f; }
+.artifact .kind.job { background: #4a6fa5; }
+.artifact .kind.model { background: #2d6a4f; }
+.artifact .kind.config { background: #6a4a8f; }
+.artifact .kind.migration { background: #e63946; color: #fff; }
+.artifact .kind.test { background: #888; }
+
+.shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.plan-link:hover { background: #e6e6de; }
+
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-011</div>
+    <h1>Data-driven popular species rankings</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-medium">Medium</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Replace the hardcoded <code>Species::POPULAR_NAMES</code> list with a nightly Sidekiq job that rebuilds popularity from real user adoption — ranking species by <em>distinct users who own one</em>, not total plant count. Below a configurable volume threshold, the job keeps the editorial list as a fallback so cold-start onboarding doesn't see a near-empty list or a list skewed by the first three signups.</p>
+    <p>In one sentence: <strong>let the users decide which species are "popular", but don't trust them until there are enough of them.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">01</span>Tokens</div>
+      <div class="plan-step done"><span class="num">02</span>API</div>
+      <div class="plan-step done"><span class="num">03</span>Auth</div>
+      <div class="plan-step done"><span class="num">04</span>Shell</div>
+      <div class="plan-step done"><span class="num">05</span>Auth UI</div>
+      <div class="plan-step done"><span class="num">06</span>Onboard</div>
+      <div class="plan-step"><span class="num">07</span>Hooks</div>
+      <div class="plan-step"><span class="num">08</span>Primitives</div>
+      <div class="plan-step"><span class="num">09</span>Today</div>
+      <div class="plan-step"><span class="num">10</span>House</div>
+      <div class="plan-step current"><span class="num">11</span>Popularity</div>
+      <div class="plan-step"><span class="num">12–14</span>Detail &amp; polish</div>
+    </div>
+    <p><strong>What came before:</strong> ticket 6 shipped the onboarding wizard with a "popular picks" empty state on Step&nbsp;3 — the chips a user sees before typing into species search. It reads <code>species.popular = true</code>, which today is set from a hand-curated list in <code>Species::POPULAR_NAMES</code>.</p>
+    <p><strong>What this unlocks:</strong> launch-readiness for the onboarding wizard. As soon as the product has a few hundred users, the empty state starts reflecting what people actually grow instead of your taste. It also gives you one test-bed Sidekiq job, which will come up again in Phase 2 (reminders / adaptive scheduling).</p>
+    <p><strong>Parallel track:</strong> tickets 7–10 are a frontend sequence. This one is backend-only — it can slot in at any point while the frontend work is in flight. It does not block and is not blocked by any of them.</p>
+    <p><strong>Mental model:</strong> a <code>counter_cache</code> you compute on a schedule instead of on every insert. Same idea — denormalise a count onto the parent row — except the "count" is "distinct users", the refresh is batched overnight, and there's a cold-start fallback so the count is allowed to be unreliable while the dataset is small.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <p>A Sidekiq job, a scheduler wiring, a pair of small Species-model additions, a test, and a one-line change to the seed so the editorial fallback is always present as a starting state.</p>
+    <div class="artifact-list">
+
+      <div class="artifact">
+        <span class="kind job">job</span><span class="name">api/app/jobs/recalculate_species_popularity_job.rb</span>
+        <div class="role">The nightly job. Counts distinct users per species by joining through <code>Plant → Room → User</code>. If the total signal (number of users who own any plant) is below a threshold, leaves the editorial fallback intact and exits. Otherwise, flips the <code>popular</code> flag for the top N species by distinct-user count and clears it on the rest — except editorial species are still allowed to stay "popular" if they'd otherwise drop out, so the empty state never falls below a floor count. Idempotent: re-running mid-day produces the same result as the 3am run.</div>
+      </div>
+
+      <div class="artifact">
+        <span class="kind config">config</span><span class="name">api/config/schedule.yml</span>
+        <div class="role">The Sidekiq schedule. One entry: run the job every night at ~3am server time. Wired via <code>sidekiq-cron</code> (or the scheduler of your choice; see Notes). Held in YAML so the cadence is reviewable without grepping Ruby.</div>
+      </div>
+
+      <div class="artifact">
+        <span class="kind extend">extend</span><span class="name">api/app/models/species.rb</span>
+        <div class="role">Add a class method the job calls — something like <code>Species.distinct_user_counts</code> that returns a hash of <code>{species_id =&gt; user_count}</code>. Keep the <code>POPULAR_NAMES</code> constant around as the editorial fallback. The existing <code>scope :popular</code> and the <code>popular</code> boolean column stay untouched — the controller doesn't care how the flag got set.</div>
+      </div>
+
+      <div class="artifact">
+        <span class="kind migration">migration</span><span class="name">api/db/migrate/YYYYMMDD_add_popularity_score_to_species.rb</span>
+        <div class="role">Optional but recommended: add an integer <code>popularity_score</code> column (nullable, default nil) so the job writes the distinct-user count alongside the boolean. Useful for debugging ("why is this plant popular?") and lets you rank <em>within</em> the popular set later without another computation. If you'd rather avoid the column for now, skip this and the job only flips the boolean — fine for MVP, just less legible when the data gets interesting.</div>
+      </div>
+
+      <div class="artifact">
+        <span class="kind test">test</span><span class="name">api/test/jobs/recalculate_species_popularity_job_test.rb</span>
+        <div class="role">Three scenarios: (1) below threshold → editorial list is preserved, nothing else changes; (2) above threshold → top-N by distinct users win; (3) above threshold but an editorial species would drop out → it stays in. The distinct-users-not-plants rule needs its own assertion: one user with 10 pothos should count once, not ten times.</div>
+      </div>
+
+      <div class="artifact">
+        <span class="kind extend">extend</span><span class="name">api/db/seeds/species.rb</span>
+        <div class="role">No behavioural change — just confirm that the seed still sets <code>popular: true</code> on <code>POPULAR_NAMES</code> matches so a fresh DB has an editorial state the job can preserve. (It already does this today; this ticket just makes the behaviour load-bearing.)</div>
+      </div>
+
+    </div>
+
+    <div class="shape">request flow (unchanged)
+  GET /api/v1/species/popular
+    └─ Species.popular.order(:common_name).limit(10)
+         ↑
+         reads the flag; doesn't care who set it
+
+nightly (new)
+  sidekiq-cron  3am
+    └─ RecalculateSpeciesPopularityJob.perform_later
+         ├─ distinct-user counts via Plant → Room → User
+         ├─ below threshold? → no-op, editorial list wins
+         └─ above threshold? → rewrite the `popular` flag
+                               (editorial species protected from eviction)</div>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li><strong>Ranking signal is distinct users, not plant count.</strong> A user with 40 pothos counts as one vote for Pothos. A species with 40 users owning one plant each outranks a species with 1 user owning 40 plants.</li>
+      <li><strong>Cold-start fallback.</strong> Below a minimum-volume threshold (configurable; start around 50 distinct plant-owning users app-wide), the job preserves the existing editorial flags and exits without changes. Above the threshold, data-driven ranking kicks in.</li>
+      <li><strong>Editorial floor.</strong> Even once data-driven mode is active, the onboarding empty state must never drop below a sensible count (≥ 6 species). If the data-driven top-N would leave an editorial species out and would leave fewer than that floor in total, that species keeps its <code>popular</code> flag.</li>
+      <li><strong>Idempotent.</strong> Running the job twice in a row produces the same DB state as running it once. Safe to trigger manually from the Rails console without ordering worries.</li>
+      <li><strong>Scheduled nightly.</strong> Runs automatically via Sidekiq scheduling at an off-peak hour. The schedule is declarative (YAML or an initializer), not wired inline in random Ruby.</li>
+      <li><strong>Observable.</strong> The job logs a one-line summary when it runs: threshold hit or not, how many flags flipped, how many editorial fallbacks retained. No dashboard needed — just readable logs.</li>
+      <li><strong>No controller change.</strong> <code>Species::PopularController#index</code> (or wherever <code>Species.popular</code> is read today) does not need to know data-driven mode is active — the flag is the only contract.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>With a fresh seeded DB (zero users), <code>Species.popular.count</code> equals the editorial list size — the job, if triggered, leaves it alone.</span></div>
+    <div class="criterion"><div class="box"></div><span>After seeding ≥ threshold users with varied plant ownership, running the job updates the <code>popular</code> flag to reflect top-N by distinct-user count.</span></div>
+    <div class="criterion"><div class="box"></div><span>A user with many plants of one species contributes exactly one vote for that species.</span></div>
+    <div class="criterion"><div class="box"></div><span>Running the job twice produces identical results — no oscillation, no duplicate work.</span></div>
+    <div class="criterion"><div class="box"></div><span>The Sidekiq Web UI at <code>/sidekiq</code> shows the scheduled job entry with the next-run timestamp.</span></div>
+    <div class="criterion"><div class="box"></div><span>The onboarding wizard's <code>/api/v1/species/popular</code> response is still structurally identical — just the <em>contents</em> of the list have shifted to match usage.</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> and <code>./scripts/run_tests.sh api</code> pass.</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+    <p>No UI mockup — this ticket is pure backend. The only user-facing surface is the onboarding wizard's Step&nbsp;3 empty state from ticket 6, and that markup doesn't change. If you want to see where the output flows to, open the wizard mockup and look at the "popular picks" chips above the search input:</p>
+    <p><strong>Design spec §3.4 (Empty states):</strong></p>
+    <blockquote>
+      Before the user has typed into species search, the card shows 6–8 "popular picks" as tappable chips. The list should feel curated, not random — these are the plants we'd gently recommend to a first-time owner. In launch mode it's a hand-picked list; post-launch it becomes what real users actually grow.
+    </blockquote>
+    <p>This ticket implements the "post-launch it becomes what real users actually grow" half of that sentence.</p>
+  </section>
+
+  <section>
+    <h2>Concepts worth a quick skim</h2>
+    <div class="learn">
+      <strong>Why nightly, not per-write.</strong> The obvious alternative is keeping <code>popular</code> live — recompute on every plant insert/delete. Don't. Distinct-user-per-species is a non-trivial aggregation, every plant mutation would trigger it, and the result changes meaningfully maybe twice a week once you have real volume. Batched overnight is the right shape; this is the classic "precompute on a schedule" pattern.
+    </div>
+    <div class="learn">
+      <strong>Sidekiq scheduling options.</strong> Sidekiq itself doesn't schedule — it runs jobs on demand. For recurring jobs the two standard picks are <code>sidekiq-cron</code> (YAML schedule, reads on boot) and <code>sidekiq-scheduler</code> (similar, slightly different API). Either is fine. If you want to avoid a new dependency, Rails 8's <code>solid_queue</code> has built-in recurring tasks — but switching queue backends for one job is a bigger change than adding one gem. Recommendation: <code>sidekiq-cron</code>, since you're already on Sidekiq.
+    </div>
+    <div class="learn">
+      <strong>Distinct-count SQL patterns.</strong> Rails <code>.distinct.count(:user_id)</code> on a joined relation generates <code>COUNT(DISTINCT plants.user_id)</code> per group — exactly what you want here. Just watch for the classic trap: <code>.joins(:room).group('species.id').distinct.count('rooms.user_id')</code> is correct, but stacking <code>.distinct</code> before <code>.group</code> sometimes produces subtly different SQL. If the test case for "one user with 10 plants counts once" passes, the query is right.
+    </div>
+    <div class="learn">
+      <strong>Fallback logic belongs in the job, not the reader.</strong> The <code>Species::PopularController</code> stays dumb — it queries <code>where(popular: true)</code>. All "editorial vs data-driven" logic lives inside the job, where it's easy to test and easy to change. This is the usual DHH-style move: controllers stay thin; domain rules live somewhere you can read them in one place.
+    </div>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li>api/app/jobs/recalculate_species_popularity_job.rb <span class="action">create</span></li>
+      <li>api/config/schedule.yml <span class="action">create</span></li>
+      <li>api/config/initializers/sidekiq.rb <span class="action">extend</span></li>
+      <li>api/Gemfile <span class="action">extend</span></li>
+      <li>api/app/models/species.rb <span class="action">extend</span></li>
+      <li>api/db/migrate/YYYYMMDD_add_popularity_score_to_species.rb <span class="action">create (optional)</span></li>
+      <li>api/test/jobs/recalculate_species_popularity_job_test.rb <span class="action">create</span></li>
+      <li>api/test/fixtures/plants.yml, rooms.yml, users.yml <span class="action">extend</span></li>
+    </ul>
+    <p style="font-size: 13px; color: #888; margin-top: 12px;">This is a shape hint, not a spec. If you find a cleaner split during implementation — e.g. folding the class method into the job itself, or dropping the <code>popularity_score</code> column for a first pass — follow your nose.</p>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li><strong>Don't remove <code>POPULAR_NAMES</code>.</strong> It's the editorial fallback, and the seed reads it. The job needs to <em>know</em> about the editorial list to implement the floor rule. Demoting it to a private constant inside the job is fine; deleting it is not.</li>
+      <li><strong>Threshold values are configuration, not magic numbers.</strong> Put the "minimum volume" and "top N" values as constants at the top of the job file (or in an initializer). You'll want to tune these once real traffic lands.</li>
+      <li><strong>Test data considerations.</strong> Minitest fixtures get awkward when you want "50 users, each with 3 plants across 2 rooms". A small helper that builds the graph programmatically inside the test may beat hand-writing fixture YAML. Use judgement.</li>
+      <li><strong>Scope reminder:</strong> this ticket does not expose popularity data to the client (no new API fields, no sorting by score in responses). The onboarding wizard just sees the same <code>popular: true</code> contract it sees today — the list behind that flag is what changes.</li>
+      <li><strong>When you're done:</strong> run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh api</code>, commit on a feature branch, then open a PR.</li>
+    </ul>
+  </section>
+
+</div>
+
+</body>
+</html>

@@ -13,6 +13,9 @@ Rails.application.routes.draw do
       resource :session, only: [:create, :destroy]
       resource :token, only: [:create]
 
+      namespace :rooms do
+        resources :presets, only: :index
+      end
       resources :rooms, only: [:index, :show, :create, :update, :destroy]
       resources :plants, only: [:index, :show, :create, :update, :destroy] do
         scope module: :plants do
@@ -28,6 +31,10 @@ Rails.application.routes.draw do
         scope module: :profile do
           resource :password, only: [:update]
         end
+      end
+
+      namespace :onboarding do
+        resource :completion, only: :create
       end
     end
   end

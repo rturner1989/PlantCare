@@ -4,13 +4,14 @@
 #
 # Table name: users
 #
-#  id              :bigint           not null, primary key
-#  email           :string           not null
-#  name            :string           not null
-#  password_digest :string           not null
-#  timezone        :string           default("UTC")
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
+#  id                      :bigint           not null, primary key
+#  email                   :string           not null
+#  name                    :string           not null
+#  onboarding_completed_at :datetime
+#  password_digest         :string           not null
+#  timezone                :string           default("UTC")
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
 #
 # Indexes
 #
@@ -51,12 +52,23 @@ class User < ApplicationRecord
 
   before_save :downcase_email
 
+  def onboarded?
+    onboarding_completed_at.present?
+  end
+
+  def complete_onboarding!
+    return if onboarded?
+
+    update!(onboarding_completed_at: Time.current)
+  end
+
   def as_json(_options = {})
     {
       id: id,
       email: email,
       name: name,
-      timezone: timezone
+      timezone: timezone,
+      onboarded: onboarded?
     }
   end
 

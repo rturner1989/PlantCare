@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_09_115431) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_16_131121) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -52,6 +52,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_115431) do
     t.datetime "updated_at", null: false
     t.index ["plant_id", "performed_at"], name: "index_care_logs_on_plant_id_and_performed_at"
     t.index ["plant_id"], name: "index_care_logs_on_plant_id"
+  end
+
+  create_table "password_reset_tokens", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "token_digest", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "used_at"
+    t.bigint "user_id", null: false
+    t.index ["token_digest"], name: "index_password_reset_tokens_on_token_digest", unique: true
+    t.index ["user_id"], name: "index_password_reset_tokens_on_user_id"
   end
 
   create_table "plant_photos", force: :cascade do |t|
@@ -101,6 +112,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_115431) do
     t.integer "plants_count", default: 0, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index "user_id, lower((name)::text)", name: "index_rooms_on_user_id_and_lower_name", unique: true
     t.index ["user_id"], name: "index_rooms_on_user_id"
   end
 
@@ -117,6 +129,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_115431) do
     t.string "image_url"
     t.string "light_requirement"
     t.string "personality", default: "chill", null: false
+    t.boolean "popular", default: false, null: false
     t.string "scientific_name"
     t.string "source", default: "seed", null: false
     t.decimal "temperature_max", precision: 4, scale: 1
@@ -125,6 +138,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_115431) do
     t.datetime "updated_at", null: false
     t.integer "watering_frequency_days", null: false
     t.index ["common_name"], name: "index_species_on_common_name"
+    t.index ["popular"], name: "index_species_on_popular", where: "(popular = true)"
     t.index ["scientific_name"], name: "index_species_on_scientific_name"
     t.index ["source", "external_id"], name: "index_species_on_source_and_external_id", unique: true, where: "(external_id IS NOT NULL)"
   end
@@ -133,6 +147,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_115431) do
     t.datetime "created_at", null: false
     t.string "email", null: false
     t.string "name", null: false
+    t.datetime "onboarding_completed_at"
     t.string "password_digest", null: false
     t.string "timezone", default: "UTC"
     t.datetime "updated_at", null: false
@@ -142,6 +157,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_115431) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "care_logs", "plants"
+  add_foreign_key "password_reset_tokens", "users"
   add_foreign_key "plant_photos", "plants"
   add_foreign_key "plants", "rooms"
   add_foreign_key "plants", "species"
