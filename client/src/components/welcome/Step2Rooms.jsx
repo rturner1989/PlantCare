@@ -1,7 +1,7 @@
 import { faBath, faBed, faBriefcase, faCouch, faUtensils } from '@fortawesome/free-solid-svg-icons'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { apiGet, apiPost } from '../../api/client'
+import { apiDelete, apiGet, apiPost } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
 import OptionCard from '../form/OptionCard'
@@ -28,8 +28,11 @@ function useRoomPresets() {
   })
 }
 
-export default function Step2Rooms({ onBack, onComplete }) {
-  const [selectedRooms, setSelectedRooms] = useState([])
+export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
+  // Pre-select anything the user has already created (returning via Back,
+  // or resumed from a prior session). Lazy init from the prop so it's read
+  // once on mount rather than re-derived each render.
+  const [selectedRooms, setSelectedRooms] = useState(() => initialRooms.map((r) => r.name))
   const [customRoom, setCustomRoom] = useState('')
   const toast = useToast()
 
@@ -53,17 +56,35 @@ export default function Step2Rooms({ onBack, onComplete }) {
 
   const { submitting, handleSubmit, formRef } = useFormSubmit({
     action: async () => {
-      const rooms = await Promise.all(
-        selectedRooms.map((roomName) => {
-          const preset = presets.find((r) => r.name === roomName)
-          return apiPost('/api/v1/rooms', {
-            room: { name: roomName, icon: preset?.icon || null },
-          })
-        }),
-      )
+      // Three categories to reconcile on submit:
+      //   1. Names in selectedRooms that were in initialRooms → reuse as-is
+      //      (no API call; the server already has them).
+      //   2. Names in selectedRooms NOT in initialRooms → POST to create.
+      //   3. initialRooms NOT in selectedRooms → user deselected them after
+      //      an earlier save, so DELETE from the server. Any attached
+      //      plants cascade-destroy via Room's `has_many :plants,
+      //      dependent: :destroy` — fine at this stage because plants
+      //      only enter the flow in Step 4.
+      const existingByName = new Map(initialRooms.map((r) => [r.name, r]))
+      const selectedNames = new Set(selectedRooms)
+      const toDelete = initialRooms.filter((r) => !selectedNames.has(r.name))
+
+      const [rooms] = await Promise.all([
+        Promise.all(
+          selectedRooms.map((roomName) => {
+            if (existingByName.has(roomName)) return existingByName.get(roomName)
+            const preset = presets.find((r) => r.name === roomName)
+            return apiPost('/api/v1/rooms', {
+              room: { name: roomName, icon: preset?.icon || null },
+            })
+          }),
+        ),
+        Promise.all(toDelete.map((room) => apiDelete(`/api/v1/rooms/${room.id}`))),
+      ])
+
       onComplete(rooms)
     },
-    errorMessage: 'Could not create rooms',
+    errorMessage: 'Could not save rooms',
   })
 
   const customRooms = selectedRooms.filter((r) => !presets.find((p) => p.name === r))

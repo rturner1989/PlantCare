@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useDeferredValue, useState } from 'react'
 import { apiGet } from '../../api/client'
 import SearchField from '../form/SearchField'
@@ -11,11 +11,16 @@ import Badge from '../ui/Badge'
 //     backend with curated popular picks (the empty-state suggestions).
 //   - longer query → pg_search + Perenual fallback.
 // Both share the endpoint so TanStack Query caches per key transparently.
+// `keepPreviousData` means typing another character doesn't blank the
+// results list while the new fetch is in flight — the previous results
+// stay visible until the new ones arrive, so the dropdown doesn't flash
+// empty on every keystroke.
 function useSpeciesSearch(query) {
   const isSearching = query.length >= 2
   return useQuery({
     queryKey: ['species', isSearching ? ['search', query] : 'popular'],
     queryFn: () => (isSearching ? apiGet(`/api/v1/species?q=${encodeURIComponent(query)}`) : apiGet('/api/v1/species')),
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -35,10 +40,28 @@ function SpeciesRow({ species }) {
   )
 }
 
-export default function Step3Species({ onBack, onComplete }) {
+export default function Step3Species({
+  availableRooms = [],
+  initialSpecies = null,
+  initialNickname = '',
+  initialRoomId = null,
+  onBack,
+  onComplete,
+}) {
   const [query, setQuery] = useState('')
-  const [selected, setSelected] = useState(null)
-  const [nickname, setNickname] = useState('')
+  // Initial state comes from the parent so Back-navigating from Step 4
+  // lands here with the previous species/nickname/room still selected —
+  // otherwise the user would have to redo the whole step.
+  const [selected, setSelected] = useState(initialSpecies)
+  const [nickname, setNickname] = useState(initialNickname)
+  // If the user created exactly one room in Step 2, pre-pick it so they
+  // don't have to tap a picker with a single option. Multiple rooms
+  // require an explicit choice (Continue stays disabled until made).
+  const [roomId, setRoomId] = useState(() => {
+    if (initialRoomId) return initialRoomId
+    if (availableRooms.length === 1) return availableRooms[0].id
+    return null
+  })
 
   const deferredQuery = useDeferredValue(query)
   const { data: results = [] } = useSpeciesSearch(deferredQuery)
@@ -52,6 +75,9 @@ export default function Step3Species({ onBack, onComplete }) {
     setSelected(null)
     setQuery('')
   }
+
+  const needsRoomChoice = availableRooms.length > 1
+  const canContinue = selected && (!!roomId || availableRooms.length === 0)
 
   return (
     <div className="flex flex-col flex-1">
@@ -96,6 +122,26 @@ export default function Step3Species({ onBack, onComplete }) {
               </div>
             </div>
 
+            {needsRoomChoice && (
+              <label className="block mt-4">
+                <span className="text-xs font-bold text-ink-soft uppercase tracking-wider">Which room?</span>
+                <select
+                  value={roomId ?? ''}
+                  onChange={(e) => setRoomId(Number(e.target.value))}
+                  className="mt-1 w-full px-4 py-3 rounded-md bg-mint/50 border border-mint text-ink text-base font-semibold focus:outline-none focus:ring-4 focus:ring-leaf/20 focus:border-leaf"
+                >
+                  <option value="" disabled>
+                    Pick a room...
+                  </option>
+                  {availableRooms.map((room) => (
+                    <option key={room.id} value={room.id}>
+                      {room.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+
             <div className="mt-4">
               <TextInput
                 label="What should we call them?"
@@ -124,8 +170,8 @@ export default function Step3Species({ onBack, onComplete }) {
         </Action>
         <Action
           variant="primary"
-          onClick={() => onComplete(selected, nickname)}
-          disabled={!selected}
+          onClick={() => onComplete(selected, nickname, roomId)}
+          disabled={!canContinue}
           className="flex-1"
         >
           Continue
@@ -134,7 +180,7 @@ export default function Step3Species({ onBack, onComplete }) {
 
       <p className="mt-3 text-center text-xs text-ink-soft font-bold">
         Prefer to do this later?{' '}
-        <Action variant="unstyled" onClick={() => onComplete(null, '')} className="text-emerald">
+        <Action variant="unstyled" onClick={() => onComplete(null, '', null)} className="text-emerald">
           Skip for now
         </Action>
       </p>

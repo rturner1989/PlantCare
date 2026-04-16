@@ -1,7 +1,7 @@
 import { useAuth } from '../../hooks/useAuth'
 import Action from '../ui/Action'
 
-export default function Step5Done({ species, nickname, onFinish }) {
+export default function Step5Done({ species, nickname, onFinish, finishing = false }) {
   const { user } = useAuth()
   const plantName = nickname || species?.common_name
 
@@ -32,8 +32,8 @@ export default function Step5Done({ species, nickname, onFinish }) {
       )}
 
       <div className="mt-auto pt-6">
-        <Action variant="primary" onClick={onFinish} className="w-full">
-          Enter your jungle
+        <Action variant="primary" onClick={onFinish} disabled={finishing} className="w-full">
+          {finishing ? 'Finishing up...' : 'Enter your jungle'}
         </Action>
       </div>
     </div>

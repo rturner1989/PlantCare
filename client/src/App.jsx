@@ -71,7 +71,16 @@ export default function App() {
                 {/* Public + Onboarding routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/welcome" element={<Welcome />} />
+                {/* /welcome requires auth but NOT onboarded — it's the route
+                    a user is sent to *because* they're not yet onboarded. */}
+                <Route
+                  path="/welcome"
+                  element={
+                    <ProtectedRoute requireOnboarded={false}>
+                      <Welcome />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Protected routes */}
                 <Route element={<ProtectedAppLayout />}>

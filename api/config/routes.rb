@@ -32,6 +32,10 @@ Rails.application.routes.draw do
           resource :password, only: [:update]
         end
       end
+
+      namespace :onboarding do
+        resource :completion, only: :create
+      end
     end
   end
 

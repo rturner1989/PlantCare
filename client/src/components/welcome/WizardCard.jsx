@@ -28,11 +28,13 @@ import StepProgress from './StepProgress'
  */
 
 // On mobile the card fills the screen vertically (flex-1) so the wizard
-// feels like a native modal. On sm+ it collapses to content height and the
-// outer container centers it — otherwise it stretches into "a phone
-// viewport rendered inside a browser", which looks wrong on desktop.
+// feels like a native modal. On sm+ it collapses to content height BUT
+// with a fixed min-height so the card doesn't jump in size as the user
+// moves between steps — Step 1's short intro and Step 2's room list would
+// otherwise give visibly different card heights, which reads as jitter.
+// The min-height is sized to fit the tallest typical step (rooms/env).
 const WIZARD_SURFACE =
-  'flex-1 sm:flex-none flex flex-col w-full max-w-sm sm:max-w-md mx-auto mt-2 rounded-[28px] border-white/80 shadow-[0_20px_50px_rgba(11,58,26,0.14),0_4px_12px_rgba(11,58,26,0.06)]'
+  'flex-1 sm:flex-none sm:min-h-[620px] flex flex-col w-full max-w-sm sm:max-w-md mx-auto mt-2 rounded-[28px] border-white/80 shadow-[0_20px_50px_rgba(11,58,26,0.14),0_4px_12px_rgba(11,58,26,0.06)]'
 
 export default function WizardCard({ step, total, children }) {
   return (
