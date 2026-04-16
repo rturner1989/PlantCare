@@ -34,8 +34,11 @@ test.describe('Onboarding wizard', () => {
 
     // Step 3 — species + room + nickname
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
-    await page.getByLabel('Search species').fill('monstera')
-    await page.getByRole('option', { name: /Monstera/i }).first().click()
+    await page.getByLabel('Search species', { exact: true }).fill('monstera')
+    await page
+      .getByRole('option', { name: /Monstera/i })
+      .first()
+      .click()
     await page.getByLabel(/What should we call them/).fill('Monty')
     await page.getByLabel('Which room?').selectOption({ label: 'Living Room' })
     await page.getByRole('button', { name: 'Continue' }).click()
@@ -59,8 +62,11 @@ test.describe('Onboarding wizard', () => {
     await page.getByRole('button', { name: 'Continue' }).click()
 
     // Step 3: pick Monstera, name it Monty (single room → no picker).
-    await page.getByLabel('Search species').fill('monstera')
-    await page.getByRole('option', { name: /Monstera/i }).first().click()
+    await page.getByLabel('Search species', { exact: true }).fill('monstera')
+    await page
+      .getByRole('option', { name: /Monstera/i })
+      .first()
+      .click()
     await page.getByLabel(/What should we call them/).fill('Monty')
     await page.getByRole('button', { name: 'Continue' }).click()
 
@@ -71,7 +77,7 @@ test.describe('Onboarding wizard', () => {
     // Species card + nickname persist; search input is not re-shown.
     await expect(page.getByText('Monstera Deliciosa', { exact: true })).toBeVisible()
     await expect(page.getByLabel(/What should we call them/)).toHaveValue('Monty')
-    await expect(page.getByLabel('Search species')).toHaveCount(0)
+    await expect(page.getByLabel('Search species', { exact: true })).toHaveCount(0)
   })
 
   test('back from Step 3 restores previously-selected rooms on Step 2', async ({ page }) => {
@@ -90,14 +96,8 @@ test.describe('Onboarding wizard', () => {
 
     // Both rooms still ticked.
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
+    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute('aria-pressed', 'true')
   })
 
   test('skip plant path lands on Step 5 with no speech card', async ({ page }) => {
@@ -137,10 +137,7 @@ test.describe('Onboarding wizard', () => {
     // not just held in client state that the reload would have cleared.
     await page.getByRole('button', { name: 'Back' }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
+    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute('aria-pressed', 'true')
   })
 
   test('onboarded user lands on / after logging back in', async ({ page, context }) => {
@@ -204,10 +201,7 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
 
     await page.getByRole('button', { name: /Bedroom/i }).click()
-    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    )
+    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute('aria-pressed', 'false')
     await page.getByRole('button', { name: 'Continue' }).click()
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
 
@@ -218,14 +212,8 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
     await page.getByRole('button', { name: 'Back' }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    )
+    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute('aria-pressed', 'false')
   })
 
   test('a second submit with a case-duplicate name surfaces the server error', async ({ page }) => {

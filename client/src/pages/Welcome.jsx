@@ -78,7 +78,7 @@ export default function Welcome() {
   }
 
   return (
-    <div className="flex flex-col min-h-dvh px-5 pt-[calc(env(safe-area-inset-top)+3rem)] pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:justify-center">
+    <div className="flex flex-col h-dvh px-5 pt-[calc(env(safe-area-inset-top)+3rem)] pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:justify-center sm:h-auto sm:min-h-dvh">
       <WizardCard step={step} total={TOTAL_STEPS}>
         {step === 1 && <Step1Intro onNext={() => setStep(2)} />}
         {step === 2 && (

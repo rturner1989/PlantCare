@@ -7,6 +7,7 @@ import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
 import OptionCard from '../form/OptionCard'
 import Action from '../ui/Action'
+import { CardBody, CardFooter } from '../ui/Card'
 
 // Unmapped icon keys fall through to undefined, which OptionCard treats
 // as "no tile" — a safer default than crashing if the backend adds a new
@@ -86,62 +87,64 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
   const customRooms = selectedRooms.filter((r) => !presets.find((p) => p.name === r))
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col flex-1">
-      <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight">
-        Where do your plants <em className="not-italic text-leaf">live</em>?
-      </h1>
-      <p className="mt-3 text-sm text-ink-soft font-medium leading-snug">
-        Pick every room that has plants. You can add more later.
-      </p>
+    <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
+      <CardBody>
+        <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight">
+          Where do your plants <em className="not-italic text-leaf">live</em>?
+        </h1>
+        <p className="mt-3 text-sm text-ink-soft font-medium leading-snug">
+          Pick every room that has plants. You can add more later.
+        </p>
 
-      <div className="mt-5 space-y-2">
-        {presets.map((room) => (
-          <OptionCard
-            key={room.name}
-            icon={ROOM_ICONS[room.icon]}
-            selected={selectedRooms.includes(room.name)}
-            onClick={() => toggleRoom(room.name)}
-          >
-            {room.name}
-          </OptionCard>
-        ))}
+        <div className="mt-5 space-y-2">
+          {presets.map((room) => (
+            <OptionCard
+              key={room.name}
+              icon={ROOM_ICONS[room.icon]}
+              selected={selectedRooms.includes(room.name)}
+              onClick={() => toggleRoom(room.name)}
+            >
+              {room.name}
+            </OptionCard>
+          ))}
 
-        {customRooms.map((room) => (
-          <OptionCard key={room} selected onClick={() => toggleRoom(room)}>
-            {room}
-          </OptionCard>
-        ))}
+          {customRooms.map((room) => (
+            <OptionCard key={room} selected onClick={() => toggleRoom(room)}>
+              {room}
+            </OptionCard>
+          ))}
 
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={customRoom}
-            onChange={(e) => setCustomRoom(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                addCustomRoom()
-              }
-            }}
-            className="flex-1 px-4 py-3 rounded-md bg-card border border-dashed border-ink-soft/30 text-ink text-base outline-none focus:border-leaf"
-            placeholder="Add custom room..."
-          />
-          {customRoom.trim() && (
-            <Action variant="secondary" onClick={addCustomRoom}>
-              Add
-            </Action>
-          )}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={customRoom}
+              onChange={(e) => setCustomRoom(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  addCustomRoom()
+                }
+              }}
+              className="flex-1 px-4 py-3 rounded-md bg-card border border-dashed border-ink-soft/30 text-ink text-base outline-none focus:border-leaf"
+              placeholder="Add custom room..."
+            />
+            {customRoom.trim() && (
+              <Action variant="secondary" onClick={addCustomRoom}>
+                Add
+              </Action>
+            )}
+          </div>
         </div>
-      </div>
+      </CardBody>
 
-      <div className="mt-auto pt-6 flex gap-2.5">
+      <CardFooter className="border-t-0 flex gap-2.5">
         <Action variant="secondary" onClick={onBack}>
           Back
         </Action>
         <Action type="submit" variant="primary" disabled={selectedRooms.length === 0 || submitting} className="flex-1">
           {submitting ? 'Creating rooms...' : 'Continue'}
         </Action>
-      </div>
+      </CardFooter>
     </form>
   )
 }

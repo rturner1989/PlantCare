@@ -33,9 +33,13 @@ export function CardHeader({ className = '', children, ...kwargs }) {
   )
 }
 
+// `flex-1 min-h-0 overflow-y-auto` make the body the scrollable region
+// whenever its Card parent is height-constrained (e.g. WizardCard). For
+// an unconstrained Card (Login, Register), flex-1/min-h-0 are no-ops and
+// overflow-y-auto never triggers because content fits its natural height.
 export function CardBody({ className = '', children, ...kwargs }) {
   return (
-    <div className={`p-6 ${className}`} {...kwargs}>
+    <div className={`p-6 flex-1 min-h-0 overflow-y-auto ${className}`} {...kwargs}>
       {children}
     </div>
   )

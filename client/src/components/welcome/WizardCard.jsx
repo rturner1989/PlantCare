@@ -1,4 +1,4 @@
-import Card, { CardBody, CardHeader } from '../ui/Card'
+import Card, { CardHeader } from '../ui/Card'
 import StepProgress from './StepProgress'
 
 // The wizard is deliberately non-dismissible — the dashboard needs at
@@ -8,7 +8,7 @@ import StepProgress from './StepProgress'
 // desktop; without it Step 1's short intro and Step 2's full room list
 // give visibly different heights and the card jitters as you progress.
 const WIZARD_SURFACE =
-  'flex-1 sm:flex-none sm:min-h-[620px] flex flex-col w-full max-w-sm sm:max-w-md mx-auto mt-2 rounded-[28px] border-white/80 shadow-[0_20px_50px_rgba(11,58,26,0.14),0_4px_12px_rgba(11,58,26,0.06)]'
+  'flex-1 min-h-0 sm:flex-none sm:min-h-[620px] flex flex-col w-full max-w-sm sm:max-w-md mx-auto mt-2 rounded-[28px] border-white/80 shadow-[0_20px_50px_rgba(11,58,26,0.14),0_4px_12px_rgba(11,58,26,0.06)]'
 
 export default function WizardCard({ step, total, children }) {
   return (
@@ -20,7 +20,7 @@ export default function WizardCard({ step, total, children }) {
         </p>
       </CardHeader>
 
-      <CardBody className="flex-1 flex flex-col">{children}</CardBody>
+      {children}
     </Card>
   )
 }
