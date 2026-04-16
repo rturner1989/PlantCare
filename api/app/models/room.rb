@@ -34,12 +34,9 @@ class Room < ApplicationRecord
   belongs_to :user
   has_many :plants, dependent: :destroy
 
-  # TODO: add a matching unique expression index on (user_id, LOWER(name))
-  # once duplicate rows from pre-validation testing have been cleared out
-  # of the dev DB. The model check catches the common case; the index is
-  # needed to close the race where two concurrent creates pass validation
-  # before either commits. See the migration that was removed on
-  # 2026-04-16 for the intended CREATE UNIQUE INDEX form.
+  # TODO: add a unique expression index on (user_id, LOWER(name)) to close
+  # the race where two concurrent creates both pass the validation before
+  # either commits.
   # rubocop:disable Rails/UniqueValidationWithoutIndex
   validates :name, presence: true, uniqueness: { scope: :user_id, case_sensitive: false }
   # rubocop:enable Rails/UniqueValidationWithoutIndex

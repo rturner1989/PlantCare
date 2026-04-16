@@ -6,15 +6,9 @@ import TextInput from '../form/TextInput'
 import Action from '../ui/Action'
 import Badge from '../ui/Badge'
 
-// Species search has two modes, selected by query length:
-//   - short query (< 2 chars) → /api/v1/species with no q, answered by the
-//     backend with curated popular picks (the empty-state suggestions).
-//   - longer query → pg_search + Perenual fallback.
-// Both share the endpoint so TanStack Query caches per key transparently.
-// `keepPreviousData` means typing another character doesn't blank the
-// results list while the new fetch is in flight — the previous results
-// stay visible until the new ones arrive, so the dropdown doesn't flash
-// empty on every keystroke.
+// keepPreviousData keeps the current results visible while the next
+// query is in flight; without it the dropdown flashes empty on every
+// keystroke as the queryKey changes.
 function useSpeciesSearch(query) {
   const isSearching = query.length >= 2
   return useQuery({
@@ -49,14 +43,10 @@ export default function Step3Species({
   onComplete,
 }) {
   const [query, setQuery] = useState('')
-  // Initial state comes from the parent so Back-navigating from Step 4
-  // lands here with the previous species/nickname/room still selected —
-  // otherwise the user would have to redo the whole step.
   const [selected, setSelected] = useState(initialSpecies)
   const [nickname, setNickname] = useState(initialNickname)
-  // If the user created exactly one room in Step 2, pre-pick it so they
-  // don't have to tap a picker with a single option. Multiple rooms
-  // require an explicit choice (Continue stays disabled until made).
+  // Auto-pick the single-room case so we don't render a picker with one
+  // option. Multi-room stays null so Continue blocks on an explicit choice.
   const [roomId, setRoomId] = useState(() => {
     if (initialRoomId) return initialRoomId
     if (availableRooms.length === 1) return availableRooms[0].id

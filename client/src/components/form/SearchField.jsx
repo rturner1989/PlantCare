@@ -2,51 +2,19 @@ import { useEffect, useId, useState } from 'react'
 import TextInput from './TextInput'
 
 /**
- * SearchField — a labelled search input paired with an ARIA combobox popup.
+ * Implements the W3C ARIA "combobox with listbox popup, selection follows
+ * focus" pattern: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
  *
- * Implements the "combobox with listbox popup, selection follows focus"
- * authoring pattern from the W3C WAI-ARIA Authoring Practices Guide:
- * https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
+ * Focus stays on the input at all times — options are highlighted via
+ * `aria-activedescendant` rather than receiving DOM focus. The
+ * `onMouseDown preventDefault` on options is what preserves that
+ * invariant for mouse users.
  *
- * **Focus model.** The text input is the only focusable element. Options do
- * not take DOM focus; instead the active option is tracked via
- * `aria-activedescendant` on the input, and highlighted visually. Mouse
- * clicks use `onMouseDown preventDefault` so clicking an option does not
- * steal focus from the input.
+ * Popup is "open" iff `results.length > 0`; the consumer drives open/close
+ * by controlling when the results array is populated.
  *
- * **Keyboard.** On the input:
- *   ArrowDown — move to next option (wraps)
- *   ArrowUp   — move to previous option (wraps)
- *   Home      — move to first option
- *   End       — move to last option
- *   Enter     — select the active option (if any)
- *   Escape    — clear the active option
- * Tab behaves normally; the popup does not trap focus.
- *
- * **Open/close state.** The popup is "open" iff `results.length > 0`. The
- * parent owns the query state and fetch logic, so *it* decides when results
- * appear (e.g. by returning popular picks for a blank query, search results
- * once the user has typed enough). SearchField doesn't maintain its own
- * open state — the data drives the UI.
- *
- * **Fully controlled.** Consumer owns query/results/selection/fetching.
- *
- * Usage — species search in onboarding:
- *
- *   const [query, setQuery] = useState('')
- *   const deferredQuery = useDeferredValue(query)
- *   const { data: results = [] } = useSpeciesSearch(deferredQuery)
- *
- *   <SearchField
- *     label="Search species"
- *     placeholder="Monstera, Snake Plant..."
- *     query={query}
- *     onQueryChange={setQuery}
- *     results={results}
- *     onSelect={(species) => setSelected(species)}
- *     getOptionKey={(species) => species.id ?? species.common_name}
- *     renderOption={(species) => <SpeciesRow species={species} />}
- *   />
+ * Keyboard: ArrowUp/Down wrap, Home/End jump, Enter selects the active
+ * option, Escape clears it, Tab behaves normally.
  */
 
 const RESULTS_CONTAINER = 'mt-3 space-y-2 max-h-48 overflow-y-auto'
@@ -70,12 +38,9 @@ export default function SearchField({
   const optionIdBase = useId()
   const [activeIndex, setActiveIndex] = useState(-1)
 
-  // Reset the active option whenever the results array changes (new fetch,
-  // cleared query, etc.) — otherwise activeIndex might point past the end
-  // of the new array or at a stale option. This is the "reset state when a
-  // prop changes" pattern from the React docs: compare against a stored
-  // previous value during render and queue the reset inline, avoiding an
-  // effect that would double-render.
+  // React's "reset state on prop change" pattern — compare during render
+  // and reset inline — avoids the double-render an effect would cause and
+  // ensures activeIndex never outlives the results array it pointed into.
   const [prevResults, setPrevResults] = useState(results)
   if (results !== prevResults) {
     setPrevResults(results)
@@ -86,11 +51,8 @@ export default function SearchField({
   const activeIsValid = activeIndex >= 0 && activeIndex < results.length
   const activeDescendantId = activeIsValid ? `${optionIdBase}-${activeIndex}` : undefined
 
-  // Keep the active option scrolled into view on keyboard navigation so
-  // arrowing past the visible area doesn't leave the user staring at a
-  // highlight they can't see. `scrollIntoView` isn't implemented in jsdom
-  // so we call it through optional chaining — the effect is a no-op in
-  // unit tests, which is fine because there's nothing to scroll there.
+  // Optional chaining on scrollIntoView because jsdom doesn't implement it;
+  // the effect becomes a no-op in unit tests.
   useEffect(() => {
     if (!activeIsValid) return
     const el = document.getElementById(`${optionIdBase}-${activeIndex}`)

@@ -32,11 +32,9 @@ import { useId } from 'react'
  */
 
 const LABEL_TEXT = 'text-xs font-bold text-ink-soft uppercase tracking-wider'
-// text-base (16px) is the minimum iOS Safari won't auto-zoom on focus —
-// anything smaller and iPhone Safari zooms the viewport in on focus and
-// doesn't zoom back out after blur, which breaks the layout of every
-// form-bearing page. This is the single most important form a11y rule
-// on iOS PWAs; see client/src/components/welcome/ for where we learnt.
+// text-base (16px) specifically — iOS Safari auto-zooms into any input
+// below 16px on focus and doesn't zoom back out, which breaks the layout
+// of every form-bearing page.
 const INPUT_BASE =
   'mt-1 w-full px-4 py-3 rounded-md bg-mint/50 border text-ink text-base font-semibold transition-all focus:outline-none focus:ring-4'
 const INPUT_VALID = 'border-mint focus:border-leaf focus:ring-leaf/20'

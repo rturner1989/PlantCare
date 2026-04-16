@@ -106,10 +106,6 @@ export function AuthProvider({ children }) {
     return data.user
   }, [])
 
-  // Marks the current user as having finished the onboarding wizard.
-  // Server returns the updated user (with `onboarded: true`); we set it on
-  // context so ProtectedRoute and the wizard's own resume guard see the
-  // new state immediately, with no extra round-trip.
   const markOnboarded = useCallback(async () => {
     const updatedUser = await apiPost('/api/v1/onboarding/completion', {})
     setUser(updatedUser)

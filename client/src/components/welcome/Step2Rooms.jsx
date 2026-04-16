@@ -7,10 +7,9 @@ import { useFormSubmit } from '../../hooks/useFormSubmit'
 import OptionCard from '../form/OptionCard'
 import Action from '../ui/Action'
 
-// Maps the Room::ICONS vocabulary (owned by the backend and returned by
-// /api/v1/rooms/presets) to the FA icon we want to render in each
-// OptionCard's tile. If the backend introduces a new icon key we haven't
-// mapped yet the lookup returns undefined and OptionCard skips the tile.
+// Unmapped icon keys fall through to undefined, which OptionCard treats
+// as "no tile" — a safer default than crashing if the backend adds a new
+// icon before we ship the matching glyph.
 const ROOM_ICONS = {
   couch: faCouch,
   kitchen: faUtensils,
@@ -19,8 +18,6 @@ const ROOM_ICONS = {
   desk: faBriefcase,
 }
 
-// Presets are owned by the backend so the icon vocabulary stays in sync with
-// Room::ICONS validation. See api/app/controllers/api/v1/rooms/presets_controller.rb.
 function useRoomPresets() {
   return useQuery({
     queryKey: ['rooms', 'presets'],
@@ -29,9 +26,6 @@ function useRoomPresets() {
 }
 
 export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
-  // Pre-select anything the user has already created (returning via Back,
-  // or resumed from a prior session). Lazy init from the prop so it's read
-  // once on mount rather than re-derived each render.
   const [selectedRooms, setSelectedRooms] = useState(() => initialRooms.map((r) => r.name))
   const [customRoom, setCustomRoom] = useState('')
   const toast = useToast()
@@ -56,15 +50,9 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
 
   const { submitting, handleSubmit, formRef } = useFormSubmit({
     action: async () => {
-      // Three categories to reconcile on submit:
-      //   1. Names in selectedRooms that were in initialRooms → reuse as-is
-      //      (no API call; the server already has them).
-      //   2. Names in selectedRooms NOT in initialRooms → POST to create.
-      //   3. initialRooms NOT in selectedRooms → user deselected them after
-      //      an earlier save, so DELETE from the server. Any attached
-      //      plants cascade-destroy via Room's `has_many :plants,
-      //      dependent: :destroy` — fine at this stage because plants
-      //      only enter the flow in Step 4.
+      // Deselected rooms are DELETEd from the server, not just dropped from
+      // state. Any attached plants cascade-destroy via `has_many :plants,
+      // dependent: :destroy`.
       const existingByName = new Map(initialRooms.map((r) => [r.name, r]))
       const selectedNames = new Set(selectedRooms)
       const toDelete = initialRooms.filter((r) => !selectedNames.has(r.name))

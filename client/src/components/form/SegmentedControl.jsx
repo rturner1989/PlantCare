@@ -2,38 +2,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useId } from 'react'
 
 /**
- * SegmentedControl — a squared radiogroup for mutually-exclusive choices.
+ * Pill radiogroup for short mutually-exclusive option sets. Each option
+ * is a hidden real radio input inside a <label> so native arrow-key
+ * navigation and form semantics come for free; useId gives each instance
+ * its own radio `name` so stacked controls on one page don't collide.
  *
- * Used for short option sets where all values should be visible at once and
- * the user picks exactly one (e.g. "low / medium / bright" light level). For
- * longer lists, reach for a Select primitive instead.
+ * `options` accepts strings or {value, label} objects:
  *
- * Options accept either strings or {value, label} objects so callers can
- * pass a shorthand when display === value:
- *
- *   <SegmentedControl
- *     label="Light"
- *     value={light}
- *     onChange={setLight}
- *     options={['low', 'medium', 'bright']}
- *   />
- *
- *   <SegmentedControl
- *     label="Humidity"
- *     value={humidity}
- *     onChange={setHumidity}
- *     options={[
- *       { value: 'dry', label: 'Dry' },
- *       { value: 'average', label: 'Average' },
- *       { value: 'humid', label: 'Humid' },
- *     ]}
- *   />
- *
- * Each option is a real `<input type="radio">` visually hidden behind a
- * clickable <label> — so the browser handles focus, keyboard navigation
- * (arrow keys move between options within the group), and form submission
- * semantics natively. `name` is generated with useId so multiple segmented
- * controls on the same page don't clash.
+ *   <SegmentedControl label="Light" value={light} onChange={setLight}
+ *     options={['low', 'medium', 'bright']} />
  */
 
 const TRACK = 'flex gap-1.5 mt-2 bg-mint p-1 rounded-md'

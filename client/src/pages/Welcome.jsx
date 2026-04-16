@@ -25,30 +25,21 @@ export default function Welcome() {
   const { user, markOnboarded } = useAuth()
   const toast = useToast()
 
-  // Resume support: if the user got partway through onboarding in a
-  // previous session and has rooms already, skip Step 2 — re-running it
-  // would POST duplicate rooms. We only need this query for un-onboarded
-  // users (onboarded users get redirected away below).
   const { data: existingRooms } = useQuery({
     queryKey: ['rooms'],
     queryFn: () => apiGet('/api/v1/rooms'),
     enabled: !user?.onboarded,
   })
 
-  // Already-onboarded users have no business on /welcome. Could happen via
-  // a stale PWA shortcut, browser back button, or someone typing the URL.
-  // Bounce them home before we render anything.
   useEffect(() => {
     if (user?.onboarded) {
       navigate('/', { replace: true })
     }
   }, [user?.onboarded, navigate])
 
-  // Once the rooms query lands, advance past Step 2 if the user already
-  // has rooms. This MUST be a one-shot: using a ref guard instead of a
-  // `step === 1` check, because the latter would re-fire every time the
-  // user clicks Back down to Step 1, yanking them forward to Step 3 again
-  // and making it impossible to navigate back past Step 2.
+  // Ref guard instead of a `step === 1` check because the latter would
+  // re-fire every time Back navigates back to Step 1, yanking the user
+  // forward to Step 3 and making it impossible to reach Step 1.
   const hasResumedRef = useRef(false)
   useEffect(() => {
     if (hasResumedRef.current || existingRooms === undefined) return
@@ -71,11 +62,9 @@ export default function Welcome() {
     setStep(species ? 4 : 5)
   }
 
-  // Persist the "I finished onboarding" flag server-side before sending the
-  // user to the dashboard. Without this, the next session would route them
-  // back here via the ProtectedRoute gate. If the request fails, we keep
-  // the user on Step 5 so they can retry — silently navigating would leave
-  // them in an inconsistent state.
+  // On failure we keep the user on Step 5 rather than navigating; silent
+  // navigation would leave them with `onboarded: false` and ProtectedRoute
+  // would bounce them straight back here.
   async function handleFinish() {
     setFinishing(true)
     try {

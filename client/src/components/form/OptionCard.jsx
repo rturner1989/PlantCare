@@ -2,31 +2,11 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
- * OptionCard — a selectable card-shaped button for multi-select or single-
- * select form patterns. Renders as a `<button>` so it gets keyboard focus,
- * Space/Enter activation, and `aria-pressed` toggle semantics for free.
+ * Selectable card-shaped button. The optional `icon` prop renders a
+ * 34×34 tile on the left; omit it for label-only options.
  *
- * Layout: optional 34×34 icon tile on the left + label + round check
- * indicator on the right. The icon tile is shown when an `icon` prop is
- * passed (an FA icon reference) and inherits the selection colours —
- * mint tile / emerald glyph when unselected, leaf tile / white glyph
- * when selected. Use for preset pickers where each option represents a
- * known concept with an iconographic shortcut (rooms, categories, etc.);
- * omit the icon prop for free-form selections (custom rooms).
- *
- * Usage — multi-select room picker:
- *
- *   <OptionCard
- *     icon={faCouch}
- *     selected={selected.includes('Living Room')}
- *     onClick={() => toggle('Living Room')}
- *   >
+ *   <OptionCard icon={faCouch} selected={isSelected} onClick={toggle}>
  *     Living Room
- *   </OptionCard>
- *
- *   // No icon — custom room, free text only:
- *   <OptionCard selected={...} onClick={...}>
- *     My Greenhouse
  *   </OptionCard>
  */
 
