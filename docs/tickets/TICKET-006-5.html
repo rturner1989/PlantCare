@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-006-5: Password reset</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 70px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.page { background: #2d6a4f; }
+.artifact .kind.model { background: #4a6fa5; }
+.artifact .kind.controller { background: #8b4a6f; }
+.artifact .kind.mailer { background: #e89c3a; color: #1a1a1a; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.rails-map code { white-space: nowrap; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+.security { background: #fde9e4; border-left: 3px solid #e63946; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a1a1a; }
+.security strong { color: #8a1a1a; }
+.forward { background: #eef4ff; border-left: 3px solid #4a6fa5; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #2a3a5a; }
+.forward strong { color: #1a2a5a; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-006-5</div>
+    <h1>Password reset — forgot password + reset flow</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-medium">Medium</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>The "Forgot password?" link on Login is currently a cosmetic <code>&lt;span&gt;</code> that does nothing. This ticket makes it work end-to-end: user clicks it, enters their email, gets a link by email, lands on a page that lets them choose a new password.</p>
+    <p>In one sentence: <strong>make the forgot-password link actually useful.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">01</span>Tokens</div>
+      <div class="plan-step done"><span class="num">02</span>API</div>
+      <div class="plan-step done"><span class="num">03</span>Auth ctx</div>
+      <div class="plan-step done"><span class="num">04</span>Shell</div>
+      <div class="plan-step done"><span class="num">05</span>Auth UI</div>
+      <div class="plan-step done"><span class="num">06</span>Onboard</div>
+      <div class="plan-step current"><span class="num">06.5</span>Reset</div>
+      <div class="plan-step"><span class="num">07</span>Hooks</div>
+    </div>
+    <p><strong>Why it's 06.5, not 11:</strong> this is a gap in the auth-flow work that started in tickets 3/5. The UI has the affordance (Login's "Forgot password?" text), but there's no flow behind it. Closing that gap now — before moving on to the app-proper screens in ticket 7+ — keeps the auth surface area honest.</p>
+    <p><strong>What came before:</strong> <code>User</code> has <code>has_secure_password</code> from ticket 1, the access/refresh token flow from ticket 2, and the authenticated password-change endpoint (<code>Profile::PasswordsController</code>) from ticket 3. Login/Register are from ticket 5.</p>
+    <p><strong>What this unlocks:</strong> a production-shippable auth surface. Every feature ticket from 7 onward can assume users can recover from a lost password without support intervention.</p>
+    <p><strong>Mental model:</strong> the reset token is a one-shot bearer credential. Issue it hashed (same as the refresh-token pattern), email the raw version exactly once, consume it on use. Same shape as the existing <code>RefreshToken</code> model — reuse that pattern.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <p>Backend: a token model, two endpoints, a mailer. Frontend: two pages and a linkified Login affordance.</p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind model">model</span><span class="name">api/app/models/password_reset_token.rb</span>
+        <div class="role">Stores hashed reset tokens scoped to a user. Mirrors <code>RefreshToken</code>: <code>generate(user)</code> returns <code>[raw, record]</code>, <code>usable?</code> predicate (unexpired + not used), <code>consume!</code> marks used_at. Raw tokens never touch the database.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind controller">controller</span><span class="name">api/app/controllers/api/v1/password_resets_controller.rb</span>
+        <div class="role"><code>#create</code> takes an email, generates a token if the user exists, hands the raw token to the mailer, responds 202 Accepted with a generic "if that email exists…" message regardless of whether the user was found (no user-existence leak). <code>#update</code> takes <code>{ token, password, password_confirmation }</code>, verifies/consumes the token, updates the password. Returns 200 on success, 422 on validation failure, 410 Gone on expired/used/unknown token.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind mailer">mailer</span><span class="name">api/app/mailers/password_reset_mailer.rb</span>
+        <div class="role">Single action, <code>reset_instructions(user, raw_token)</code>. Renders HTML + text templates. Link points at the frontend's <code>/reset-password/:token</code> route via the host from <code>action_mailer.default_url_options</code>.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind page">page</span><span class="name">client/src/pages/ForgotPassword.jsx</span>
+        <div class="role">Email input, submit, success state ("if that email is registered, we've sent you a link"). Shape mirrors Login — same Card + form primitives. Uses <code>useFormSubmit</code>.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind page">page</span><span class="name">client/src/pages/ResetPassword.jsx</span>
+        <div class="role">Reads token from the URL, renders new-password + confirmation inputs with a strength bar (reuse Register's logic), submits to <code>PATCH /api/v1/password_resets/:token</code>, success toasts + redirects to <code>/login</code>, 410 Gone renders a "this link has expired or been used" empty state with a link back to <code>/forgot-password</code>.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span><span class="name">client/src/pages/Login.jsx</span>
+        <div class="role">Swap the cosmetic <code>&lt;span&gt;Forgot password?&lt;/span&gt;</code> for <code>&lt;Action to="/forgot-password" variant="unstyled" …&gt;</code>.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span><span class="name">client/src/App.jsx</span>
+        <div class="role">Lazy-route <code>/forgot-password</code> and <code>/reset-password/:token</code> — both public (no auth).</div>
+      </div>
+    </div>
+
+    <p style="margin-top: 20px;"><strong>Flow:</strong></p>
+    <div class="shape">Login → "Forgot password?"      ──→ /forgot-password
+                                             │
+                                             ▼ email submit
+                                 POST /api/v1/password_resets
+                                             │
+                                             ▼ (always 202)
+                                 success state: "check your inbox"
+                                             │
+                                             │  (meanwhile, user receives email)
+                                             ▼
+                                 User clicks link ──→ /reset-password/:token
+                                                             │
+                                                             ▼ new password submit
+                                                 PATCH /api/v1/password_resets/:token
+                                                             │
+                                                             ▼ success
+                                                 Toast + redirect to /login</div>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li><strong>Token model with hashed storage.</strong> <code>PasswordResetToken</code> stores only the SHA-256 digest of the raw token, never the raw value. <code>generate(user)</code> returns the raw token + record; <code>find_by_raw_token(raw)</code> looks up by digest. 24-hour expiry baked in.</li>
+      <li><strong>No user-existence leak.</strong> <code>POST /password_resets</code> always responds 202 Accepted with the same body whether or not the email matches a user. An attacker can't use this endpoint to enumerate registered accounts.</li>
+      <li><strong>Token is single-use.</strong> Successfully consuming a token sets <code>used_at</code>. A second <code>PATCH /password_resets/:token</code> call with the same token returns 410 Gone.</li>
+      <li><strong>Token expires.</strong> 24 hours from issue. After that, <code>PATCH</code> returns 410 Gone.</li>
+      <li><strong>Password rules apply on reset.</strong> Same <code>has_secure_password</code> + length/composition/common-password validations as registration. Show validation errors inline.</li>
+      <li><strong>Email delivered via letter_opener_web in dev.</strong> Mounted at <code>/letter_opener</code> so you can browse sent mails in the browser. In production the mailer config switches to real SMTP (left as a deployment concern).</li>
+      <li><strong>ForgotPassword page.</strong> One email input, submit button, success state. Same card + form shape as Login/Register. Navigates nowhere on success — stays on the page to show the confirmation.</li>
+      <li><strong>ResetPassword page.</strong> Reads <code>:token</code> from the URL. Two password inputs (password + confirmation) with strength bar. On success, toast + redirect to <code>/login</code>. On 410, render an expired-link state.</li>
+      <li><strong>Login link.</strong> The existing <code>&lt;span&gt;Forgot password?&lt;/span&gt;</code> becomes a real <code>&lt;Link&gt;</code> (via the <code>Action</code> primitive with a <code>to</code> prop) pointing at <code>/forgot-password</code>.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Clicking "Forgot password?" on Login navigates to <code>/forgot-password</code>.</span></div>
+    <div class="criterion"><div class="box"></div><span>Submitting a valid email shows the success state and opens a reset email in <code>/letter_opener</code>.</span></div>
+    <div class="criterion"><div class="box"></div><span>Submitting a nonexistent email shows the identical success state (no leak) and sends no email.</span></div>
+    <div class="criterion"><div class="box"></div><span>Clicking the link in the email lands on <code>/reset-password/:token</code> with a password form rendered.</span></div>
+    <div class="criterion"><div class="box"></div><span>Submitting a valid new password redirects to <code>/login</code> with a success toast, and the new password works on login.</span></div>
+    <div class="criterion"><div class="box"></div><span>Attempting to reuse the same token returns 410 and renders the expired-link state with a link back to <code>/forgot-password</code>.</span></div>
+    <div class="criterion"><div class="box"></div><span>Password validation failures (too short, too common, mismatched confirmation) render inline field errors, not a toast.</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> and <code>./scripts/run_tests.sh api</code> pass. Client unit tests pass; E2E for the reset half is deliberately skipped pending a mail-inspection helper.</span></div>
+  </section>
+
+  <section>
+    <h2>Security</h2>
+    <div class="security">
+      <strong>Never store raw tokens.</strong> The database holds the SHA-256 digest. Raw tokens live only (a) in memory during <code>create</code>, (b) in the email the user receives, (c) in the URL they click. Lookup is by digest. This is the same pattern <code>RefreshToken</code> uses — follow it exactly.
+    </div>
+    <div class="security">
+      <strong>Constant-time comparison on digest lookup.</strong> Postgres <code>WHERE token_digest = ?</code> is fine because the digest doesn't reveal the raw token — you can compare it non-constant-time without leaking anything useful.
+    </div>
+    <div class="security">
+      <strong>Filter the token param from logs.</strong> Add <code>:token</code> to <code>Rails.application.config.filter_parameters</code> so the raw token never lands in <code>production.log</code>.
+    </div>
+    <div class="security">
+      <strong>No user-existence oracle.</strong> <code>POST /password_resets</code> returns the same response whether the email exists or not. This is why the <code>#create</code> action does the lookup, conditionally creates a token, and unconditionally responds 202 — never let the response shape or status code differ based on whether the user was found.
+    </div>
+    <div class="security">
+      <strong>Rate limiting deferred to prod.</strong> Rack::Attack isn't configured in dev. When the app hits production, add a throttle on this endpoint (3 requests per IP per hour, 3 per email per hour) — that's deploy-time work, not this ticket.
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <table class="rails-map">
+      <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>RefreshToken</code> model pattern (hashed bearer credential, <code>.generate</code> class method, <code>usable?</code> + <code>revoke!</code>)</td><td>Reused shape for <code>PasswordResetToken</code> with <code>consume!</code> instead of <code>revoke!</code></td><td>Same security model, different lifecycle</td></tr>
+        <tr><td><code>Rails.application.routes.url_helpers.reset_password_url(token: raw)</code> inside the mailer</td><td>Frontend route <code>/reset-password/:token</code> consumed by <code>ResetPassword.jsx</code></td><td>Mailer needs <code>default_url_options</code> set to the frontend host, not the API host</td></tr>
+        <tr><td><code>params.expect(password_reset: [:email])</code> / <code>params.expect(password_reset: [:password, :password_confirmation])</code></td><td>Two <code>apiPost</code> / <code>apiPatch</code> calls from the forgot + reset pages</td><td>Same <code>ValidationError</code> plumbing as Register</td></tr>
+        <tr><td><code>letter_opener_web</code> mounted in routes</td><td>Developer opens <code>http://localhost:3000/letter_opener</code> to inspect sent mail</td><td>Dev-only; production uses real SMTP</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li>api/db/migrate/..._create_password_reset_tokens.rb <span class="action">create</span></li>
+      <li>api/app/models/password_reset_token.rb <span class="action">create</span></li>
+      <li>api/app/controllers/api/v1/password_resets_controller.rb <span class="action">create</span></li>
+      <li>api/app/mailers/password_reset_mailer.rb <span class="action">create</span></li>
+      <li>api/app/views/password_reset_mailer/reset_instructions.html.erb <span class="action">create</span></li>
+      <li>api/app/views/password_reset_mailer/reset_instructions.text.erb <span class="action">create</span></li>
+      <li>api/config/routes.rb <span class="action">update</span></li>
+      <li>api/config/environments/development.rb <span class="action">update</span></li>
+      <li>api/Gemfile <span class="action">update</span></li>
+      <li>api/test/models/password_reset_token_test.rb <span class="action">create</span></li>
+      <li>api/test/controllers/api/v1/password_resets_controller_test.rb <span class="action">create</span></li>
+      <li>api/test/mailers/password_reset_mailer_test.rb <span class="action">create</span></li>
+      <li>client/src/pages/ForgotPassword.jsx <span class="action">create</span></li>
+      <li>client/src/pages/ResetPassword.jsx <span class="action">create</span></li>
+      <li>client/src/pages/Login.jsx <span class="action">update</span></li>
+      <li>client/src/App.jsx <span class="action">update</span></li>
+      <li>client/src/hooks/usePasswordStrength.js <span class="action">create</span></li>
+      <li>client/src/pages/Register.jsx <span class="action">update</span></li>
+    </ul>
+    <p style="font-size: 13px; color: #666; margin-top: 12px;">The <code>usePasswordStrength</code> hook is extracted during this ticket because the strength bar is now used in two places (Register + ResetPassword) — second-copy rule.</p>
+  </section>
+
+  <section>
+    <h2>Forward compatibility notes</h2>
+    <div class="forward">
+      <strong>Same mailer infrastructure unlocks other emails.</strong> Welcome emails, care reminders, weekly digests — all of them will ride on the same ActionMailer + letter_opener_web setup. After this ticket, sending any email is a matter of adding a mailer class, not setting up infrastructure.
+    </div>
+    <div class="forward">
+      <strong>Production SMTP is a deployment concern.</strong> The dev config uses letter_opener_web; production needs real SMTP (SendGrid, Postmark, SES — pick at deploy time). Don't bake SMTP credentials into this ticket.
+    </div>
+    <div class="forward">
+      <strong>Rate limiting is production-only for now.</strong> Rack::Attack throttle belongs on the <code>POST /password_resets</code> endpoint but should land with the production deployment work, not here. Leave a comment on the controller noting the intended throttle so the future work is discoverable.
+    </div>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li>Frontend host vs API host: the reset link points at the frontend (<code>http://localhost:5173</code> in dev), not the API (<code>http://localhost:3000</code>). Set <code>config.action_mailer.default_url_options</code> to the frontend host so link helpers generate the right URLs.</li>
+      <li>letter_opener_web mounts at <code>/letter_opener</code> by default — keep that path so anyone coming back to this work after a gap can find it.</li>
+      <li>The 410 Gone handling on the frontend needs to distinguish "token expired/used/unknown" (410) from "password validation failed" (422). Different error classes, different UI treatment.</li>
+      <li>Skip E2E for the reset half this time. Testing it properly needs either a mail-inspection helper (<code>letter_opener_web</code>'s mail list is not straightforward to drive from Playwright) or a dev-only debug endpoint — both out of scope for this ticket.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>
