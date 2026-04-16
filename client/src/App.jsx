@@ -79,7 +79,7 @@ export default function App() {
                 {/* /welcome requires auth but NOT onboarded — it's the route
                     a user is sent to *because* they're not yet onboarded. */}
                 <Route
-                  path="/welcome"
+                  path="/welcome/:step?"
                   element={
                     <ProtectedRoute requireOnboarded={false}>
                       <Welcome />
