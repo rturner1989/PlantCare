@@ -75,6 +75,14 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 'test@example.com', user.email
   end
 
+  test 'find_by_normalized_email matches through case and whitespace differences' do
+    user = users(:john)
+    assert_equal user, User.find_by_normalized_email(user.email.upcase)
+    assert_equal user, User.find_by_normalized_email("  #{user.email}  ")
+    assert_nil User.find_by_normalized_email('')
+    assert_nil User.find_by_normalized_email(nil)
+  end
+
   test 'onboarded? is false for new users' do
     user = users(:john)
     assert_nil user.onboarding_completed_at

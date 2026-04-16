@@ -34,14 +34,17 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Don't care if the mailer can't send.
-  config.action_mailer.raise_delivery_errors = false
-
-  # Make template changes take effect immediately.
+  # Deliver to the letter_opener_web inbox at /letter_opener instead of
+  # actually sending mail. Prod config swaps this to :smtp with real creds.
+  config.action_mailer.delivery_method = :letter_opener_web
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_caching = false
 
-  # Set localhost to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+  # Password-reset links point at the frontend (Vite dev at :5173), not the
+  # Rails API. Mailer URL helpers and our hand-built URL in
+  # PasswordResetMailer#build_reset_url both read from this.
+  config.action_mailer.default_url_options = { host: "localhost", port: 5173, protocol: "http" }
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log

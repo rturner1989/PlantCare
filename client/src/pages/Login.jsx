@@ -57,7 +57,9 @@ export default function Login() {
               />
 
               <div className="text-right">
-                <span className="text-xs text-ink-soft cursor-pointer hover:text-leaf">Forgot password?</span>
+                <Action to="/forgot-password" variant="unstyled" className="text-xs text-ink-soft hover:text-leaf">
+                  Forgot password?
+                </Action>
               </div>
             </CardBody>
 
