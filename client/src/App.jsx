@@ -11,11 +11,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import Spinner from './components/ui/Spinner'
 import { AuthProvider } from './context/AuthContext'
-import { ToastProvider } from './context/ToastContext'
+import { ToastProvider, useToast } from './context/ToastContext'
+import { useAuth } from './hooks/useAuth'
 import AppLayout from './layouts/AppLayout'
 
 // Route-level code splitting — each page ships as its own JS chunk, fetched on demand.
@@ -48,10 +49,38 @@ function RouteFallback() {
 }
 
 function PlaceholderPage({ title }) {
+  const { logout } = useAuth()
+  const toast = useToast()
+  const navigate = useNavigate()
+
+  // Temporary mobile logout affordance — desktop already has one in the
+  // Sidebar. Delete when the Me profile page lands in ticket 14 and gets
+  // its proper logout button.
+  //
+  // Explicit navigate with `state: null` so the next login starts fresh
+  // on Today rather than resuming the path the user logged out from
+  // (ProtectedRoute would otherwise set state.from).
+  async function handleLogout() {
+    await logout()
+    toast.success('Logged out')
+    navigate('/login', { replace: true, state: null })
+  }
+
   return (
     <div className="p-6 lg:p-10">
-      <h1 className="text-3xl font-extrabold text-ink">{title}</h1>
-      <p className="text-ink-soft mt-2">Coming soon.</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold text-ink">{title}</h1>
+          <p className="text-ink-soft mt-2">Coming soon.</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="lg:hidden text-sm font-bold text-ink-soft hover:text-coral active:text-coral transition-colors cursor-pointer border-0 bg-transparent p-0"
+        >
+          Log out
+        </button>
+      </div>
     </div>
   )
 }
@@ -106,7 +135,7 @@ export default function App() {
         </ToastProvider>
       </AuthProvider>
       {/* Vite strips this branch from production builds — devtools ship only in dev. */}
-      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} buttonPosition="top-right" />}
     </QueryClientProvider>
   )
 }

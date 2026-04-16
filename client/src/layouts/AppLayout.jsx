@@ -7,7 +7,7 @@ export default function AppLayout() {
     <div className="min-h-dvh">
       <Sidebar />
 
-      <main className="lg:ml-[260px] pb-24 lg:pb-0 min-h-dvh">
+      <main className="lg:ml-[260px] pt-[env(safe-area-inset-top)] pb-24 lg:pt-0 lg:pb-0 min-h-dvh">
         <Outlet />
       </main>
 

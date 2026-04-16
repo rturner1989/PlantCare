@@ -3,6 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- iOS Safari uses this for the "Add to Home Screen" icon. SVG isn't
+         officially supported for apple-touch-icon, but iOS falls back to
+         the regular favicon gracefully. Swap to a dedicated 180x180 PNG
+         when a real brand mark is ready. -->
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <!-- PWA manifest: tells browsers name, icons, launch mode (standalone),
+         and colours. Required for Android's install prompt and Chrome PWA
+         behaviour; iOS ignores the manifest but launches standalone from
+         the apple-mobile-web-app-capable meta tag below. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
     <!-- viewport-fit=cover lets CSS use env(safe-area-inset-*) on iOS
          PWA standalone mode so the app can draw into the notch/home
          indicator area instead of leaving it white. -->
@@ -15,10 +25,12 @@
     <meta name="theme-color" content="#f6fbf4" />
     <!-- iOS PWA standalone: when the user "Add to Home Screen" in Safari
          and launches from the home screen, render full-screen with no
-         browser chrome. `default` keeps the status bar dark-on-light. -->
+         browser chrome. `black-translucent` makes the status bar area
+         transparent so the mint gradient extends into it, matching the
+         bottom safe-area behaviour. -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="PlantCare" />
     <title>PlantCare</title>
   </head>
