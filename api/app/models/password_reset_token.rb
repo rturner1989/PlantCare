@@ -1,5 +1,26 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: password_reset_tokens
+#
+#  id           :bigint           not null, primary key
+#  expires_at   :datetime         not null
+#  token_digest :string           not null
+#  used_at      :datetime
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  user_id      :bigint           not null
+#
+# Indexes
+#
+#  index_password_reset_tokens_on_token_digest  (token_digest) UNIQUE
+#  index_password_reset_tokens_on_user_id       (user_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (user_id => users.id)
+#
 class PasswordResetToken < ApplicationRecord
   DEFAULT_EXPIRY = 24.hours
 
