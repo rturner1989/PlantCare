@@ -55,4 +55,10 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Use bcrypt's minimum cost (4) in tests — cuts registration from ~250ms to
+  # ~1ms. Concurrent Playwright workers were queuing behind each other at the
+  # default cost (12) and hitting waitForURL timeouts. Production still uses
+  # the standard cost via the Rails default.
+  ActiveModel::SecurePassword.min_cost = true
 end
