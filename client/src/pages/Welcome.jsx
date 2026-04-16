@@ -1,7 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { apiGet } from '../api/client'
 import Step1Intro from '../components/welcome/Step1Intro'
 import Step2Rooms from '../components/welcome/Step2Rooms'
 import Step3Species from '../components/welcome/Step3Species'
@@ -10,6 +8,7 @@ import Step5Done from '../components/welcome/Step5Done'
 import WizardCard from '../components/welcome/WizardCard'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
+import { useRooms } from '../hooks/useRooms'
 
 const TOTAL_STEPS = 5
 
@@ -25,11 +24,7 @@ export default function Welcome() {
   const { user, markOnboarded } = useAuth()
   const toast = useToast()
 
-  const { data: existingRooms } = useQuery({
-    queryKey: ['rooms'],
-    queryFn: () => apiGet('/api/v1/rooms'),
-    enabled: !user?.onboarded,
-  })
+  const { data: existingRooms } = useRooms({ enabled: !user?.onboarded })
 
   useEffect(() => {
     if (user?.onboarded) {

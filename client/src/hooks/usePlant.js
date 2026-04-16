@@ -1,0 +1,107 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { apiDelete, apiGet, apiPatch, apiPost } from '../api/client'
+
+export function usePlants(roomId) {
+  return useQuery({
+    queryKey: roomId ? ['plants', { roomId }] : ['plants'],
+    queryFn: () => apiGet(`/api/v1/plants${roomId ? `?room_id=${roomId}` : ''}`),
+  })
+}
+
+export function usePlant(id) {
+  return useQuery({
+    queryKey: ['plants', id],
+    queryFn: () => apiGet(`/api/v1/plants/${id}`),
+    enabled: !!id,
+  })
+}
+
+export function useCreatePlant() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => apiPost('/api/v1/plants', { plant: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plants'] })
+      queryClient.invalidateQueries({ queryKey: ['rooms'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+}
+
+export function useUpdatePlant() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, ...data }) => apiPatch(`/api/v1/plants/${id}`, { plant: data }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['plants'] })
+      queryClient.invalidateQueries({ queryKey: ['plants', variables.id] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+}
+
+export function useDeletePlant() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id) => apiDelete(`/api/v1/plants/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plants'] })
+      queryClient.invalidateQueries({ queryKey: ['rooms'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+}
+
+export function useCareLogs(plantId, params = {}) {
+  const queryParams = params.careType ? `?care_type=${params.careType}` : ''
+  return useQuery({
+    queryKey: ['careLogs', plantId, params],
+    queryFn: () => apiGet(`/api/v1/plants/${plantId}/care_logs${queryParams}`),
+    enabled: !!plantId,
+  })
+}
+
+export function useLogCare(plantId) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => apiPost(`/api/v1/plants/${plantId}/care_logs`, { care_log: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['careLogs', plantId] })
+      queryClient.invalidateQueries({ queryKey: ['plants', plantId] })
+      queryClient.invalidateQueries({ queryKey: ['plants'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+}
+
+export function usePlantPhotos(plantId) {
+  return useQuery({
+    queryKey: ['plantPhotos', plantId],
+    queryFn: () => apiGet(`/api/v1/plants/${plantId}/plant_photos`),
+    enabled: !!plantId,
+  })
+}
+
+export function useUploadPhoto(plantId) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (file) => {
+      const formData = new FormData()
+      formData.append('plant_photo[image]', file)
+      return apiPost(`/api/v1/plants/${plantId}/plant_photos`, formData)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plantPhotos', plantId] })
+    },
+  })
+}
+
+export function useDeletePhoto(plantId) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (photoId) => apiDelete(`/api/v1/plants/${plantId}/plant_photos/${photoId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plantPhotos', plantId] })
+    },
+  })
+}
