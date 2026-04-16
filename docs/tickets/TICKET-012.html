@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-012: URL-based wizard steps for onboarding</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 70px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.page { background: #2d6a4f; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.test { background: #4a6fa5; }
+.shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.rails-map code { white-space: nowrap; }
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-012</div>
+    <h1>URL-based wizard steps for onboarding</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-medium">Medium</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>The onboarding wizard's step state lives entirely in React <code>useState</code>. The URL stays at <code>/welcome</code> through every step, so the browser's history has no idea the user has advanced. Two-finger swipe-back on macOS (or hitting the back button) on Step 3 drops the user straight to Step 1 — because as far as the browser's concerned, Step 3 was never a navigation event.</p>
+    <p>Fix by making each step its own route: <code>/welcome</code>, <code>/welcome/rooms</code>, <code>/welcome/species</code>, <code>/welcome/environment</code>, <code>/welcome/done</code>. Advancing becomes a <code>navigate()</code> call; the browser's back/forward buttons and swipe gestures work naturally as a result.</p>
+    <p>In one sentence: <strong>move wizard progression from component state into the URL so browser history tracks it.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">01–05</span>Foundations</div>
+      <div class="plan-step done"><span class="num">06</span>Onboard</div>
+      <div class="plan-step done"><span class="num">07</span>Hooks</div>
+      <div class="plan-step current"><span class="num">12</span>Wizard nav</div>
+      <div class="plan-step"><span class="num">08–11</span>Screens</div>
+      <div class="plan-step"><span class="num">13–14</span>Polish</div>
+    </div>
+    <p><strong>What came before:</strong> TICKET-006 shipped the onboarding wizard end-to-end with in-memory step state. It works for the forward flow, but it never represents wizard progression as browser history — an oversight that's invisible until a user uses a native back gesture mid-flow.</p>
+    <p><strong>What this unlocks:</strong> nothing is blocked on this, but it's worth fixing before real users touch onboarding. Once each step has its own URL, three bonus wins fall out: refresh preserves position without depending on server-side resume logic; the "resume mid-wizard" E2E test can replace its heuristic (look for server-persisted rooms, jump to Step 3) with a real URL-based restore; and analytics can measure drop-off per step cleanly.</p>
+    <p><strong>Mental model:</strong> this is the React equivalent of converting a Rails controller that swaps partials via Turbo frames into one that uses proper REST routes for each step. The UX looks identical; the difference is that the browser's history now tracks it.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <p>A small refactor concentrated in two files. No new components, no new domain primitives — just relocating the source of truth for "which step" from <code>useState</code> to the URL.</p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span><span class="name">client/src/pages/Welcome.jsx</span>
+        <div class="role">The wizard shell stops tracking <code>step</code> in <code>useState</code>. Instead it reads the current step slug from the URL via <code>useParams()</code>, maps slug→component in a small switch, and calls <code>navigate()</code> instead of <code>setStep()</code> when advancing/going back. The resume-mid-wizard effect disappears entirely — the URL already says where to land.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind extend">extend</span><span class="name">client/src/App.jsx</span>
+        <div class="role">The <code>/welcome</code> route gains a <code>:step?</code> URL parameter (or nested child routes — your call). <code>ProtectedRoute requireOnboarded={false}</code> wrapping stays unchanged.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind test">test</span><span class="name">client/tests/pages/welcome.spec.js</span>
+        <div class="role">Update the existing 12 E2E tests where they assert step transitions — they can now assert on URL changes (<code>expect(page).toHaveURL(/\/welcome\/species$/)</code>) alongside the visual "Step N" indicator. Add one new test: browser-back from Step 3 lands on Step 2, forward returns to Step 3.</div>
+      </div>
+    </div>
+    <div class="shape">Route table (option A — param)
+─────────────────────────────
+/welcome            → Step 1 (intro)
+/welcome/rooms      → Step 2
+/welcome/species    → Step 3
+/welcome/environment → Step 4
+/welcome/done       → Step 5
+
+URL param maps to step number:
+  { undefined: 1, rooms: 2, species: 3, environment: 4, done: 5 }
+</div>
+    <p style="font-size: 13px; color: #666; margin-top: 12px;">Option A (single route, <code>:step?</code> param) keeps the refactor tight — one component, one route. Option B (nested <code>&lt;Route&gt;</code> children with <code>&lt;Outlet /&gt;</code>) is more idiomatic and opens up per-step lazy loading later, but adds route-table churn. Start with A unless you're craving the nesting.</p>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li><strong>Each step has a distinct URL.</strong> The five step slugs are stable — they're part of the app's URL contract and shouldn't change casually.</li>
+      <li><strong>Browser back/forward work through the wizard.</strong> Back from Step 3 lands on Step 2 with its previous state (the selected rooms). Forward from Step 2 returns to Step 3. Swipe gestures on macOS behave identically.</li>
+      <li><strong>Refresh preserves position.</strong> Hitting refresh on <code>/welcome/species</code> lands the user back on Step 3 — no "resume from server data" heuristic needed. If the user refreshes mid-wizard without having persisted anything yet (e.g. refresh on Step 3 but no rooms were saved), the app falls back to Step 1 cleanly without crashing.</li>
+      <li><strong>Direct-linking to a step is valid.</strong> Opening <code>/welcome/species</code> directly (say, from a bookmark) renders Step 3. If the user hasn't completed prerequisite steps (no rooms yet), the step component handles that gracefully — same as the existing Step 3 behaviour when <code>availableRooms</code> is empty.</li>
+      <li><strong>Unknown step slugs redirect to Step 1.</strong> A URL like <code>/welcome/banana</code> lands the user on <code>/welcome</code>, not a crash or a 404.</li>
+      <li><strong>The "onboarded user visits /welcome" guard still works.</strong> ProtectedRoute bounces onboarded users to <code>/</code> regardless of which step slug they hit.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Advancing through the wizard updates the URL at each step: <code>/welcome</code> → <code>/welcome/rooms</code> → <code>/welcome/species</code> → <code>/welcome/environment</code> → <code>/welcome/done</code>.</span></div>
+    <div class="criterion"><div class="box"></div><span>Two-finger swipe back in Safari on Step 3 lands on Step 2, not Step 1. Same for the back button and <code>history.back()</code> in DevTools.</span></div>
+    <div class="criterion"><div class="box"></div><span>Refreshing on <code>/welcome/species</code> renders Step 3, not Step 1.</span></div>
+    <div class="criterion"><div class="box"></div><span>Typing <code>/welcome/not-a-step</code> into the URL bar redirects to <code>/welcome</code> without a crash or a blank screen.</span></div>
+    <div class="criterion"><div class="box"></div><span>The existing "un-onboarded user logging in lands at <code>/welcome</code>" E2E test still passes — no regression in the auth→onboarding handoff.</span></div>
+    <div class="criterion"><div class="box"></div><span>The full happy path E2E (register → wizard → dashboard) still passes. Any step-transition assertions are updated to also check the URL.</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> and <code>./scripts/run_tests.sh client</code> pass.</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+    <p>No mockup changes — this is pure plumbing. The wizard's visible behaviour is identical to TICKET-006 shipped; only the URL bar now changes as the user progresses.</p>
+    <p>Worth a quick read:</p>
+    <ul>
+      <li><a class="plan-link" href="../plans/2026-04-10-plantcare-frontend.md">docs/plans/2026-04-10-plantcare-frontend.md → Task 6 (onboarding wizard)</a></li>
+      <li><a class="plan-link" href="../specs/2026-04-09-plantcare-ui-design.md">docs/specs/2026-04-09-plantcare-ui-design.md → Onboarding section</a></li>
+    </ul>
+    <p>Both treat the wizard as a single page conceptually — the URL scheme is an implementation detail this ticket introduces. Pick the slugs that read well in the URL bar; they aren't dictated elsewhere.</p>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+    <div class="learn">
+      <strong>State in the URL vs state in the component.</strong> The big idea here: some state belongs <em>in</em> the URL (which page am I on, which filter am I applying, which item am I viewing) and some belongs in the component (is this dropdown open, what's half-typed in this input). URL state is shareable, refreshable, and bookmarkable. Component state is ephemeral. Wizard progression is classic URL state — users expect back/forward to work and refresh to land them where they were. Your current wizard got the call wrong; this ticket corrects it.
+    </div>
+    <div class="learn">
+      <strong><code>useParams()</code>.</strong> Returns the URL parameters React Router parsed from the current route. Given a route like <code>&lt;Route path="/welcome/:step?" ... /&gt;</code>, <code>const { step } = useParams()</code> gives you the current slug (or <code>undefined</code> when the user's on bare <code>/welcome</code>). Pure function of the URL — no subscription plumbing, no effect needed.
+    </div>
+    <div class="learn">
+      <strong><code>useNavigate()</code> vs <code>&lt;Link&gt;</code>.</strong> You already use both elsewhere. <code>&lt;Link&gt;</code> is for user-initiated navigation (an anchor they can right-click, command-click, etc.). <code>useNavigate()</code> is for programmatic navigation from event handlers — *after* the rooms mutation succeeds, navigate to <code>/welcome/species</code>. Both push a new entry onto the browser's history stack, which is exactly what makes back/forward work.
+    </div>
+    <div class="learn">
+      <strong>Resume logic can probably go away.</strong> The current <code>hasResumedRef</code> effect in <code>Welcome.jsx</code> exists to handle "user refreshes mid-wizard" by looking at server-persisted rooms and jumping forward. Once the step is in the URL, a refresh on <code>/welcome/species</code> just… lands on Step 3. The server resume heuristic becomes unnecessary for this specific use case. You may still want a guard for the "landed on Step 3 but <code>availableRooms</code> is empty" case — but that's a data-level check, not a state-restoration hack.
+    </div>
+    <div class="learn">
+      <strong>One route or nested routes?</strong> React Router v7 supports both. <code>&lt;Route path="/welcome/:step?" ... /&gt;</code> is the simplest — one Welcome component handles all five steps internally. <code>&lt;Route path="/welcome" element={&lt;Welcome /&gt;}&gt;&lt;Route path="rooms" element={&lt;Step2 /&gt;} /&gt;...&lt;/Route&gt;</code> with an <code>&lt;Outlet /&gt;</code> inside Welcome is the idiomatic v7 way — each step can later code-split independently, have its own layout, its own loader. For a 5-step wizard with shared chrome, nested is overkill. Start with the param.
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <table class="rails-map">
+      <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Multi-step form with <code>params[:step]</code> in the controller</td><td><code>const { step } = useParams()</code> at the top of Welcome</td><td>URL parameter, read as a hook, zero subscription plumbing</td></tr>
+        <tr><td><code>redirect_to new_wizard_path(step: :species)</code></td><td><code>navigate('/welcome/species')</code></td><td>Programmatic push onto the history stack</td></tr>
+        <tr><td>Controller's <code>case params[:step]</code> with step-specific render</td><td>Switch or map from slug → step component inside Welcome</td><td>One component renders the right child based on the URL</td></tr>
+        <tr><td>Browser back "just works" because each step is its own GET</td><td>Browser back "just works" because each step is its own history entry</td><td>Exactly the UX this ticket is after</td></tr>
+        <tr><td><code>params[:step] || :intro</code> default fallback</td><td><code>step ?? 'intro'</code> in the slug map</td><td>Handling the bare <code>/welcome</code> case</td></tr>
+        <tr><td><code>raise ActionController::RoutingError</code> on invalid step</td><td><code>&lt;Navigate to="/welcome" replace /&gt;</code> when slug is unknown</td><td>Redirect instead of crash</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li>client/src/pages/Welcome.jsx <span class="action">rewrite</span></li>
+      <li>client/src/App.jsx <span class="action">minor edit</span></li>
+      <li>client/tests/pages/welcome.spec.js <span class="action">update assertions + add 1 new test</span></li>
+    </ul>
+    <p style="font-size: 13px; color: #666; margin-top: 12px;">This is a shape hint, not a spec. If you find a cleaner split during implementation — e.g. extracting a <code>useWizardStep</code> hook that wraps the slug map — follow your nose.</p>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li><strong>Don't touch the step components.</strong> Step1Intro, Step2Rooms, Step3Species, Step4Environment, Step5Done all keep the exact same props interface — <code>onBack</code>, <code>onComplete</code>, initial data. The Welcome shell is what changes: it passes <code>() => navigate(-1)</code> for onBack and <code>() => navigate('/welcome/species')</code> for onComplete instead of <code>setStep</code> wrappers.</li>
+      <li><strong>Step 2's case-duplicate E2E test has a known assertion on "stay on Step 2 after error".</strong> The existing test hits the backend and expects to see Step 2 still rendered. With URL-based routing, "still on Step 2" means <code>/welcome/rooms</code> in the URL plus the Step 2 UI visible. Update that assertion.</li>
+      <li><strong>Watch for the <code>useEffect</code> that bounces onboarded users to <code>/</code>.</strong> It's keyed on <code>user?.onboarded</code> and should still fire regardless of which step slug the user lands on. ProtectedRoute handles the outer guard; this effect is belt-and-braces.</li>
+      <li><strong>Step state that isn't step progression (the wizard's data: created rooms, selected species, nickname) still belongs in <code>useState</code>.</strong> Don't be tempted to cram it into the URL too — it's ephemeral, not shareable, and would bloat the URL bar. URL tracks <em>where</em>; local state tracks <em>what</em>.</li>
+      <li><strong>The <code>hasResumedRef</code> server-resume effect is probably dead code after this.</strong> Read it carefully before deleting — it handles the edge case of "user started onboarding, closed the tab, came back later". With URL-based steps, they come back to wherever they bookmarked, but if they didn't bookmark and just re-open <code>/welcome</code>, they land on Step 1 by default. Decide whether to keep the "jump to Step 3 if rooms exist" behaviour or drop it. Either answer is fine; be deliberate.</li>
+      <li>When you're done: run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, commit on a feature branch, then open a PR.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>
