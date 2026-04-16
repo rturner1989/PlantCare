@@ -42,7 +42,8 @@ services:
     volumes:
       - ./api:/plant-care-api
       - /plant-care-api/tmp
-    depends_on:                                                                                                  
+      - ./api/tmp/letter_opener:/plant-care-api/tmp/letter_opener
+    depends_on:
       - redis
       - postgres                                                                                                 
     env_file:                                                     

@@ -12,6 +12,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
+import Spinner from './components/ui/Spinner'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import AppLayout from './layouts/AppLayout'
@@ -40,7 +41,7 @@ const queryClient = new QueryClient({
 function RouteFallback() {
   return (
     <div className="flex items-center justify-center min-h-dvh">
-      <div className="w-8 h-8 border-3 border-leaf border-t-transparent rounded-full animate-spin" />
+      <Spinner />
     </div>
   )
 }

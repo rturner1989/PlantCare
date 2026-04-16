@@ -6,5 +6,6 @@ echo "MIGRATE api container with id $container_id..."
 echo "================="
 
 docker compose run --rm api rails db:migrate
+docker compose run --rm -e RAILS_ENV=test api rails db:migrate
 
 echo "Finished!"

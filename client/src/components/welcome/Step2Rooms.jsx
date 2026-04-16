@@ -1,10 +1,9 @@
 import { faBath, faBed, faBriefcase, faCouch, faUtensils } from '@fortawesome/free-solid-svg-icons'
-import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { apiDelete, apiGet, apiPost } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
 import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
+import { useCreateRoom, useDeleteRoom, useRoomPresets } from '../../hooks/useRooms'
 import OptionCard from '../form/OptionCard'
 import Action from '../ui/Action'
 import { CardBody, CardFooter } from '../ui/Card'
@@ -20,19 +19,14 @@ const ROOM_ICONS = {
   desk: faBriefcase,
 }
 
-function useRoomPresets() {
-  return useQuery({
-    queryKey: ['rooms', 'presets'],
-    queryFn: () => apiGet('/api/v1/rooms/presets'),
-  })
-}
-
 export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
   const [selectedRooms, setSelectedRooms] = useState(() => initialRooms.map((r) => r.name))
   const [customRoom, setCustomRoom] = useState('')
   const toast = useToast()
 
   const { data: presets = [], error: presetsError } = useRoomPresets()
+  const createRoom = useCreateRoom()
+  const deleteRoom = useDeleteRoom()
 
   useEffect(() => {
     if (presetsError) toast.error(presetsError.message)
@@ -65,12 +59,10 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
             selectedRooms.map((roomName) => {
               if (existingByName.has(roomName)) return existingByName.get(roomName)
               const preset = presets.find((r) => r.name === roomName)
-              return apiPost('/api/v1/rooms', {
-                room: { name: roomName, icon: preset?.icon || null },
-              })
+              return createRoom.mutateAsync({ name: roomName, icon: preset?.icon || null })
             }),
           ),
-          Promise.all(toDelete.map((room) => apiDelete(`/api/v1/rooms/${room.id}`))),
+          Promise.all(toDelete.map((room) => deleteRoom.mutateAsync(room.id))),
         ])
         onComplete(rooms)
       } catch (err) {

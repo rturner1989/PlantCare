@@ -1,4 +1,5 @@
 import { useEffect, useId, useState } from 'react'
+import Spinner from '../ui/Spinner'
 import TextInput from './TextInput'
 
 /**
@@ -17,7 +18,7 @@ import TextInput from './TextInput'
  * option, Escape clears it, Tab behaves normally.
  */
 
-const RESULTS_CONTAINER = 'mt-3 space-y-2 max-h-48 overflow-y-auto'
+const RESULTS_CONTAINER = 'space-y-2 min-h-48 max-h-48 overflow-y-auto'
 const OPTION_BASE = 'block w-full text-left bg-card border border-mint rounded-md cursor-pointer transition-colors'
 const OPTION_ACTIVE = 'border-leaf bg-leaf/5'
 const OPTION_INACTIVE = 'hover:border-leaf/50'
@@ -32,6 +33,7 @@ export default function SearchField({
   getOptionKey,
   renderOption,
   resultsLabel,
+  loading = false,
   className = '',
 }) {
   const listboxId = useId()
@@ -100,30 +102,44 @@ export default function SearchField({
       />
 
       {hasResults && (
-        <div
-          id={listboxId}
-          role="listbox"
-          aria-label={resultsLabel ?? `${label} results`}
-          className={RESULTS_CONTAINER}
-        >
-          {results.map((item, index) => {
-            const active = index === activeIndex
-            return (
-              <button
-                key={getOptionKey(item)}
-                id={`${optionIdBase}-${index}`}
-                type="button"
-                role="option"
-                aria-selected={active}
-                onClick={() => onSelect(item)}
-                onMouseMove={() => setActiveIndex(index)}
-                onMouseDown={(e) => e.preventDefault()}
-                className={`${OPTION_BASE} ${active ? OPTION_ACTIVE : OPTION_INACTIVE}`}
-              >
-                {renderOption(item)}
-              </button>
-            )
-          })}
+        <div className="relative mt-3">
+          <div
+            id={listboxId}
+            role="listbox"
+            aria-label={resultsLabel ?? `${label} results`}
+            aria-busy={loading ? 'true' : undefined}
+            className={`${RESULTS_CONTAINER} ${loading ? 'opacity-50 pointer-events-none' : ''}`}
+          >
+            {results.map((item, index) => {
+              const active = index === activeIndex
+              return (
+                <button
+                  key={getOptionKey(item)}
+                  id={`${optionIdBase}-${index}`}
+                  type="button"
+                  role="option"
+                  aria-selected={active}
+                  onClick={() => onSelect(item)}
+                  onMouseMove={() => setActiveIndex(index)}
+                  onMouseDown={(e) => e.preventDefault()}
+                  className={`${OPTION_BASE} ${active ? OPTION_ACTIVE : OPTION_INACTIVE}`}
+                >
+                  {renderOption(item)}
+                </button>
+              )
+            })}
+          </div>
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <Spinner />
+            </div>
+          )}
+        </div>
+      )}
+
+      {loading && !hasResults && (
+        <div className="mt-3 flex justify-center py-4">
+          <Spinner />
         </div>
       )}
     </div>

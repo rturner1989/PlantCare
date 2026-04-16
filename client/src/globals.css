@@ -105,6 +105,15 @@ body {
   max-width: 420px;
 }
 
+/* WebKit/Chromium renders a native X clear button inside type="search"
+ * inputs. The default cursor is an arrow — swap to pointer so it behaves
+ * like every other clickable affordance in the app. Firefox doesn't render
+ * the pseudo-element at all, so this is a no-op there.
+ */
+input[type="search"]::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
 /* Card-surface reveal: used anywhere a panel replaces another panel in
  * place and we want the new one to feel intentional rather than snap in. */
 @keyframes fade-in-up {

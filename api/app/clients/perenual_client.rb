@@ -32,7 +32,7 @@ class PerenualClient
     return [] if @api_key.blank?
 
     response = @conn.get('species-list', q: query, indoor: 1)
-    response.body['data'] || []
+    (response.body['data'] || []).reject { |result| group_rollup?(result) }
   rescue Faraday::Error => e
     Rails.logger.error("Perenual search failed: #{e.message}")
     []
@@ -68,6 +68,14 @@ class PerenualClient
       source: 'perenual',
       external_id: data['id'].to_s
     )
+  end
+
+  # Perenual's search results include taxonomic rollups like "Tulipa (group)"
+  # or "Rose (group)" — umbrella entries for a cultivar group, not individual
+  # species. They aren't useful for the onboarding picker, so strip them here
+  # at the API boundary.
+  private def group_rollup?(result)
+    Array(result['scientific_name']).first.to_s.include?('(group)')
   end
 
   private def parse_watering_days(data)

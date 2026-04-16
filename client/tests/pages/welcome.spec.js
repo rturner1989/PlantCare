@@ -14,10 +14,7 @@ async function registerFreshUser(page) {
   await page.getByLabel('Password', { exact: true }).fill(password)
   await page.getByLabel('Confirm password').fill(password)
   await page.getByRole('button', { name: /Create account/i }).click()
-  // Longer timeout because parallel workers each trigger bcrypt on a
-  // single-threaded dev Puma — a spike of concurrent registrations can
-  // queue behind each other and exceed Playwright's 5s default.
-  await page.waitForURL('/welcome', { timeout: 15000 })
+  await page.waitForURL('/welcome')
   return { email, password }
 }
 

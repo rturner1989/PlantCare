@@ -1,23 +1,10 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useDeferredValue, useEffect, useState } from 'react'
-import { apiGet } from '../../api/client'
+import { useSpeciesSearch } from '../../hooks/useSpecies'
 import SearchField from '../form/SearchField'
 import TextInput from '../form/TextInput'
 import Action from '../ui/Action'
 import Badge from '../ui/Badge'
 import { CardBody, CardFooter } from '../ui/Card'
-
-// keepPreviousData keeps the current results visible while the next
-// query is in flight; without it the dropdown flashes empty on every
-// keystroke as the queryKey changes.
-function useSpeciesSearch(query) {
-  const isSearching = query.length >= 2
-  return useQuery({
-    queryKey: ['species', isSearching ? ['search', query] : 'popular'],
-    queryFn: () => (isSearching ? apiGet(`/api/v1/species?q=${encodeURIComponent(query)}`) : apiGet('/api/v1/species')),
-    placeholderData: keepPreviousData,
-  })
-}
 
 function SpeciesRow({ species }) {
   return (
@@ -55,7 +42,7 @@ export default function Step3Species({
   })
 
   const deferredQuery = useDeferredValue(query)
-  const { data: results = [] } = useSpeciesSearch(deferredQuery)
+  const { data: results = [], isFetching } = useSpeciesSearch(deferredQuery)
 
   // Preload images of visible results into the browser cache so when the
   // user picks one, the selected-species card shows the photo immediately
@@ -101,8 +88,9 @@ export default function Step3Species({
               onQueryChange={setQuery}
               results={results}
               onSelect={handleSelect}
-              getOptionKey={(species) => species.id ?? species.common_name}
+              getOptionKey={(species) => species.id ?? species.perenual_id ?? species.common_name}
               renderOption={(species) => <SpeciesRow species={species} />}
+              loading={isFetching}
             />
           )}
 
