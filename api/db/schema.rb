@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_16_082612) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_16_120918) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -52,6 +52,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_16_082612) do
     t.datetime "updated_at", null: false
     t.index ["plant_id", "performed_at"], name: "index_care_logs_on_plant_id_and_performed_at"
     t.index ["plant_id"], name: "index_care_logs_on_plant_id"
+  end
+
+  create_table "password_reset_tokens", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "token_digest", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "used_at"
+    t.bigint "user_id", null: false
+    t.index ["token_digest"], name: "index_password_reset_tokens_on_token_digest", unique: true
+    t.index ["user_id"], name: "index_password_reset_tokens_on_user_id"
   end
 
   create_table "plant_photos", force: :cascade do |t|
@@ -145,6 +156,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_16_082612) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "care_logs", "plants"
+  add_foreign_key "password_reset_tokens", "users"
   add_foreign_key "plant_photos", "plants"
   add_foreign_key "plants", "rooms"
   add_foreign_key "plants", "species"

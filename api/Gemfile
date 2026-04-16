@@ -40,4 +40,6 @@ end
 
 group :development do
   gem 'annotaterb'
+  # Browsable /letter_opener route for inspecting outbound email in dev.
+  gem 'letter_opener_web'
 end

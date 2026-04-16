@@ -37,7 +37,12 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :test
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  config.action_mailer.default_url_options = { host: "localhost", port: 5173, protocol: "http" }
+
+  # Run jobs inline under the test queue adapter so assert_enqueued_emails
+  # and friends can introspect queued-up mail deliveries. Production and
+  # development use Sidekiq; tests don't need it.
+  config.active_job.queue_adapter = :test
 
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr

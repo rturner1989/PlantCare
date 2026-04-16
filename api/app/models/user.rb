@@ -43,6 +43,7 @@ class User < ApplicationRecord
   has_many :rooms, dependent: :destroy
   has_many :plants, through: :rooms
   has_many :refresh_tokens, dependent: :destroy
+  has_many :password_reset_tokens, dependent: :destroy
 
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :name, presence: true
@@ -51,6 +52,13 @@ class User < ApplicationRecord
   validate :password_not_common, if: -> { password.present? }
 
   before_save :downcase_email
+
+  # Mirror of the downcase_email callback's normalization so lookups hit
+  # rows that were saved through the normal path. Callers pass whatever
+  # the user typed; we handle the stripping/case-folding.
+  def self.find_by_normalized_email(email)
+    find_by(email: email.to_s.downcase.strip)
+  end
 
   def onboarded?
     onboarding_completed_at.present?
