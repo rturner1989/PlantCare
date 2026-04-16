@@ -52,10 +52,10 @@ export function useDeletePlant() {
   })
 }
 
-export function useCareLogs(plantId, params = {}) {
-  const queryParams = params.careType ? `?care_type=${params.careType}` : ''
+export function useCareLogs(plantId, careType) {
+  const queryParams = careType ? `?care_type=${careType}` : ''
   return useQuery({
-    queryKey: ['careLogs', plantId, params],
+    queryKey: ['plants', plantId, 'careLogs', careType],
     queryFn: () => apiGet(`/api/v1/plants/${plantId}/care_logs${queryParams}`),
     enabled: !!plantId,
   })
@@ -66,7 +66,7 @@ export function useLogCare(plantId) {
   return useMutation({
     mutationFn: (data) => apiPost(`/api/v1/plants/${plantId}/care_logs`, { care_log: data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['careLogs', plantId] })
+      // Prefix-cascades to ['plants', plantId, 'careLogs', ...] too
       queryClient.invalidateQueries({ queryKey: ['plants', plantId] })
       queryClient.invalidateQueries({ queryKey: ['plants'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
@@ -76,7 +76,7 @@ export function useLogCare(plantId) {
 
 export function usePlantPhotos(plantId) {
   return useQuery({
-    queryKey: ['plantPhotos', plantId],
+    queryKey: ['plants', plantId, 'photos'],
     queryFn: () => apiGet(`/api/v1/plants/${plantId}/plant_photos`),
     enabled: !!plantId,
   })
@@ -91,7 +91,7 @@ export function useUploadPhoto(plantId) {
       return apiPost(`/api/v1/plants/${plantId}/plant_photos`, formData)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plantPhotos', plantId] })
+      queryClient.invalidateQueries({ queryKey: ['plants', plantId, 'photos'] })
     },
   })
 }
@@ -101,7 +101,7 @@ export function useDeletePhoto(plantId) {
   return useMutation({
     mutationFn: (photoId) => apiDelete(`/api/v1/plants/${plantId}/plant_photos/${photoId}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plantPhotos', plantId] })
+      queryClient.invalidateQueries({ queryKey: ['plants', plantId, 'photos'] })
     },
   })
 }

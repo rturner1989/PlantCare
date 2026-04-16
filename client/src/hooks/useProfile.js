@@ -18,6 +18,8 @@ export function useUpdateProfile() {
   })
 }
 
+// No cache invalidation — password isn't part of any cached response body,
+// so there's nothing to refresh after a successful change.
 export function useChangePassword() {
   return useMutation({
     mutationFn: ({ currentPassword, password, passwordConfirmation }) =>
