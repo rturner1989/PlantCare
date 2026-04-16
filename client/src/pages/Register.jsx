@@ -55,17 +55,17 @@ export default function Register() {
   const strength = getPasswordStrength(password)
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-6 py-12">
-      <Logo className="mb-8" />
+    <div className="min-h-dvh flex flex-col items-center justify-center px-6 py-4 sm:py-12">
+      <Logo className="mb-3 sm:mb-8" />
 
-      <h1 className="font-display text-4xl lg:text-5xl font-extrabold italic text-ink mb-8 text-center tracking-tight">
+      <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-extrabold italic text-ink mb-4 sm:mb-8 text-center tracking-tight">
         Join the <em className="text-leaf">jungle</em>
       </h1>
 
       <div className="w-full max-w-auth">
         <form ref={formRef} onSubmit={handleSubmit}>
           <Card className="shadow-[var(--shadow-md)]">
-            <CardBody className="space-y-4">
+            <CardBody className="p-4 sm:p-6 space-y-3 sm:space-y-4">
               <TextInput
                 label="Name"
                 type="text"
@@ -126,7 +126,7 @@ export default function Register() {
               />
             </CardBody>
 
-            <CardFooter>
+            <CardFooter className="p-4 sm:p-6">
               <Action type="submit" variant="primary" disabled={submitting} className="w-full">
                 {submitting ? 'Creating account...' : 'Create account'}
               </Action>
@@ -134,7 +134,7 @@ export default function Register() {
           </Card>
         </form>
 
-        <p className="mt-6 text-sm text-ink-soft text-center">
+        <p className="mt-3 sm:mt-6 text-sm text-ink-soft text-center">
           {'Already have an account? '}
           <Action to="/login" variant="unstyled" className="text-leaf font-bold hover:underline">
             Log in

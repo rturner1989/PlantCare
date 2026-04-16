@@ -75,10 +75,20 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  /* Paint the gradient on <html> so iOS PWA standalone mode extends it
+   * into the safe-area insets (notch, home indicator). If it lives on
+   * <body>, the insets render as the default white behind the body. */
+  background: var(--gradient-mint);
+}
+
 body {
   margin: 0;
   background: var(--gradient-mint);
   min-height: 100dvh;
+  /* Lock horizontal scroll — iOS sometimes overflows by a pixel or two
+   * after zooming, and no layout in the app should scroll horizontally. */
+  overflow-x: hidden;
 }
 
 #root {

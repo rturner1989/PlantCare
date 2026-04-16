@@ -3,8 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>client</title>
+    <!-- viewport-fit=cover lets CSS use env(safe-area-inset-*) on iOS
+         PWA standalone mode so the app can draw into the notch/home
+         indicator area instead of leaving it white. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <!-- Status bar tint on Chrome (Android) and PWA chrome elsewhere.
+         Matches the top of the mint gradient so the system UI blends. -->
+    <meta name="theme-color" content="#f6fbf4" />
+    <!-- iOS PWA standalone: when the user "Add to Home Screen" in Safari
+         and launches from the home screen, render full-screen with no
+         browser chrome. `default` keeps the status bar dark-on-light. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PlantCare" />
+    <title>PlantCare</title>
   </head>
   <body>
     <div id="root"></div>
