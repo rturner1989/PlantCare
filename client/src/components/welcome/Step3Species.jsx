@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { useDeferredValue, useState } from 'react'
+import { useDeferredValue, useEffect, useState } from 'react'
 import { apiGet } from '../../api/client'
 import SearchField from '../form/SearchField'
 import TextInput from '../form/TextInput'
@@ -57,6 +57,18 @@ export default function Step3Species({
   const deferredQuery = useDeferredValue(query)
   const { data: results = [] } = useSpeciesSearch(deferredQuery)
 
+  // Preload images of visible results into the browser cache so when the
+  // user picks one, the selected-species card shows the photo immediately
+  // instead of waiting on a fresh Wikimedia/Perenual fetch.
+  useEffect(() => {
+    for (const result of results) {
+      if (result.image_url) {
+        const img = new Image()
+        img.src = result.image_url
+      }
+    }
+  }, [results])
+
   function handleSelect(species) {
     setSelected(species)
     setNickname('')
@@ -97,34 +109,49 @@ export default function Step3Species({
           {selected && (
             <div>
               <div
-                className="relative p-4 pr-[104px] rounded-2xl text-white overflow-hidden"
-                style={{ background: 'var(--gradient-forest)' }}
+                className="relative rounded-2xl text-white overflow-hidden min-h-[140px]"
+                style={{
+                  background: 'var(--gradient-forest)',
+                  animation: 'fade-in-up 220ms ease-out',
+                }}
               >
-                <p className="text-[9px] font-extrabold text-lime uppercase tracking-wider mb-1">Species selected</p>
-                <p className="text-lg font-extrabold">{selected.common_name}</p>
-                {selected.scientific_name && <p className="text-xs italic opacity-70">{selected.scientific_name}</p>}
-                <div className="flex gap-2 mt-3">
-                  {selected.personality && (
-                    <span className="text-[10px] font-bold bg-white/10 text-lime px-2.5 py-1 rounded-full">
-                      {selected.personality}
-                    </span>
-                  )}
-                  {selected.difficulty && (
-                    <span className="text-[10px] font-bold bg-white/10 text-lime px-2.5 py-1 rounded-full">
-                      {selected.difficulty}
-                    </span>
-                  )}
-                </div>
                 {selected.image_url && (
                   <img
                     src={selected.image_url}
                     alt=""
-                    className="absolute top-2 right-2 w-20 h-20 rounded-xl object-cover border-2 border-white/20 shadow-[0_8px_20px_rgba(0,0,0,0.3)]"
+                    className="absolute inset-0 w-full h-full object-cover scale-[1.15] origin-center"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none'
                     }}
                   />
                 )}
+
+                {/* Darkened layer the text sits on, fading into the image on the right. */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background:
+                      'linear-gradient(to right, var(--forest) 0%, rgba(11,58,26,0.9) 45%, rgba(11,58,26,0.4) 70%, rgba(11,58,26,0) 100%)',
+                  }}
+                />
+
+                <div className="relative p-4 pr-[40%]">
+                  <p className="text-[9px] font-extrabold text-lime uppercase tracking-wider mb-1">Species selected</p>
+                  <p className="text-lg font-extrabold">{selected.common_name}</p>
+                  {selected.scientific_name && <p className="text-xs italic opacity-70">{selected.scientific_name}</p>}
+                  <div className="flex gap-2 mt-3">
+                    {selected.personality && (
+                      <span className="text-[10px] font-bold bg-white/10 text-lime px-2.5 py-1 rounded-full">
+                        {selected.personality}
+                      </span>
+                    )}
+                    {selected.difficulty && (
+                      <span className="text-[10px] font-bold bg-white/10 text-lime px-2.5 py-1 rounded-full">
+                        {selected.difficulty}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {needsRoomChoice && (
