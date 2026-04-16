@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { apiDelete, apiGet, apiPost } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
+import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
 import OptionCard from '../form/OptionCard'
 import Action from '../ui/Action'
@@ -57,20 +58,27 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
       const selectedNames = new Set(selectedRooms)
       const toDelete = initialRooms.filter((r) => !selectedNames.has(r.name))
 
-      const [rooms] = await Promise.all([
-        Promise.all(
-          selectedRooms.map((roomName) => {
-            if (existingByName.has(roomName)) return existingByName.get(roomName)
-            const preset = presets.find((r) => r.name === roomName)
-            return apiPost('/api/v1/rooms', {
-              room: { name: roomName, icon: preset?.icon || null },
-            })
-          }),
-        ),
-        Promise.all(toDelete.map((room) => apiDelete(`/api/v1/rooms/${room.id}`))),
-      ])
-
-      onComplete(rooms)
+      try {
+        const [rooms] = await Promise.all([
+          Promise.all(
+            selectedRooms.map((roomName) => {
+              if (existingByName.has(roomName)) return existingByName.get(roomName)
+              const preset = presets.find((r) => r.name === roomName)
+              return apiPost('/api/v1/rooms', {
+                room: { name: roomName, icon: preset?.icon || null },
+              })
+            }),
+          ),
+          Promise.all(toDelete.map((room) => apiDelete(`/api/v1/rooms/${room.id}`))),
+        ])
+        onComplete(rooms)
+      } catch (err) {
+        // No room-name input is bound to fieldErrors here (preset toggles
+        // + raw custom input), so ValidationErrors get rethrown as plain
+        // Errors so useFormSubmit surfaces them via the toast path.
+        if (err instanceof ValidationError) throw new Error(err.message)
+        throw err
+      }
     },
     errorMessage: 'Could not save rooms',
   })

@@ -116,4 +116,138 @@ test.describe('Onboarding wizard', () => {
     // No species = no speech card.
     await expect(page.getByText(/I'm having the best day/)).toHaveCount(0)
   })
+
+  test('refresh mid-wizard resumes at Step 3 with server-persisted rooms', async ({ page }) => {
+    await registerFreshUser(page)
+
+    await page.getByRole('button', { name: /begin/i }).click()
+    await page.getByRole('button', { name: /Living Room/i }).click()
+    await page.getByRole('button', { name: 'Continue' }).click()
+
+    // On Step 3 via handleRoomsCreated. Now reload — auth cookie persists,
+    // the resume useEffect re-fetches rooms from the server, finds one,
+    // and advances past Step 2 again.
+    await expect(page.getByText('Step 3 of 5')).toBeVisible()
+    await page.reload()
+
+    await expect(page).toHaveURL('/welcome')
+    await expect(page.getByText('Step 3 of 5')).toBeVisible()
+
+    // Back to Step 2 confirms the room really is persisted and reloaded,
+    // not just held in client state that the reload would have cleared.
+    await page.getByRole('button', { name: 'Back' }).click()
+    await expect(page.getByText('Step 2 of 5')).toBeVisible()
+    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+  })
+
+  test('onboarded user lands on / after logging back in', async ({ page, context }) => {
+    const { email, password } = await registerFreshUser(page)
+
+    // Blitz through to the end so onboarding_completed_at gets set.
+    await page.getByRole('button', { name: /begin/i }).click()
+    await page.getByRole('button', { name: /Living Room/i }).click()
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await page.getByRole('button', { name: /Skip for now/i }).click()
+    await page.getByRole('button', { name: /Enter your jungle/i }).click()
+    await expect(page).toHaveURL('/')
+
+    // Nuke session state and log back in — proxy for "come back later".
+    await context.clearCookies()
+    await page.evaluate(() => localStorage.clear())
+
+    await page.goto('/login')
+    await page.getByLabel('Email').fill(email)
+    await page.getByLabel('Password').fill(password)
+    await page.getByRole('button', { name: /Log in/i }).click()
+
+    await expect(page).toHaveURL('/')
+  })
+
+  test('un-onboarded user is routed to /welcome after logging back in', async ({ page, context }) => {
+    const { email, password } = await registerFreshUser(page)
+
+    // Partial progress — create a room then bail without finishing.
+    await page.getByRole('button', { name: /begin/i }).click()
+    await page.getByRole('button', { name: /Living Room/i }).click()
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await expect(page.getByText('Step 3 of 5')).toBeVisible()
+
+    await context.clearCookies()
+    await page.evaluate(() => localStorage.clear())
+
+    await page.goto('/login')
+    await page.getByLabel('Email').fill(email)
+    await page.getByLabel('Password').fill(password)
+    await page.getByRole('button', { name: /Log in/i }).click()
+
+    // ProtectedRoute should bounce them back to /welcome because
+    // user.onboarded is still false.
+    await expect(page).toHaveURL('/welcome')
+  })
+
+  test('deselecting a previously-saved room deletes it from the server', async ({ page }) => {
+    await registerFreshUser(page)
+
+    await page.getByRole('button', { name: /begin/i }).click()
+    await page.getByRole('button', { name: /Living Room/i }).click()
+    await page.getByRole('button', { name: /Bedroom/i }).click()
+    await page.getByRole('button', { name: 'Continue' }).click()
+
+    // Step 2 also has a Back button (to Step 1), so wait for the Step 3
+    // landing before clicking Back to avoid clicking Step 2's Back during
+    // the submit transition.
+    await expect(page.getByText('Step 3 of 5')).toBeVisible()
+    await page.getByRole('button', { name: 'Back' }).click()
+    await expect(page.getByText('Step 2 of 5')).toBeVisible()
+
+    await page.getByRole('button', { name: /Bedroom/i }).click()
+    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await expect(page.getByText('Step 3 of 5')).toBeVisible()
+
+    // Hard refresh forces the resume query to re-read from the server.
+    // If the DELETE hadn't fired, the room would still be there and we'd
+    // see Bedroom ticked on Step 2 again.
+    await page.reload()
+    await expect(page.getByText('Step 3 of 5')).toBeVisible()
+    await page.getByRole('button', { name: 'Back' }).click()
+    await expect(page.getByText('Step 2 of 5')).toBeVisible()
+    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
+  })
+
+  test('a second submit with a case-duplicate name surfaces the server error', async ({ page }) => {
+    await registerFreshUser(page)
+
+    await page.getByRole('button', { name: /begin/i }).click()
+    // First submit: create "Living Room" via the preset toggle.
+    await page.getByRole('button', { name: /Living Room/i }).click()
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await expect(page.getByText('Step 3 of 5')).toBeVisible()
+
+    // Back to Step 2 (Living Room now in initialRooms, already persisted).
+    // Type "living room" as a custom — local `.includes()` is case-sensitive
+    // so it doesn't dedup against the existing "Living Room". Server's
+    // case-insensitive uniqueness validation rejects it on submit.
+    await page.getByRole('button', { name: 'Back' }).click()
+    await expect(page.getByText('Step 2 of 5')).toBeVisible()
+    await page.getByPlaceholder('Add custom room...').fill('living room')
+    await page.getByRole('button', { name: 'Add' }).click()
+    await page.getByRole('button', { name: 'Continue' }).click()
+
+    await expect(page.getByText(/has already been taken/i)).toBeVisible()
+    await expect(page.getByText('Step 2 of 5')).toBeVisible()
+  })
 })
