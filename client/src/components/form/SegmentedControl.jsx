@@ -1,7 +1,8 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useId } from 'react'
 
 /**
- * SegmentedControl — a pill-shaped radiogroup for mutually-exclusive choices.
+ * SegmentedControl — a squared radiogroup for mutually-exclusive choices.
  *
  * Used for short option sets where all values should be visible at once and
  * the user picks exactly one (e.g. "low / medium / bright" light level). For
@@ -35,11 +36,11 @@ import { useId } from 'react'
  * controls on the same page don't clash.
  */
 
-const TRACK = 'flex gap-1 mt-2 bg-mint p-1 rounded-full'
-const LABEL = 'text-xs font-bold text-ink-soft uppercase tracking-wider'
+const TRACK = 'flex gap-1.5 mt-2 bg-mint p-1 rounded-md'
+const LABEL = 'flex items-center gap-1.5 text-xs font-bold text-ink-soft uppercase tracking-wider'
 const OPTION_BASE =
-  'flex-1 flex items-center justify-center py-2 rounded-full text-xs font-bold cursor-pointer capitalize transition-all'
-const OPTION_ACTIVE = 'bg-card text-ink shadow-sm'
+  'flex-1 flex items-center justify-center py-2 rounded-sm text-xs font-bold cursor-pointer capitalize transition-all'
+const OPTION_ACTIVE = 'bg-card text-forest shadow-sm'
 const OPTION_INACTIVE = 'bg-transparent text-ink-soft'
 
 function normalizeOption(option) {
@@ -47,13 +48,18 @@ function normalizeOption(option) {
   return option
 }
 
-export default function SegmentedControl({ label, value, onChange, options, className = '' }) {
+export default function SegmentedControl({ icon, label, value, onChange, options, className = '' }) {
   const groupName = useId()
   const normalized = options.map(normalizeOption)
 
   return (
     <div className={`mb-5 ${className}`}>
-      {label && <span className={LABEL}>{label}</span>}
+      {label && (
+        <span className={LABEL}>
+          {icon && <FontAwesomeIcon icon={icon} className="text-sm text-emerald" aria-hidden="true" />}
+          {label}
+        </span>
+      )}
       <div className={TRACK} role="radiogroup" aria-label={label}>
         {normalized.map((option) => {
           const isActive = option.value === value

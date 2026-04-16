@@ -1,3 +1,4 @@
+import { faCouch } from '@fortawesome/free-solid-svg-icons'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
@@ -16,6 +17,29 @@ describe('OptionCard', () => {
     })
   })
 
+  describe('icon tile', () => {
+    it('renders an icon tile when the icon prop is passed', () => {
+      const { container } = render(<OptionCard icon={faCouch}>Living Room</OptionCard>)
+      // Without selection, the check indicator has no glyph inside, so the
+      // only SVG in the tree is the FA icon in the tile.
+      expect(container.querySelectorAll('svg')).toHaveLength(1)
+    })
+
+    it('does not render an icon tile when the icon prop is omitted', () => {
+      const { container } = render(<OptionCard>Custom Room</OptionCard>)
+      expect(container.querySelector('svg')).toBeNull()
+    })
+
+    it('renders both tile icon and check glyph when icon is passed and selected', () => {
+      const { container } = render(
+        <OptionCard icon={faCouch} selected>
+          Living Room
+        </OptionCard>,
+      )
+      expect(container.querySelectorAll('svg')).toHaveLength(2)
+    })
+  })
+
   describe('selection state', () => {
     it('defaults to unselected (aria-pressed="false")', () => {
       render(<OptionCard>Kitchen</OptionCard>)
@@ -27,12 +51,13 @@ describe('OptionCard', () => {
       expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true')
     })
 
-    it('shows a check indicator glyph when selected', () => {
+    it('shows a check glyph on the right indicator when selected', () => {
       const { container } = render(<OptionCard selected>Kitchen</OptionCard>)
-      expect(container.querySelector('svg')).toBeInTheDocument()
+      // No icon prop here — only SVG in the tree should be the check glyph.
+      expect(container.querySelectorAll('svg')).toHaveLength(1)
     })
 
-    it('hides the check indicator glyph when not selected', () => {
+    it('omits the check glyph when not selected', () => {
       const { container } = render(<OptionCard>Kitchen</OptionCard>)
       expect(container.querySelector('svg')).toBeNull()
     })
