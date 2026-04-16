@@ -23,16 +23,19 @@ test.describe('Onboarding wizard', () => {
     await registerFreshUser(page)
 
     // Step 1 — intro
+    await expect(page).toHaveURL('/welcome')
     await expect(page.getByText('Step 1 of 5')).toBeVisible()
     await page.getByRole('button', { name: /begin/i }).click()
 
     // Step 2 — rooms
+    await expect(page).toHaveURL(/\/welcome\/rooms$/)
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
     await page.getByRole('button', { name: /Living Room/i }).click()
     await page.getByRole('button', { name: /Bedroom/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
     // Step 3 — species + room + nickname
+    await expect(page).toHaveURL(/\/welcome\/species$/)
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
     await page.getByLabel('Search species', { exact: true }).fill('monstera')
     await page
@@ -44,10 +47,12 @@ test.describe('Onboarding wizard', () => {
     await page.getByRole('button', { name: 'Continue' }).click()
 
     // Step 4 — environment (defaults fine, just continue)
+    await expect(page).toHaveURL(/\/welcome\/environment$/)
     await expect(page.getByText('Step 4 of 5')).toBeVisible()
     await page.getByRole('button', { name: /Continue/i }).click()
 
     // Step 5 — done
+    await expect(page).toHaveURL(/\/welcome\/done$/)
     await expect(page.getByText('All set!')).toBeVisible()
     await page.getByRole('button', { name: /Enter your jungle/i }).click()
 
@@ -117,24 +122,23 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByText(/I'm having the best day/)).toHaveCount(0)
   })
 
-  test('refresh mid-wizard resumes at Step 3 with server-persisted rooms', async ({ page }) => {
+  test('refreshing on /welcome/species lands on Step 3 with rooms intact', async ({ page }) => {
     await registerFreshUser(page)
 
     await page.getByRole('button', { name: /begin/i }).click()
     await page.getByRole('button', { name: /Living Room/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
-    // On Step 3 via handleRoomsCreated. Now reload — auth cookie persists,
-    // the resume useEffect re-fetches rooms from the server, finds one,
-    // and advances past Step 2 again.
+    await expect(page).toHaveURL(/\/welcome\/species$/)
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
     await page.reload()
 
-    await expect(page).toHaveURL('/welcome')
+    // URL-driven: refresh on /welcome/species lands straight back on Step 3.
+    await expect(page).toHaveURL(/\/welcome\/species$/)
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
 
-    // Back to Step 2 confirms the room really is persisted and reloaded,
-    // not just held in client state that the reload would have cleared.
+    // Back to Step 2 confirms the room really is server-persisted (not just
+    // held in client state that the reload would have cleared).
     await page.getByRole('button', { name: 'Back' }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
     await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute('aria-pressed', 'true')
@@ -237,5 +241,30 @@ test.describe('Onboarding wizard', () => {
 
     await expect(page.getByText(/has already been taken/i)).toBeVisible()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
+  })
+
+  test('browser back from Step 3 returns to Step 2 with rooms intact', async ({ page }) => {
+    await registerFreshUser(page)
+
+    await page.getByRole('button', { name: /begin/i }).click()
+    await page.getByRole('button', { name: /Living Room/i }).click()
+    await page.getByRole('button', { name: /Bedroom/i }).click()
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await expect(page.getByText('Step 3 of 5')).toBeVisible()
+
+    // Native browser back — simulates Safari's two-finger swipe or the
+    // back button. Historically dropped the user to Step 1 because wizard
+    // state lived entirely in useState with no URL representation.
+    await page.goBack()
+
+    await expect(page).toHaveURL(/\/welcome\/rooms$/)
+    await expect(page.getByText('Step 2 of 5')).toBeVisible()
+    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute('aria-pressed', 'true')
+
+    // Forward restores Step 3.
+    await page.goForward()
+    await expect(page).toHaveURL(/\/welcome\/species$/)
+    await expect(page.getByText('Step 3 of 5')).toBeVisible()
   })
 })
