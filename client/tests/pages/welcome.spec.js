@@ -235,8 +235,11 @@ test.describe('Onboarding wizard', () => {
     // case-insensitive uniqueness validation rejects it on submit.
     await page.getByRole('button', { name: 'Back' }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
-    await page.getByPlaceholder('Add custom room...').fill('living room')
-    await page.getByRole('button', { name: 'Add' }).click()
+    // Progressive-disclosure: reveal the input via the "+ Add a custom room"
+    // button, then type + Add.
+    await page.getByRole('button', { name: /Add a custom room/i }).click()
+    await page.getByLabel('New room name').fill('living room')
+    await page.getByRole('button', { name: 'Add', exact: true }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
     await expect(page.getByText(/has already been taken/i)).toBeVisible()
@@ -266,5 +269,38 @@ test.describe('Onboarding wizard', () => {
     await page.goForward()
     await expect(page).toHaveURL(/\/welcome\/species$/)
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
+  })
+
+  test('add-custom-room: button reveals input, adds a chip, collapses back', async ({ page }) => {
+    await registerFreshUser(page)
+    await page.getByRole('button', { name: /begin/i }).click()
+    await expect(page.getByText('Step 2 of 5')).toBeVisible()
+
+    // Resting state: just the trigger button, no input on screen.
+    const trigger = page.getByRole('button', { name: /Add a custom room/i })
+    await expect(trigger).toBeVisible()
+    await expect(page.getByLabel('New room name')).toHaveCount(0)
+
+    // Reveal.
+    await trigger.click()
+    const input = page.getByLabel('New room name')
+    await expect(input).toBeVisible()
+    await expect(input).toBeFocused()
+
+    // Add via Enter.
+    await input.fill('Greenhouse')
+    await input.press('Enter')
+
+    // Input panel collapses, trigger returns, chip appears as a pressed OptionCard.
+    await expect(page.getByRole('button', { name: /Add a custom room/i })).toBeVisible()
+    await expect(page.getByLabel('New room name')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Greenhouse' })).toHaveAttribute('aria-pressed', 'true')
+
+    // Reveal → Escape cancels without adding.
+    await page.getByRole('button', { name: /Add a custom room/i }).click()
+    await page.getByLabel('New room name').fill('Shed')
+    await page.getByLabel('New room name').press('Escape')
+    await expect(page.getByLabel('New room name')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Shed' })).toHaveCount(0)
   })
 })

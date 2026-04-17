@@ -1,4 +1,7 @@
-import { useEffect, useState } from 'react'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { useEffect, useRef, useState } from 'react'
 import { useToast } from '../../context/ToastContext'
 import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
@@ -11,7 +14,10 @@ import { CardBody, CardFooter } from '../ui/Card'
 export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
   const [selectedRooms, setSelectedRooms] = useState(() => initialRooms.map((r) => r.name))
   const [customRoom, setCustomRoom] = useState('')
+  const [addingCustom, setAddingCustom] = useState(false)
   const toast = useToast()
+  const inputRef = useRef(null)
+  const shouldReduceMotion = useReducedMotion()
 
   const { data: presets = [], error: presetsError } = useRoomPresets()
   const createRoom = useCreateRoom()
@@ -21,6 +27,12 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
     if (presetsError) toast.error(presetsError.message)
   }, [presetsError, toast])
 
+  // Focus moves in via the motion div's onAnimationStart (below) rather
+  // than a useEffect on `addingCustom`: AnimatePresence mode="wait"
+  // delays the input's mount until the trigger finishes exiting, so the
+  // effect fires before the DOM node exists. onAnimationStart fires
+  // after mount, which is the right moment to grab focus.
+
   function toggleRoom(roomName) {
     setSelectedRooms((prev) => (prev.includes(roomName) ? prev.filter((r) => r !== roomName) : [...prev, roomName]))
   }
@@ -29,8 +41,14 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
     const trimmed = customRoom.trim()
     if (trimmed && !selectedRooms.includes(trimmed)) {
       setSelectedRooms((prev) => [...prev, trimmed])
-      setCustomRoom('')
     }
+    setCustomRoom('')
+    setAddingCustom(false)
+  }
+
+  function cancelAdding() {
+    setCustomRoom('')
+    setAddingCustom(false)
   }
 
   const { submitting, handleSubmit, formRef } = useFormSubmit({
@@ -95,26 +113,68 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
             </OptionCard>
           ))}
 
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={customRoom}
-              onChange={(e) => setCustomRoom(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  addCustomRoom()
-                }
-              }}
-              className="flex-1 px-4 py-3 rounded-md bg-card border border-dashed border-ink-soft/30 text-ink text-base outline-none focus:border-leaf"
-              placeholder="Add custom room..."
-            />
-            {customRoom.trim() && (
-              <Action variant="secondary" onClick={addCustomRoom}>
-                Add
-              </Action>
+          {/* Progressive-disclosure add-custom-room per mockup 07-onboarding-wizard.
+              The button is the resting state; tapping it slides the input panel
+              down, auto-focuses, then collapses back to the button on Add or
+              Cancel. Motion is already a dep (Toast), so no bundle cost. */}
+          <AnimatePresence initial={false} mode="wait">
+            {addingCustom ? (
+              <motion.div
+                key="input"
+                initial={shouldReduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                animate={shouldReduceMotion ? { opacity: 1 } : { height: 'auto', opacity: 1 }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: 'easeOut' }}
+                onAnimationStart={() => inputRef.current?.focus()}
+                style={{ overflow: 'hidden' }}
+              >
+                <div className="flex gap-2">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={customRoom}
+                    onChange={(e) => setCustomRoom(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        addCustomRoom()
+                      } else if (e.key === 'Escape') {
+                        e.preventDefault()
+                        cancelAdding()
+                      }
+                    }}
+                    aria-label="New room name"
+                    className="flex-1 px-4 py-3 rounded-md bg-card border border-dashed border-ink-soft/30 text-ink text-base outline-none focus:border-leaf"
+                    placeholder="Room name"
+                  />
+                  <Action variant="secondary" onClick={cancelAdding} aria-label="Cancel adding room">
+                    Cancel
+                  </Action>
+                  <Action variant="primary" onClick={addCustomRoom} disabled={!customRoom.trim()}>
+                    Add
+                  </Action>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="trigger"
+                initial={shouldReduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                animate={shouldReduceMotion ? { opacity: 1 } : { height: 'auto', opacity: 1 }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: 'easeOut' }}
+                style={{ overflow: 'hidden' }}
+              >
+                <Action
+                  variant="unstyled"
+                  onClick={() => setAddingCustom(true)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md border-2 border-dashed border-mint text-ink-soft hover:text-leaf hover:border-leaf/50 transition-colors"
+                >
+                  <FontAwesomeIcon icon={faPlus} className="text-sm" />
+                  <span className="text-sm font-bold">Add a custom room</span>
+                </Action>
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
         </div>
       </CardBody>
 
