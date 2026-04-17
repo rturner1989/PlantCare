@@ -4,7 +4,7 @@ const BASE_ROUND = 'inline-flex items-center justify-center rounded-full transit
 const SIZE_MD = 'gap-2 px-6 py-3 text-sm font-extrabold active:scale-[0.98]'
 
 const VARIANT_CLASSES = {
-  primary: `${BASE_ROUND} ${SIZE_MD} text-white bg-[image:var(--gradient-brand)]`,
+  primary: `${BASE_ROUND} ${SIZE_MD} text-white bg-[image:var(--gradient-brand)] shadow-[var(--shadow-cta)]`,
   secondary: `${BASE_ROUND} ${SIZE_MD} bg-mint text-emerald`,
   fab: `${BASE_ROUND} w-[54px] h-[54px] text-white bg-[image:var(--gradient-brand)] shadow-[var(--shadow-fab)] active:scale-95`,
   'cta-card':
