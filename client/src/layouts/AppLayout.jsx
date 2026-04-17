@@ -6,17 +6,16 @@ import Sidebar from '../components/Sidebar'
 export default function AppLayout() {
   const mainRef = useRef(null)
   const location = useLocation()
-  const isFirstRenderRef = useRef(true)
+  const previousPathRef = useRef(location.pathname)
 
   // Move focus to <main> on every route change so screen-reader users hear
   // the new page's context instead of dead silence after a NavLink click.
-  // Skip the first render so we don't steal focus on initial mount from
-  // whatever triggered navigation (typically the login form unmounting).
+  // previousPathRef starts seeded with the initial pathname so the first
+  // render's effect run is a no-op (no focus steal on mount). Subsequent
+  // changes update the ref and focus main.
   useEffect(() => {
-    if (isFirstRenderRef.current) {
-      isFirstRenderRef.current = false
-      return
-    }
+    if (previousPathRef.current === location.pathname) return
+    previousPathRef.current = location.pathname
     mainRef.current?.focus()
   }, [location.pathname])
 

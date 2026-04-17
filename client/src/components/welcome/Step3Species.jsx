@@ -95,9 +95,8 @@ export default function Step3Species({
                 <EmptyState
                   description={
                     <>
-                      We couldn't find any species matching{' '}
-                      <span className="font-bold text-ink">"{q}"</span>. Try a different name —
-                      common or scientific both work.
+                      We couldn't find any species matching <span className="font-bold text-ink">"{q}"</span>. Try a
+                      different name — common or scientific both work.
                     </>
                   }
                 />

@@ -24,14 +24,7 @@
  *     action={<Action to="/add-plant" variant="primary">Add a plant</Action>}
  *   />
  */
-export default function EmptyState({
-  icon,
-  title,
-  description,
-  action,
-  headingLevel = 'h2',
-  className = '',
-}) {
+export default function EmptyState({ icon, title, description, action, headingLevel = 'h2', className = '' }) {
   const Heading = headingLevel
 
   return (
@@ -43,9 +36,7 @@ export default function EmptyState({
       )}
       {title && <Heading className="text-base font-extrabold text-ink">{title}</Heading>}
       {description && (
-        <p className={`text-sm text-ink-soft leading-snug max-w-xs ${title ? 'mt-1' : ''}`}>
-          {description}
-        </p>
+        <p className={`text-sm text-ink-soft leading-snug max-w-xs ${title ? 'mt-1' : ''}`}>{description}</p>
       )}
       {action && <div className="mt-4">{action}</div>}
     </div>

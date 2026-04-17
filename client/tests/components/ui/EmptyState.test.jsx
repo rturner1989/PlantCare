@@ -91,7 +91,7 @@ describe('EmptyState', () => {
       expect(root).toHaveClass('text-center')
     })
 
-    it('does NOT bake in vertical padding — outer spacing is the caller\'s job', () => {
+    it("does NOT bake in vertical padding — outer spacing is the caller's job", () => {
       const { container } = render(<EmptyState description="hi" />)
       expect(container.firstChild.className).not.toMatch(/\bpy-/)
     })
