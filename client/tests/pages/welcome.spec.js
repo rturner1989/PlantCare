@@ -306,4 +306,35 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByLabel('New room name')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Shed' })).toHaveCount(0)
   })
+
+  test('add-custom-room: scroll position is preserved across the reveal/cancel toggle', async ({ page }) => {
+    // Short viewport forces CardBody to scroll — matches the desktop
+    // condition the user hit (scrolled to bottom of Step 2 to reach the
+    // trigger, clicked it, jumped to top).
+    await page.setViewportSize({ width: 900, height: 520 })
+
+    await registerFreshUser(page)
+    await page.getByRole('button', { name: /begin/i }).click()
+    await expect(page.getByText('Step 2 of 5')).toBeVisible()
+
+    // Scroll CardBody to the bottom so the trigger is near the viewport edge.
+    const scrollContainer = page.locator('div.overflow-y-auto').first()
+    await scrollContainer.evaluate((el) => {
+      el.scrollTop = el.scrollHeight
+    })
+    const bottomScroll = await scrollContainer.evaluate((el) => el.scrollTop)
+    expect(bottomScroll).toBeGreaterThan(0)
+
+    // Reveal the input. Scroll should stay put — no height collapse.
+    await page.getByRole('button', { name: /Add a custom room/i }).click()
+    await page.waitForTimeout(250) // let the opacity transition settle
+    const afterReveal = await scrollContainer.evaluate((el) => el.scrollTop)
+    expect(afterReveal).toBe(bottomScroll)
+
+    // Cancel. Same — no scroll reset on collapse.
+    await page.getByRole('button', { name: 'Cancel adding room' }).click()
+    await page.waitForTimeout(250)
+    const afterCancel = await scrollContainer.evaluate((el) => el.scrollTop)
+    expect(afterCancel).toBe(bottomScroll)
+  })
 })

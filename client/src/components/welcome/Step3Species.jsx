@@ -124,6 +124,7 @@ export default function Step3Species({
                     />
                   )}
                   loading={isLoading}
+                  storageKey="species-search"
                   className="flex-1 min-h-0"
                 />
               </motion.div>

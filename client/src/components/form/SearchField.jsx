@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import Spinner from '../ui/Spinner'
 import TextInput from './TextInput'
 
@@ -40,10 +40,19 @@ export default function SearchField({
   resultsLabel,
   loading = false,
   className = '',
+  storageKey,
 }) {
   const listboxId = useId()
   const optionIdBase = useId()
   const [activeIndex, setActiveIndex] = useState(-1)
+  const listboxRef = useRef(null)
+  // Tracks whether we've already restored scroll for this mount. Starts
+  // false on every fresh mount (e.g. after an iOS tab eviction + reload),
+  // so the restore runs once as soon as the listbox has results to
+  // scroll within. Intentionally NOT reset on query change — new queries
+  // land at scrollTop 0 which matches the user's expectation of starting
+  // at the top of a different list.
+  const didRestoreScrollRef = useRef(false)
 
   // React's "reset state on prop change" pattern — compare during render
   // and reset inline — avoids the double-render an effect would cause and
@@ -65,6 +74,29 @@ export default function SearchField({
     const el = document.getElementById(`${optionIdBase}-${activeIndex}`)
     el?.scrollIntoView?.({ block: 'nearest' })
   }, [activeIndex, activeIsValid, optionIdBase])
+
+  // Restore scroll from sessionStorage as soon as the listbox is populated.
+  // Guards against iOS tab-eviction-and-reload dumping the user back to
+  // the top of the list on return. useLayoutEffect so the restore happens
+  // before paint — no flicker from 0 → restored. Runs once per mount via
+  // didRestoreScrollRef; subsequent re-renders (refetch, data update) are
+  // ignored because the listbox's existing scrollTop is already correct.
+  useLayoutEffect(() => {
+    if (!storageKey || didRestoreScrollRef.current || !listboxRef.current || !hasResults) return
+    const saved = sessionStorage.getItem(`search-scroll:${storageKey}`)
+    if (saved !== null) {
+      const parsed = Number(saved)
+      if (!Number.isNaN(parsed)) listboxRef.current.scrollTop = parsed
+    }
+    didRestoreScrollRef.current = true
+  })
+
+  // Save the current scrollTop on every scroll. sessionStorage writes are
+  // synchronous and cheap; no need to debounce for a single numeric value.
+  function handleListboxScroll() {
+    if (!storageKey || !listboxRef.current) return
+    sessionStorage.setItem(`search-scroll:${storageKey}`, String(listboxRef.current.scrollTop))
+  }
 
   function handleKeyDown(e) {
     if (!hasResults) return
@@ -110,9 +142,11 @@ export default function SearchField({
         <div className="relative mt-3 flex-1 min-h-48">
           <div
             id={listboxId}
+            ref={listboxRef}
             role="listbox"
             aria-label={resultsLabel ?? `${label} results`}
             aria-busy={loading ? 'true' : undefined}
+            onScroll={handleListboxScroll}
             className={`${RESULTS_CONTAINER} ${loading ? 'opacity-50 pointer-events-none' : ''}`}
           >
             {results.map((item, index) => {

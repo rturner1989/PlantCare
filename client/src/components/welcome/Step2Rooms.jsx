@@ -114,85 +114,95 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
           ))}
 
           {/* Progressive-disclosure add-custom-room per mockup 07-onboarding-wizard.
-              The button is the resting state; tapping it slides the input panel
-              down, auto-focuses, then collapses back to the button on Add or
-              Cancel. Motion is already a dep (Toast), so no bundle cost. */}
-          <AnimatePresence initial={false} mode="wait">
-            {addingCustom ? (
-              <motion.div
-                key="input"
-                initial={shouldReduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
-                animate={shouldReduceMotion ? { opacity: 1 } : { height: 'auto', opacity: 1 }}
-                exit={shouldReduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: 'easeOut' }}
-                onAnimationStart={() => inputRef.current?.focus()}
-                style={{ overflow: 'hidden' }}
-              >
-                {/* Two icon buttons instead of text "Add" / "Cancel" — the
-                    primary CTA shadow reads as clunky inline, and a green-check
-                    / mint-X pair matches the TaskRow check-circle language
-                    used elsewhere in the app. Keyboard users still get Enter
-                    / Escape shortcuts on the input itself. */}
-                <div className="flex items-center gap-2">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={customRoom}
-                    onChange={(e) => setCustomRoom(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        addCustomRoom()
-                      } else if (e.key === 'Escape') {
-                        e.preventDefault()
-                        cancelAdding()
-                      }
-                    }}
-                    aria-label="New room name"
-                    className="flex-1 px-4 py-3 rounded-md bg-card border border-dashed border-ink-soft/30 text-ink text-base outline-none focus:border-leaf"
-                    placeholder="Room name"
-                  />
-                  <Action
-                    variant="unstyled"
-                    onClick={addCustomRoom}
-                    disabled={!customRoom.trim()}
-                    aria-label="Add room"
-                    className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                      customRoom.trim() ? 'bg-leaf text-card hover:bg-emerald' : 'bg-mint text-ink-soft/50'
-                    }`}
-                  >
-                    <FontAwesomeIcon icon={faCheck} className="text-sm" />
-                  </Action>
-                  <Action
-                    variant="unstyled"
-                    onClick={cancelAdding}
-                    aria-label="Cancel adding room"
-                    className="shrink-0 w-10 h-10 rounded-full border border-mint text-ink-soft hover:border-coral/60 hover:text-coral-deep flex items-center justify-center transition-colors"
-                  >
-                    <FontAwesomeIcon icon={faXmark} className="text-sm" />
-                  </Action>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="trigger"
-                initial={shouldReduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
-                animate={shouldReduceMotion ? { opacity: 1 } : { height: 'auto', opacity: 1 }}
-                exit={shouldReduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: 'easeOut' }}
-                style={{ overflow: 'hidden' }}
-              >
-                <Action
-                  variant="unstyled"
-                  onClick={() => setAddingCustom(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md border-2 border-dashed border-mint text-ink-soft hover:text-leaf hover:border-leaf/50 transition-colors"
+              The button is the resting state; tapping it crossfades to the
+              input panel, auto-focuses, then crossfades back on Add/Cancel.
+              Motion is already a dep (Toast), so no bundle cost.
+
+              Layout: trigger and input rows both render inside a fixed
+              50px container via absolute positioning. Earlier versions
+              used a height 0 ↔ auto animation which collapsed the
+              container mid-transition, clamping CardBody's scrollTop and
+              snapping a scrolled-to-bottom user back to the top of the
+              list. Locking the height and crossfading opacity keeps the
+              scroll position stable through every Add/Cancel cycle. */}
+          <div className="relative h-[50px]">
+            <AnimatePresence initial={false} mode="wait">
+              {addingCustom ? (
+                <motion.div
+                  key="input"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: shouldReduceMotion ? 0 : 0.15, ease: 'easeOut' }}
+                  onAnimationStart={() => inputRef.current?.focus()}
+                  className="absolute inset-0"
                 >
-                  <FontAwesomeIcon icon={faPlus} className="text-sm" />
-                  <span className="text-sm font-bold">Add a custom room</span>
-                </Action>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  {/* Two icon buttons instead of text "Add" / "Cancel" — the
+                      primary CTA shadow reads as clunky inline, and a green-
+                      check / mint-X pair matches the TaskRow check-circle
+                      language used elsewhere. Keyboard users still get Enter
+                      / Escape shortcuts on the input itself. */}
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={customRoom}
+                      onChange={(e) => setCustomRoom(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          addCustomRoom()
+                        } else if (e.key === 'Escape') {
+                          e.preventDefault()
+                          cancelAdding()
+                        }
+                      }}
+                      aria-label="New room name"
+                      className="flex-1 px-4 py-3 rounded-md bg-card border border-dashed border-ink-soft/30 text-ink text-base outline-none focus:border-leaf"
+                      placeholder="Room name"
+                    />
+                    <Action
+                      variant="unstyled"
+                      onClick={addCustomRoom}
+                      disabled={!customRoom.trim()}
+                      aria-label="Add room"
+                      className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                        customRoom.trim() ? 'bg-leaf text-card hover:bg-emerald' : 'bg-mint text-ink-soft/50'
+                      }`}
+                    >
+                      <FontAwesomeIcon icon={faCheck} className="text-sm" />
+                    </Action>
+                    <Action
+                      variant="unstyled"
+                      onClick={cancelAdding}
+                      aria-label="Cancel adding room"
+                      className="shrink-0 w-10 h-10 rounded-full border border-mint text-ink-soft hover:border-coral/60 hover:text-coral-deep flex items-center justify-center transition-colors"
+                    >
+                      <FontAwesomeIcon icon={faXmark} className="text-sm" />
+                    </Action>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="trigger"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: shouldReduceMotion ? 0 : 0.15, ease: 'easeOut' }}
+                  className="absolute inset-0"
+                >
+                  <Action
+                    variant="unstyled"
+                    onClick={() => setAddingCustom(true)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md border-2 border-dashed border-mint text-ink-soft hover:text-leaf hover:border-leaf/50 transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faPlus} className="text-sm" />
+                    <span className="text-sm font-bold">Add a custom room</span>
+                  </Action>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </CardBody>
 
