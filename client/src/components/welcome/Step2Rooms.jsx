@@ -1,4 +1,4 @@
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
@@ -128,7 +128,12 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
                 onAnimationStart={() => inputRef.current?.focus()}
                 style={{ overflow: 'hidden' }}
               >
-                <div className="flex gap-2">
+                {/* Two icon buttons instead of text "Add" / "Cancel" — the
+                    primary CTA shadow reads as clunky inline, and a green-check
+                    / mint-X pair matches the TaskRow check-circle language
+                    used elsewhere in the app. Keyboard users still get Enter
+                    / Escape shortcuts on the input itself. */}
+                <div className="flex items-center gap-2">
                   <input
                     ref={inputRef}
                     type="text"
@@ -147,11 +152,24 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
                     className="flex-1 px-4 py-3 rounded-md bg-card border border-dashed border-ink-soft/30 text-ink text-base outline-none focus:border-leaf"
                     placeholder="Room name"
                   />
-                  <Action variant="secondary" onClick={cancelAdding} aria-label="Cancel adding room">
-                    Cancel
+                  <Action
+                    variant="unstyled"
+                    onClick={addCustomRoom}
+                    disabled={!customRoom.trim()}
+                    aria-label="Add room"
+                    className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                      customRoom.trim() ? 'bg-leaf text-card hover:bg-emerald' : 'bg-mint text-ink-soft/50'
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={faCheck} className="text-sm" />
                   </Action>
-                  <Action variant="primary" onClick={addCustomRoom} disabled={!customRoom.trim()}>
-                    Add
+                  <Action
+                    variant="unstyled"
+                    onClick={cancelAdding}
+                    aria-label="Cancel adding room"
+                    className="shrink-0 w-10 h-10 rounded-full border border-mint text-ink-soft hover:border-coral/60 hover:text-coral-deep flex items-center justify-center transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faXmark} className="text-sm" />
                   </Action>
                 </div>
               </motion.div>

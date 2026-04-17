@@ -242,7 +242,7 @@ test.describe('Onboarding wizard', () => {
     // button, then type + Add.
     await page.getByRole('button', { name: /Add a custom room/i }).click()
     await page.getByLabel('New room name').fill('living room')
-    await page.getByRole('button', { name: 'Add', exact: true }).click()
+    await page.getByRole('button', { name: 'Add room' }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
     await expect(page.getByText(/has already been taken/i)).toBeVisible()
