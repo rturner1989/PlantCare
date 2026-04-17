@@ -10,10 +10,15 @@ api/config/credentials.yml.enc
 # Node
 client/node_modules/
 client/dist/
+# Safety net for strays when vitest/vite is run from the repo root
+/node_modules/
 
 # Playwright
 client/test-results/
-client/playwright-report/                               
+client/playwright-report/
+# Same — Playwright writes output relative to cwd
+/test-results/
+/playwright-report/
                                                                                                         
 # Docker
 .docker-data/                                                                                           
