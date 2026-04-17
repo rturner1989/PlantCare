@@ -27,6 +27,11 @@
   --color-ink: #0a1d0e;
   --color-ink-soft: #4a6a51;
   --color-coral: #ff6b3d;
+  /* Brand coral (#ff6b3d) on white is only 2.8:1 — below WCAG AA 4.5:1 for
+   * normal text and 3:1 for large text. `coral-deep` (#c4412a) lands at
+   * ~5:1, so use it anywhere coral meets the text/icon threshold. Keep
+   * `coral` for fills/borders where the 3:1 UI-component threshold applies. */
+  --color-coral-deep: #c4412a;
   --color-sunshine: #ffb83d;
   --color-card: #ffffff;
 
@@ -59,6 +64,7 @@
   --ink: #0a1d0e;
   --ink-soft: #4a6a51;
   --coral: #ff6b3d;
+  --coral-deep: #c4412a;
   --sunshine: #ffb83d;
   --card: #ffffff;
   --shadow-fab: 0 0 0 4px var(--card), 0 10px 24px rgba(20, 144, 47, 0.4), 0 4px 10px rgba(11, 58, 26, 0.22);
@@ -95,6 +101,38 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+}
+
+/* In PWA standalone mode there's no URL bar to adapt to, so `dvh`'s
+ * dynamic behaviour is pure overhead — and iOS miscalculates it on the
+ * first paint, which shifts `justify-center` content off-centre until
+ * the user swipes. `lvh` is a fixed value (the largest viewport the
+ * screen ever is) and settles immediately. We override every site of
+ * dvh in the app here so page-level containers benefit too — otherwise
+ * the bug just moves from body/#root into page roots. This only applies
+ * in PWA mode; regular mobile Safari keeps `dvh` and its correct
+ * URL-bar adaptation behaviour. */
+@media (display-mode: standalone) {
+  body,
+  #root,
+  .min-h-dvh {
+    min-height: 100lvh;
+  }
+
+  .h-dvh {
+    height: 100lvh;
+  }
+}
+
+/* Hide TanStack Query DevTools below the lg breakpoint. The panel takes
+ * over most of the viewport on mobile and overlaps app chrome — it's a
+ * desktop-dev tool in practice. !important beats the devtools' injected
+ * styles. */
+@media (max-width: 1023px) {
+  .tsqd-open-btn-container {
+    /* biome-ignore lint/complexity/noImportantStyles: overriding the devtools' own injected inline styles */
+    display: none !important;
+  }
 }
 
 /* Custom max-width utility for the floating auth card. 420px sits nicely

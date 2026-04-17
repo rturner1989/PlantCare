@@ -40,7 +40,7 @@ const SCHEMES = {
     softBg: 'bg-coral/10',
     solidBg: 'bg-coral',
     outlineBorder: 'border-coral',
-    quietText: 'text-coral',
+    quietText: 'text-coral-deep',
     solidText: 'text-card',
   },
 }

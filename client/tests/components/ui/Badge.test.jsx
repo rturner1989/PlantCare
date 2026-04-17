@@ -58,7 +58,8 @@ describe('Badge', () => {
       const badge = screen.getByText('Alert')
       expect(badge).toHaveClass('border')
       expect(badge).toHaveClass('border-coral')
-      expect(badge).toHaveClass('text-coral')
+      // Text uses coral-deep (not coral) to meet WCAG AA contrast on white.
+      expect(badge).toHaveClass('text-coral-deep')
     })
 
     it('falls back to neutral soft for an unknown scheme/variant combo', () => {

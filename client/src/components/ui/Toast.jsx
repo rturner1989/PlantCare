@@ -33,7 +33,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 //      soft tinted background matching the accent colour).
 // Container is `relative` so the absolute children position against it.
 const BASE =
-  'relative overflow-hidden flex items-start gap-3 pl-5 pr-4 py-4 bg-card rounded-xs shadow-[var(--shadow-md)] min-w-[280px] max-w-[360px] before:content-[""] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1.5'
+  'relative overflow-hidden flex items-start gap-3 pl-5 pr-4 py-4 bg-card rounded-xs shadow-[var(--shadow-md)] w-full sm:w-auto sm:min-w-[280px] sm:max-w-[360px] before:content-[""] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1.5'
 
 const KIND_STYLES = {
   success: {
@@ -50,7 +50,7 @@ const KIND_STYLES = {
     progress: 'bg-coral',
     iconBg: 'bg-coral/15',
     icon: faCircleExclamation,
-    iconColor: 'text-coral',
+    iconColor: 'text-coral-deep',
     role: 'alert',
     ariaLive: 'assertive',
   },
@@ -138,7 +138,7 @@ export default function ToastContainer({ toasts, onDismiss }) {
       }
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex flex-col gap-3 pointer-events-none">
+    <div className="fixed top-[max(1rem,calc(env(safe-area-inset-top)+0.5rem))] right-4 left-4 sm:left-auto z-50 flex flex-col gap-3 sm:items-end pointer-events-none">
       <AnimatePresence>
         {toasts.map((toastItem) => (
           <motion.div key={toastItem.id} layout className="pointer-events-auto" {...motionProps}>

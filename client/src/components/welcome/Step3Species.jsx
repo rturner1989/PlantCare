@@ -5,6 +5,7 @@ import TextInput from '../form/TextInput'
 import Action from '../ui/Action'
 import Badge from '../ui/Badge'
 import { CardBody, CardFooter } from '../ui/Card'
+import EmptyState from '../ui/EmptyState'
 
 function SpeciesRow({ species }) {
   return (
@@ -71,7 +72,7 @@ export default function Step3Species({
 
   return (
     <>
-      <CardBody>
+      <CardBody className={`flex flex-col ${!selected ? 'pb-3' : ''}`}>
         <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight">
           Meet your <em className="not-italic text-leaf">first plant</em>.
         </h1>
@@ -79,7 +80,7 @@ export default function Step3Species({
           Or skip — you can add plants anytime from the Add button.
         </p>
 
-        <div className="mt-5">
+        <div className={`mt-5 ${!selected ? 'flex-1 min-h-0 flex flex-col' : ''}`}>
           {!selected && (
             <SearchField
               label="Search species"
@@ -90,7 +91,18 @@ export default function Step3Species({
               onSelect={handleSelect}
               getOptionKey={(species) => species.id ?? species.perenual_id ?? species.common_name}
               renderOption={(species) => <SpeciesRow species={species} />}
+              renderNoResults={(q) => (
+                <EmptyState
+                  description={
+                    <>
+                      We couldn't find any species matching <span className="font-bold text-ink">"{q}"</span>. Try a
+                      different name — common or scientific both work.
+                    </>
+                  }
+                />
+              )}
               loading={isFetching}
+              className="flex-1 min-h-0"
             />
           )}
 
@@ -185,7 +197,7 @@ export default function Step3Species({
         </div>
       </CardBody>
 
-      <CardFooter className="border-t-0 flex flex-col gap-3">
+      <CardFooter className={`border-t-0 flex flex-col gap-3 ${!selected ? 'pt-3' : ''}`}>
         <div className="flex gap-2.5">
           <Action variant="secondary" onClick={onBack}>
             Back

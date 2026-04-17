@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
 // `requireOnboarded={false}` is needed on the /welcome route itself —
@@ -6,7 +6,6 @@ import { useAuth } from '../hooks/useAuth'
 // only place they can actually become onboarded.
 export default function ProtectedRoute({ children, requireOnboarded = true }) {
   const { user, loading } = useAuth()
-  const location = useLocation()
 
   if (loading) {
     return (
@@ -17,7 +16,7 @@ export default function ProtectedRoute({ children, requireOnboarded = true }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    return <Navigate to="/login" replace />
   }
 
   if (requireOnboarded && !user.onboarded) {

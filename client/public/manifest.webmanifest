@@ -1,0 +1,19 @@
+{
+  "name": "PlantCare",
+  "short_name": "PlantCare",
+  "description": "Your plants, cared for on time.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6fbf4",
+  "theme_color": "#f6fbf4",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -53,6 +53,9 @@ export default function Sidebar() {
   // TODO: this logout action will move into the Me profile page in ticket 14.
   // For now it lives in the sidebar user footer so we have a way out while
   // building and testing the rest of the app.
+  //
+  // No explicit navigate: clearing `user` makes ProtectedRoute bounce to
+  // /login on its own. Login always lands on '/' after re-auth.
   async function handleLogout() {
     await logout()
     toast.success('Logged out')
@@ -66,7 +69,7 @@ export default function Sidebar() {
         <span className="text-[10px] font-extrabold text-ink-soft uppercase tracking-[0.12em]">Navigate</span>
       </div>
 
-      <nav className="flex-1 px-3">
+      <nav aria-label="Primary" className="flex-1 px-3">
         {navItems.map((item) => (
           <SidebarNavLink key={item.to} {...item} />
         ))}
@@ -104,7 +107,7 @@ export default function Sidebar() {
               onClick={handleLogout}
               variant="unstyled"
               aria-label="Log out"
-              className="text-ink-soft hover:text-coral transition-colors p-1 rounded-md shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2"
+              className="text-ink-soft hover:text-coral-deep transition-colors p-1 rounded-md shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2"
             >
               <FontAwesomeIcon icon={faArrowRightFromBracket} className="w-4 h-4" />
             </Action>

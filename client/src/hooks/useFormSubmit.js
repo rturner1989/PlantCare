@@ -43,15 +43,17 @@ import { ValidationError } from '../errors/ValidationError'
  *   1. `ValidationError` (server 422 or client-side throw) → errors land in
  *      `fieldErrors` keyed by field name. No toast — the inline UI already
  *      tells the user what's wrong.
- *   2. Any other Error → toast only. Falls back to `errorMessage` and then
- *      "Something went wrong" if no message is available.
+ *   2. Any other Error → toast. If `errorField` is provided, the error
+ *      message is ALSO attached as an inline error on that field, so login-
+ *      style failures ("Invalid email or password") get the same red-border-
+ *      and-focus treatment as a 422 validation error.
  *
- * - After a ValidationError, the hook focuses the first invalid field inside
- *   the form (found via `[aria-invalid="true"]` on the `formRef` element).
- *   Consumers attach `formRef` to their <form> element so the focus lookup
- *   is scoped correctly if there's more than one form on the page.
+ * - After ANY error the hook returns focus to the form so the user can
+ *   immediately retry. ValidationError focuses the first invalid field
+ *   (`[aria-invalid="true"]`); other errors focus the first input. Both
+ *   require `formRef` to be attached to the consumer's <form> element.
  */
-export function useFormSubmit({ action, successMessage, errorMessage, onSuccess }) {
+export function useFormSubmit({ action, successMessage, errorMessage, errorField, onSuccess }) {
   const [submitting, setSubmitting] = useState(false)
   const [fieldErrors, setFieldErrors] = useState({})
   const formRef = useRef(null)
@@ -80,7 +82,15 @@ export function useFormSubmit({ action, successMessage, errorMessage, onSuccess 
       if (err instanceof ValidationError) {
         setFieldErrors(err.fields)
       } else {
-        toast.error(err.message || errorMessage || 'Something went wrong')
+        const message = err.message || errorMessage || 'Something went wrong'
+        toast.error(message)
+        if (errorField) {
+          // Sets aria-invalid on the mapped field; the fieldErrors useEffect
+          // above then picks it up and focuses it like a validation error.
+          setFieldErrors({ [errorField]: message })
+        } else {
+          formRef.current?.querySelector('input, textarea, select')?.focus()
+        }
       }
     } finally {
       setSubmitting(false)

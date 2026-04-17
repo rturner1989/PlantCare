@@ -18,7 +18,11 @@ import TextInput from './TextInput'
  * option, Escape clears it, Tab behaves normally.
  */
 
-const RESULTS_CONTAINER = 'space-y-2 min-h-48 max-h-48 overflow-y-auto'
+// `absolute inset-0` lets the listbox fill its `relative` wrapper exactly.
+// The wrapper carries the sizing (flex-1 + min-h-48), so the listbox can grow
+// to fill remaining vertical space when the parent is a height-constrained
+// flex column, and falls back to a sensible minimum elsewhere.
+const RESULTS_CONTAINER = 'space-y-2 absolute inset-0 overflow-y-auto'
 const OPTION_BASE = 'block w-full text-left bg-card border border-mint rounded-md cursor-pointer transition-colors'
 const OPTION_ACTIVE = 'border-leaf bg-leaf/5'
 const OPTION_INACTIVE = 'hover:border-leaf/50'
@@ -32,6 +36,7 @@ export default function SearchField({
   onSelect,
   getOptionKey,
   renderOption,
+  renderNoResults,
   resultsLabel,
   loading = false,
   className = '',
@@ -86,7 +91,7 @@ export default function SearchField({
   }
 
   return (
-    <div className={className}>
+    <div className={`flex flex-col ${className}`}>
       <TextInput
         label={label}
         type="search"
@@ -102,7 +107,7 @@ export default function SearchField({
       />
 
       {hasResults && (
-        <div className="relative mt-3">
+        <div className="relative mt-3 flex-1 min-h-48">
           <div
             id={listboxId}
             role="listbox"
@@ -140,6 +145,16 @@ export default function SearchField({
       {loading && !hasResults && (
         <div className="mt-3 flex justify-center py-4">
           <Spinner />
+        </div>
+      )}
+
+      {/* Empty state: shown only after the user has typed something AND a
+          fetch has settled with zero matches. Skipped during loading (a
+          spinner already covers that), and skipped on initial render so the
+          placeholder doesn't appear before the user has searched. */}
+      {!hasResults && !loading && query.trim() && renderNoResults && (
+        <div className="mt-3 flex-1 min-h-48 flex items-center justify-center text-center px-2">
+          {renderNoResults(query)}
         </div>
       )}
     </div>
