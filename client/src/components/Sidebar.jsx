@@ -1,6 +1,6 @@
 import { faArrowRightFromBracket, faHouse, faMagnifyingGlass, faPlus, faSun } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
 import Logo from './Logo'
@@ -49,20 +49,16 @@ function SidebarNavLink({ to, label, icon, count }) {
 export default function Sidebar() {
   const { user, logout } = useAuth()
   const toast = useToast()
-  const navigate = useNavigate()
 
   // TODO: this logout action will move into the Me profile page in ticket 14.
   // For now it lives in the sidebar user footer so we have a way out while
   // building and testing the rest of the app.
   //
-  // Explicitly navigating with `state: null` overrides the `state.from`
-  // ProtectedRoute sets when auto-bouncing — otherwise an intentional
-  // logout from e.g. /discover would resume at /discover after next login,
-  // which is fine for session-expiry but surprising for an explicit logout.
+  // No explicit navigate: clearing `user` makes ProtectedRoute bounce to
+  // /login on its own. Login always lands on '/' after re-auth.
   async function handleLogout() {
     await logout()
     toast.success('Logged out')
-    navigate('/login', { replace: true, state: null })
   }
 
   return (

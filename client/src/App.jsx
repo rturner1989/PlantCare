@@ -11,7 +11,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import Spinner from './components/ui/Spinner'
 import { AuthProvider } from './context/AuthContext'
@@ -51,19 +51,16 @@ function RouteFallback() {
 function PlaceholderPage({ title }) {
   const { logout } = useAuth()
   const toast = useToast()
-  const navigate = useNavigate()
 
   // Temporary mobile logout affordance — desktop already has one in the
   // Sidebar. Delete when the Me profile page lands in ticket 14 and gets
   // its proper logout button.
   //
-  // Explicit navigate with `state: null` so the next login starts fresh
-  // on Today rather than resuming the path the user logged out from
-  // (ProtectedRoute would otherwise set state.from).
+  // No explicit navigate: clearing `user` makes ProtectedRoute bounce to
+  // /login on its own. Login always lands on '/' after re-auth.
   async function handleLogout() {
     await logout()
     toast.success('Logged out')
-    navigate('/login', { replace: true, state: null })
   }
 
   return (

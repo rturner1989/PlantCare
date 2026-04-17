@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import TextInput from '../components/form/TextInput'
 import Logo from '../components/Logo'
 import Action from '../components/ui/Action'
@@ -13,15 +13,16 @@ export default function Login() {
 
   const navigate = useNavigate()
   const { login } = useAuth()
-  const location = useLocation()
 
-  const from = location.state?.from?.pathname || '/'
-
-  const { submitting, handleSubmit } = useFormSubmit({
+  const { submitting, handleSubmit, fieldErrors, formRef } = useFormSubmit({
     action: () => login(email, password),
     successMessage: 'Welcome back!',
     errorMessage: 'Login failed',
-    onSuccess: () => navigate(from, { replace: true }),
+    // Auth failures (401) aren't tied to a single field, but UX-wise we
+    // surface the message under email so the user gets the same red-border
+    // + focus treatment they'd see for a 422 validation error elsewhere.
+    errorField: 'email',
+    onSuccess: () => navigate('/', { replace: true }),
   })
 
   return (
@@ -33,7 +34,7 @@ export default function Login() {
       </h1>
 
       <div className="w-full max-w-auth">
-        <form onSubmit={handleSubmit}>
+        <form ref={formRef} onSubmit={handleSubmit}>
           <Card className="shadow-[var(--shadow-md)]">
             <CardBody className="space-y-4">
               <TextInput
@@ -44,6 +45,7 @@ export default function Login() {
                 required
                 placeholder="you@example.com"
                 autoComplete="email"
+                error={fieldErrors.email}
               />
 
               <TextInput
