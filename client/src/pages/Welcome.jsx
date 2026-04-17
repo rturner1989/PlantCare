@@ -11,6 +11,7 @@ import WizardCard from '../components/welcome/WizardCard'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
 import { useRooms } from '../hooks/useRooms'
+import { useSpeciesSearch } from '../hooks/useSpecies'
 
 const STEP_BY_SLUG = { '': 1, rooms: 2, species: 3, environment: 4, done: 5 }
 const SLUG_BY_STEP = { 1: '', 2: 'rooms', 3: 'species', 4: 'environment', 5: 'done' }
@@ -25,8 +26,7 @@ function stepPath(step) {
 // 1 for forward (Continue / Next), -1 for back (Back / browser back),
 // 0 on first mount so we skip the entrance animation. Each step slides
 // horizontally with a fade; AnimatePresence mode="wait" ensures the
-// outgoing step finishes leaving before the incoming one arrives, so the
-// two don't briefly overlap inside the card.
+// outgoing step finishes leaving before the incoming one arrives.
 const SLIDE_OFFSET = 40
 const stepVariants = {
   enter: (direction) => ({
@@ -66,6 +66,12 @@ export default function Welcome() {
   }, [step])
 
   const { data: existingRooms, isFetching: roomsFetching } = useRooms({ enabled: !user?.onboarded })
+  // Prefetch popular species here so the cache is warm by the time the
+  // user reaches Step 3. Without it, Step 3's first mount fires the
+  // network request synchronously with its entrance animation — the
+  // spinner swap inside SearchField made the step transition stutter.
+  // Subsequent visits hit the 5-min TanStack cache and stay smooth.
+  useSpeciesSearch('')
 
   useEffect(() => {
     if (step === undefined) navigate('/welcome', { replace: true })

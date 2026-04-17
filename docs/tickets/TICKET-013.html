@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-013: First-run wizard → Today reveal animation</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+.badge.priority-low { background: #a8dadc; color: #1a1a1a; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 70px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.hook { background: #4a6fa5; }
+.artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 360px; border: none; background: #fff; }
+.mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+.mockup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 720px) { .mockup-grid { grid-template-columns: 1fr; } }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.rails-map code { white-space: nowrap; }
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-013</div>
+    <h1>First-run wizard → Today reveal animation</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-medium">Medium</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>When a user clicks "Enter your jungle" on Step 5 of onboarding, the jump from <code>/welcome</code> to <code>/</code> snaps instantly — one screen disappears, the next appears, chrome and all. It's the single most celebratory moment in the signup flow and it currently reads as a page navigation.</p>
+    <p>Build a one-shot entrance animation that plays <em>only</em> on the first Today render after finishing the wizard: the wizard card departs, the main content fades in, the sidebar (desktop) slides in from the left while its nav items stagger-fade, the dock (mobile) slides up from the bottom with the same stagger, and a welcome toast lands. After that one view, the app feels normal forever — every subsequent login is instant, as today.</p>
+    <p>In one sentence: <strong>turn the wizard-finish → Today transition into a single celebratory moment the user sees exactly once per signup.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">01–05</span>Foundations</div>
+      <div class="plan-step done"><span class="num">06</span>Onboard</div>
+      <div class="plan-step done"><span class="num">07</span>Query hooks</div>
+      <div class="plan-step done"><span class="num">08</span>Primitives</div>
+      <div class="plan-step done"><span class="num">12</span>Wizard URLs</div>
+      <div class="plan-step current"><span class="num">13</span>First-run reveal</div>
+      <div class="plan-step"><span class="num">09</span>Today</div>
+      <div class="plan-step"><span class="num">10</span>House</div>
+      <div class="plan-step"><span class="num">11–14</span>Detail, Add, Polish</div>
+    </div>
+
+    <p><strong>What came before.</strong> TICKET-006 built the full onboarding wizard and wires <code>Welcome.jsx</code>'s <code>handleFinish</code> to set <code>localStorage['plantcare_tour_pending'] = 'true'</code> immediately before navigating to <code>/</code>. Nothing currently reads that flag — it's been sitting there waiting for a consumer. This ticket is that consumer. TICKET-008 delivered the Today/House primitives (ProgressRing, PlantAvatar, TaskRow, etc.) and polished the wizard transitions between steps, but still ends the flow with a snap into <code>/</code>.</p>
+
+    <p><strong>What this unlocks.</strong> TICKET-009 (Today screen proper) will replace the placeholder content with real dashboard widgets — it doesn't need to worry about an entrance animation because that responsibility lives on <code>AppLayout</code> and the chrome components. TICKET-010 (House) benefits from the same one-shot pattern if we later decide to celebrate <em>any</em> first-view milestone (first plant added, first streak). The flag-based gate established here is that pattern, ready to be generalised.</p>
+
+    <p><strong>Mental model.</strong> Rails' <code>flash[:notice]</code> on <code>after_sign_up_path_for</code> — set once in the controller action that handled registration, consumed on the next page render, gone on the page after that. The <code>plantcare_tour_pending</code> flag is the client-side equivalent: set at the end of the wizard, read once by <code>AppLayout</code> on the next render, cleared immediately so no refresh can replay it.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <p>Seven artifacts. One new hook that owns the flag, four components that opt into reveal behaviour when the hook says to, and two small pieces of glue (the welcome toast + reduced-motion fallback).</p>
+
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind hook">hook</span><span class="name">client/src/hooks/useFirstRunReveal.js</span>
+        <div class="role">Reads <code>localStorage['plantcare_tour_pending']</code>, clears it on the first read via a <code>useEffect</code>, and returns <code>{ isFirstRun: boolean }</code>. Job: answer "should chrome animate in this render?" exactly once per fresh signup — never on reload, never on re-login, never on navigating away and back. All other consumers (Sidebar, Dock, main) read this hook rather than touching localStorage themselves so there's only one place the flag is consumed.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind extend">extend</span><span class="name">client/src/layouts/AppLayout.jsx</span>
+        <div class="role">Calls <code>useFirstRunReveal()</code> once at the top, passes <code>firstRun</code> as a prop to <code>Sidebar</code> and <code>Dock</code>, and applies a <code>fadeIn</code> motion wrapper around <code>&lt;main&gt;</code> when the flag is set. Also fires the welcome toast via <code>useEffect</code> (gated on <code>firstRun</code>) so the toast only appears once.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span><span class="name">client/src/components/Sidebar.jsx</span>
+        <div class="role">When <code>firstRun</code>, the whole aside slides in from <code>x: -260</code> to <code>0</code> using Framer Motion; once it lands, nav items stagger-fade in at ~80ms intervals. Uses Framer's <code>staggerChildren</code> variant pattern so the orchestration is declarative. When <code>firstRun</code> is false (every normal render), the component renders exactly as it does today — no motion wrappers, no extra DOM.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span><span class="name">client/src/components/Dock.jsx</span>
+        <div class="role">The mobile-only counterpart to Sidebar. When <code>firstRun</code>, the dock slides up from the bottom (<code>y: +100</code> to <code>0</code>) and the four dock items stagger-fade in. Visible-viewport concern: the dock is <code>lg:hidden</code>, Sidebar is <code>hidden lg:flex</code>, so only one of them actually animates on any given screen.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind extend">extend</span><span class="name">client/src/layouts/AppLayout.jsx (welcome toast)</span>
+        <div class="role">On first-run render, fires a single toast via <code>useToast().info()</code> — content along the lines of <code>"Welcome, {firstName} 🌿"</code>, reading the user from <code>useAuth()</code>. The effect's dependency array is tight enough that it fires exactly once even if <code>firstRun</code> re-evaluates (it won't, but belt-and-braces).</div>
+      </div>
+      <div class="artifact">
+        <span class="kind extend">extend</span><span class="name">Reduced-motion fallback</span>
+        <div class="role">Every motion wrapper uses <code>useReducedMotion()</code> from <code>motion/react</code>. When the user prefers reduced motion, the reveal collapses to the end state instantly — chrome is there, main is opaque, toast fires — but no slide, no stagger, no fade. Same UX contract, no vestibular trigger.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind hook">test</span><span class="name">client/tests/pages/first-run-reveal.spec.js</span>
+        <div class="role">E2E test. Registers + completes the wizard, lands on <code>/</code>, asserts the animation classes / welcome toast are present on the first render. Reloads <code>/</code>, asserts they are absent. Logs out and back in, asserts they stay absent. Verifies <code>localStorage['plantcare_tour_pending']</code> is cleared after the first view.</div>
+      </div>
+    </div>
+
+    <div class="shape">App tree during a first-run render:
+
+  AppLayout
+    ├── useFirstRunReveal()  ──►  { isFirstRun: true }
+    │
+    ├── &lt;Sidebar firstRun /&gt;        (hidden on mobile)
+    │     ↳ motion.aside  x: -260 → 0
+    │         ↳ motion.nav  staggerChildren
+    │             ↳ NavLink × 3   y: 8 → 0, opacity 0 → 1
+    │
+    ├── &lt;main&gt;                       (motion-wrapped when firstRun)
+    │     ↳ motion.div  opacity: 0 → 1
+    │         ↳ &lt;Outlet /&gt;  (Today placeholder)
+    │
+    ├── &lt;Dock firstRun /&gt;            (hidden on desktop)
+    │     ↳ motion.nav  y: +100 → 0
+    │         ↳ motion.nav  staggerChildren
+    │             ↳ NavLink × 4   y: 8 → 0
+    │
+    └── useEffect  →  toast.info("Welcome, {name} 🌿")
+
+After the one-shot: every subsequent render ignores firstRun
+(the flag is gone from localStorage), so the above collapses to
+the normal AppLayout tree — no motion wrappers in the DOM.</div>
+
+    <p><strong>Placeholder note.</strong> Today's content is still the PlaceholderPage ("Coming soon.") until TICKET-009 lands. Don't worry about orchestrating the Today content — this ticket only covers the chrome entrance. When Today becomes real, its first-paint can layer its own entrance on top (task cards staggering in, etc.) without changing any of this.</p>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li>When a user finishes the wizard and lands on <code>/</code> for the first time, they see the sidebar/dock chrome animate in rather than appearing instantly.</li>
+      <li>The animation plays exactly once per signup. Reloading the page after it's played shows chrome instantly, as it does today. Logging out and back in shows chrome instantly. Navigating from <code>/</code> to another route and back does not replay it.</li>
+      <li>Users who open the app for the first time via a login (not a signup) never see the animation — only fresh signups do.</li>
+      <li>On desktop (the <code>lg:</code> breakpoint and up), the sidebar is what slides in. On mobile, the dock is. Both use a stagger-fade on their nav items after landing.</li>
+      <li>A single welcome toast fires on the first render only, greeting the user by name with a leaf emoji.</li>
+      <li>Every motion in the sequence respects <code>prefers-reduced-motion</code> — the end state is identical but no slides, fades, or staggers happen when the user opts out.</li>
+      <li>The total orchestration completes in under ~1 second so the user can start interacting quickly, even though the first interaction is likely just reading the welcome toast.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Register a fresh user → complete the wizard → click "Enter your jungle": sidebar/dock visibly animates into place, main content fades in, welcome toast appears with the user's first name.</span></div>
+    <div class="criterion"><div class="box"></div><span>After that reveal, refresh the page: no animation, no welcome toast. Just the normal authenticated app.</span></div>
+    <div class="criterion"><div class="box"></div><span>Log out, log back in with the same credentials: no animation, no welcome toast.</span></div>
+    <div class="criterion"><div class="box"></div><span>During the reveal, navigate to <code>/discover</code> and back to <code>/</code>: no replay.</span></div>
+    <div class="criterion"><div class="box"></div><span>In DevTools → Application → Local Storage after the first Today render: <code>plantcare_tour_pending</code> is gone.</span></div>
+    <div class="criterion"><div class="box"></div><span>System Settings → Accessibility → Reduce Motion = On: chrome still appears, toast still fires, but no slides or fades are visible to the naked eye.</span></div>
+    <div class="criterion"><div class="box"></div><span>Narrow viewport (&lt;1024px): it's the dock that animates, not the sidebar. Wide viewport: vice-versa. Exactly one chrome element animates per viewport.</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> and <code>./scripts/run_tests.sh client</code> both pass.</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+    <div class="mockup-grid">
+      <div class="mockup-preview">
+        <div class="label">
+          <span>02 — Today mobile (default + sweep)</span>
+          <a href="../mockups/plantcare-ui/02-today-mobile-default-and-sweep.html" target="_blank">Open ↗</a>
+        </div>
+        <iframe src="../mockups/plantcare-ui/02-today-mobile-default-and-sweep.html"></iframe>
+      </div>
+      <div class="mockup-preview">
+        <div class="label">
+          <span>03 — Today desktop</span>
+          <a href="../mockups/plantcare-ui/03-today-desktop.html" target="_blank">Open ↗</a>
+        </div>
+        <iframe src="../mockups/plantcare-ui/03-today-desktop.html"></iframe>
+      </div>
+    </div>
+
+    <p><strong>Scope note.</strong> These mockups show the full Today screen with hero card, since-ribbon, task list and so on — that's TICKET-009's territory, not this one. Use them purely for understanding where the sidebar / dock / main content sit relative to each other. The reveal animation is purely about those three regions arriving; what they contain is not our problem.</p>
+
+    <blockquote>
+      <strong>UI spec §15.4 (Framer Motion approach).</strong> The spec's worked example uses <code>&lt;LayoutGroup&gt;</code>, <code>&lt;AnimatePresence&gt;</code>, and <code>motion.div</code> with the <code>layout</code> prop. The same patterns apply here — AnimatePresence isn't needed (nothing is exiting), but the same <code>motion.div</code> + variants + <code>staggerChildren</code> patterns are the idiom.
+    </blockquote>
+
+    <blockquote>
+      <strong>UI spec §5.2 (Today mobile default state).</strong> "The since ribbon, progress indicator, and today's rituals fill the space" — the default state IS what the user sees post-signup, because they haven't planted anything overdue yet. This ticket doesn't build those, but it does make sure the chrome around them lands smoothly.
+    </blockquote>
+
+    <a class="plan-link" href="../plans/2026-04-10-plantcare-frontend.md" target="_blank">Implementation plan — currently no task for this, so this ticket is entirely self-directed. Treat the main plan as background context, not a script.</a>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+
+    <div class="learn">
+      <strong>Framer Motion variants + <code>staggerChildren</code>.</strong> Variants are named animation states (like <code>"hidden"</code> / <code>"visible"</code>) you define once on a parent, and children inherit automatically. Setting <code>transition: { staggerChildren: 0.08 }</code> on the parent means every child that has matching variant names animates 80ms after the previous one — no per-child timing math. This is the clean way to get the nav-items-appearing-one-by-one effect without chaining <code>setTimeout</code>s.
+    </div>
+
+    <div class="learn">
+      <strong><code>useReducedMotion()</code> from <code>motion/react</code>.</strong> Reads the user's <code>prefers-reduced-motion</code> OS setting and returns a boolean. The Toast component already uses it — follow the same pattern: build one set of props for the reduced version (<code>duration: 0</code> or collapsed initial = animate), and switch on the boolean. Never hard-code an always-on animation; accessibility users get motion sickness from large slides and will leave.
+    </div>
+
+    <div class="learn">
+      <strong>The "localStorage flag that fires once" pattern.</strong> Read the flag on mount, decide whether to run the reveal, clear the flag in the same mount's effect. Don't rely on component state alone — React Strict Mode double-mounts effects in dev, so without the clear-on-first-read guard, dev mode would look like the animation is replaying. Think of it as the React equivalent of consuming a Rails <code>flash</code>: show once, clear, never see it again.
+    </div>
+
+    <div class="learn">
+      <strong><code>useEffect</code> that must fire exactly once — including under Strict Mode double-mount.</strong> Dev-mode Strict Mode re-runs effects to catch impurity bugs. A naive <code>useEffect(() =&gt; { setFlag(); clearLocalStorage() }, [])</code> will run the "clear" twice and potentially fire the toast twice in dev. Solve by reading + clearing localStorage <em>synchronously in a ref</em> the first time the hook is called, so the second Strict Mode mount sees an empty flag and no-ops. The hook body becomes idempotent — that's what you're aiming for.
+    </div>
+
+    <div class="learn">
+      <strong>Avoid prop-drilling by reading the hook where needed.</strong> It's tempting to have AppLayout read <code>firstRun</code> and pass it to Sidebar, Dock, and main as props. Cleaner: call <code>useFirstRunReveal()</code> in each component that needs it. BUT — that breaks the "fires once" guarantee (multiple readers each try to clear the flag). Keep AppLayout as the single reader, pass the value down as props. This is one of the times prop-drilling beats hook proliferation.
+    </div>
+
+    <div class="learn">
+      <strong>Don't animate the chrome's identity — animate its entrance.</strong> React Router's route change re-mounts <code>&lt;main&gt;</code>'s children but NOT the surrounding <code>&lt;AppLayout&gt;</code>. That means Sidebar and Dock persist across route changes. Good — we only want their entrance animation on FIRST render of AppLayout, which is exactly when <code>firstRun</code> is true. Subsequent route changes leave them alone. React Router's layout-route pattern is doing the right thing for free.
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <table class="rails-map">
+      <thead>
+        <tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>flash[:notice]</code> set in the controller after signup</td>
+          <td><code>localStorage['plantcare_tour_pending']</code> set in <code>Welcome.handleFinish</code></td>
+          <td>Fire-once state that survives one navigation and is cleared on read</td>
+        </tr>
+        <tr>
+          <td><code>after_sign_up_path_for(user)</code> (Devise)</td>
+          <td><code>navigate('/', { replace: true })</code> in <code>handleFinish</code></td>
+          <td>Where the post-signup user lands — we already do this; this ticket decorates the landing</td>
+        </tr>
+        <tr>
+          <td><code>application.html.erb</code> with <code>&lt;%= yield %&gt;</code></td>
+          <td><code>AppLayout.jsx</code> with <code>&lt;Outlet /&gt;</code></td>
+          <td>The persistent frame — mounts once per authenticated session, children swap via routing</td>
+        </tr>
+        <tr>
+          <td>Turbo <code>data-turbo-frame</code> / stream animations</td>
+          <td>Framer Motion <code>motion.div</code> + variants</td>
+          <td>Both are declarative animation layers over the underlying DOM swap</td>
+        </tr>
+        <tr>
+          <td><code>if flash[:notice] then render :celebrate end</code></td>
+          <td><code>firstRun && &lt;motion.aside ... /&gt;</code></td>
+          <td>Conditionally render the celebratory variant — default path is unchanged</td>
+        </tr>
+        <tr>
+          <td>CSS <code>@media (prefers-reduced-motion: reduce)</code></td>
+          <td><code>useReducedMotion()</code> from <code>motion/react</code></td>
+          <td>The React side pipes the OS setting into JS so you can branch on it programmatically</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li><code>client/src/hooks/useFirstRunReveal.js</code> <span class="action">create</span></li>
+      <li><code>client/src/layouts/AppLayout.jsx</code> <span class="action">extend</span></li>
+      <li><code>client/src/components/Sidebar.jsx</code> <span class="action">rewrite</span></li>
+      <li><code>client/src/components/Dock.jsx</code> <span class="action">rewrite</span></li>
+      <li><code>client/src/pages/Welcome.jsx</code> <span class="action">minor tidy</span></li>
+      <li><code>client/tests/hooks/useFirstRunReveal.test.jsx</code> <span class="action">create</span></li>
+      <li><code>client/tests/pages/first-run-reveal.spec.js</code> <span class="action">create</span></li>
+    </ul>
+    <p><em>This is a shape hint, not a spec. If you find a cleaner split during implementation — for example, absorbing the welcome toast into the hook itself, or moving the motion variants into a shared file — follow your nose.</em></p>
+  </section>
+
+  <section>
+    <h2>Notes & gotchas</h2>
+
+    <ul>
+      <li><strong>Don't touch <code>Welcome.handleFinish</code>'s localStorage write.</strong> It already sets the flag correctly. The only surface this ticket cares about is <em>reading</em> it.</li>
+      <li><strong>Strict Mode double-mount is the most likely bug source.</strong> In dev, you'll see the reveal play twice if the hook isn't idempotent. Test by saving the flag, hard-reloading <code>/</code>, and confirming the reveal plays once — not once-then-again-250ms-later.</li>
+      <li><strong>Don't call the hook from inside Sidebar and Dock.</strong> Only AppLayout calls it. Multiple callers = the "clear on read" race would either clear the flag before some components see it, or replay the animation after some components have already moved on.</li>
+      <li><strong>Don't try to animate the wizard's exit from inside this ticket.</strong> The wizard finishes, <code>navigate('/')</code> fires, the wizard unmounts. That's route-level, not component-level — no need to coordinate. AppLayout mounts fresh on the Today route and runs its first-render reveal.</li>
+      <li><strong>Don't introduce a full onboarding tour here.</strong> This ticket is just the chrome entrance and welcome toast. Feature tooltips / highlight arrows / dismissible tour cards are a separate scope — park them for a future ticket.</li>
+      <li><strong>Don't assume confetti or sparkle particles.</strong> Spec §5.3 mentions a confetti moment for the "all caught up" state — that's a Today-content concern tied to real dashboard data, not this ticket's chrome entrance. Leave room for it, don't pre-empt it.</li>
+      <li><strong>When you're done:</strong> run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, commit on a feature branch (<code>ticket-013</code>), then open a PR.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>

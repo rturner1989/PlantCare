@@ -56,13 +56,31 @@ export default function Step3Species({
   // Preload images of visible results into the browser cache so when the
   // user picks one, the selected-species card shows the photo immediately
   // instead of waiting on a fresh Wikimedia/Perenual fetch.
+  //
+  // Deferred via requestIdleCallback (falling back to setTimeout) because
+  // this effect was firing synchronously with Step 3's mount animation on
+  // first entry — 10 `new Image()` calls hit the network stack at the
+  // same moment React was committing the new tree and Framer Motion was
+  // animating it in, and the resulting main-thread work caused a visible
+  // flash in the step transition. Idle-time preloading keeps the
+  // performance optimisation (images are ready by the time the user
+  // clicks one) without stealing frames from the entry animation.
   useEffect(() => {
-    for (const result of results) {
-      if (result.image_url) {
-        const img = new Image()
-        img.src = result.image_url
+    if (results.length === 0) return
+    const preload = () => {
+      for (const result of results) {
+        if (result.image_url) {
+          const img = new Image()
+          img.src = result.image_url
+        }
       }
     }
+    if (typeof window.requestIdleCallback === 'function') {
+      const handle = window.requestIdleCallback(preload, { timeout: 2000 })
+      return () => window.cancelIdleCallback(handle)
+    }
+    const handle = setTimeout(preload, 400)
+    return () => clearTimeout(handle)
   }, [results])
 
   function handleSelect(species) {
@@ -88,13 +106,27 @@ export default function Step3Species({
           Or skip — you can add plants anytime from the Add button.
         </p>
 
-        <div className={`mt-5 ${!selected ? 'flex-1 min-h-0 flex flex-col' : ''}`}>
+        {/* Two scroll modes, one container. When searching, the mt-5 wrapper
+            is a flex-col that lets SearchField grow — the listbox inside
+            owns its own scroll. When a species is selected, the wrapper
+            itself becomes the scroll container, so a tall stack (selected
+            card + room picker + nickname input + "choose again" link) scrolls
+            inside the wizard card instead of pushing the title/subtitle
+            upward. Matches the scroll-isolation pattern in Step 2. */}
+        <div className={`mt-5 flex-1 min-h-0 ${selected ? 'overflow-y-auto' : 'flex flex-col'}`}>
           {/* Search ↔ selected swap now animates both directions. The
               existing fade-in-up CSS keyframe on the selected card only
               covered entrance; going back to the search via "Choose a
               different species" snapped. Framer Motion's AnimatePresence
               gives each branch symmetric enter + exit. */}
-          <AnimatePresence mode="wait">
+          {/* initial={false} — Step 3 already animates on mount via the
+              wizard-level AnimatePresence in Welcome.jsx. Playing a second
+              entrance animation here at the same time compounded into a
+              noticeable stutter on the first Step 2 → Step 3 transition
+              (browser doing two simultaneous animations on a freshly
+              mounted tree). Once the user has visited once, the tree is
+              warm and the nested anim didn't compound as visibly. */}
+          <AnimatePresence mode="wait" initial={false}>
             {!selected ? (
               <motion.div
                 key="search"
@@ -124,7 +156,6 @@ export default function Step3Species({
                     />
                   )}
                   loading={isLoading}
-                  storageKey="species-search"
                   className="flex-1 min-h-0"
                 />
               </motion.div>
