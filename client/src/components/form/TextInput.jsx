@@ -24,6 +24,15 @@ import { useId } from 'react'
  * the field label. useFormSubmit's focus-first-invalid logic finds invalid
  * inputs via the aria-invalid attribute.
  *
+ * Required state:
+ *
+ *   <TextInput label="Email" required ... />
+ *
+ * When `required` is true, a coral-deep "*" is appended to the label. The
+ * asterisk is `aria-hidden` because the native `required` attribute on the
+ * input itself is what assistive tech announces — the visual mark exists
+ * only so sighted users can see at a glance which fields they must fill.
+ *
  * Default className on the wrapper is `block` only — spacing between fields is
  * a layout concern, handled by the parent via `space-y-*` or per-instance
  * `mb-*` on the wrapper className.
@@ -40,16 +49,24 @@ const INPUT_BASE =
 const INPUT_VALID = 'border-mint focus:border-leaf focus:ring-leaf/20'
 const INPUT_INVALID = 'border-coral focus:border-coral focus:ring-coral/20'
 
-export default function TextInput({ label, hint, error, className = '', ...kwargs }) {
+export default function TextInput({ label, hint, error, required = false, className = '', ...kwargs }) {
   const generatedId = useId()
   const errorId = useId()
   const hasError = Boolean(error)
 
   return (
     <label className={`block ${className}`}>
-      <span className={LABEL_TEXT}>{label}</span>
+      <span className={LABEL_TEXT}>
+        {label}
+        {required && (
+          <span aria-hidden="true" className="ml-0.5 text-coral-deep">
+            *
+          </span>
+        )}
+      </span>
       <input
         id={generatedId}
+        required={required}
         className={`${INPUT_BASE} ${hasError ? INPUT_INVALID : INPUT_VALID}`}
         aria-invalid={hasError ? 'true' : undefined}
         aria-describedby={hasError ? errorId : undefined}

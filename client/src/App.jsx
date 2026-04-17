@@ -1,11 +1,24 @@
 /*
  * src/
+ * ├── api/           fetch wrapper + per-endpoint helpers (client.js)
+ * ├── components/    shared building blocks used by layouts AND pages
+ * │   ├── form/         form primitives (TextInput, OptionCard, SearchField, ...)
+ * │   ├── ui/           general primitives (Action, Badge, Card, EmptyState, Spinner, Toast)
+ * │   ├── welcome/      onboarding-wizard step components
+ * │   └── *.jsx         domain components at the root (Sidebar, Dock, ProgressRing,
+ * │                     PlantAvatar, TaskRow, SinceRibbon, RoomCard, Logo, ProtectedRoute)
+ * ├── context/       React contexts + providers (AuthContext, ToastContext)
+ * ├── errors/        named Error subclasses per failure mode (ValidationError, ...)
+ * ├── hooks/         custom hooks (useAuth, useFormSubmit, useRooms, useSpecies, ...)
  * ├── layouts/       route wrappers that pages render inside
- * │   ├── AppLayout.jsx    authenticated shell (dock + sidebar)
+ * │   ├── AppLayout.jsx    authenticated shell (sidebar on desktop, dock on mobile)
  * │   ├── AuthLayout.jsx   login/register card
  * │   └── SiteLayout.jsx   marketing nav + footer
- * ├── pages/         leaf route components
- * └── components/    shared building blocks used by layouts AND pages
+ * ├── pages/         leaf route components (Login, Register, Welcome, NotFound, ...)
+ * ├── utils/         small pure-JS helpers (roomIcons, future: careStatus, formatters)
+ * ├── App.jsx        route table + provider tree (this file)
+ * ├── main.jsx       ReactDOM entry point
+ * └── globals.css    Tailwind @theme tokens + @utility classes
  */
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
