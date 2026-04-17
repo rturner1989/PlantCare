@@ -27,6 +27,11 @@
   --color-ink: #0a1d0e;
   --color-ink-soft: #4a6a51;
   --color-coral: #ff6b3d;
+  /* Brand coral (#ff6b3d) on white is only 2.8:1 — below WCAG AA 4.5:1 for
+   * normal text and 3:1 for large text. `coral-deep` (#c4412a) lands at
+   * ~5:1, so use it anywhere coral meets the text/icon threshold. Keep
+   * `coral` for fills/borders where the 3:1 UI-component threshold applies. */
+  --color-coral-deep: #c4412a;
   --color-sunshine: #ffb83d;
   --color-card: #ffffff;
 
@@ -59,6 +64,7 @@
   --ink: #0a1d0e;
   --ink-soft: #4a6a51;
   --coral: #ff6b3d;
+  --coral-deep: #c4412a;
   --sunshine: #ffb83d;
   --card: #ffffff;
   --shadow-fab: 0 0 0 4px var(--card), 0 10px 24px rgba(20, 144, 47, 0.4), 0 4px 10px rgba(11, 58, 26, 0.22);

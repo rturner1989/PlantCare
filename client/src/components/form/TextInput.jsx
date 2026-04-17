@@ -56,7 +56,7 @@ export default function TextInput({ label, hint, error, className = '', ...kwarg
         {...kwargs}
       />
       {hasError ? (
-        <span id={errorId} className="mt-1 block text-xs font-semibold text-coral">
+        <span id={errorId} className="mt-1 block text-xs font-semibold text-coral-deep">
           {error}
         </span>
       ) : (

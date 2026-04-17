@@ -52,7 +52,7 @@ export default function ResetPassword() {
       <div className="min-h-dvh flex flex-col items-center justify-center px-6 py-8 sm:py-12">
         <Logo className="mb-6 sm:mb-8" />
         <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold italic text-ink mb-6 sm:mb-8 text-center tracking-tight">
-          Link <em className="text-coral">expired</em>
+          Link <em className="text-coral-deep">expired</em>
         </h1>
         <div className="w-full max-w-auth">
           <Card className="shadow-[var(--shadow-md)]">

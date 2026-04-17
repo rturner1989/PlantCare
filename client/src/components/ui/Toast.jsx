@@ -50,7 +50,7 @@ const KIND_STYLES = {
     progress: 'bg-coral',
     iconBg: 'bg-coral/15',
     icon: faCircleExclamation,
-    iconColor: 'text-coral',
+    iconColor: 'text-coral-deep',
     role: 'alert',
     ariaLive: 'assertive',
   },

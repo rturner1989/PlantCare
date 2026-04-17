@@ -73,7 +73,7 @@ function PlaceholderPage({ title }) {
         <button
           type="button"
           onClick={handleLogout}
-          className="lg:hidden text-sm font-bold text-ink-soft hover:text-coral active:text-coral transition-colors cursor-pointer border-0 bg-transparent p-0"
+          className="lg:hidden text-sm font-bold text-ink-soft hover:text-coral-deep active:text-coral-deep transition-colors cursor-pointer border-0 bg-transparent p-0"
         >
           Log out
         </button>

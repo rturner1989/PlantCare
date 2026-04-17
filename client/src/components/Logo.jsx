@@ -12,7 +12,12 @@ export default function Logo({ size = 'md', markOnly = false, className = '', to
 
   const children = (
     <>
+      {/* Decorative "P" mark — the adjacent wordmark is the accessible
+          name, so hide the letter from assistive tech. When markOnly is
+          true the caller MUST provide the name via aria-label on the
+          parent (currently unused, but guarded for future usage). */}
       <div
+        aria-hidden="true"
         className={`${markClasses} flex items-center justify-center text-white font-extrabold bg-[image:var(--gradient-brand)]`}
       >
         P

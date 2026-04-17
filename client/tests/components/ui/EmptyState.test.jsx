@@ -11,10 +11,16 @@ describe('EmptyState', () => {
       expect(screen.queryByRole('button')).not.toBeInTheDocument()
     })
 
-    it('renders the title in an <h2>', () => {
+    it('renders the title in an <h2> by default', () => {
       render(<EmptyState title="No plants yet" />)
       const heading = screen.getByRole('heading', { name: 'No plants yet' })
       expect(heading.tagName).toBe('H2')
+    })
+
+    it('promotes the title to an <h1> when headingLevel="h1" (for page-level empties)', () => {
+      render(<EmptyState title="All caught up!" headingLevel="h1" />)
+      const heading = screen.getByRole('heading', { name: 'All caught up!' })
+      expect(heading.tagName).toBe('H1')
     })
 
     it('renders the icon inside a circular mint badge', () => {
