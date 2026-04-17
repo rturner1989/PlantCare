@@ -317,8 +317,11 @@ test.describe('Onboarding wizard', () => {
     await page.getByRole('button', { name: /begin/i }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
 
-    // Scroll CardBody to the bottom so the trigger is near the viewport edge.
-    const scrollContainer = page.locator('div.overflow-y-auto').first()
+    // Only the rooms list scrolls now — title/subtitle are pinned to
+    // the top of CardBody, matching Step 3's layout. Target the rooms
+    // container by class (`mt-5` is unique to it) rather than picking
+    // from all overflow-y-auto elements on the page.
+    const scrollContainer = page.locator('div.mt-5.overflow-y-auto')
     await scrollContainer.evaluate((el) => {
       el.scrollTop = el.scrollHeight
     })

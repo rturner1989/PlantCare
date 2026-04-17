@@ -19,7 +19,7 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
   const inputRef = useRef(null)
   const shouldReduceMotion = useReducedMotion()
 
-  const { data: presets = [], error: presetsError } = useRoomPresets()
+  const { data: presets = [], error: presetsError, isSuccess: presetsLoaded } = useRoomPresets()
   const createRoom = useCreateRoom()
   const deleteRoom = useDeleteRoom()
 
@@ -83,11 +83,21 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
     errorMessage: 'Could not save rooms',
   })
 
-  const customRooms = selectedRooms.filter((r) => !presets.find((p) => p.name === r))
+  // Gate on presetsLoaded: before the presets query resolves, `presets`
+  // is the default `[]`, which would misclassify a preset-named room
+  // (e.g. "Living Room" hydrated from initialRooms) as custom. With the
+  // custom-chip AnimatePresence, that transient misclassification
+  // created a ghost chip that lingered during its exit animation next
+  // to the preset card once it finally rendered — two "Living Room"s
+  // on screen for ~250ms.
+  const customRooms = presetsLoaded ? selectedRooms.filter((r) => !presets.find((p) => p.name === r)) : []
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
-      <CardBody>
+      {/* flex-col CardBody so the title/subtitle can stay pinned while
+          only the rooms area scrolls — mirrors Step 3's pattern where
+          the species search results scroll but the step heading doesn't. */}
+      <CardBody className="flex flex-col">
         <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight">
           Where do your plants <em className="not-italic text-leaf">live</em>?
         </h1>
@@ -95,7 +105,7 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
           Pick every room that has plants. You can add more later.
         </p>
 
-        <div className="mt-5 space-y-2">
+        <div className="mt-5 flex-1 min-h-0 overflow-y-auto space-y-2">
           {presets.map((room) => (
             <OptionCard
               key={room.name}
@@ -107,11 +117,27 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
             </OptionCard>
           ))}
 
-          {customRooms.map((room) => (
-            <OptionCard key={room} selected onClick={() => toggleRoom(room)}>
-              {room}
-            </OptionCard>
-          ))}
+          {/* Custom rooms animate in and out. A fresh chip expands from
+              height 0 + fade, pushing the trigger/input row below it
+              down into place; removing a chip (toggle off) collapses it
+              in reverse. `initial={false}` so already-persisted custom
+              rooms don't play the entrance animation on first render. */}
+          <AnimatePresence initial={false}>
+            {customRooms.map((room) => (
+              <motion.div
+                key={room}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, height: 'auto' }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: [0.33, 1, 0.68, 1] }}
+                style={{ overflow: 'hidden' }}
+              >
+                <OptionCard selected onClick={() => toggleRoom(room)}>
+                  {room}
+                </OptionCard>
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
           {/* Progressive-disclosure add-custom-room per mockup 07-onboarding-wizard.
               The button is the resting state; tapping it crossfades to the

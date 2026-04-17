@@ -1,6 +1,16 @@
 import Card, { CardHeader } from '../ui/Card'
 import StepProgress from './StepProgress'
 
+// Slot pattern: WizardCard renders the outer <Card> + <CardHeader> and
+// each Step* component fills the rest via <CardBody> and <CardFooter>
+// (and usually a <form> around them for per-step submit logic). Reading
+// an individual step file you'll see CardBody/CardFooter without a
+// surrounding <Card> — that's intentional; the Card lives here, the
+// step component supplies the slots. Keeping CardBody/CardFooter as
+// generic Card primitives (rather than WizardBody/WizardFooter
+// aliases) preserves their correctness when used with a plain Card
+// elsewhere (auth cards, future modal cards).
+//
 // The wizard is deliberately non-dismissible — the dashboard needs at
 // least one room to render anything useful, so progress through the
 // flow is the only exit.
