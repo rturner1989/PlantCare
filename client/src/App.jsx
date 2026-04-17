@@ -13,6 +13,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
+import Action from './components/ui/Action'
 import Spinner from './components/ui/Spinner'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider, useToast } from './context/ToastContext'
@@ -70,13 +71,13 @@ function PlaceholderPage({ title }) {
           <h1 className="text-3xl font-extrabold text-ink">{title}</h1>
           <p className="text-ink-soft mt-2">Coming soon.</p>
         </div>
-        <button
-          type="button"
+        <Action
+          variant="unstyled"
           onClick={handleLogout}
-          className="lg:hidden text-sm font-bold text-ink-soft hover:text-coral-deep active:text-coral-deep transition-colors cursor-pointer border-0 bg-transparent p-0"
+          className="lg:hidden text-sm font-bold text-ink-soft hover:text-coral-deep active:text-coral-deep transition-colors p-0"
         >
           Log out
-        </button>
+        </Action>
       </div>
     </div>
   )

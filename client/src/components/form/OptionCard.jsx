@@ -1,5 +1,6 @@
 import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import Action from '../ui/Action'
 
 /**
  * Selectable card-shaped button. The optional `icon` prop renders a
@@ -10,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
  *   </OptionCard>
  */
 
-const BASE = 'w-full flex items-center gap-3 px-4 py-3 rounded-md border text-left cursor-pointer transition-all'
+const BASE = 'w-full flex items-center gap-3 px-4 py-3 rounded-md border text-left transition-all'
 const SELECTED = 'bg-leaf/10 border-leaf text-ink'
 const UNSELECTED = 'bg-card border-mint text-ink hover:border-leaf/50'
 
@@ -24,8 +25,8 @@ const CHECK_UNSELECTED = 'bg-card border-mint'
 
 export default function OptionCard({ icon, selected = false, onClick, className = '', children, ...kwargs }) {
   return (
-    <button
-      type="button"
+    <Action
+      variant="unstyled"
       onClick={onClick}
       aria-pressed={selected}
       className={`${BASE} ${selected ? SELECTED : UNSELECTED} ${className}`}
@@ -40,6 +41,6 @@ export default function OptionCard({ icon, selected = false, onClick, className 
       <span className={`${CHECK_BASE} ${selected ? CHECK_SELECTED : CHECK_UNSELECTED}`}>
         {selected && <FontAwesomeIcon icon={faCheck} className="text-white text-[10px]" />}
       </span>
-    </button>
+    </Action>
   )
 }

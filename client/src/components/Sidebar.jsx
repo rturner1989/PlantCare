@@ -93,7 +93,7 @@ export default function Sidebar() {
               to="/me"
               variant="unstyled"
               aria-label="View profile"
-              className="flex items-center gap-3 flex-1 min-w-0 p-1 rounded-md hover:bg-mint/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2"
+              className="flex items-center gap-3 flex-1 min-w-0 p-1 rounded-md hover:bg-mint/50 transition-colors"
             >
               <div className="w-[38px] h-[38px] rounded-full bg-mint flex items-center justify-center text-emerald font-bold text-sm shrink-0">
                 {user.name?.[0]?.toUpperCase() || '?'}
@@ -107,7 +107,7 @@ export default function Sidebar() {
               onClick={handleLogout}
               variant="unstyled"
               aria-label="Log out"
-              className="text-ink-soft hover:text-coral-deep transition-colors p-1 rounded-md shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2"
+              className="text-ink-soft hover:text-coral-deep transition-colors p-1 rounded-md shrink-0"
             >
               <FontAwesomeIcon icon={faArrowRightFromBracket} className="w-4 h-4" />
             </Action>

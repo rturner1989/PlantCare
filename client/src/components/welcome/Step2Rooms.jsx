@@ -1,23 +1,12 @@
-import { faBath, faBed, faBriefcase, faCouch, faUtensils } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useState } from 'react'
 import { useToast } from '../../context/ToastContext'
 import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
 import { useCreateRoom, useDeleteRoom, useRoomPresets } from '../../hooks/useRooms'
+import { getRoomIcon } from '../../utils/roomIcons'
 import OptionCard from '../form/OptionCard'
 import Action from '../ui/Action'
 import { CardBody, CardFooter } from '../ui/Card'
-
-// Unmapped icon keys fall through to undefined, which OptionCard treats
-// as "no tile" — a safer default than crashing if the backend adds a new
-// icon before we ship the matching glyph.
-const ROOM_ICONS = {
-  couch: faCouch,
-  kitchen: faUtensils,
-  bed: faBed,
-  bath: faBath,
-  desk: faBriefcase,
-}
 
 export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
   const [selectedRooms, setSelectedRooms] = useState(() => initialRooms.map((r) => r.name))
@@ -92,7 +81,7 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
           {presets.map((room) => (
             <OptionCard
               key={room.name}
-              icon={ROOM_ICONS[room.icon]}
+              icon={getRoomIcon(room.icon)}
               selected={selectedRooms.includes(room.name)}
               onClick={() => toggleRoom(room.name)}
             >
