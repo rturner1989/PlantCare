@@ -44,7 +44,13 @@ export default function Step3Species({
   })
 
   const deferredQuery = useDeferredValue(query)
-  const { data: results = [], isFetching } = useSpeciesSearch(deferredQuery)
+  // `isLoading`, not `isFetching` — isFetching is also true during
+  // background refetches (window focus, network reconnect), which caused
+  // the spinner overlay to flash over already-present popular results
+  // when the user returned to a suspended tab. isLoading is only true
+  // when there is no cached data for the current query key, which is
+  // exactly the "we genuinely have nothing to show yet" condition.
+  const { data: results = [], isLoading } = useSpeciesSearch(deferredQuery)
   const shouldReduceMotion = useReducedMotion()
 
   // Preload images of visible results into the browser cache so when the
@@ -117,7 +123,7 @@ export default function Step3Species({
                       }
                     />
                   )}
-                  loading={isFetching}
+                  loading={isLoading}
                   className="flex-1 min-h-0"
                 />
               </motion.div>
