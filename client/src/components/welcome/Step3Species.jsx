@@ -113,7 +113,7 @@ export default function Step3Species({
             card + room picker + nickname input + "choose again" link) scrolls
             inside the wizard card instead of pushing the title/subtitle
             upward. Matches the scroll-isolation pattern in Step 2. */}
-        <div className={`mt-5 flex-1 min-h-0 ${selected ? 'overflow-y-auto' : 'flex flex-col'}`}>
+        <div className={`mt-5 flex-1 min-h-0 ${selected ? 'overflow-y-auto -mx-1 px-1' : 'flex flex-col'}`}>
           {/* Search ↔ selected swap now animates both directions. The
               existing fade-in-up CSS keyframe on the selected card only
               covered entrance; going back to the search via "Choose a
