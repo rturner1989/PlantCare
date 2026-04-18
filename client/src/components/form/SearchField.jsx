@@ -2,26 +2,10 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import Spinner from '../ui/Spinner'
 import TextInput from './TextInput'
 
-/**
- * Implements the W3C ARIA "combobox with listbox popup, selection follows
- * focus" pattern: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
- *
- * Focus stays on the input at all times — options are highlighted via
- * `aria-activedescendant` rather than receiving DOM focus. The
- * `onMouseDown preventDefault` on options is what preserves that
- * invariant for mouse users.
- *
- * Popup is "open" iff `results.length > 0`; the consumer drives open/close
- * by controlling when the results array is populated.
- *
- * Keyboard: ArrowUp/Down wrap, Home/End jump, Enter selects the active
- * option, Escape clears it, Tab behaves normally.
- */
+// W3C ARIA combobox with listbox popup, selection follows focus:
+// https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
+// Focus stays on the input — `onMouseDown preventDefault` on options keeps it.
 
-// `absolute inset-0` lets the listbox fill its `relative` wrapper exactly.
-// The wrapper carries the sizing (flex-1 + min-h-48), so the listbox can grow
-// to fill remaining vertical space when the parent is a height-constrained
-// flex column, and falls back to a sensible minimum elsewhere.
 const RESULTS_CONTAINER = 'space-y-2 absolute inset-0 overflow-y-auto'
 const OPTION_BASE = 'block w-full text-left bg-card border border-mint rounded-md cursor-pointer transition-colors'
 const OPTION_ACTIVE = 'border-leaf bg-leaf/5'
@@ -46,17 +30,11 @@ export default function SearchField({
   const optionIdBase = useId()
   const [activeIndex, setActiveIndex] = useState(-1)
   const listboxRef = useRef(null)
-  // Tracks whether we've already restored scroll for this mount. Starts
-  // false on every fresh mount (e.g. after an iOS tab eviction + reload),
-  // so the restore runs once as soon as the listbox has results to
-  // scroll within. Intentionally NOT reset on query change — new queries
-  // land at scrollTop 0 which matches the user's expectation of starting
-  // at the top of a different list.
+  // Intentionally not reset on query change — a new query lands at scrollTop 0.
   const didRestoreScrollRef = useRef(false)
 
-  // React's "reset state on prop change" pattern — compare during render
-  // and reset inline — avoids the double-render an effect would cause and
-  // ensures activeIndex never outlives the results array it pointed into.
+  // "Reset state on prop change" pattern — compare during render to avoid the
+  // double-render an effect would cause.
   const [prevResults, setPrevResults] = useState(results)
   if (results !== prevResults) {
     setPrevResults(results)
@@ -67,20 +45,15 @@ export default function SearchField({
   const activeIsValid = activeIndex >= 0 && activeIndex < results.length
   const activeDescendantId = activeIsValid ? `${optionIdBase}-${activeIndex}` : undefined
 
-  // Optional chaining on scrollIntoView because jsdom doesn't implement it;
-  // the effect becomes a no-op in unit tests.
+  // scrollIntoView is optional-chained because jsdom doesn't implement it.
   useEffect(() => {
     if (!activeIsValid) return
     const el = document.getElementById(`${optionIdBase}-${activeIndex}`)
     el?.scrollIntoView?.({ block: 'nearest' })
   }, [activeIndex, activeIsValid, optionIdBase])
 
-  // Restore scroll from sessionStorage as soon as the listbox is populated.
-  // Guards against iOS tab-eviction-and-reload dumping the user back to
-  // the top of the list on return. useLayoutEffect so the restore happens
-  // before paint — no flicker from 0 → restored. Runs once per mount via
-  // didRestoreScrollRef; subsequent re-renders (refetch, data update) are
-  // ignored because the listbox's existing scrollTop is already correct.
+  // Restore saved scroll before paint (useLayoutEffect) to avoid a 0 → restored
+  // flicker after iOS tab eviction + reload.
   useLayoutEffect(() => {
     if (!storageKey || didRestoreScrollRef.current || !listboxRef.current || !hasResults) return
     const saved = sessionStorage.getItem(`search-scroll:${storageKey}`)
@@ -91,8 +64,6 @@ export default function SearchField({
     didRestoreScrollRef.current = true
   })
 
-  // Save the current scrollTop on every scroll. sessionStorage writes are
-  // synchronous and cheap; no need to debounce for a single numeric value.
   function handleListboxScroll() {
     if (!storageKey || !listboxRef.current) return
     sessionStorage.setItem(`search-scroll:${storageKey}`, String(listboxRef.current.scrollTop))
@@ -182,10 +153,6 @@ export default function SearchField({
         </div>
       )}
 
-      {/* Empty state: shown only after the user has typed something AND a
-          fetch has settled with zero matches. Skipped during loading (a
-          spinner already covers that), and skipped on initial render so the
-          placeholder doesn't appear before the user has searched. */}
       {!hasResults && !loading && query.trim() && renderNoResults && (
         <div className="mt-3 flex-1 min-h-48 flex items-center justify-center text-center px-2">
           {renderNoResults(query)}

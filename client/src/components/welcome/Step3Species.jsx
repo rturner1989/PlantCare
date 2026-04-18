@@ -35,8 +35,6 @@ export default function Step3Species({
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(initialSpecies)
   const [nickname, setNickname] = useState(initialNickname)
-  // Auto-pick the single-room case so we don't render a picker with one
-  // option. Multi-room stays null so Continue blocks on an explicit choice.
   const [roomId, setRoomId] = useState(() => {
     if (initialRoomId) return initialRoomId
     if (availableRooms.length === 1) return availableRooms[0].id
@@ -44,27 +42,14 @@ export default function Step3Species({
   })
 
   const deferredQuery = useDeferredValue(query)
-  // `isLoading`, not `isFetching` — isFetching is also true during
-  // background refetches (window focus, network reconnect), which caused
-  // the spinner overlay to flash over already-present popular results
-  // when the user returned to a suspended tab. isLoading is only true
-  // when there is no cached data for the current query key, which is
-  // exactly the "we genuinely have nothing to show yet" condition.
+  // isLoading (not isFetching) — otherwise tab-suspend refetches flash the
+  // spinner overlay on top of already-rendered popular results.
   const { data: results = [], isLoading } = useSpeciesSearch(deferredQuery)
   const shouldReduceMotion = useReducedMotion()
 
-  // Preload images of visible results into the browser cache so when the
-  // user picks one, the selected-species card shows the photo immediately
-  // instead of waiting on a fresh Wikimedia/Perenual fetch.
-  //
-  // Deferred via requestIdleCallback (falling back to setTimeout) because
-  // this effect was firing synchronously with Step 3's mount animation on
-  // first entry — 10 `new Image()` calls hit the network stack at the
-  // same moment React was committing the new tree and Framer Motion was
-  // animating it in, and the resulting main-thread work caused a visible
-  // flash in the step transition. Idle-time preloading keeps the
-  // performance optimisation (images are ready by the time the user
-  // clicks one) without stealing frames from the entry animation.
+  // Preload result images during idle time so picking one shows the photo
+  // immediately. Deferred via requestIdleCallback — firing synchronously with
+  // mount had 10 `new Image()` calls stealing frames from the entry animation.
   useEffect(() => {
     if (results.length === 0) return
     const preload = () => {
@@ -106,26 +91,13 @@ export default function Step3Species({
           Or skip — you can add plants anytime from the Add button.
         </p>
 
-        {/* Two scroll modes, one container. When searching, the mt-5 wrapper
-            is a flex-col that lets SearchField grow — the listbox inside
-            owns its own scroll. When a species is selected, the wrapper
-            itself becomes the scroll container, so a tall stack (selected
-            card + room picker + nickname input + "choose again" link) scrolls
-            inside the wizard card instead of pushing the title/subtitle
-            upward. Matches the scroll-isolation pattern in Step 2. */}
+        {/* Selected state scrolls the whole stack inside the wizard card so the
+            title/subtitle don't get pushed off-screen. Search state defers
+            scrolling to the listbox inside SearchField. */}
         <div className={`mt-5 flex-1 min-h-0 ${selected ? 'overflow-y-auto -mx-1 px-1' : 'flex flex-col'}`}>
-          {/* Search ↔ selected swap now animates both directions. The
-              existing fade-in-up CSS keyframe on the selected card only
-              covered entrance; going back to the search via "Choose a
-              different species" snapped. Framer Motion's AnimatePresence
-              gives each branch symmetric enter + exit. */}
-          {/* initial={false} — Step 3 already animates on mount via the
-              wizard-level AnimatePresence in Welcome.jsx. Playing a second
-              entrance animation here at the same time compounded into a
-              noticeable stutter on the first Step 2 → Step 3 transition
-              (browser doing two simultaneous animations on a freshly
-              mounted tree). Once the user has visited once, the tree is
-              warm and the nested anim didn't compound as visibly. */}
+          {/* initial={false} — wizard-level AnimatePresence in Welcome.jsx
+              already animates the Step 3 mount; nesting a second entrance
+              animation compounded into a visible stutter. */}
           <AnimatePresence mode="wait" initial={false}>
             {!selected ? (
               <motion.div
@@ -182,7 +154,6 @@ export default function Step3Species({
                     />
                   )}
 
-                  {/* Darkened layer the text sits on, fading into the image on the right. */}
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{

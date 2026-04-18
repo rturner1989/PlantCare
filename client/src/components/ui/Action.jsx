@@ -16,19 +16,9 @@ const VARIANT_CLASSES = {
 const FOCUS_VISIBLE =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2'
 
-// Tailwind v4 preflight already zeros `border-width` on every element, so
-// adding `border-0` here was redundant — and worse, it fought consumers
-// who opt into a border via className (OptionCard, RoomCard). Just the
-// cursor is enough to mark the button as interactive.
 const BUTTON_RESET = 'cursor-pointer'
 const LINK_RESET = 'no-underline'
 
-// Focus-visible ring is applied universally — including `variant="unstyled"`.
-// Earlier the ring was skipped for unstyled so card/icon-button consumers
-// could "bring their own everything", but in practice they all ended up
-// duplicating the same three focus-visible classes in their own className.
-// Unifying it here gives every clickable Action a keyboard-visible focus
-// state for free and avoids the drift.
 function compose(variant, elementReset, userClassName) {
   const variantClasses = VARIANT_CLASSES[variant] ?? ''
   return [variantClasses, elementReset, FOCUS_VISIBLE, userClassName].filter(Boolean).join(' ')
@@ -47,7 +37,6 @@ export default function Action({
   'aria-label': ariaLabel,
   ...kwargs
 }) {
-  // Internal navigation → <Link>
   if (to) {
     const classes = compose(variant, LINK_RESET, className)
     if (disabled) {
@@ -64,7 +53,6 @@ export default function Action({
     )
   }
 
-  // External URL → <a>
   if (href) {
     const classes = compose(variant, LINK_RESET, className)
     const targetProps = external ? { target: '_blank', rel: 'noopener noreferrer' } : {}
@@ -82,13 +70,8 @@ export default function Action({
     )
   }
 
-  // Default → <button>
-  // `disabled:opacity-60 disabled:cursor-not-allowed` is the right default
-  // for buttons with a baked-in visual (primary, secondary, fab, ghost),
-  // but unstyled consumers define their own disabled appearance — e.g. the
-  // Today task-row check circle renders as leaf-filled when done, not
-  // 60%-opaque grey. Skipping the default for unstyled keeps those cases
-  // from having to override with `disabled:opacity-100` gymnastics.
+  // Unstyled skips the default disabled dim — consumers style their own
+  // disabled state (e.g. the Today task-row check circle).
   const baseButtonClasses = compose(variant, BUTTON_RESET, className)
   const classes =
     variant === 'unstyled' ? baseButtonClasses : `${baseButtonClasses} disabled:opacity-60 disabled:cursor-not-allowed`

@@ -27,12 +27,6 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
     if (presetsError) toast.error(presetsError.message)
   }, [presetsError, toast])
 
-  // Focus moves in via the motion div's onAnimationStart (below) rather
-  // than a useEffect on `addingCustom`: AnimatePresence mode="wait"
-  // delays the input's mount until the trigger finishes exiting, so the
-  // effect fires before the DOM node exists. onAnimationStart fires
-  // after mount, which is the right moment to grab focus.
-
   function toggleRoom(roomName) {
     setSelectedRooms((prev) => (prev.includes(roomName) ? prev.filter((r) => r !== roomName) : [...prev, roomName]))
   }
@@ -53,9 +47,8 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
 
   const { submitting, handleSubmit, formRef } = useFormSubmit({
     action: async () => {
-      // Deselected rooms are DELETEd from the server, not just dropped from
-      // state. Any attached plants cascade-destroy via `has_many :plants,
-      // dependent: :destroy`.
+      // Deselected rooms are DELETEd from the server; attached plants
+      // cascade-destroy via Rails' dependent: :destroy.
       const existingByName = new Map(initialRooms.map((r) => [r.name, r]))
       const selectedNames = new Set(selectedRooms)
       const toDelete = initialRooms.filter((r) => !selectedNames.has(r.name))
@@ -73,9 +66,8 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
         ])
         onComplete(rooms)
       } catch (err) {
-        // No room-name input is bound to fieldErrors here (preset toggles
-        // + raw custom input), so ValidationErrors get rethrown as plain
-        // Errors so useFormSubmit surfaces them via the toast path.
+        // No field-bound input for the room name here — rethrow as plain Error
+        // so useFormSubmit shows the toast instead of trying to attach fields.
         if (err instanceof ValidationError) throw new Error(err.message)
         throw err
       }
@@ -83,20 +75,12 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
     errorMessage: 'Could not save rooms',
   })
 
-  // Gate on presetsLoaded: before the presets query resolves, `presets`
-  // is the default `[]`, which would misclassify a preset-named room
-  // (e.g. "Living Room" hydrated from initialRooms) as custom. With the
-  // custom-chip AnimatePresence, that transient misclassification
-  // created a ghost chip that lingered during its exit animation next
-  // to the preset card once it finally rendered — two "Living Room"s
-  // on screen for ~250ms.
+  // Gate on presetsLoaded — otherwise a preset-named room from initialRooms
+  // flashes as a custom chip for ~250ms while presets are still loading.
   const customRooms = presetsLoaded ? selectedRooms.filter((r) => !presets.find((p) => p.name === r)) : []
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
-      {/* flex-col CardBody so the title/subtitle can stay pinned while
-          only the rooms area scrolls — mirrors Step 3's pattern where
-          the species search results scroll but the step heading doesn't. */}
       <CardBody className="flex flex-col">
         <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight">
           Where do your plants <em className="not-italic text-leaf">live</em>?
@@ -117,11 +101,8 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
             </OptionCard>
           ))}
 
-          {/* Custom rooms animate in and out. A fresh chip expands from
-              height 0 + fade, pushing the trigger/input row below it
-              down into place; removing a chip (toggle off) collapses it
-              in reverse. `initial={false}` so already-persisted custom
-              rooms don't play the entrance animation on first render. */}
+          {/* initial={false} so persisted custom rooms don't replay the
+              entrance animation on mount. */}
           <AnimatePresence initial={false}>
             {customRooms.map((room) => (
               <motion.div
@@ -139,18 +120,8 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
             ))}
           </AnimatePresence>
 
-          {/* Progressive-disclosure add-custom-room per mockup 07-onboarding-wizard.
-              The button is the resting state; tapping it crossfades to the
-              input panel, auto-focuses, then crossfades back on Add/Cancel.
-              Motion is already a dep (Toast), so no bundle cost.
-
-              Layout: trigger and input rows both render inside a fixed
-              50px container via absolute positioning. Earlier versions
-              used a height 0 ↔ auto animation which collapsed the
-              container mid-transition, clamping CardBody's scrollTop and
-              snapping a scrolled-to-bottom user back to the top of the
-              list. Locking the height and crossfading opacity keeps the
-              scroll position stable through every Add/Cancel cycle. */}
+          {/* Fixed-height crossfade — height 0 ↔ auto animation clamped
+              CardBody's scrollTop and snapped a scrolled user to the top. */}
           <div className="relative h-[50px]">
             <AnimatePresence initial={false} mode="wait">
               {addingCustom ? (
@@ -163,11 +134,6 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
                   onAnimationStart={() => inputRef.current?.focus()}
                   className="absolute inset-0"
                 >
-                  {/* Two icon buttons instead of text "Add" / "Cancel" — the
-                      primary CTA shadow reads as clunky inline, and a green-
-                      check / mint-X pair matches the TaskRow check-circle
-                      language used elsewhere. Keyboard users still get Enter
-                      / Escape shortcuts on the input itself. */}
                   <div className="flex items-center gap-2">
                     <input
                       ref={inputRef}

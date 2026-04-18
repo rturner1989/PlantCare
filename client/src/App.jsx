@@ -1,26 +1,3 @@
-/*
- * src/
- * ├── api/           fetch wrapper + per-endpoint helpers (client.js)
- * ├── components/    shared building blocks used by layouts AND pages
- * │   ├── form/         form primitives (TextInput, OptionCard, SearchField, ...)
- * │   ├── ui/           general primitives (Action, Badge, Card, EmptyState, Spinner, Toast)
- * │   ├── welcome/      onboarding-wizard step components
- * │   └── *.jsx         domain components at the root (Sidebar, Dock, ProgressRing,
- * │                     PlantAvatar, TaskRow, SinceRibbon, RoomCard, Logo, ProtectedRoute)
- * ├── context/       React contexts + providers (AuthContext, ToastContext)
- * ├── errors/        named Error subclasses per failure mode (ValidationError, ...)
- * ├── hooks/         custom hooks (useAuth, useFormSubmit, useRooms, useSpecies, ...)
- * ├── layouts/       route wrappers that pages render inside
- * │   ├── AppLayout.jsx    authenticated shell (sidebar on desktop, dock on mobile)
- * │   ├── AuthLayout.jsx   login/register card
- * │   └── SiteLayout.jsx   marketing nav + footer
- * ├── pages/         leaf route components (Login, Register, Welcome, NotFound, ...)
- * ├── utils/         small pure-JS helpers (roomIcons, future: careStatus, formatters)
- * ├── App.jsx        route table + provider tree (this file)
- * ├── main.jsx       ReactDOM entry point
- * └── globals.css    Tailwind @theme tokens + @utility classes
- */
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { lazy, Suspense } from 'react'
@@ -33,20 +10,12 @@ import { ToastProvider, useToast } from './context/ToastContext'
 import { useAuth } from './hooks/useAuth'
 import AppLayout from './layouts/AppLayout'
 
-// Route-level code splitting — each page ships as its own JS chunk, fetched on demand.
-// Uncomment pages as they're built in tickets 5+.
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
 const Welcome = lazy(() => import('./pages/Welcome'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/ResetPassword'))
-// const Today = lazy(() => import('./pages/Today'))
-// const House = lazy(() => import('./pages/House'))
-// const PlantDetail = lazy(() => import('./pages/PlantDetail'))
-// const Discover = lazy(() => import('./pages/Discover'))
-// const Me = lazy(() => import('./pages/Me'))
-// const AddPlant = lazy(() => import('./pages/AddPlant'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -66,12 +35,7 @@ function PlaceholderPage({ title }) {
   const { logout } = useAuth()
   const toast = useToast()
 
-  // Temporary mobile logout affordance — desktop already has one in the
-  // Sidebar. Delete when the Me profile page lands in ticket 14 and gets
-  // its proper logout button.
-  //
-  // No explicit navigate: clearing `user` makes ProtectedRoute bounce to
-  // /login on its own. Login always lands on '/' after re-auth.
+  // Temporary mobile logout — desktop has Sidebar, Me page lands in ticket 14.
   async function handleLogout() {
     await logout()
     toast.success('Logged out')
@@ -112,13 +76,10 @@ export default function App() {
           <BrowserRouter>
             <Suspense fallback={<RouteFallback />}>
               <Routes>
-                {/* Public + Onboarding routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
-                {/* /welcome requires auth but NOT onboarded — it's the route
-                    a user is sent to *because* they're not yet onboarded. */}
                 <Route
                   path="/welcome/:step?"
                   element={
@@ -128,7 +89,6 @@ export default function App() {
                   }
                 />
 
-                {/* Protected routes */}
                 <Route element={<ProtectedAppLayout />}>
                   <Route index element={<PlaceholderPage title="Today" />} />
 
@@ -145,7 +105,6 @@ export default function App() {
           </BrowserRouter>
         </ToastProvider>
       </AuthProvider>
-      {/* Vite strips this branch from production builds — devtools ship only in dev. */}
       {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} buttonPosition="top-right" />}
     </QueryClientProvider>
   )

@@ -5,17 +5,11 @@ import { ServerError } from '../errors/ServerError'
 import { UnauthorizedError } from '../errors/UnauthorizedError'
 import { ValidationError } from '../errors/ValidationError'
 
-// Rails attribute names are snake_case (`password_confirmation`); React form
-// state uses camelCase (`passwordConfirmation`). This bridges the two at the
-// API boundary so ValidationError.fields is camelCase everywhere the UI reads
-// from it.
+// Rails sends snake_case attribute keys; React form state is camelCase.
 function snakeToCamel(snake) {
   return snake.replace(/_([a-z])/g, (_, char) => char.toUpperCase())
 }
 
-// Guards against `errors` being an array-of-strings (the old shape), a plain
-// string, or `null`. Only a plain object with at least one key counts as
-// field-keyed — otherwise fall through to the generic error path.
 function isFieldKeyedErrorsObject(errors) {
   return errors !== null && typeof errors === 'object' && !Array.isArray(errors) && Object.keys(errors).length > 0
 }
@@ -82,22 +76,18 @@ export async function apiFetch(url, options = {}) {
     ...options.headers,
   }
 
-  // Snapshot whether this request was sent with an access token. If it wasn't
-  // (e.g. the user is logging in), a 401 is a real auth failure, not an
-  // expired session — there's nothing to refresh.
+  // A 401 on an unauthenticated request (login/register) is a real failure —
+  // don't try to refresh when there was no session to begin with.
   const hadAccessToken = accessToken !== null
   if (hadAccessToken) {
     headers.Authorization = `Bearer ${accessToken}`
   }
 
-  // Remove Content-Type for FormData (browser sets boundary automatically)
+  // Browser sets its own multipart boundary — let it.
   if (options.body instanceof FormData) {
     delete headers['Content-Type']
   }
 
-  // fetch() rejects before any response arrives (offline, DNS, CORS preflight
-  // blocked). Translate to NetworkError so consumers can distinguish "no
-  // internet" from "server said no".
   let response
   try {
     response = await fetch(url, {
@@ -109,20 +99,16 @@ export async function apiFetch(url, options = {}) {
     throw new NetworkError()
   }
 
-  // On 401 for an authenticated request, try refreshing the access token once
-  // and retry. For unauthenticated requests (login/register), or if the refresh
-  // itself fails, we fall through and let the original 401's error body
-  // propagate via the `if (!response.ok)` block below — that way the user sees
-  // Rails' actual message ("Invalid email or password") instead of a generic
-  // client-side "Session expired".
+  // Retry once with a refreshed token. If refresh fails, fall through to the
+  // original 401 so Rails' message ("Invalid email or password") surfaces
+  // instead of a generic "Session expired".
   if (response.status === 401 && hadAccessToken) {
     try {
       const newToken = await refreshAccessToken()
       headers.Authorization = `Bearer ${newToken}`
       response = await fetch(url, { ...options, headers, credentials: 'include' })
     } catch {
-      // Refresh failed — fall through. The original 401 response is still
-      // assigned to `response` and will throw with Rails' real error below.
+      // Intentionally empty — original 401 response is handled below.
     }
   }
 
@@ -130,9 +116,6 @@ export async function apiFetch(url, options = {}) {
     const body = await response.json().catch(() => ({}))
     const serverMessage = body.error
 
-    // Rails 422 with a field-keyed errors object becomes a ValidationError.
-    // Shape: { errors: { email: ["has already been taken"], ... } }
-    // Snake-case attributes are translated to camelCase to match React state.
     if (response.status === 422 && isFieldKeyedErrorsObject(body.errors)) {
       const fields = {}
       for (const [snakeField, messages] of Object.entries(body.errors)) {
@@ -145,23 +128,17 @@ export async function apiFetch(url, options = {}) {
       throw validationError
     }
 
-    // Map HTTP status codes to named Error subclasses so consumers can
-    // handle each failure mode explicitly (see client/src/errors/). The
-    // subclass provides a sensible default message; Rails' body.error
-    // overrides it when present.
     if (response.status === 401) throw new UnauthorizedError(serverMessage)
     if (response.status === 404) throw new NotFoundError(serverMessage)
     if (response.status === 429) throw new RateLimitError(serverMessage)
     if (response.status >= 500) throw new ServerError(serverMessage, response.status)
 
-    // Anything else (400, 403, 418...) falls through to a generic Error.
     const error = new Error(serverMessage || `Request failed: ${response.status}`)
     error.status = response.status
     error.body = body
     throw error
   }
 
-  // 204 No Content
   if (response.status === 204) {
     return null
   }

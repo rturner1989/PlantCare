@@ -2,19 +2,8 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Action from '../ui/Action'
 
-/**
- * Selectable card-shaped button. The optional `icon` prop renders a
- * 34×34 tile on the left; omit it for label-only options.
- *
- *   <OptionCard icon={faCouch} selected={isSelected} onClick={toggle}>
- *     Living Room
- *   </OptionCard>
- */
-
-// `duration-200` everywhere on the option (card border/bg, tile bg, check
-// circle, check icon) so the visual cascade into the "selected" state
-// lands in one smooth beat rather than several micro-transitions with
-// subtly different timings.
+// Shared duration-200 across all sub-elements so the selected-state cascade
+// lands in one beat.
 const BASE = 'w-full flex items-center gap-3 px-4 py-3 rounded-md border text-left transition-colors duration-200'
 const SELECTED = 'bg-leaf/10 border-leaf text-ink'
 const UNSELECTED = 'bg-card border-mint text-ink hover:border-leaf/50'
@@ -29,9 +18,7 @@ const CHECK_BASE =
 const CHECK_SELECTED = 'bg-leaf border-leaf'
 const CHECK_UNSELECTED = 'bg-card border-mint'
 
-// Check icon is always rendered but fades + scales between states — a
-// conditional mount/unmount snaps visibly because the tick icon appears
-// in its final shape instead of transitioning into it.
+// Always rendered + faded so the check transitions in rather than snapping.
 const CHECK_ICON_BASE = 'text-white text-[10px] transition-all duration-200'
 const CHECK_ICON_SELECTED = 'opacity-100 scale-100'
 const CHECK_ICON_UNSELECTED = 'opacity-0 scale-50'
