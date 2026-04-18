@@ -2,7 +2,8 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Action from '../ui/Action'
 
-// Shared duration-200 across all sub-elements so the selected-state cascade
+// Checkbox rendered as a tappable card with an icon tile and a check circle.
+// Shared duration-200 across sub-elements so the selected-state cascade
 // lands in one beat.
 const BASE = 'w-full flex items-center gap-3 px-4 py-3 rounded-md border text-left transition-colors duration-200'
 const SELECTED = 'bg-leaf/10 border-leaf text-ink'
@@ -23,12 +24,13 @@ const CHECK_ICON_BASE = 'text-white text-[10px] transition-all duration-200'
 const CHECK_ICON_SELECTED = 'opacity-100 scale-100'
 const CHECK_ICON_UNSELECTED = 'opacity-0 scale-50'
 
-export default function OptionCard({ icon, selected = false, onClick, className = '', children, ...kwargs }) {
+export default function CheckboxCardInput({ icon, selected = false, onClick, className = '', children, ...kwargs }) {
   return (
     <Action
       variant="unstyled"
       onClick={onClick}
-      aria-pressed={selected}
+      role="checkbox"
+      aria-checked={selected}
       className={`${BASE} ${selected ? SELECTED : UNSELECTED} ${className}`}
       {...kwargs}
     >
