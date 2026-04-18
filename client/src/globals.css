@@ -69,6 +69,10 @@
   --card: #ffffff;
   --shadow-fab: 0 0 0 4px var(--card), 0 10px 24px rgba(20, 144, 47, 0.4), 0 4px 10px rgba(11, 58, 26, 0.22);
   --shadow-dock: 0 12px 32px rgba(11, 58, 26, 0.14), 0 4px 12px rgba(11, 58, 26, 0.08);
+  /* Primary CTA lift — emerald-tinted drop + a 1px white inset highlight
+   * on the top edge. Gives Continue / Log in / Save the slight glossy
+   * raise seen in the onboarding mockup. */
+  --shadow-cta: 0 6px 16px rgba(20, 144, 47, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #dff2e2 50%, #c7ecca 100%);
   --gradient-forest: linear-gradient(135deg, var(--forest), var(--forest-2));
   --gradient-brand: linear-gradient(135deg, var(--leaf), var(--emerald));

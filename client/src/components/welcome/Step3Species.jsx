@@ -1,3 +1,4 @@
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useDeferredValue, useEffect, useState } from 'react'
 import { useSpeciesSearch } from '../../hooks/useSpecies'
 import SearchField from '../form/SearchField'
@@ -43,18 +44,43 @@ export default function Step3Species({
   })
 
   const deferredQuery = useDeferredValue(query)
-  const { data: results = [], isFetching } = useSpeciesSearch(deferredQuery)
+  // `isLoading`, not `isFetching` — isFetching is also true during
+  // background refetches (window focus, network reconnect), which caused
+  // the spinner overlay to flash over already-present popular results
+  // when the user returned to a suspended tab. isLoading is only true
+  // when there is no cached data for the current query key, which is
+  // exactly the "we genuinely have nothing to show yet" condition.
+  const { data: results = [], isLoading } = useSpeciesSearch(deferredQuery)
+  const shouldReduceMotion = useReducedMotion()
 
   // Preload images of visible results into the browser cache so when the
   // user picks one, the selected-species card shows the photo immediately
   // instead of waiting on a fresh Wikimedia/Perenual fetch.
+  //
+  // Deferred via requestIdleCallback (falling back to setTimeout) because
+  // this effect was firing synchronously with Step 3's mount animation on
+  // first entry — 10 `new Image()` calls hit the network stack at the
+  // same moment React was committing the new tree and Framer Motion was
+  // animating it in, and the resulting main-thread work caused a visible
+  // flash in the step transition. Idle-time preloading keeps the
+  // performance optimisation (images are ready by the time the user
+  // clicks one) without stealing frames from the entry animation.
   useEffect(() => {
-    for (const result of results) {
-      if (result.image_url) {
-        const img = new Image()
-        img.src = result.image_url
+    if (results.length === 0) return
+    const preload = () => {
+      for (const result of results) {
+        if (result.image_url) {
+          const img = new Image()
+          img.src = result.image_url
+        }
       }
     }
+    if (typeof window.requestIdleCallback === 'function') {
+      const handle = window.requestIdleCallback(preload, { timeout: 2000 })
+      return () => window.cancelIdleCallback(handle)
+    }
+    const handle = setTimeout(preload, 400)
+    return () => clearTimeout(handle)
   }, [results])
 
   function handleSelect(species) {
@@ -80,120 +106,155 @@ export default function Step3Species({
           Or skip — you can add plants anytime from the Add button.
         </p>
 
-        <div className={`mt-5 ${!selected ? 'flex-1 min-h-0 flex flex-col' : ''}`}>
-          {!selected && (
-            <SearchField
-              label="Search species"
-              placeholder="e.g. Monstera, Snake Plant..."
-              query={query}
-              onQueryChange={setQuery}
-              results={results}
-              onSelect={handleSelect}
-              getOptionKey={(species) => species.id ?? species.perenual_id ?? species.common_name}
-              renderOption={(species) => <SpeciesRow species={species} />}
-              renderNoResults={(q) => (
-                <EmptyState
-                  description={
-                    <>
-                      We couldn't find any species matching <span className="font-bold text-ink">"{q}"</span>. Try a
-                      different name — common or scientific both work.
-                    </>
-                  }
-                />
-              )}
-              loading={isFetching}
-              className="flex-1 min-h-0"
-            />
-          )}
-
-          {selected && (
-            <div>
-              <div
-                className="relative rounded-2xl text-white overflow-hidden min-h-[140px]"
-                style={{
-                  background: 'var(--gradient-forest)',
-                  animation: 'fade-in-up 220ms ease-out',
-                }}
+        {/* Two scroll modes, one container. When searching, the mt-5 wrapper
+            is a flex-col that lets SearchField grow — the listbox inside
+            owns its own scroll. When a species is selected, the wrapper
+            itself becomes the scroll container, so a tall stack (selected
+            card + room picker + nickname input + "choose again" link) scrolls
+            inside the wizard card instead of pushing the title/subtitle
+            upward. Matches the scroll-isolation pattern in Step 2. */}
+        <div className={`mt-5 flex-1 min-h-0 ${selected ? 'overflow-y-auto -mx-1 px-1' : 'flex flex-col'}`}>
+          {/* Search ↔ selected swap now animates both directions. The
+              existing fade-in-up CSS keyframe on the selected card only
+              covered entrance; going back to the search via "Choose a
+              different species" snapped. Framer Motion's AnimatePresence
+              gives each branch symmetric enter + exit. */}
+          {/* initial={false} — Step 3 already animates on mount via the
+              wizard-level AnimatePresence in Welcome.jsx. Playing a second
+              entrance animation here at the same time compounded into a
+              noticeable stutter on the first Step 2 → Step 3 transition
+              (browser doing two simultaneous animations on a freshly
+              mounted tree). Once the user has visited once, the tree is
+              warm and the nested anim didn't compound as visibly. */}
+          <AnimatePresence mode="wait" initial={false}>
+            {!selected ? (
+              <motion.div
+                key="search"
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 4 }}
+                animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.22, ease: [0.33, 1, 0.68, 1] }}
+                className="flex-1 min-h-0 flex flex-col"
               >
-                {selected.image_url && (
-                  <img
-                    src={selected.image_url}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover scale-[1.15] origin-center"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none'
+                <SearchField
+                  label="Search species"
+                  placeholder="e.g. Monstera, Snake Plant..."
+                  query={query}
+                  onQueryChange={setQuery}
+                  results={results}
+                  onSelect={handleSelect}
+                  getOptionKey={(species) => species.id ?? species.perenual_id ?? species.common_name}
+                  renderOption={(species) => <SpeciesRow species={species} />}
+                  renderNoResults={(q) => (
+                    <EmptyState
+                      description={
+                        <>
+                          We couldn't find any species matching <span className="font-bold text-ink">"{q}"</span>. Try a
+                          different name — common or scientific both work.
+                        </>
+                      }
+                    />
+                  )}
+                  loading={isLoading}
+                  className="flex-1 min-h-0"
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="selected"
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 4 }}
+                animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.22, ease: [0.33, 1, 0.68, 1] }}
+              >
+                <div
+                  className="relative rounded-2xl text-white overflow-hidden min-h-[140px]"
+                  style={{ background: 'var(--gradient-forest)' }}
+                >
+                  {selected.image_url && (
+                    <img
+                      src={selected.image_url}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover scale-[1.15] origin-center"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none'
+                      }}
+                    />
+                  )}
+
+                  {/* Darkened layer the text sits on, fading into the image on the right. */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background:
+                        'linear-gradient(to right, var(--forest) 0%, rgba(11,58,26,0.9) 45%, rgba(11,58,26,0.4) 70%, rgba(11,58,26,0) 100%)',
                     }}
                   />
-                )}
 
-                {/* Darkened layer the text sits on, fading into the image on the right. */}
-                <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    background:
-                      'linear-gradient(to right, var(--forest) 0%, rgba(11,58,26,0.9) 45%, rgba(11,58,26,0.4) 70%, rgba(11,58,26,0) 100%)',
-                  }}
-                />
-
-                <div className="relative p-4 pr-[40%]">
-                  <p className="text-[9px] font-extrabold text-lime uppercase tracking-wider mb-1">Species selected</p>
-                  <p className="text-lg font-extrabold">{selected.common_name}</p>
-                  {selected.scientific_name && <p className="text-xs italic opacity-70">{selected.scientific_name}</p>}
-                  <div className="flex gap-2 mt-3">
-                    {selected.personality && (
-                      <span className="text-[10px] font-bold bg-white/10 text-lime px-2.5 py-1 rounded-full">
-                        {selected.personality}
-                      </span>
+                  <div className="relative p-4 pr-[40%]">
+                    <p className="text-[9px] font-extrabold text-lime uppercase tracking-wider mb-1">
+                      Species selected
+                    </p>
+                    <p className="text-lg font-extrabold">{selected.common_name}</p>
+                    {selected.scientific_name && (
+                      <p className="text-xs italic opacity-70">{selected.scientific_name}</p>
                     )}
-                    {selected.difficulty && (
-                      <span className="text-[10px] font-bold bg-white/10 text-lime px-2.5 py-1 rounded-full">
-                        {selected.difficulty}
-                      </span>
-                    )}
+                    <div className="flex gap-2 mt-3">
+                      {selected.personality && (
+                        <span className="text-[10px] font-bold bg-white/10 text-lime px-2.5 py-1 rounded-full">
+                          {selected.personality}
+                        </span>
+                      )}
+                      {selected.difficulty && (
+                        <span className="text-[10px] font-bold bg-white/10 text-lime px-2.5 py-1 rounded-full">
+                          {selected.difficulty}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {needsRoomChoice && (
-                <label className="block mt-4">
-                  <span className="text-xs font-bold text-ink-soft uppercase tracking-wider">Which room?</span>
-                  <select
-                    value={roomId ?? ''}
-                    onChange={(e) => setRoomId(Number(e.target.value))}
-                    className="mt-1 w-full px-4 py-3 rounded-md bg-mint/50 border border-mint text-ink text-base font-semibold focus:outline-none focus:ring-4 focus:ring-leaf/20 focus:border-leaf"
-                  >
-                    <option value="" disabled>
-                      Pick a room...
-                    </option>
-                    {availableRooms.map((room) => (
-                      <option key={room.id} value={room.id}>
-                        {room.name}
+                {needsRoomChoice && (
+                  <label className="block mt-4">
+                    <span className="text-xs font-bold text-ink-soft uppercase tracking-wider">Which room?</span>
+                    <select
+                      value={roomId ?? ''}
+                      onChange={(e) => setRoomId(Number(e.target.value))}
+                      className="mt-1 w-full px-4 py-3 rounded-md bg-mint/50 border border-mint text-ink text-base font-semibold focus:outline-none focus:ring-4 focus:ring-leaf/20 focus:border-leaf"
+                    >
+                      <option value="" disabled>
+                        Pick a room...
                       </option>
-                    ))}
-                  </select>
-                </label>
-              )}
+                      {availableRooms.map((room) => (
+                        <option key={room.id} value={room.id}>
+                          {room.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
 
-              <div className="mt-4">
-                <TextInput
-                  label="What should we call them?"
-                  type="text"
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
-                  placeholder={selected.common_name}
-                  hint={
-                    nickname
-                      ? `Nice choice. I already like ${nickname}.`
-                      : `Leave blank and we'll call them ${selected.common_name}.`
-                  }
-                />
-              </div>
+                <div className="mt-4">
+                  <TextInput
+                    label="What should we call them?"
+                    type="text"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    placeholder={selected.common_name}
+                    hint={
+                      nickname
+                        ? `Nice choice. I already like ${nickname}.`
+                        : `Leave blank and we'll call them ${selected.common_name}.`
+                    }
+                  />
+                </div>
 
-              <Action variant="unstyled" onClick={clearSelection} className="mt-3 text-xs text-ink-soft underline">
-                Choose a different species
-              </Action>
-            </div>
-          )}
+                <Action variant="unstyled" onClick={clearSelection} className="mt-3 text-xs text-ink-soft underline">
+                  Choose a different species
+                </Action>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </CardBody>
 

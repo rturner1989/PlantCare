@@ -20,23 +20,15 @@ describe('OptionCard', () => {
   describe('icon tile', () => {
     it('renders an icon tile when the icon prop is passed', () => {
       const { container } = render(<OptionCard icon={faCouch}>Living Room</OptionCard>)
-      // Without selection, the check indicator has no glyph inside, so the
-      // only SVG in the tree is the FA icon in the tile.
-      expect(container.querySelectorAll('svg')).toHaveLength(1)
+      // Check glyph is always in the DOM now (fades between states), so an
+      // OptionCard with an icon has two SVGs — tile glyph + check glyph.
+      expect(container.querySelectorAll('svg')).toHaveLength(2)
     })
 
     it('does not render an icon tile when the icon prop is omitted', () => {
       const { container } = render(<OptionCard>Custom Room</OptionCard>)
-      expect(container.querySelector('svg')).toBeNull()
-    })
-
-    it('renders both tile icon and check glyph when icon is passed and selected', () => {
-      const { container } = render(
-        <OptionCard icon={faCouch} selected>
-          Living Room
-        </OptionCard>,
-      )
-      expect(container.querySelectorAll('svg')).toHaveLength(2)
+      // Only the check glyph is in the tree — no tile.
+      expect(container.querySelectorAll('svg')).toHaveLength(1)
     })
   })
 
@@ -51,15 +43,24 @@ describe('OptionCard', () => {
       expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true')
     })
 
-    it('shows a check glyph on the right indicator when selected', () => {
+    // The check glyph is always mounted so the transition between states
+    // can animate opacity + scale instead of snapping in on first paint.
+    // Assertions target the classes that drive the visibility, not the
+    // DOM presence.
+    it('shows the check glyph at full opacity when selected', () => {
       const { container } = render(<OptionCard selected>Kitchen</OptionCard>)
-      // No icon prop here — only SVG in the tree should be the check glyph.
-      expect(container.querySelectorAll('svg')).toHaveLength(1)
+      const checkIcon = container.querySelector('svg')
+      expect(checkIcon).not.toBeNull()
+      expect(checkIcon.getAttribute('class')).toContain('opacity-100')
+      expect(checkIcon.getAttribute('class')).toContain('scale-100')
     })
 
-    it('omits the check glyph when not selected', () => {
+    it('keeps the check glyph hidden via opacity-0 + scale-50 when not selected', () => {
       const { container } = render(<OptionCard>Kitchen</OptionCard>)
-      expect(container.querySelector('svg')).toBeNull()
+      const checkIcon = container.querySelector('svg')
+      expect(checkIcon).not.toBeNull()
+      expect(checkIcon.getAttribute('class')).toContain('opacity-0')
+      expect(checkIcon.getAttribute('class')).toContain('scale-50')
     })
   })
 

@@ -7,6 +7,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import Action from './Action'
 
 /**
  * Toast — individual flash message card. Rendered by ToastContainer; consumers
@@ -84,14 +85,14 @@ function Toast({ id, kind, message, duration, onDismiss }) {
         <FontAwesomeIcon icon={styles.icon} className={`${styles.iconColor} w-4 h-4`} />
       </div>
       <div className="flex-1 text-sm font-semibold text-ink pt-1.5">{message}</div>
-      <button
-        type="button"
+      <Action
+        variant="unstyled"
         onClick={() => onDismiss(id)}
         aria-label="Dismiss"
-        className="text-ink-soft hover:text-ink transition-colors cursor-pointer border-0 bg-transparent p-0 pt-1.5"
+        className="text-ink-soft hover:text-ink transition-colors p-0 pt-1.5"
       >
         <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
-      </button>
+      </Action>
 
       {showProgress && (
         <div

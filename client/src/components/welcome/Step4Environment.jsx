@@ -17,14 +17,45 @@ const ENVIRONMENT_FIELDS = [
   { key: 'humidity_level', label: 'Humidity', icon: faDroplet, options: ['dry', 'average', 'humid'] },
 ]
 
-const DEFAULT_ENVIRONMENT = {
-  light_level: 'medium',
-  temperature_level: 'average',
-  humidity_level: 'average',
+// Map the Species.light_requirement enum (coarser, covers "indirect",
+// "direct", "full shade", "tolerates a range") onto the three-way
+// light_level the user actually picks. Tolerant species default to
+// "medium" — user gets a neutral starting point and can adjust if
+// they know their spot skews bright or low.
+const LIGHT_FROM_SPECIES = {
+  bright_direct: 'bright',
+  bright_indirect: 'bright',
+  low: 'low',
+  low_to_bright: 'medium',
+  low_to_bright_indirect: 'medium',
+}
+
+const HUMIDITY_FROM_SPECIES = {
+  high: 'humid',
+  low: 'dry',
+  average: 'average',
+}
+
+// Seed Step 4 with the species' own preferences so the common case
+// (user picked a plant that roughly matches their home) is a single
+// tap to continue. Unknown species values fall back to the neutral
+// "medium / average / average" defaults. Temperature stays "average"
+// regardless — Species.temperature_min/max are hardiness ranges
+// (what the plant tolerates), not ideal-spot temperatures, so they
+// don't map cleanly to the user's cool/average/warm scale.
+export function environmentFromSpecies(species) {
+  return {
+    light_level: LIGHT_FROM_SPECIES[species?.light_requirement] ?? 'medium',
+    temperature_level: 'average',
+    humidity_level: HUMIDITY_FROM_SPECIES[species?.humidity_preference] ?? 'average',
+  }
 }
 
 export default function Step4Environment({ species, nickname, roomId, onBack, onComplete }) {
-  const [environment, setEnvironment] = useState(DEFAULT_ENVIRONMENT)
+  // Lazy initialiser so the species → environment mapping runs once on
+  // mount, not on every render. Reading `species` through a prop so it
+  // stays in sync if Step 3 gets a different selection and comes back.
+  const [environment, setEnvironment] = useState(() => environmentFromSpecies(species))
 
   const { submitting, handleSubmit, formRef } = useFormSubmit({
     action: async () => {
@@ -51,7 +82,7 @@ export default function Step4Environment({ species, nickname, roomId, onBack, on
           <em className="not-italic text-leaf">{plantLabel}&rsquo;s spot</em>.
         </h1>
         <p className="mt-3 text-sm text-ink-soft font-medium leading-snug">
-          {"I'll calculate the perfect care schedule based on the environment."}
+          I&rsquo;ve picked what this plant usually likes — adjust if your spot&rsquo;s different.
         </p>
 
         <div className="mt-5">

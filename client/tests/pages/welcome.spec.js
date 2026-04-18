@@ -11,7 +11,10 @@ async function registerFreshUser(page) {
   await page.goto('/register')
   await page.getByLabel('Name').fill('Test User')
   await page.getByLabel('Email').fill(email)
-  await page.getByLabel('Password', { exact: true }).fill(password)
+  // getByRole, not getByLabel — getByLabel uses the <label>'s raw text
+  // content which now includes the visual "*", while getByRole uses the
+  // computed accessible name (aria-hidden properly excluded).
+  await page.getByRole('textbox', { name: 'Password', exact: true }).fill(password)
   await page.getByLabel('Confirm password').fill(password)
   await page.getByRole('button', { name: /Create account/i }).click()
   await page.waitForURL('/welcome')
@@ -235,8 +238,11 @@ test.describe('Onboarding wizard', () => {
     // case-insensitive uniqueness validation rejects it on submit.
     await page.getByRole('button', { name: 'Back' }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
-    await page.getByPlaceholder('Add custom room...').fill('living room')
-    await page.getByRole('button', { name: 'Add' }).click()
+    // Progressive-disclosure: reveal the input via the "+ Add a custom room"
+    // button, then type + Add.
+    await page.getByRole('button', { name: /Add a custom room/i }).click()
+    await page.getByLabel('New room name').fill('living room')
+    await page.getByRole('button', { name: 'Add room' }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
     await expect(page.getByText(/has already been taken/i)).toBeVisible()
@@ -266,5 +272,72 @@ test.describe('Onboarding wizard', () => {
     await page.goForward()
     await expect(page).toHaveURL(/\/welcome\/species$/)
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
+  })
+
+  test('add-custom-room: button reveals input, adds a chip, collapses back', async ({ page }) => {
+    await registerFreshUser(page)
+    await page.getByRole('button', { name: /begin/i }).click()
+    await expect(page.getByText('Step 2 of 5')).toBeVisible()
+
+    // Resting state: just the trigger button, no input on screen.
+    const trigger = page.getByRole('button', { name: /Add a custom room/i })
+    await expect(trigger).toBeVisible()
+    await expect(page.getByLabel('New room name')).toHaveCount(0)
+
+    // Reveal.
+    await trigger.click()
+    const input = page.getByLabel('New room name')
+    await expect(input).toBeVisible()
+    await expect(input).toBeFocused()
+
+    // Add via Enter.
+    await input.fill('Greenhouse')
+    await input.press('Enter')
+
+    // Input panel collapses, trigger returns, chip appears as a pressed OptionCard.
+    await expect(page.getByRole('button', { name: /Add a custom room/i })).toBeVisible()
+    await expect(page.getByLabel('New room name')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Greenhouse' })).toHaveAttribute('aria-pressed', 'true')
+
+    // Reveal → Escape cancels without adding.
+    await page.getByRole('button', { name: /Add a custom room/i }).click()
+    await page.getByLabel('New room name').fill('Shed')
+    await page.getByLabel('New room name').press('Escape')
+    await expect(page.getByLabel('New room name')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Shed' })).toHaveCount(0)
+  })
+
+  test('add-custom-room: scroll position is preserved across the reveal/cancel toggle', async ({ page }) => {
+    // Short viewport forces CardBody to scroll — matches the desktop
+    // condition the user hit (scrolled to bottom of Step 2 to reach the
+    // trigger, clicked it, jumped to top).
+    await page.setViewportSize({ width: 900, height: 520 })
+
+    await registerFreshUser(page)
+    await page.getByRole('button', { name: /begin/i }).click()
+    await expect(page.getByText('Step 2 of 5')).toBeVisible()
+
+    // Only the rooms list scrolls now — title/subtitle are pinned to
+    // the top of CardBody, matching Step 3's layout. Target the rooms
+    // container by class (`mt-5` is unique to it) rather than picking
+    // from all overflow-y-auto elements on the page.
+    const scrollContainer = page.locator('div.mt-5.overflow-y-auto')
+    await scrollContainer.evaluate((el) => {
+      el.scrollTop = el.scrollHeight
+    })
+    const bottomScroll = await scrollContainer.evaluate((el) => el.scrollTop)
+    expect(bottomScroll).toBeGreaterThan(0)
+
+    // Reveal the input. Scroll should stay put — no height collapse.
+    await page.getByRole('button', { name: /Add a custom room/i }).click()
+    await page.waitForTimeout(250) // let the opacity transition settle
+    const afterReveal = await scrollContainer.evaluate((el) => el.scrollTop)
+    expect(afterReveal).toBe(bottomScroll)
+
+    // Cancel. Same — no scroll reset on collapse.
+    await page.getByRole('button', { name: 'Cancel adding room' }).click()
+    await page.waitForTimeout(250)
+    const afterCancel = await scrollContainer.evaluate((el) => el.scrollTop)
+    expect(afterCancel).toBe(bottomScroll)
   })
 })

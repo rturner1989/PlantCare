@@ -1,11 +1,24 @@
 /*
  * src/
+ * ├── api/           fetch wrapper + per-endpoint helpers (client.js)
+ * ├── components/    shared building blocks used by layouts AND pages
+ * │   ├── form/         form primitives (TextInput, OptionCard, SearchField, ...)
+ * │   ├── ui/           general primitives (Action, Badge, Card, EmptyState, Spinner, Toast)
+ * │   ├── welcome/      onboarding-wizard step components
+ * │   └── *.jsx         domain components at the root (Sidebar, Dock, ProgressRing,
+ * │                     PlantAvatar, TaskRow, SinceRibbon, RoomCard, Logo, ProtectedRoute)
+ * ├── context/       React contexts + providers (AuthContext, ToastContext)
+ * ├── errors/        named Error subclasses per failure mode (ValidationError, ...)
+ * ├── hooks/         custom hooks (useAuth, useFormSubmit, useRooms, useSpecies, ...)
  * ├── layouts/       route wrappers that pages render inside
- * │   ├── AppLayout.jsx    authenticated shell (dock + sidebar)
+ * │   ├── AppLayout.jsx    authenticated shell (sidebar on desktop, dock on mobile)
  * │   ├── AuthLayout.jsx   login/register card
  * │   └── SiteLayout.jsx   marketing nav + footer
- * ├── pages/         leaf route components
- * └── components/    shared building blocks used by layouts AND pages
+ * ├── pages/         leaf route components (Login, Register, Welcome, NotFound, ...)
+ * ├── utils/         small pure-JS helpers (roomIcons, future: careStatus, formatters)
+ * ├── App.jsx        route table + provider tree (this file)
+ * ├── main.jsx       ReactDOM entry point
+ * └── globals.css    Tailwind @theme tokens + @utility classes
  */
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -13,6 +26,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
+import Action from './components/ui/Action'
 import Spinner from './components/ui/Spinner'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider, useToast } from './context/ToastContext'
@@ -70,13 +84,13 @@ function PlaceholderPage({ title }) {
           <h1 className="text-3xl font-extrabold text-ink">{title}</h1>
           <p className="text-ink-soft mt-2">Coming soon.</p>
         </div>
-        <button
-          type="button"
+        <Action
+          variant="unstyled"
           onClick={handleLogout}
-          className="lg:hidden text-sm font-bold text-ink-soft hover:text-coral-deep active:text-coral-deep transition-colors cursor-pointer border-0 bg-transparent p-0"
+          className="lg:hidden text-sm font-bold text-ink-soft hover:text-coral-deep active:text-coral-deep transition-colors p-0"
         >
           Log out
-        </button>
+        </Action>
       </div>
     </div>
   )

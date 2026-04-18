@@ -103,7 +103,7 @@ describe('Action', () => {
       expect(button.className).toContain('w-[54px]')
     })
 
-    it('variant="unstyled" skips variant classes and the focus ring', () => {
+    it('variant="unstyled" skips variant classes but keeps the focus-visible ring', () => {
       render(
         <Action variant="unstyled" className="only-mine">
           Bare
@@ -113,7 +113,22 @@ describe('Action', () => {
       expect(button).toHaveClass('only-mine')
       expect(button.className).not.toContain('rounded-full')
       expect(button.className).not.toContain('bg-[image:')
-      expect(button.className).not.toContain('focus-visible:ring')
+      // Focus-visible ring is applied universally — unstyled consumers used
+      // to duplicate it in their own className; now they inherit it.
+      expect(button.className).toContain('focus-visible:ring')
+    })
+
+    it('variant="unstyled" skips the default disabled:opacity-60 so consumers can style "disabled" themselves', () => {
+      render(
+        <Action variant="unstyled" disabled>
+          Bare
+        </Action>,
+      )
+      const button = screen.getByRole('button')
+      // Unstyled consumers (e.g. TaskRow's leaf-filled done state) define
+      // their own disabled appearance; the default 60%-opacity grey would
+      // fight them.
+      expect(button.className).not.toContain('disabled:opacity-60')
     })
   })
 

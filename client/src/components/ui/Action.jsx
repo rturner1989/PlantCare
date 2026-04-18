@@ -4,7 +4,7 @@ const BASE_ROUND = 'inline-flex items-center justify-center rounded-full transit
 const SIZE_MD = 'gap-2 px-6 py-3 text-sm font-extrabold active:scale-[0.98]'
 
 const VARIANT_CLASSES = {
-  primary: `${BASE_ROUND} ${SIZE_MD} text-white bg-[image:var(--gradient-brand)]`,
+  primary: `${BASE_ROUND} ${SIZE_MD} text-white bg-[image:var(--gradient-brand)] shadow-[var(--shadow-cta)]`,
   secondary: `${BASE_ROUND} ${SIZE_MD} bg-mint text-emerald`,
   fab: `${BASE_ROUND} w-[54px] h-[54px] text-white bg-[image:var(--gradient-brand)] shadow-[var(--shadow-fab)] active:scale-95`,
   'cta-card':
@@ -16,13 +16,22 @@ const VARIANT_CLASSES = {
 const FOCUS_VISIBLE =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2'
 
-const BUTTON_RESET = 'border-0 cursor-pointer'
+// Tailwind v4 preflight already zeros `border-width` on every element, so
+// adding `border-0` here was redundant — and worse, it fought consumers
+// who opt into a border via className (OptionCard, RoomCard). Just the
+// cursor is enough to mark the button as interactive.
+const BUTTON_RESET = 'cursor-pointer'
 const LINK_RESET = 'no-underline'
 
+// Focus-visible ring is applied universally — including `variant="unstyled"`.
+// Earlier the ring was skipped for unstyled so card/icon-button consumers
+// could "bring their own everything", but in practice they all ended up
+// duplicating the same three focus-visible classes in their own className.
+// Unifying it here gives every clickable Action a keyboard-visible focus
+// state for free and avoids the drift.
 function compose(variant, elementReset, userClassName) {
   const variantClasses = VARIANT_CLASSES[variant] ?? ''
-  const focusRing = variant === 'unstyled' ? '' : FOCUS_VISIBLE
-  return [variantClasses, elementReset, focusRing, userClassName].filter(Boolean).join(' ')
+  return [variantClasses, elementReset, FOCUS_VISIBLE, userClassName].filter(Boolean).join(' ')
 }
 
 export default function Action({
@@ -74,8 +83,15 @@ export default function Action({
   }
 
   // Default → <button>
+  // `disabled:opacity-60 disabled:cursor-not-allowed` is the right default
+  // for buttons with a baked-in visual (primary, secondary, fab, ghost),
+  // but unstyled consumers define their own disabled appearance — e.g. the
+  // Today task-row check circle renders as leaf-filled when done, not
+  // 60%-opaque grey. Skipping the default for unstyled keeps those cases
+  // from having to override with `disabled:opacity-100` gymnastics.
   const baseButtonClasses = compose(variant, BUTTON_RESET, className)
-  const classes = `${baseButtonClasses} disabled:opacity-60 disabled:cursor-not-allowed`
+  const classes =
+    variant === 'unstyled' ? baseButtonClasses : `${baseButtonClasses} disabled:opacity-60 disabled:cursor-not-allowed`
 
   return (
     <button

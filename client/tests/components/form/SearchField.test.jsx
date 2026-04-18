@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import SearchField from '../../../src/components/form/SearchField'
 
 const FRUIT = [
@@ -244,6 +244,74 @@ describe('SearchField', () => {
     it('merges user className onto the wrapper', () => {
       const { container } = renderField({ className: 'my-wrap' })
       expect(container.firstChild).toHaveClass('my-wrap')
+    })
+  })
+
+  // iOS (especially in PWA standalone mode) evicts backgrounded tabs and
+  // reloads them on return, which remounts the component with a fresh
+  // listbox at scrollTop 0. Persisting scroll to sessionStorage and
+  // restoring on mount gives the user their position back. These tests
+  // exercise the sessionStorage contract directly — jsdom doesn't paint,
+  // so we can't verify the *visual* scroll, but the read/write behaviour
+  // is what protects users across the remount boundary.
+  describe('scroll persistence (storageKey)', () => {
+    beforeEach(() => {
+      sessionStorage.clear()
+    })
+
+    it('does not touch sessionStorage when storageKey is omitted', () => {
+      const { container } = renderField({ results: FRUIT })
+      const listbox = container.querySelector('[role="listbox"]')
+      listbox.scrollTop = 50
+      listbox.dispatchEvent(new Event('scroll', { bubbles: true }))
+      // No keys persisted at all.
+      expect(sessionStorage.length).toBe(0)
+    })
+
+    it('writes listbox scrollTop to sessionStorage on scroll when storageKey is set', () => {
+      const { container } = renderField({ results: FRUIT, storageKey: 'fruit' })
+      const listbox = container.querySelector('[role="listbox"]')
+      listbox.scrollTop = 120
+      listbox.dispatchEvent(new Event('scroll', { bubbles: true }))
+      expect(sessionStorage.getItem('search-scroll:fruit')).toBe('120')
+    })
+
+    it('restores the saved scrollTop when the component mounts with populated results', () => {
+      sessionStorage.setItem('search-scroll:fruit', '87')
+      const { container } = renderField({ results: FRUIT, storageKey: 'fruit' })
+      expect(container.querySelector('[role="listbox"]').scrollTop).toBe(87)
+    })
+
+    it('restores once — later refetches of the same query do not re-apply the saved value', () => {
+      sessionStorage.setItem('search-scroll:fruit', '87')
+      const { container, rerender } = renderField({ results: FRUIT, storageKey: 'fruit' })
+      const listbox = container.querySelector('[role="listbox"]')
+      expect(listbox.scrollTop).toBe(87)
+
+      // User has moved the scroll after the initial restore.
+      listbox.scrollTop = 30
+      listbox.dispatchEvent(new Event('scroll', { bubbles: true }))
+
+      // Refetch returns a new results array. Should NOT re-restore to 87.
+      rerender(
+        <SearchField
+          label="Search fruit"
+          placeholder="Type to search..."
+          query=""
+          onQueryChange={() => {}}
+          results={[...FRUIT]}
+          onSelect={() => {}}
+          getOptionKey={(item) => item.id}
+          renderOption={(item) => <span>{item.name}</span>}
+          storageKey="fruit"
+        />,
+      )
+      expect(container.querySelector('[role="listbox"]').scrollTop).toBe(30)
+    })
+
+    it('does nothing on mount if no scroll was previously saved (fresh user, empty storage)', () => {
+      const { container } = renderField({ results: FRUIT, storageKey: 'fruit' })
+      expect(container.querySelector('[role="listbox"]').scrollTop).toBe(0)
     })
   })
 })
