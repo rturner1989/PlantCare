@@ -31,9 +31,25 @@
 #  fk_rails_...  (species_id => species.id)
 #
 class Plant < ApplicationRecord
-  LIGHT_MODIFIERS = { 'bright' => -0.15, 'medium' => 0.0, 'low' => 0.2 }.freeze
-  TEMPERATURE_MODIFIERS = { 'warm' => -0.1, 'average' => 0.0, 'cool' => 0.15 }.freeze
-  HUMIDITY_MODIFIERS = { 'dry' => -0.1, 'average' => 0.0, 'humid' => 0.15 }.freeze
+  # Ordered low → high intensity so `.keys` drives both validation and
+  # the frontend Step 4 picker order via Species#as_json.
+  LIGHT_MODIFIERS = {
+    'low' => 0.2,
+    'medium' => 0.0,
+    'bright' => -0.15
+  }.freeze
+
+  TEMPERATURE_MODIFIERS = {
+    'cool' => 0.15,
+    'average' => 0.0,
+    'warm' => -0.1
+  }.freeze
+
+  HUMIDITY_MODIFIERS = {
+    'dry' => -0.1,
+    'average' => 0.0,
+    'humid' => 0.15
+  }.freeze
 
   belongs_to :room, counter_cache: true
   belongs_to :species, optional: true
@@ -44,6 +60,14 @@ class Plant < ApplicationRecord
   validates :light_level, inclusion: { in: LIGHT_MODIFIERS.keys }
   validates :temperature_level, inclusion: { in: TEMPERATURE_MODIFIERS.keys }
   validates :humidity_level, inclusion: { in: HUMIDITY_MODIFIERS.keys }
+
+  def self.level_options
+    {
+      light: LIGHT_MODIFIERS.keys,
+      temperature: TEMPERATURE_MODIFIERS.keys,
+      humidity: HUMIDITY_MODIFIERS.keys
+    }
+  end
 
   before_save :calculate_schedule, if: :should_recalculate?
   before_create :set_initial_watered_at
