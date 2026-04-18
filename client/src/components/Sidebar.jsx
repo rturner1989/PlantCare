@@ -7,12 +7,8 @@ import Logo from './Logo'
 import Action from './ui/Action'
 import Badge from './ui/Badge'
 
-// TODO: replace hardcoded counts with real data once dashboard + house queries land.
-// Today = tasks due today; House = total plants.
-//
-// Note: `/me` is intentionally NOT listed here — on desktop the user accesses
-// their profile by clicking the avatar in the sidebar footer. The Dock keeps
-// its Me entry because mobile has no sidebar avatar to click.
+// TODO(ticket 14): real counts from dashboard + house queries.
+// /me lives in the footer avatar on desktop; the Dock handles it for mobile.
 const navItems = [
   { to: '/', label: 'Today', icon: faSun, count: 2 },
   { to: '/house', label: 'House', icon: faHouse, count: 12 },
@@ -50,12 +46,7 @@ export default function Sidebar() {
   const { user, logout } = useAuth()
   const toast = useToast()
 
-  // TODO: this logout action will move into the Me profile page in ticket 14.
-  // For now it lives in the sidebar user footer so we have a way out while
-  // building and testing the rest of the app.
-  //
-  // No explicit navigate: clearing `user` makes ProtectedRoute bounce to
-  // /login on its own. Login always lands on '/' after re-auth.
+  // TODO(ticket 14): move to Me profile page.
   async function handleLogout() {
     await logout()
     toast.success('Logged out')

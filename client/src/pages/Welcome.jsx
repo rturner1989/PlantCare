@@ -22,11 +22,7 @@ function stepPath(step) {
   return slug ? `/welcome/${slug}` : '/welcome'
 }
 
-// Direction-aware slide variants for the step transitions. `custom` is
-// 1 for forward (Continue / Next), -1 for back (Back / browser back),
-// 0 on first mount so we skip the entrance animation. Each step slides
-// horizontally with a fade; AnimatePresence mode="wait" ensures the
-// outgoing step finishes leaving before the incoming one arrives.
+// custom direction: 1 forward, -1 back, 0 on first mount (skip entrance anim).
 const SLIDE_OFFSET = 40
 const stepVariants = {
   enter: (direction) => ({
@@ -54,11 +50,8 @@ export default function Welcome() {
   const toast = useToast()
   const shouldReduceMotion = useReducedMotion()
 
-  // Derive slide direction from the step delta: track what the previous
-  // step was in a ref, compare to the current render's step. Updating the
-  // ref inside useEffect (not inline during render) so the direction is
-  // computed from the PREVIOUS committed step, not the one we're about to
-  // commit.
+  // Ref updated in useEffect (not inline) so direction compares against the
+  // previous *committed* step.
   const previousStepRef = useRef(step)
   const direction = step > previousStepRef.current ? 1 : step < previousStepRef.current ? -1 : 0
   useEffect(() => {
@@ -66,11 +59,8 @@ export default function Welcome() {
   }, [step])
 
   const { data: existingRooms, isFetching: roomsFetching } = useRooms({ enabled: !user?.onboarded })
-  // Prefetch popular species here so the cache is warm by the time the
-  // user reaches Step 3. Without it, Step 3's first mount fires the
-  // network request synchronously with its entrance animation — the
-  // spinner swap inside SearchField made the step transition stutter.
-  // Subsequent visits hit the 5-min TanStack cache and stay smooth.
+  // Warm the species cache so Step 3's entrance animation doesn't stutter
+  // against an in-flight fetch.
   useSpeciesSearch('')
 
   useEffect(() => {
@@ -85,11 +75,8 @@ export default function Welcome() {
 
   if (step === undefined) return null
 
-  // Don't mount Step 2/3 until rooms are both loaded AND not mid-refetch.
-  // Step 2 and Step 3 each seed from props via useState lazy init — so
-  // stale data at mount (undefined on refresh, or the old cache value
-  // during a post-mutation refetch) would silently freeze the step with
-  // the wrong selections and no auto-resync.
+  // Steps 2 and 3 lazy-init state from props, so a stale rooms value at mount
+  // would freeze the step with no auto-resync. Wait for a settled fetch.
   const needsRooms = step === 2 || step === 3
   if (needsRooms && (existingRooms === undefined || roomsFetching)) {
     return (
@@ -106,9 +93,8 @@ export default function Welcome() {
     navigate(stepPath(species ? 4 : 5))
   }
 
-  // On failure we keep the user on Step 5 rather than navigating; silent
-  // navigation would leave them with `onboarded: false` and ProtectedRoute
-  // would bounce them straight back here.
+  // Stay on Step 5 on failure — navigating with `onboarded: false` would have
+  // ProtectedRoute bounce the user straight back here.
   async function handleFinish() {
     setFinishing(true)
     try {

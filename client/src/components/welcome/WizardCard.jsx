@@ -1,30 +1,9 @@
 import Card, { CardHeader } from '../ui/Card'
 import StepProgress from './StepProgress'
 
-// Slot pattern: WizardCard renders the outer <Card> + <CardHeader> and
-// each Step* component fills the rest via <CardBody> and <CardFooter>
-// (and usually a <form> around them for per-step submit logic). Reading
-// an individual step file you'll see CardBody/CardFooter without a
-// surrounding <Card> — that's intentional; the Card lives here, the
-// step component supplies the slots. Keeping CardBody/CardFooter as
-// generic Card primitives (rather than WizardBody/WizardFooter
-// aliases) preserves their correctness when used with a plain Card
-// elsewhere (auth cards, future modal cards).
-//
-// The wizard is deliberately non-dismissible — the dashboard needs at
-// least one room to render anything useful, so progress through the
-// flow is the only exit.
-//
-// Sizing: on desktop we lock the card to an exact `sm:h-[640px]` — not
-// `sm:min-h-[*]` — so every step renders inside the same rectangle.
-// With a min-height, short steps (1, 5) were shorter than tall ones
-// (2 with many custom rooms, 3 with results + selected card), which
-// made the step transitions look jumpy. Content that exceeds the fixed
-// height scrolls inside CardBody's own overflow-y-auto region.
-//
-// On mobile we stay `flex-1 min-h-0` inside the h-dvh parent, which
-// already pins the card to the viewport so every step is the same
-// size without a hard-coded pixel height that fights screen variety.
+// Fixed `sm:h-[640px]` (not min-h) so every step renders inside the same
+// rectangle — otherwise tall steps made transitions look jumpy. Overflow
+// scrolls inside CardBody's own overflow-y-auto region.
 const WIZARD_SURFACE =
   'flex-1 min-h-0 sm:flex-none sm:h-[640px] flex flex-col w-full max-w-sm sm:max-w-md mx-auto mt-2 rounded-[28px] border-white/80 shadow-[0_20px_50px_rgba(11,58,26,0.14),0_4px_12px_rgba(11,58,26,0.06)]'
 

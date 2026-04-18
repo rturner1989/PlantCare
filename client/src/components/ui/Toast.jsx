@@ -9,30 +9,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import Action from './Action'
 
-/**
- * Toast — individual flash message card. Rendered by ToastContainer; consumers
- * don't use Toast directly, they call useToast() from ToastContext.
- *
- * Kind → visual mapping (Rails flash equivalents):
- *   success → emerald accent, check icon        (flash[:notice])
- *   error   → coral accent, exclamation-circle  (flash[:alert])
- *   warning → sunshine accent, triangle         (flash[:warning])
- *   info    → forest accent, info-circle        (flash[:info])
- *
- * Accessibility:
- *   Error toasts use role="alert" + aria-live="assertive" so screen readers
- *   interrupt to announce them immediately. Other kinds use role="status" +
- *   aria-live="polite" so they're announced without interrupting ongoing speech.
- */
-
-// Base classes — tight 5px corners. Two kind-colored decorations:
-//   1. A full-height vertical accent bar flush against the left edge, rendered
-//      via ::before with `left-0 top-0 bottom-0` (no insets, no rounded corners
-//      — the container's `overflow-hidden` + `rounded-xs` clips the bar's
-//      corners cleanly to follow the card edge).
-//   2. A circle-badge wrapping the kind icon (handled in the JSX body with a
-//      soft tinted background matching the accent colour).
-// Container is `relative` so the absolute children position against it.
+// Consumers use useToast() from ToastContext — Toast is rendered by
+// ToastContainer below. Error toasts use role="alert" + aria-live="assertive"
+// so screen readers interrupt; other kinds use polite status.
 const BASE =
   'relative overflow-hidden flex items-start gap-3 pl-5 pr-4 py-4 bg-card rounded-xs shadow-[var(--shadow-md)] w-full sm:w-auto sm:min-w-[280px] sm:max-w-[360px] before:content-[""] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1.5'
 
@@ -105,22 +84,6 @@ function Toast({ id, kind, message, duration, onDismiss }) {
   )
 }
 
-/**
- * ToastContainer — fixed top-right stack of active toasts. Rendered internally
- * by ToastProvider.
- *
- * Uses `pointer-events-none` on the outer stack so the invisible container
- * area doesn't block clicks on the page below; each toast gets
- * `pointer-events-auto` so its dismiss button still works.
- *
- * Enter/exit animation via Framer Motion (`motion/react`):
- *   - Enter: fade in + subtle scale up from 0.92, 200ms easeOut
- *   - Exit:  fade out + bubble-expand to scale 1.08, 250ms easeOut
- *   - The `layout` prop smoothly slides remaining toasts up when one in the
- *     middle of the stack is dismissed, instead of a jump-cut.
- *   - `useReducedMotion()` strips the scale effect for motion-sensitive users,
- *     leaving just a plain fade.
- */
 export default function ToastContainer({ toasts, onDismiss }) {
   const shouldReduceMotion = useReducedMotion()
 
