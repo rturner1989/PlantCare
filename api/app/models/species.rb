@@ -49,6 +49,22 @@ class Species < ApplicationRecord
     'Aloe Vera'
   ].freeze
 
+  # Collapse Species.light_requirement onto Plant's three-way picker.
+  # Tolerant ranges land on 'medium' as a neutral starting point.
+  SUGGESTED_LIGHT_LEVEL = {
+    'bright_direct' => 'bright',
+    'bright_indirect' => 'bright',
+    'low' => 'low',
+    'low_to_bright' => 'medium',
+    'low_to_bright_indirect' => 'medium'
+  }.freeze
+
+  SUGGESTED_HUMIDITY_LEVEL = {
+    'high' => 'humid',
+    'low' => 'dry',
+    'average' => 'average'
+  }.freeze
+
   pg_search_scope :search,
     against: [:common_name, :scientific_name],
     using: {
@@ -96,6 +112,14 @@ class Species < ApplicationRecord
     species
   end
 
+  def suggested_light_level
+    SUGGESTED_LIGHT_LEVEL[light_requirement] || 'medium'
+  end
+
+  def suggested_humidity_level
+    SUGGESTED_HUMIDITY_LEVEL[humidity_preference] || 'average'
+  end
+
   def as_json(_options = {})
     {
       id: id,
@@ -114,7 +138,13 @@ class Species < ApplicationRecord
       popular: popular,
       description: description,
       care_tips: care_tips,
-      image_url: image_url
+      image_url: image_url,
+      suggested_light_level: suggested_light_level,
+      # Species.temperature_min/max are hardiness ranges, not ideal-spot
+      # temperatures — no clean map to cool/average/warm. User adjusts.
+      suggested_temperature_level: 'average',
+      suggested_humidity_level: suggested_humidity_level,
+      plant_levels: Plant.level_options
     }
   end
 end

@@ -6,56 +6,18 @@ import SegmentedControl from '../form/SegmentedControl'
 import Action from '../ui/Action'
 import { CardBody, CardFooter } from '../ui/Card'
 
-const ENVIRONMENT_FIELDS = [
-  { key: 'light_level', label: 'Light', icon: faSun, options: ['low', 'medium', 'bright'] },
-  {
-    key: 'temperature_level',
-    label: 'Temperature',
-    icon: faTemperatureHalf,
-    options: ['cool', 'average', 'warm'],
-  },
-  { key: 'humidity_level', label: 'Humidity', icon: faDroplet, options: ['dry', 'average', 'humid'] },
+const FIELD_META = [
+  { key: 'light_level', label: 'Light', icon: faSun, optionsKey: 'light' },
+  { key: 'temperature_level', label: 'Temperature', icon: faTemperatureHalf, optionsKey: 'temperature' },
+  { key: 'humidity_level', label: 'Humidity', icon: faDroplet, optionsKey: 'humidity' },
 ]
 
-// Map the Species.light_requirement enum (coarser, covers "indirect",
-// "direct", "full shade", "tolerates a range") onto the three-way
-// light_level the user actually picks. Tolerant species default to
-// "medium" — user gets a neutral starting point and can adjust if
-// they know their spot skews bright or low.
-const LIGHT_FROM_SPECIES = {
-  bright_direct: 'bright',
-  bright_indirect: 'bright',
-  low: 'low',
-  low_to_bright: 'medium',
-  low_to_bright_indirect: 'medium',
-}
-
-const HUMIDITY_FROM_SPECIES = {
-  high: 'humid',
-  low: 'dry',
-  average: 'average',
-}
-
-// Seed Step 4 with the species' own preferences so the common case
-// (user picked a plant that roughly matches their home) is a single
-// tap to continue. Unknown species values fall back to the neutral
-// "medium / average / average" defaults. Temperature stays "average"
-// regardless — Species.temperature_min/max are hardiness ranges
-// (what the plant tolerates), not ideal-spot temperatures, so they
-// don't map cleanly to the user's cool/average/warm scale.
-export function environmentFromSpecies(species) {
-  return {
-    light_level: LIGHT_FROM_SPECIES[species?.light_requirement] ?? 'medium',
-    temperature_level: 'average',
-    humidity_level: HUMIDITY_FROM_SPECIES[species?.humidity_preference] ?? 'average',
-  }
-}
-
 export default function Step4Environment({ species, nickname, roomId, onBack, onComplete }) {
-  // Lazy initialiser so the species → environment mapping runs once on
-  // mount, not on every render. Reading `species` through a prop so it
-  // stays in sync if Step 3 gets a different selection and comes back.
-  const [environment, setEnvironment] = useState(() => environmentFromSpecies(species))
+  const [environment, setEnvironment] = useState(() => ({
+    light_level: species.suggested_light_level,
+    temperature_level: species.suggested_temperature_level,
+    humidity_level: species.suggested_humidity_level,
+  }))
 
   const { submitting, handleSubmit, formRef } = useFormSubmit({
     action: async () => {
@@ -86,14 +48,14 @@ export default function Step4Environment({ species, nickname, roomId, onBack, on
         </p>
 
         <div className="mt-5">
-          {ENVIRONMENT_FIELDS.map(({ key, label, icon, options }) => (
+          {FIELD_META.map(({ key, label, icon, optionsKey }) => (
             <SegmentedControl
               key={key}
               label={label}
               icon={icon}
               value={environment[key]}
               onChange={(next) => setEnvironment((prev) => ({ ...prev, [key]: next }))}
-              options={options}
+              options={species.plant_levels[optionsKey]}
             />
           ))}
 
