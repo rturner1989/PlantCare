@@ -7,7 +7,7 @@ import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
 import { useCreateRoom, useDeleteRoom, useRoomPresets } from '../../hooks/useRooms'
 import { getRoomIcon } from '../../utils/roomIcons'
-import OptionCard from '../form/OptionCard'
+import CheckboxCardInput from '../form/CheckboxCardInput'
 import Action from '../ui/Action'
 import { CardBody, CardFooter } from '../ui/Card'
 
@@ -91,14 +91,14 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
 
         <div className="mt-5 flex-1 min-h-0 overflow-y-auto -mx-1 px-1 space-y-2">
           {presets.map((room) => (
-            <OptionCard
+            <CheckboxCardInput
               key={room.name}
               icon={getRoomIcon(room.icon)}
               selected={selectedRooms.includes(room.name)}
               onClick={() => toggleRoom(room.name)}
             >
               {room.name}
-            </OptionCard>
+            </CheckboxCardInput>
           ))}
 
           {/* initial={false} so persisted custom rooms don't replay the
@@ -113,9 +113,9 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
                 transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: [0.33, 1, 0.68, 1] }}
                 style={{ overflow: 'hidden' }}
               >
-                <OptionCard selected onClick={() => toggleRoom(room)}>
+                <CheckboxCardInput selected onClick={() => toggleRoom(room)}>
                   {room}
-                </OptionCard>
+                </CheckboxCardInput>
               </motion.div>
             ))}
           </AnimatePresence>

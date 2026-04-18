@@ -33,8 +33,8 @@ test.describe('Onboarding wizard', () => {
     // Step 2 — rooms
     await expect(page).toHaveURL(/\/welcome\/rooms$/)
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
-    await page.getByRole('button', { name: /Living Room/i }).click()
-    await page.getByRole('button', { name: /Bedroom/i }).click()
+    await page.getByRole('checkbox', { name: /Living Room/i }).click()
+    await page.getByRole('checkbox', { name: /Bedroom/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
     // Step 3 — species + room + nickname
@@ -66,7 +66,7 @@ test.describe('Onboarding wizard', () => {
     await registerFreshUser(page)
 
     await page.getByRole('button', { name: /begin/i }).click()
-    await page.getByRole('button', { name: /Living Room/i }).click()
+    await page.getByRole('checkbox', { name: /Living Room/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
     // Step 3: pick Monstera, name it Monty (single room → no picker).
@@ -94,8 +94,8 @@ test.describe('Onboarding wizard', () => {
     await page.getByRole('button', { name: /begin/i }).click()
 
     // Step 2: tick two preset rooms.
-    await page.getByRole('button', { name: /Living Room/i }).click()
-    await page.getByRole('button', { name: /Bedroom/i }).click()
+    await page.getByRole('checkbox', { name: /Living Room/i }).click()
+    await page.getByRole('checkbox', { name: /Bedroom/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
     // Step 3 → Back.
@@ -104,15 +104,15 @@ test.describe('Onboarding wizard', () => {
 
     // Both rooms still ticked.
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute('aria-pressed', 'true')
-    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('checkbox', { name: /Living Room/i })).toHaveAttribute('aria-checked', 'true')
+    await expect(page.getByRole('checkbox', { name: /Bedroom/i })).toHaveAttribute('aria-checked', 'true')
   })
 
   test('skip plant path lands on Step 5 with no speech card', async ({ page }) => {
     await registerFreshUser(page)
 
     await page.getByRole('button', { name: /begin/i }).click()
-    await page.getByRole('button', { name: /Living Room/i }).click()
+    await page.getByRole('checkbox', { name: /Living Room/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
     // Step 3: click the skip link without picking a species. Skip jumps
@@ -129,7 +129,7 @@ test.describe('Onboarding wizard', () => {
     await registerFreshUser(page)
 
     await page.getByRole('button', { name: /begin/i }).click()
-    await page.getByRole('button', { name: /Living Room/i }).click()
+    await page.getByRole('checkbox', { name: /Living Room/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
     await expect(page).toHaveURL(/\/welcome\/species$/)
@@ -144,7 +144,7 @@ test.describe('Onboarding wizard', () => {
     // held in client state that the reload would have cleared).
     await page.getByRole('button', { name: 'Back' }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('checkbox', { name: /Living Room/i })).toHaveAttribute('aria-checked', 'true')
   })
 
   test('onboarded user lands on / after logging back in', async ({ page, context }) => {
@@ -152,7 +152,7 @@ test.describe('Onboarding wizard', () => {
 
     // Blitz through to the end so onboarding_completed_at gets set.
     await page.getByRole('button', { name: /begin/i }).click()
-    await page.getByRole('button', { name: /Living Room/i }).click()
+    await page.getByRole('checkbox', { name: /Living Room/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
     await page.getByRole('button', { name: /Skip for now/i }).click()
     await page.getByRole('button', { name: /Enter your jungle/i }).click()
@@ -175,7 +175,7 @@ test.describe('Onboarding wizard', () => {
 
     // Partial progress — create a room then bail without finishing.
     await page.getByRole('button', { name: /begin/i }).click()
-    await page.getByRole('button', { name: /Living Room/i }).click()
+    await page.getByRole('checkbox', { name: /Living Room/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
 
@@ -196,8 +196,8 @@ test.describe('Onboarding wizard', () => {
     await registerFreshUser(page)
 
     await page.getByRole('button', { name: /begin/i }).click()
-    await page.getByRole('button', { name: /Living Room/i }).click()
-    await page.getByRole('button', { name: /Bedroom/i }).click()
+    await page.getByRole('checkbox', { name: /Living Room/i }).click()
+    await page.getByRole('checkbox', { name: /Bedroom/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
     // Step 2 also has a Back button (to Step 1), so wait for the Step 3
@@ -207,8 +207,8 @@ test.describe('Onboarding wizard', () => {
     await page.getByRole('button', { name: 'Back' }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
 
-    await page.getByRole('button', { name: /Bedroom/i }).click()
-    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute('aria-pressed', 'false')
+    await page.getByRole('checkbox', { name: /Bedroom/i }).click()
+    await expect(page.getByRole('checkbox', { name: /Bedroom/i })).toHaveAttribute('aria-checked', 'false')
     await page.getByRole('button', { name: 'Continue' }).click()
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
 
@@ -219,8 +219,8 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
     await page.getByRole('button', { name: 'Back' }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute('aria-pressed', 'true')
-    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute('aria-pressed', 'false')
+    await expect(page.getByRole('checkbox', { name: /Living Room/i })).toHaveAttribute('aria-checked', 'true')
+    await expect(page.getByRole('checkbox', { name: /Bedroom/i })).toHaveAttribute('aria-checked', 'false')
   })
 
   test('a second submit with a case-duplicate name surfaces the server error', async ({ page }) => {
@@ -228,7 +228,7 @@ test.describe('Onboarding wizard', () => {
 
     await page.getByRole('button', { name: /begin/i }).click()
     // First submit: create "Living Room" via the preset toggle.
-    await page.getByRole('button', { name: /Living Room/i }).click()
+    await page.getByRole('checkbox', { name: /Living Room/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
 
@@ -253,8 +253,8 @@ test.describe('Onboarding wizard', () => {
     await registerFreshUser(page)
 
     await page.getByRole('button', { name: /begin/i }).click()
-    await page.getByRole('button', { name: /Living Room/i }).click()
-    await page.getByRole('button', { name: /Bedroom/i }).click()
+    await page.getByRole('checkbox', { name: /Living Room/i }).click()
+    await page.getByRole('checkbox', { name: /Bedroom/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
 
@@ -265,8 +265,8 @@ test.describe('Onboarding wizard', () => {
 
     await expect(page).toHaveURL(/\/welcome\/rooms$/)
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Living Room/i })).toHaveAttribute('aria-pressed', 'true')
-    await expect(page.getByRole('button', { name: /Bedroom/i })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('checkbox', { name: /Living Room/i })).toHaveAttribute('aria-checked', 'true')
+    await expect(page.getByRole('checkbox', { name: /Bedroom/i })).toHaveAttribute('aria-checked', 'true')
 
     // Forward restores Step 3.
     await page.goForward()
@@ -294,10 +294,10 @@ test.describe('Onboarding wizard', () => {
     await input.fill('Greenhouse')
     await input.press('Enter')
 
-    // Input panel collapses, trigger returns, chip appears as a pressed OptionCard.
+    // Input panel collapses, trigger returns, chip appears as a checked CheckboxCardInput.
     await expect(page.getByRole('button', { name: /Add a custom room/i })).toBeVisible()
     await expect(page.getByLabel('New room name')).toHaveCount(0)
-    await expect(page.getByRole('button', { name: 'Greenhouse' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('checkbox', { name: 'Greenhouse' })).toHaveAttribute('aria-checked', 'true')
 
     // Reveal → Escape cancels without adding.
     await page.getByRole('button', { name: /Add a custom room/i }).click()
