@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, renderHook, waitFor } from '@testing-library/react'
 import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -5,9 +6,6 @@ import { apiDelete, apiPost, setAccessToken } from '../../src/api/client'
 import { AuthProvider } from '../../src/context/AuthContext'
 import { useAuth } from '../../src/hooks/useAuth'
 
-// Auto-mock the api client module. `apiPost` / `apiDelete` / `setAccessToken`
-// all become vi.fn() stubs we control per-test, so we never hit the real
-// network or touch a real token store.
 vi.mock('../../src/api/client', () => ({
   apiPost: vi.fn(),
   apiDelete: vi.fn(),
@@ -15,8 +13,14 @@ vi.mock('../../src/api/client', () => ({
   getAccessToken: vi.fn(),
 }))
 
+let queryClient
+
 function wrapper({ children }) {
-  return <AuthProvider>{children}</AuthProvider>
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>{children}</AuthProvider>
+    </QueryClientProvider>
+  )
 }
 
 const SESSION_HINT_KEY = 'plantcare:session-hint'
@@ -27,6 +31,7 @@ describe('AuthContext', () => {
     // refresh probe on mount and resolves to anonymous immediately. Tests that
     // want to exercise the refresh flow set the hint explicitly.
     localStorage.clear()
+    queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 401 }))
   })
 
@@ -241,6 +246,20 @@ describe('AuthContext', () => {
       expect(apiDelete).toHaveBeenCalledWith('/api/v1/session')
       expect(setAccessToken).toHaveBeenLastCalledWith(null)
       expect(localStorage.getItem(SESSION_HINT_KEY)).toBeNull()
+    })
+
+    it('clears the query cache on logout so cached data cannot leak to the next user', async () => {
+      queryClient.setQueryData(['rooms'], [{ id: 1, name: 'Kitchen' }])
+      const { result } = renderHook(() => useAuth(), { wrapper })
+      await waitFor(() => expect(result.current.loading).toBe(false))
+      await loginAsTestUser(result)
+
+      vi.mocked(apiDelete).mockResolvedValueOnce(null)
+      await act(async () => {
+        await result.current.logout()
+      })
+
+      expect(queryClient.getQueryData(['rooms'])).toBeUndefined()
     })
 
     it('still clears client state even when the logout API call fails', async () => {
