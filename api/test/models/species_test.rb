@@ -95,4 +95,45 @@ class SpeciesTest < ActiveSupport::TestCase
     assert_equal 'humid', payload[:suggested_humidity_level]
     assert_equal Plant.level_options, payload[:plant_levels]
   end
+
+  # The Perenual client is injected via a keyword arg so tests can swap in
+  # a stub without touching the live API — same seam the production code
+  # uses, defaulted to PerenualClient.new.
+  class StubClient
+    def initialize(details_response: nil) = @details_response = details_response
+    def details(_perenual_id) = @details_response
+  end
+
+  test 'find_or_fetch_from_api returns the persisted row when one already exists' do
+    existing = Species.create!(common_name: 'Persistent', watering_frequency_days: 7, personality: 'chill',
+                               source: 'perenual', external_id: '888')
+
+    result = Species.find_or_fetch_from_api('888', client: StubClient.new,
+                                            fallback: { common_name: 'IGNORED' })
+
+    assert_equal existing.id, result.id
+    assert_equal 'Persistent', result.common_name
+  end
+
+  test 'find_or_fetch_from_api falls back to search-summary fields when details are unavailable' do
+    species = Species.find_or_fetch_from_api('999999',
+      client: StubClient.new(details_response: nil),
+      fallback: {
+        common_name: 'Gardenia',
+        scientific_name: 'Gardenia jasminoides',
+        image_url: 'https://example.com/g.jpg'
+      })
+
+    assert_predicate species, :persisted?
+    assert_equal 'Gardenia', species.common_name
+    assert_equal 'Gardenia jasminoides', species.scientific_name
+    assert_equal 'perenual', species.source
+    assert_equal '999999', species.external_id
+    assert_equal 7, species.watering_frequency_days
+    assert_equal 'chill', species.personality
+  end
+
+  test 'find_or_fetch_from_api returns nil when details fail and no fallback is given' do
+    assert_nil Species.find_or_fetch_from_api('999998', client: StubClient.new(details_response: nil))
+  end
 end

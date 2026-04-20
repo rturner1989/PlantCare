@@ -94,7 +94,16 @@ export default function Step3Species({
     try {
       let species = selected
       if (species.id === null && species.perenual_id) {
-        species = await apiGet(`/api/v1/species/${species.perenual_id}?perenual_id=${species.perenual_id}`)
+        // Pass the search-summary fields as fallback so the backend can
+        // persist a minimal row if Perenual's details endpoint is rate-
+        // limited — user isn't blocked by our external quota.
+        const params = new URLSearchParams({
+          perenual_id: species.perenual_id,
+          common_name: species.common_name ?? '',
+          scientific_name: species.scientific_name ?? '',
+          image_url: species.image_url ?? '',
+        })
+        species = await apiGet(`/api/v1/species/${species.perenual_id}?${params}`)
       }
       onComplete(species, nickname, roomId)
     } catch (err) {

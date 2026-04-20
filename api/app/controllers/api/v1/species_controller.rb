@@ -15,7 +15,7 @@ module Api
 
       def show
         species = if params[:perenual_id]
-          Species.find_or_fetch_from_api(params[:perenual_id])
+          Species.find_or_fetch_from_api(params[:perenual_id], fallback: fallback_params)
         else
           Species.find_by(id: params[:id])
         end
@@ -23,6 +23,14 @@ module Api
         return render json: { error: 'Not found' }, status: :not_found unless species
 
         render json: species
+      end
+
+      private def fallback_params
+        {
+          common_name: params[:common_name],
+          scientific_name: params[:scientific_name],
+          image_url: params[:image_url]
+        }
       end
     end
   end

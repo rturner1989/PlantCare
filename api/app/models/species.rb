@@ -94,15 +94,19 @@ class Species < ApplicationRecord
     end
   end
 
-  def self.find_or_fetch_from_api(perenual_id)
+  def self.find_or_fetch_from_api(perenual_id, fallback: {}, client: PerenualClient.new)
     existing = find_by(source: 'perenual', external_id: perenual_id.to_s)
     return existing if existing
 
-    client = PerenualClient.new
     details = client.details(perenual_id)
-    return nil unless details
 
-    species = client.build_species(details)
+    species = if details
+      client.build_species(details)
+    elsif fallback[:common_name].present?
+      build_fallback_from_search(perenual_id, fallback)
+    end
+
+    return nil unless species
 
     unless species.save
       Rails.logger.warn("Failed to save species from Perenual (ID: #{perenual_id}): #{species.errors.full_messages.join(', ')}")
@@ -110,6 +114,23 @@ class Species < ApplicationRecord
     end
 
     species
+  end
+
+  # Build a minimal Species row from search-summary data when the Perenual
+  # details endpoint is unavailable (typically rate-limited). Care data
+  # falls back to neutral defaults — the user can edit, or a future
+  # background job can backfill once quota resets.
+  def self.build_fallback_from_search(perenual_id, data)
+    new(
+      common_name: data[:common_name],
+      scientific_name: data[:scientific_name].presence,
+      image_url: data[:image_url].presence,
+      source: 'perenual',
+      external_id: perenual_id.to_s,
+      watering_frequency_days: 7,
+      feeding_frequency_days: 30,
+      personality: 'chill'
+    )
   end
 
   def suggested_light_level
