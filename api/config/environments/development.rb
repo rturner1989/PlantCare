@@ -30,7 +30,9 @@ Rails.application.configure do
 
   # Redis-backed cache so Perenual responses survive a container restart
   # and are shared across Puma workers instead of siloed per process.
-  config.cache_store = :redis_cache_store, { url: ENV.fetch('REDIS_URL', 'redis://redis:6379/0') }
+  # db 2 keeps Rails.cache.clear from nuking Sidekiq (db 0) or ActionCable
+  # (db 1).
+  config.cache_store = :redis_cache_store, { url: ENV.fetch('REDIS_CACHE_URL', 'redis://redis:6379/2') }
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local

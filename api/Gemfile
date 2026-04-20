@@ -24,6 +24,10 @@ gem 'image_processing', '~> 1.2'
 # HTTP client (for Perenual API)
 gem 'faraday'
 
+# Required by ActiveSupport::Cache::RedisCacheStore — Sidekiq's redis-client
+# alone isn't enough. Backs Rails.cache with our existing Redis service.
+gem 'redis'
+
 # Performance
 gem 'bootsnap', require: false
 
