@@ -58,7 +58,7 @@ export default function Welcome() {
     previousStepRef.current = step
   }, [step])
 
-  const { data: existingRooms, isFetching: roomsFetching } = useRooms({ enabled: !user?.onboarded })
+  const { data: existingRooms } = useRooms({ enabled: !user?.onboarded })
   // Warm the species cache so Step 3's entrance animation doesn't stutter
   // against an in-flight fetch.
   useSpeciesSearch('')
@@ -75,10 +75,12 @@ export default function Welcome() {
 
   if (step === undefined) return null
 
-  // Steps 2 and 3 lazy-init state from props, so a stale rooms value at mount
-  // would freeze the step with no auto-resync. Wait for a settled fetch.
+  // Steps 2 and 3 lazy-init state from props. Gate on `existingRooms ===
+  // undefined` only — gating on isFetching would re-fire after every
+  // mutation's background revalidation, snapping the wizard shell out
+  // from under the AnimatePresence transition mid-navigation.
   const needsRooms = step === 2 || step === 3
-  if (needsRooms && (existingRooms === undefined || roomsFetching)) {
+  if (needsRooms && existingRooms === undefined) {
     return (
       <div className="flex items-center justify-center min-h-dvh">
         <Spinner />
