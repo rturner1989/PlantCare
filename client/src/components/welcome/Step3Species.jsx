@@ -1,5 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useDeferredValue, useEffect, useState } from 'react'
+import { apiGet } from '../../api/client'
+import { useToast } from '../../context/ToastContext'
 import { useSpeciesSearch } from '../../hooks/useSpecies'
 import SearchField from '../form/SearchField'
 import TextInput from '../form/TextInput'
@@ -40,6 +42,8 @@ export default function Step3Species({
     if (availableRooms.length === 1) return availableRooms[0].id
     return null
   })
+  const [continuing, setContinuing] = useState(false)
+  const toast = useToast()
 
   const deferredQuery = useDeferredValue(query)
   // isLoading (not isFetching) — otherwise tab-suspend refetches flash the
@@ -76,6 +80,25 @@ export default function Step3Species({
   function clearSelection() {
     setSelected(null)
     setQuery('')
+  }
+
+  // Perenual-sourced results arrive as SpeciesSearchResult wrappers with
+  // id=null. Step 4 needs the full Species#as_json shape (suggested_*,
+  // plant_levels) and the plant POST needs a real id, so hydrate via the
+  // show endpoint — the controller persists the Perenual row on first call.
+  async function handleContinue() {
+    if (!selected) return
+    setContinuing(true)
+    try {
+      let species = selected
+      if (species.id === null && species.perenual_id) {
+        species = await apiGet(`/api/v1/species/${species.perenual_id}?perenual_id=${species.perenual_id}`)
+      }
+      onComplete(species, nickname, roomId)
+    } catch (err) {
+      toast.error(err.message || "Couldn't load that species — please pick another")
+      setContinuing(false)
+    }
   }
 
   const needsRoomChoice = availableRooms.length > 1
@@ -234,13 +257,8 @@ export default function Step3Species({
           <Action variant="secondary" onClick={onBack}>
             Back
           </Action>
-          <Action
-            variant="primary"
-            onClick={() => onComplete(selected, nickname, roomId)}
-            disabled={!canContinue}
-            className="flex-1"
-          >
-            Continue
+          <Action variant="primary" onClick={handleContinue} disabled={!canContinue || continuing} className="flex-1">
+            {continuing ? 'Loading species...' : 'Continue'}
           </Action>
         </div>
 
