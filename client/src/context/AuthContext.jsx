@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { apiDelete, apiPost, setAccessToken } from '../api/client'
 
@@ -31,6 +32,7 @@ function setSessionHint(value) {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
 
   const refreshToken = useCallback(async () => {
     try {
@@ -110,8 +112,9 @@ export function AuthProvider({ children }) {
       setAccessToken(null)
       setUser(null)
       setSessionHint(false)
+      queryClient.clear()
     }
-  }, [])
+  }, [queryClient])
 
   const value = useMemo(
     () => ({ user, loading, login, register, logout, refreshToken, markOnboarded }),
