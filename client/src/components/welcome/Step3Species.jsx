@@ -1,7 +1,8 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { useDeferredValue, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { apiGet } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
+import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { useSpeciesSearch } from '../../hooks/useSpecies'
 import SearchField from '../form/SearchField'
 import TextInput from '../form/TextInput'
@@ -45,12 +46,12 @@ export default function Step3Species({
   const [continuing, setContinuing] = useState(false)
   const toast = useToast()
 
-  const deferredQuery = useDeferredValue(query)
-  // isPlaceholderData covers "stale results displayed while a newer fetch
-  // is in flight" — fires on every query change, stays false on tab-refocus
-  // refetches that return the same data.
-  const { data: results = [], isLoading, isPlaceholderData } = useSpeciesSearch(deferredQuery)
-  const searching = isLoading || isPlaceholderData
+  // Debounced rather than deferred — deferral defers the render, but the
+  // Perenual quota cares about how many fetches we fire. One search per
+  // typing pause keeps us well inside the free tier.
+  const debouncedQuery = useDebouncedValue(query, 300)
+  const { data: results = [], isLoading, isPlaceholderData } = useSpeciesSearch(debouncedQuery)
+  const searching = isLoading || isPlaceholderData || query !== debouncedQuery
   const shouldReduceMotion = useReducedMotion()
 
   // Preload result images during idle time so picking one shows the photo
