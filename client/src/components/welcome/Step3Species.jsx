@@ -46,9 +46,11 @@ export default function Step3Species({
   const toast = useToast()
 
   const deferredQuery = useDeferredValue(query)
-  // isLoading (not isFetching) — otherwise tab-suspend refetches flash the
-  // spinner overlay on top of already-rendered popular results.
-  const { data: results = [], isLoading } = useSpeciesSearch(deferredQuery)
+  // isPlaceholderData covers "stale results displayed while a newer fetch
+  // is in flight" — fires on every query change, stays false on tab-refocus
+  // refetches that return the same data.
+  const { data: results = [], isLoading, isPlaceholderData } = useSpeciesSearch(deferredQuery)
+  const searching = isLoading || isPlaceholderData
   const shouldReduceMotion = useReducedMotion()
 
   // Preload result images during idle time so picking one shows the photo
@@ -150,7 +152,7 @@ export default function Step3Species({
                       }
                     />
                   )}
-                  loading={isLoading}
+                  loading={searching}
                   className="flex-1 min-h-0"
                 />
               </motion.div>
