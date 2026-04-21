@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-015: Rack::Attack throttle for password reset endpoint</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.config { background: #6a4a8f; }
+.artifact .kind.test { background: #888; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+blockquote { border-left: 3px solid #e63946; padding: 12px 16px; margin: 12px 0; background: #fff5f5; border-radius: 0 8px 8px 0; font-size: 14px; color: #5a1a1a; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-015</div>
+    <h1>Rack::Attack throttle for password reset endpoint</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>The <code>POST /api/v1/password_resets</code> endpoint is unthrottled. An attacker can hammer it to enumerate which email addresses belong to real users (by timing differences, outbound mail bursts, or any future error-shape regression), and can cheaply spam real users' inboxes with reset emails they didn't ask for. A <code>TODO(security)</code> in <code>password_resets_controller.rb:14</code> has flagged this since the endpoint landed.</p>
+    <p>In one sentence: <strong>make the reset endpoint boring to attack.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <p>Phase 1 launch-readiness. The endpoint itself is correct &mdash; constant-time, doesn't leak via response body &mdash; but lacks per-IP and per-email rate caps. <code>Rack::Attack</code> is already a documented part of the project's security stance (see the global <code>CLAUDE.md</code>'s <strong>Security</strong> section), so this is a <em>wire up</em>, not a <em>design</em>.</p>
+    <blockquote><strong>Scope note.</strong> This ticket is the password reset endpoint specifically. Broader throttling (login, register, token refresh) deserves its own ticket and audit &mdash; don't scope-creep here.</blockquote>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind config">config</span><span class="name">api/config/initializers/rack_attack.rb</span>
+        <div class="role">New initializer. Two throttle rules for <code>POST /api/v1/password_resets</code>: one keyed by remote IP (e.g. 10 req / hour), one keyed by the email in the body (e.g. 3 req / hour). Responds with <code>429 Too Many Requests</code>. Rack::Attack's default in-memory cache is fine for dev; prod should use the existing Redis cache store (<code>ActiveSupport::Cache::RedisCacheStore</code> on db 2).</div>
+      </div>
+      <div class="artifact">
+        <span class="kind config">config</span><span class="name">api/config/application.rb</span>
+        <div class="role">Require <code>rack/attack</code> and insert it into the middleware stack. Standard one-liner.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind test">test</span><span class="name">api/test/controllers/api/v1/password_resets_controller_test.rb</span>
+        <div class="role">Add two tests: the 11th request from a single IP returns 429; the 4th request for a single email (from different IPs) returns 429. Reset the Rack::Attack cache in <code>setup</code> so tests don't cross-contaminate.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li>Per-IP throttle on <code>POST /api/v1/password_resets</code>: 10 requests per hour. Configurable via a constant near the top of the initializer.</li>
+      <li>Per-email throttle on the same endpoint: 3 requests per hour. Key is the downcased email from the request body.</li>
+      <li>Over-limit requests return <code>429 Too Many Requests</code> with a small JSON body (<code>{ error: "Too many requests, please try again later." }</code>), not the default Rack::Attack response.</li>
+      <li>Rack::Attack uses the same Redis (db 2) as Rails.cache in prod so throttle counters survive a Puma restart and are shared across workers.</li>
+      <li>The <code>TODO(security)</code> comment in <code>password_resets_controller.rb</code> is deleted (it self-resolves).</li>
+      <li>No throttle on other endpoints touched in this ticket &mdash; login/register/token stay as-is until their own ticket.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>From a single IP, the 11th POST to the password reset endpoint within an hour returns 429. Requests 1&ndash;10 still return the usual 200 + email dispatch.</span></div>
+    <div class="criterion"><div class="box"></div><span>From three different IPs posting the same email, the 4th request returns 429 regardless of IP.</span></div>
+    <div class="criterion"><div class="box"></div><span>The 429 body is the project's JSON shape, not Rack::Attack's default text.</span></div>
+    <div class="criterion"><div class="box"></div><span>Dev: the initializer loads without errors on <code>docker compose up</code>; a <code>docker compose exec redis redis-cli -n 2 KEYS "rack_attack:*"</code> shows keys after a handful of requests.</span></div>
+    <div class="criterion"><div class="box"></div><span>Brakeman and bundler-audit both remain clean (<code>./scripts/lint.sh</code>).</span></div>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li><code>api/Gemfile</code> <span class="action">extend (add rack-attack)</span></li>
+      <li><code>api/config/application.rb</code> <span class="action">extend (wire middleware)</span></li>
+      <li><code>api/config/initializers/rack_attack.rb</code> <span class="action">create</span></li>
+      <li><code>api/app/controllers/api/v1/password_resets_controller.rb</code> <span class="action">trim TODO</span></li>
+      <li><code>api/test/controllers/api/v1/password_resets_controller_test.rb</code> <span class="action">extend</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li><strong>Don't lift and shift a generic Rack::Attack config.</strong> Most tutorial configs throttle everything. We want the narrowest rule-set that covers this one endpoint so that future broader throttling can land as a standalone ticket without conflict.</li>
+      <li><strong>Email-key throttle needs body access.</strong> Rack::Attack's <code>throttle</code> block gets the request object; parse the body carefully (content-type is JSON). Don't mutate the request &mdash; use <code>req.body.rewind</code> after reading.</li>
+      <li><strong>Tests must reset throttle state.</strong> <code>Rack::Attack.cache.store.clear</code> in the <code>setup</code> block, or use <code>Rack::Attack.reset!</code> if Rails version supports it.</li>
+      <li><strong>Don't lower the limits to test-friendly numbers in prod.</strong> Use test-only overrides via env var or constants override if you need quicker limits in the test path.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>
