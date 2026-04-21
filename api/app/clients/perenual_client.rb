@@ -32,7 +32,7 @@ class PerenualClient
     return [] if @api_key.blank?
 
     normalized = query.to_s.downcase.strip
-    cache_key = "perenual:search:#{normalized}"
+    cache_key = "perenual_search:#{normalized}"
     cached = Rails.cache.read(cache_key)
     return cached if cached
 
