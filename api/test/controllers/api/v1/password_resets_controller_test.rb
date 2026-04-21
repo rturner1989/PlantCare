@@ -8,6 +8,15 @@ class Api::V1::PasswordResetsControllerTest < ActionDispatch::IntegrationTest
     ActionMailer::Base.deliveries.clear
   end
 
+  def with_throttling
+    Rack::Attack.cache.store.clear
+    Rack::Attack.enabled = true
+    yield
+  ensure
+    Rack::Attack.enabled = false
+    Rack::Attack.cache.store.clear
+  end
+
   # === create ===
 
   test 'create accepts a known email, creates a token, enqueues the mailer' do
@@ -114,5 +123,45 @@ class Api::V1::PasswordResetsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_nil record.reload.used_at
+  end
+
+  # === throttling (Rack::Attack) ===
+
+  test 'create throttles to 10 POSTs per hour per IP and responds 429 with a JSON body' do
+    with_throttling do
+      10.times do
+        post api_v1_password_resets_path,
+          params: { password_reset: { email: "nobody+#{SecureRandom.hex(4)}@example.com" } },
+          as: :json
+        assert_response :accepted
+      end
+
+      post api_v1_password_resets_path,
+        params: { password_reset: { email: "nobody+#{SecureRandom.hex(4)}@example.com" } },
+        as: :json
+
+      assert_response :too_many_requests
+      assert_equal 'Too many requests, please try again later.', response.parsed_body['error']
+    end
+  end
+
+  test 'create throttles to 3 POSTs per hour per email regardless of source IP' do
+    with_throttling do
+      email = 'repeat@example.com'
+      3.times do |i|
+        post api_v1_password_resets_path,
+          params: { password_reset: { email: email } },
+          headers: { 'REMOTE_ADDR' => "10.0.0.#{i + 1}" },
+          as: :json
+        assert_response :accepted
+      end
+
+      post api_v1_password_resets_path,
+        params: { password_reset: { email: email } },
+        headers: { 'REMOTE_ADDR' => '10.0.0.99' },
+        as: :json
+
+      assert_response :too_many_requests
+    end
   end
 end

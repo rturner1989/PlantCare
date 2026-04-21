@@ -10,12 +10,6 @@ module Api
       # Always responds 202 regardless of whether the email matches a user.
       # Leaking user-existence here would make this endpoint an oracle for
       # enumerating registered accounts.
-      #
-      # TODO(security): throttle this endpoint via Rack::Attack once the
-      # gem is added to the stack — 3 per IP per hour + 3 per email per
-      # hour. Cheap to abuse as-is (fire-and-forget email + token
-      # generation), and the "no user enumeration" guarantee above means
-      # attackers can't tell their probe flooded the backend.
       def create
         user = User.find_by_normalized_email(params.dig(:password_reset, :email))
 

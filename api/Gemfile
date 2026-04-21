@@ -18,6 +18,9 @@ gem 'rack-cors'
 # Background jobs
 gem 'sidekiq'
 
+# Request throttling (per-endpoint rate limits)
+gem 'rack-attack'
+
 # Image processing (ActiveStorage)
 gem 'image_processing', '~> 1.2'
 
