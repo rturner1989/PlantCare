@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import HeroCard from '../components/HeroCard'
+import ProgressRing from '../components/ProgressRing'
 import TaskRow from '../components/TaskRow'
 import Action from '../components/ui/Action'
 import Banner from '../components/ui/Banner'
@@ -67,6 +68,18 @@ export default function Today() {
   }, [data, urgentPlant])
 
   const totalTasks = tasks.length
+  // Freeze "rituals at session start" on the first render that has data.
+  // Each subsequent completion shrinks totalTasks via dashboard refetch, so
+  // doneCount = ritualsAtStart - totalTasks. The ref resets on remount, which
+  // is the behaviour we want (fresh session on next Today visit).
+  const ritualsAtStartRef = useRef(null)
+  if (ritualsAtStartRef.current === null && data) {
+    ritualsAtStartRef.current = totalTasks
+  }
+  const ritualsAtStart = ritualsAtStartRef.current ?? totalTasks
+  const doneCount = Math.max(0, ritualsAtStart - totalTasks)
+  const progressPercent = ritualsAtStart > 0 ? (doneCount / ritualsAtStart) * 100 : 0
+
   const attentionCount = (data?.plants_needing_water?.length ?? 0) + (data?.plants_needing_feeding?.length ?? 0)
   const attentionPlants = useMemo(() => {
     const seen = new Set()
@@ -144,9 +157,19 @@ export default function Today() {
 
           {totalTasks > 0 && (
             <section className="mb-8 rounded-lg bg-card p-4 shadow-[var(--shadow-sm)]">
-              <div className="mb-3 flex items-baseline justify-between">
+              <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-[22px] font-extrabold tracking-tight text-ink">Today's rituals</h2>
-                <span className="text-sm font-semibold text-ink-soft">{pluralize(totalTasks, 'ritual')} to go</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-ink-soft">
+                    {doneCount > 0 && <strong className="text-leaf">{doneCount} done · </strong>}
+                    {totalTasks} to go
+                  </span>
+                  <ProgressRing value={progressPercent} size={44} strokeWidth={3}>
+                    <span className="text-[11px] font-extrabold text-ink">
+                      {doneCount}/{ritualsAtStart}
+                    </span>
+                  </ProgressRing>
+                </div>
               </div>
 
               <ul className="space-y-2">
