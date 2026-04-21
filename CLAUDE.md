@@ -131,8 +131,27 @@ docs/
 - `/review-ticket` — review completed work against ticket acceptance criteria and design spec
 - `/github-make-pr` — push current branch and create a GitHub pull request
 - `/github-babysit-pr` — watch current PR for CI failures and auto-fix them
+- `/comment-audit` — audit comments in the working tree against the WHY-only rule and strip the ones that don't pull their weight
 
 ## Code Style
+
+### Comments
+
+**Code should speak for itself. Comments exist to reinforce, not to narrate.** A comment has to carry weight the code can't — a hidden constraint, a subtle invariant, a bug-specific workaround, a surprising behaviour, a cross-system coupling. If a better identifier name or a small refactor would make the comment redundant, that's the fix — not a comment.
+
+**Delete on sight:**
+- Anything that restates WHAT the code does (`// fetch rooms` above `apiGet('/api/v1/rooms')`).
+- Anything that names what the identifier already names (`# the user's first name` above `first_name = …`).
+- Task narration — `// for TICKET-013`, `// added when fixing Step 3`, `// used by Dashboard`. That context belongs in the commit, PR, or ticket.
+- Diff narration — `// now using X instead of Y`. Git has this.
+- Banners, dividers, changelogs-in-code, unowned/undated TODOs.
+- Multi-paragraph essays on a single function — if the context is that large, put it in the PR description or the ticket, not inline.
+
+**Borderline cases bias toward deletion.** If a WHY comment could be expressed as a variable name (`shouldFetch` → `onlyWhenFocused`), rename and delete. If it belongs in a test name, move it there.
+
+**Keep** only when the WHY is non-obvious, the code alone cannot convey it, and removing it would cost the next reader something real.
+
+Run `/comment-audit` before committing anything substantial, especially changes I or an assistant produced.
 
 ### Cache keys
 
