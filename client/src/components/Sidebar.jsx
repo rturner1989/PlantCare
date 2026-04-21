@@ -1,5 +1,6 @@
 import { faArrowRightFromBracket, faHouse, faMagnifyingGlass, faPlus, faSun } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { motion, useReducedMotion } from 'motion/react'
 import { NavLink } from 'react-router-dom'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
@@ -14,6 +15,19 @@ const navItems = [
   { to: '/house', label: 'House', icon: faHouse, count: 12 },
   { to: '/discover', label: 'Discover', icon: faMagnifyingGlass },
 ]
+
+const asideVariants = {
+  hidden: { x: -260 },
+  visible: {
+    x: 0,
+    transition: { duration: 0.5, ease: 'easeOut', when: 'beforeChildren', staggerChildren: 0.08 },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+}
 
 function SidebarNavLink({ to, label, icon, count }) {
   return (
@@ -42,9 +56,11 @@ function SidebarNavLink({ to, label, icon, count }) {
   )
 }
 
-export default function Sidebar() {
+export default function Sidebar({ isFirstRun = false }) {
   const { user, logout } = useAuth()
   const toast = useToast()
+  const shouldReduceMotion = useReducedMotion()
+  const shouldAnimate = isFirstRun && !shouldReduceMotion
 
   // TODO(ticket 14): move to Me profile page.
   async function handleLogout() {
@@ -53,7 +69,12 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="hidden lg:flex flex-col w-[260px] h-dvh bg-card border-r border-mint fixed left-0 top-0 z-40">
+    <motion.aside
+      className="hidden lg:flex flex-col w-[260px] h-dvh bg-card border-r border-mint fixed left-0 top-0 z-40"
+      variants={asideVariants}
+      initial={shouldAnimate ? 'hidden' : false}
+      animate={shouldAnimate ? 'visible' : false}
+    >
       <Logo to="/" className="px-6 pt-6 pb-4" />
 
       <div className="px-6 pt-4 pb-2">
@@ -62,7 +83,9 @@ export default function Sidebar() {
 
       <nav aria-label="Primary" className="flex-1 px-3">
         {navItems.map((item) => (
-          <SidebarNavLink key={item.to} {...item} />
+          <motion.div key={item.to} variants={itemVariants}>
+            <SidebarNavLink {...item} />
+          </motion.div>
         ))}
       </nav>
 
@@ -105,6 +128,6 @@ export default function Sidebar() {
           </div>
         </div>
       )}
-    </aside>
+    </motion.aside>
   )
 }
