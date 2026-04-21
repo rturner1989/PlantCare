@@ -35,20 +35,6 @@ export default function Today() {
   const { user } = useAuth()
   const { data, isLoading, error, refetch } = useDashboard()
 
-  const tasks = useMemo(() => {
-    if (!data) return []
-
-    const items = []
-    for (const plant of data.plants_needing_water ?? []) {
-      items.push({ plant, careType: 'watering' })
-    }
-    for (const plant of data.plants_needing_feeding ?? []) {
-      items.push({ plant, careType: 'feeding' })
-    }
-    items.sort((a, b) => (STATUS_PRIORITY[taskStatus(a)] ?? 3) - (STATUS_PRIORITY[taskStatus(b)] ?? 3))
-    return items
-  }, [data])
-
   const urgentPlant = useMemo(() => {
     const overdue = (data?.plants_needing_water ?? []).filter((plant) => plant.water_status === 'overdue')
     if (!overdue.length) return null
@@ -58,23 +44,23 @@ export default function Today() {
     )
   }, [data])
 
-  const thrivingPlant = useMemo(() => {
-    if (urgentPlant) return null
+  const tasks = useMemo(() => {
+    if (!data) return []
 
-    const candidates = (data?.upcoming_care ?? []).filter(
-      (plant) => plant.days_until_water != null && plant.days_until_water >= 0,
-    )
-    if (!candidates.length) return null
-
-    return candidates.reduce((soonest, plant) =>
-      (plant.days_until_water ?? Number.POSITIVE_INFINITY) < (soonest.days_until_water ?? Number.POSITIVE_INFINITY)
-        ? plant
-        : soonest,
-    )
+    const items = []
+    for (const plant of data.plants_needing_water ?? []) {
+      // Hero card already owns the water CTA for the urgent plant — don't duplicate it in the list.
+      if (plant.id === urgentPlant?.id) continue
+      items.push({ plant, careType: 'watering' })
+    }
+    for (const plant of data.plants_needing_feeding ?? []) {
+      items.push({ plant, careType: 'feeding' })
+    }
+    items.sort((a, b) => (STATUS_PRIORITY[taskStatus(a)] ?? 3) - (STATUS_PRIORITY[taskStatus(b)] ?? 3))
+    return items
   }, [data, urgentPlant])
 
   const totalTasks = tasks.length
-  const hasHero = urgentPlant || thrivingPlant
   const totalPlants = data?.stats?.total_plants ?? 0
   const firstName = user?.name?.split(' ')[0]
 
@@ -120,20 +106,14 @@ export default function Today() {
             </div>
           )}
 
-          {thrivingPlant && !urgentPlant && (
-            <div className="mb-4">
-              <HeroCard plant={thrivingPlant} variant="thriving" />
-            </div>
-          )}
-
           <div className="mb-6">
             {urgentPlant ? (
               <Banner
                 urgent
-                title={`${pluralize(totalTasks, 'thing')} need attention`}
-                subtitle={tasks
+                title={`${pluralize(totalTasks + 1, 'thing')} need attention`}
+                subtitle={[urgentPlant, ...tasks.slice(0, 2).map((task) => task.plant)]
                   .slice(0, 2)
-                  .map((task) => `${task.plant.nickname} needs ${task.careType === 'watering' ? 'water' : 'feeding'}`)
+                  .map((plant) => plant.nickname)
                   .join(', ')}
               />
             ) : (
@@ -145,13 +125,13 @@ export default function Today() {
           </div>
 
           {totalTasks > 0 && (
-            <section>
-              <div className="mb-4 flex items-baseline justify-between">
+            <section className="mb-8 rounded-lg bg-card p-4 shadow-[var(--shadow-sm)]">
+              <div className="mb-3 flex items-baseline justify-between">
                 <h2 className="text-[22px] font-extrabold tracking-tight text-ink">Today's rituals</h2>
                 <span className="text-sm font-semibold text-ink-soft">{pluralize(totalTasks, 'ritual')} to go</span>
               </div>
 
-              <ul className="space-y-2 pb-8">
+              <ul className="space-y-2">
                 {tasks.map((task) => (
                   <li key={`${task.plant.id}-${task.careType}`}>
                     <WaterableTaskRow task={task} />
@@ -161,7 +141,7 @@ export default function Today() {
             </section>
           )}
 
-          {totalTasks === 0 && !hasHero && (
+          {totalTasks === 0 && !urgentPlant && (
             <EmptyState
               title="No tasks today"
               description={

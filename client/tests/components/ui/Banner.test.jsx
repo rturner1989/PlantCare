@@ -4,18 +4,16 @@ import Banner from '../../../src/components/ui/Banner'
 
 describe('Banner', () => {
   describe('modes', () => {
-    it('renders a leaf-coloured icon in the calm (non-urgent) state', () => {
+    it('renders with a leaf circle in the calm (non-urgent) state', () => {
       const { container } = render(<Banner title="All good" />)
       const iconCircle = container.querySelectorAll('div')[1]
-      expect(iconCircle).toHaveClass('bg-card')
-      expect(iconCircle).toHaveClass('text-leaf')
+      expect(iconCircle).toHaveClass('bg-leaf')
     })
 
-    it('renders a coral-deep icon when urgent', () => {
+    it('renders with a coral circle when urgent', () => {
       const { container } = render(<Banner urgent title="3 things changed" />)
       const iconCircle = container.querySelectorAll('div')[1]
-      expect(iconCircle).toHaveClass('bg-card')
-      expect(iconCircle).toHaveClass('text-coral-deep')
+      expect(iconCircle).toHaveClass('bg-coral')
     })
   })
 
@@ -43,11 +41,11 @@ describe('Banner', () => {
   })
 
   describe('layout', () => {
-    it('uses the spec radius (rounded-lg = 18px) and mint background', () => {
+    it('uses the spec radius (rounded-lg = 18px) and sits on a white card', () => {
       const { container } = render(<Banner title="x" />)
       const root = container.firstChild
       expect(root).toHaveClass('rounded-lg')
-      expect(root).toHaveClass('bg-mint')
+      expect(root).toHaveClass('bg-card')
     })
   })
 })

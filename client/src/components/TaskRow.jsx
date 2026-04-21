@@ -25,11 +25,11 @@ export default function TaskRow({ plant, careType = 'watering', voiceQuote, done
   // done beats overdue — a completed coral-tinted row would be noisy.
   let rowClasses
   if (done) {
-    rowClasses = 'bg-mint/30 opacity-75 border border-mint'
+    rowClasses = 'bg-mint/40 opacity-75'
   } else if (isOverdue) {
-    rowClasses = 'bg-coral/5 border border-coral/30'
+    rowClasses = 'bg-coral/10'
   } else {
-    rowClasses = 'bg-card border border-mint'
+    rowClasses = 'bg-transparent'
   }
 
   let tagColor
