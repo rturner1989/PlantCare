@@ -39,12 +39,14 @@ describe('Avatar', () => {
       expect(container.firstChild).toHaveClass('rounded-full')
     })
 
-    it('scales width, height, and font-size together', () => {
-      const { container } = render(<Avatar fallback={<span>F</span>} size={64} />)
-      const el = container.firstChild
-      expect(el.style.width).toBe('64px')
-      expect(el.style.height).toBe('64px')
-      expect(el.style.fontSize).toBe(`${64 * 0.45}px`)
+    it.each([
+      ['sm', 'w-[38px]'],
+      ['md', 'w-12'],
+      ['lg', 'w-[52px]'],
+      ['xl', 'w-20'],
+    ])('maps the %s size key to its width class (%s)', (size, widthClass) => {
+      const { container } = render(<Avatar fallback={<span>F</span>} size={size} />)
+      expect(container.firstChild).toHaveClass(widthClass)
     })
   })
 

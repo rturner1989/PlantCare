@@ -12,10 +12,10 @@ import Avatar from './ui/Avatar'
  * Purely decorative — the accessible name always lives on the adjacent
  * plant nickname in every call site, so this tile stays `aria-hidden`.
  *
- *   <PlantAvatar species={plant.species} size={48} />
+ *   <PlantAvatar species={plant.species} />
  *   <PlantAvatar species={plant.species} shape="circle" className="border-2 border-card" />
  */
-export default function PlantAvatar({ species, size = 48, shape = 'tile', className = '', ...kwargs }) {
+export default function PlantAvatar({ species, size = 'md', shape = 'tile', className = '', ...kwargs }) {
   const emoji = getPersonalityEmoji(species?.personality)
 
   return (

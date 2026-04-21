@@ -112,10 +112,8 @@ export default function Sidebar({ isFirstRun = false }) {
             >
               <Avatar
                 src={user.avatar_url}
-                fallback={
-                  <span className="text-emerald font-bold text-sm">{user.name?.[0]?.toUpperCase() ?? '?'}</span>
-                }
-                size={38}
+                fallback={<span className="text-emerald font-bold">{user.name?.[0]?.toUpperCase() ?? '?'}</span>}
+                size="sm"
                 shape="circle"
               />
               <div className="flex-1 min-w-0 text-left">

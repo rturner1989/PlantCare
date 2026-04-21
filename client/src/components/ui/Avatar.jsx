@@ -8,26 +8,36 @@ import { useState } from 'react'
  * (onError flips the internal errored flag and the fallback renders
  * in place instead of leaving an empty square).
  *
- * `shape="tile"` (default) gives the rounded-square used by PlantAvatar.
- * `shape="circle"` gives the full-round used for user avatars + plant
- * avatar rows. Default background is `bg-mint` — override via className
- * when the palette calls for something different.
+ * Sizing + shape are preset keys, not raw pixel values — every avatar
+ * in the app picks from a shared scale so tile dimensions stay
+ * consistent across screens. `className` is forwarded for borders,
+ * shadows, and positioning; extra props flow to the root.
  *
- * Purely structural: aria-hidden / role / aria-label are NOT set here,
- * because consumer intent varies (decorative plant tile vs labelled
- * user avatar vs clickable chip). Pass them in via kwargs.
+ * No aria handling baked in — consumer intent varies (decorative plant
+ * tile vs labelled user avatar vs clickable chip). Pass in via kwargs.
  *
- *   <Avatar src={user.avatar_url} fallback={<span>RT</span>} shape="circle" size={38} />
+ *   <Avatar src={user.avatar_url} fallback={<span>RT</span>} shape="circle" size="sm" />
  */
-export default function Avatar({ src, fallback = null, size = 48, shape = 'tile', className = '', ...kwargs }) {
+
+const SIZE_CLASSES = {
+  sm: 'w-[38px] h-[38px] text-base',
+  md: 'w-12 h-12 text-xl',
+  lg: 'w-[52px] h-[52px] text-2xl',
+  xl: 'w-20 h-20 text-4xl',
+}
+
+const SHAPE_CLASSES = {
+  tile: 'rounded-xl',
+  circle: 'rounded-full',
+}
+
+export default function Avatar({ src, fallback = null, size = 'md', shape = 'tile', className = '', ...kwargs }) {
   const [errored, setErrored] = useState(false)
   const showImage = Boolean(src) && !errored
-  const radius = shape === 'circle' ? 'rounded-full' : 'rounded-xl'
 
   return (
     <div
-      className={`flex items-center justify-center bg-mint overflow-hidden shrink-0 ${radius} ${className}`}
-      style={{ width: size, height: size, fontSize: size * 0.45 }}
+      className={`flex items-center justify-center bg-mint overflow-hidden shrink-0 ${SIZE_CLASSES[size]} ${SHAPE_CLASSES[shape]} ${className}`}
       {...kwargs}
     >
       {showImage ? (
