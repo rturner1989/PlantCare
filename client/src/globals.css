@@ -33,6 +33,9 @@
    * `coral` for fills/borders where the 3:1 UI-component threshold applies. */
   --color-coral-deep: #c4412a;
   --color-sunshine: #ffb83d;
+  /* Sunshine (#FFB83D) on white is ~1.9:1 — fails WCAG AA for text.
+   * sunshine-deep is the text-safe variant; use on light surfaces. */
+  --color-sunshine-deep: #a56d12;
   --color-card: #ffffff;
 
   --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
@@ -66,6 +69,7 @@
   --coral: #ff6b3d;
   --coral-deep: #c4412a;
   --sunshine: #ffb83d;
+  --sunshine-deep: #a56d12;
   --card: #ffffff;
   --shadow-fab: 0 0 0 4px var(--card), 0 10px 24px rgba(20, 144, 47, 0.4), 0 4px 10px rgba(11, 58, 26, 0.22);
   --shadow-dock: 0 12px 32px rgba(11, 58, 26, 0.14), 0 4px 12px rgba(11, 58, 26, 0.08);

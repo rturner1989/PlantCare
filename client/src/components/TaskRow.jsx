@@ -6,7 +6,7 @@ import Action from './ui/Action'
 // Keys match backend care_logs.action values — rename-safe for telemetry later.
 const CARE_TYPE_META = {
   watering: { label: 'Water', emoji: '💧', defaultColor: 'text-emerald' },
-  feeding: { label: 'Feed', emoji: '🍃', defaultColor: 'text-sunshine' },
+  feeding: { label: 'Feed', emoji: '🍃', defaultColor: 'text-sunshine-deep' },
 }
 
 // 'healthy'/'unknown' deliberately absent — Today only surfaces care due.
@@ -34,7 +34,7 @@ export default function TaskRow({ plant, careType = 'watering', voiceQuote, done
 
   let tagColor
   if (done) {
-    tagColor = 'text-leaf'
+    tagColor = 'text-emerald'
   } else if (isOverdue) {
     tagColor = 'text-coral-deep'
   } else {
