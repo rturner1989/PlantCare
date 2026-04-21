@@ -19,9 +19,13 @@ class PerenualClient
     '13' => { min: 15.6, max: 21.1 }
   }.freeze
 
-  def initialize
+  def initialize(connection: nil)
     @api_key = ENV.fetch('PERENUAL_API_KEY', nil)
-    @conn = Faraday.new(url: BASE_URL) do |f|
+    @conn = connection || build_connection
+  end
+
+  private def build_connection
+    Faraday.new(url: BASE_URL) do |f|
       f.params['key'] = @api_key
       f.response :json
       f.response :raise_error
@@ -31,15 +35,10 @@ class PerenualClient
   def search(query)
     return [] if @api_key.blank?
 
-    normalized = query.to_s.downcase.strip
-    cache_key = "perenual_search:#{normalized}"
-    cached = Rails.cache.read(cache_key)
-    return cached if cached
-
-    response = @conn.get('species-list', q: query, indoor: 1)
-    data = (response.body['data'] || []).reject { |result| group_rollup?(result) }
-    Rails.cache.write(cache_key, data, expires_in: 24.hours)
-    data
+    Rails.cache.fetch("perenual_search:#{query.to_s.downcase.strip}", expires_in: 24.hours) do
+      response = @conn.get('species-list', q: query, indoor: 1)
+      (response.body['data'] || []).reject { |result| group_rollup?(result) }
+    end
   rescue Faraday::Error => e
     Rails.logger.error("Perenual search failed: #{e.message}")
     []

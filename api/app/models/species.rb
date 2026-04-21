@@ -74,6 +74,12 @@ class Species < ApplicationRecord
 
   scope :popular, -> { where(popular: true) }
 
+  def self.popular_payload
+    Rails.cache.fetch('species:popular:v1', expires_in: 1.hour) do
+      popular.order(:common_name).limit(10).as_json
+    end
+  end
+
   validates :common_name, presence: true
   validates :watering_frequency_days, presence: true, numericality: { greater_than: 0 }
   validates :personality, presence: true
@@ -124,8 +130,7 @@ class Species < ApplicationRecord
       source: 'perenual',
       external_id: perenual_id.to_s,
       watering_frequency_days: 7,
-      feeding_frequency_days: 30,
-      personality: 'chill'
+      feeding_frequency_days: 30
     )
   end
 
