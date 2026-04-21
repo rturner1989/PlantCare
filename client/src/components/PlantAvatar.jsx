@@ -1,33 +1,46 @@
+import { getPersonalityEmoji } from '../personality/emoji'
+
 /**
  * PlantAvatar — small display tile representing a plant.
  *
- * MVP uses a personality-keyed emoji over a mint square; Phase 3 will
- * swap this for a richer illustration system (per spec §3.1). Keeping
- * the API to `species` + `size` means the call sites don't change when
- * the implementation upgrades.
+ * Shows the species image when `species.image_url` is present, else falls
+ * back to a personality-keyed emoji (dramatic 🌿, prickly 🌵, chill 🪴…).
+ * Missing species → generic sprout. Purely decorative — the accessible
+ * name comes from the adjacent plant nickname, so the tile stays
+ * `aria-hidden`.
  *
- * When `species` is missing or has no personality, falls back to a
- * generic sprout — safer than rendering nothing for a brand-new plant
- * whose species data hasn't loaded yet.
- *
- * The emoji is hidden from assistive tech (`aria-hidden`) because the
- * adjacent plant name is always the accessible label in every place
- * this component is used (TaskRow, HeroCard, PlantDetail header).
+ * `shape="tile"` (default) is the rounded-square used in TaskRow and the
+ * hero card fallback. `shape="circle"` is the full-round used for avatar
+ * rows (Step 5 collection). `className` is forwarded so consumers can
+ * add borders, shadows, or positioning without re-wrapping.
  *
  *   <PlantAvatar species={plant.species} size={48} />
+ *   <PlantAvatar species={plant.species} shape="circle" className="border-2 border-card" />
  */
-import { getPersonalityEmoji } from '../personality/emoji'
-
-export default function PlantAvatar({ species, size = 48 }) {
+export default function PlantAvatar({ species, size = 48, shape = 'tile', className = '', ...kwargs }) {
+  const imageUrl = species?.image_url
   const emoji = getPersonalityEmoji(species?.personality)
+  const radius = shape === 'circle' ? 'rounded-full' : 'rounded-xl'
 
   return (
     <div
-      className="flex items-center justify-center bg-mint rounded-xl shrink-0"
+      className={`flex items-center justify-center bg-mint overflow-hidden shrink-0 ${radius} ${className}`}
       style={{ width: size, height: size, fontSize: size * 0.45 }}
       aria-hidden="true"
+      {...kwargs}
     >
-      {emoji}
+      {imageUrl ? (
+        <img
+          src={imageUrl}
+          alt=""
+          className="w-full h-full object-cover"
+          onError={(event) => {
+            event.currentTarget.style.display = 'none'
+          }}
+        />
+      ) : (
+        <span>{emoji}</span>
+      )}
     </div>
   )
 }

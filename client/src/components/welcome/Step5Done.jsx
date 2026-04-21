@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useAuth } from '../../hooks/useAuth'
-import { getPersonalityEmoji } from '../../personality/emoji'
 import { getWelcomeQuote } from '../../personality/welcomeQuotes'
+import PlantAvatar from '../PlantAvatar'
 import Action from '../ui/Action'
 import { CardBody, CardFooter } from '../ui/Card'
 
@@ -24,32 +24,6 @@ function CornerLeaves({ count }) {
           {leaf.emoji}
         </span>
       ))}
-    </div>
-  )
-}
-
-function AddedAvatar({ plant, size = 48 }) {
-  const imageUrl = plant.species?.image_url
-  const emoji = getPersonalityEmoji(plant.species?.personality)
-  return (
-    <div
-      data-testid="added-avatar"
-      className="rounded-full overflow-hidden border-2 border-card shadow-[var(--shadow-sm)] shrink-0 bg-mint flex items-center justify-center"
-      style={{ width: size, height: size, fontSize: size * 0.45 }}
-      aria-hidden="true"
-    >
-      {imageUrl ? (
-        <img
-          src={imageUrl}
-          alt=""
-          className="w-full h-full object-cover"
-          onError={(event) => {
-            event.currentTarget.style.display = 'none'
-          }}
-        />
-      ) : (
-        <span>{emoji}</span>
-      )}
     </div>
   )
 }
@@ -96,7 +70,13 @@ export default function Step5Done({ createdPlants = [], onAddAnother, onFinish, 
           {count > 0 && (
             <div className="mt-5 flex justify-center -space-x-3">
               {createdPlants.map((plant) => (
-                <AddedAvatar key={plant.id} plant={plant} />
+                <PlantAvatar
+                  key={plant.id}
+                  species={plant.species}
+                  shape="circle"
+                  className="border-2 border-card shadow-[var(--shadow-sm)]"
+                  data-testid="added-avatar"
+                />
               ))}
             </div>
           )}
