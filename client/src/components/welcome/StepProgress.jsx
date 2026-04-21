@@ -1,4 +1,4 @@
-const BAR_BASE = 'flex-1 h-[5px] rounded-full transition-colors duration-300'
+const BAR_BASE = 'flex-1 h-[5px] rounded-full'
 const BAR_PENDING = 'bg-mint'
 const BAR_DONE = 'bg-leaf'
 const BAR_ACTIVE = 'bg-leaf shadow-[0_0_0_3px_rgba(50,196,86,0.2)]'
