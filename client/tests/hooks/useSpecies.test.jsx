@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiGet } from '../../src/api/client'
-import { useSpeciesSearch } from '../../src/hooks/useSpecies'
+import { isSearchQuery, useSpeciesSearch } from '../../src/hooks/useSpecies'
 
 vi.mock('../../src/api/client', () => ({
   apiGet: vi.fn(),
@@ -78,5 +78,48 @@ describe('useSpeciesSearch', () => {
       await waitFor(() => expect(result.current.data).toEqual([{ id: 2, common_name: 'Monstera deliciosa' }]))
       expect(result.current.isPlaceholderData).toBe(false)
     })
+
+    it('discards previous results when crossing from popular to search mode', async () => {
+      let resolveSearch
+      apiGet.mockResolvedValueOnce([{ id: 1, common_name: 'Monstera' }]).mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveSearch = resolve
+          }),
+      )
+
+      const { result, rerender } = renderHook(({ query }) => useSpeciesSearch(query), {
+        wrapper: makeWrapper(),
+        initialProps: { query: '' },
+      })
+
+      await waitFor(() => expect(result.current.data).toEqual([{ id: 1, common_name: 'Monstera' }]))
+
+      rerender({ query: 'ro' })
+
+      expect(result.current.data).toBeUndefined()
+      expect(result.current.isLoading).toBe(true)
+
+      resolveSearch([{ id: 99, common_name: 'Rose' }])
+      await waitFor(() => expect(result.current.data).toEqual([{ id: 99, common_name: 'Rose' }]))
+    })
+  })
+})
+
+describe('isSearchQuery', () => {
+  it('treats strings of 2+ non-whitespace characters as search mode', () => {
+    expect(isSearchQuery('ro')).toBe(true)
+    expect(isSearchQuery('rose')).toBe(true)
+  })
+
+  it('treats whitespace-padded short input as not-search', () => {
+    expect(isSearchQuery(' r ')).toBe(false)
+    expect(isSearchQuery('  ')).toBe(false)
+  })
+
+  it('handles empty and non-string input without throwing', () => {
+    expect(isSearchQuery('')).toBe(false)
+    expect(isSearchQuery(undefined)).toBe(false)
+    expect(isSearchQuery(null)).toBe(false)
   })
 })

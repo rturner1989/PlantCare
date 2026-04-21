@@ -3,13 +3,15 @@ import { useEffect, useState } from 'react'
 import { apiGet } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
-import { useSpeciesSearch } from '../../hooks/useSpecies'
+import { isSearchQuery, useSpeciesSearch } from '../../hooks/useSpecies'
 import SearchField from '../form/SearchField'
 import TextInput from '../form/TextInput'
 import Action from '../ui/Action'
 import Badge from '../ui/Badge'
 import { CardBody, CardFooter } from '../ui/Card'
 import EmptyState from '../ui/EmptyState'
+
+const EMPTY_RESULTS = []
 
 function SpeciesRow({ species }) {
   return (
@@ -48,15 +50,13 @@ export default function Step3Species({
 
   // Debounced not deferred — defer delays the render, not the fetch, and Perenual charges per fetch.
   const debouncedQuery = useDebouncedValue(query, 300)
-  const { data: fetched = [], isLoading, isPlaceholderData } = useSpeciesSearch(debouncedQuery)
+  const { data: fetched = EMPTY_RESULTS, isLoading } = useSpeciesSearch(debouncedQuery)
   // While the user's live input crosses modes (popular ↔ search) ahead of
   // the debounced fetch, hide the stale list so the spinner transitions
   // smoothly instead of flashing the previous mode's results.
-  const liveIsSearch = query.trim().length >= 2
-  const debouncedIsSearch = debouncedQuery.trim().length >= 2
-  const modeChanging = liveIsSearch !== debouncedIsSearch
-  const results = modeChanging ? [] : fetched
-  const searching = isLoading || isPlaceholderData || query !== debouncedQuery
+  const modeChanging = isSearchQuery(query) !== isSearchQuery(debouncedQuery)
+  const results = modeChanging ? EMPTY_RESULTS : fetched
+  const searching = isLoading || query !== debouncedQuery
   const shouldReduceMotion = useReducedMotion()
 
   // Preload result images during idle time so picking one shows the photo
@@ -99,7 +99,7 @@ export default function Step3Species({
     setContinuing(true)
     try {
       let species = selected
-      if (species.id === null && species.perenual_id) {
+      if (!species.id && species.perenual_id) {
         const params = new URLSearchParams({
           perenual_id: species.perenual_id,
           common_name: species.common_name ?? '',
@@ -111,6 +111,7 @@ export default function Step3Species({
       onComplete(species, nickname, roomId)
     } catch (err) {
       toast.error(err.message || "Couldn't load that species — please pick another")
+    } finally {
       setContinuing(false)
     }
   }

@@ -1,8 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '../api/client'
 
+export function isSearchQuery(query) {
+  return typeof query === 'string' && query.trim().length >= 2
+}
+
 export function useSpeciesSearch(query) {
-  const isSearching = query.length >= 2
+  const isSearching = isSearchQuery(query)
   return useQuery({
     queryKey: isSearching ? ['species', 'search', query] : ['species', 'popular'],
     queryFn: () => (isSearching ? apiGet(`/api/v1/species?q=${encodeURIComponent(query)}`) : apiGet('/api/v1/species')),
