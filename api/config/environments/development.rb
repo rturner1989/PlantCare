@@ -28,8 +28,8 @@ Rails.application.configure do
     config.action_controller.perform_caching = false
   end
 
-  # Change to :null_store to avoid any caching.
-  config.cache_store = :memory_store
+  # db 2 keeps Rails.cache.clear from touching Sidekiq (db 0) or ActionCable (db 1).
+  config.cache_store = :redis_cache_store, { url: ENV.fetch('REDIS_CACHE_URL', 'redis://redis:6379/2') }
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local

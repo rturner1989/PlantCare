@@ -153,6 +153,45 @@ docs/
 
 Run `/comment-audit` before committing anything substantial, especially changes I or an assistant produced.
 
+### Cache keys
+
+Every cache in the app — server-side `Rails.cache`, client-side TanStack Query — uses the same shape:
+
+```
+<resource> : <selector-parts…> [: v<N>]
+```
+
+- **Resource** — snake_case domain noun, matching the Rails model name where one exists (`species`, `plant`, `room`, `user`, `dashboard`). Singular, not the table name. External data sources flatten the source into the resource itself: `perenual_search`, not `perenual:search` (colons are separators; the source is part of the resource's identity).
+- **Selector parts** — whatever narrows down to the specific entry. Ids, scope names, normalised query strings. `downcase.strip` user input before interpolating so `"Rose "` and `"rose"` share a key.
+- **Version suffix** — `:v1` appended when the serialised payload shape might change. Bump on breaking change. Don't version speculatively; add it when the first breaking change lands.
+
+**Server (`Rails.cache` string keys)** — colon-delimited:
+
+```ruby
+"perenual_search:rose"
+"species:popular:v1"
+"user:42:dashboard:v1"
+```
+
+**Client (TanStack Query array keys)** — same structure as an array, one segment per array entry:
+
+```js
+['perenual_search', query]
+['species', 'popular']
+['species', id]
+['species', 'search', query]          // flat — NOT ['species', ['search', query]]
+['user', id, 'dashboard']
+['plants', plantId, 'photos']
+```
+
+**Rules:**
+
+- **Resource first, always.** The first segment is the domain noun. Don't prefix with `cache:`, `app:`, or similar.
+- **Never mix strings and arrays.** Client uses array tuples; server uses colon-delimited strings. Don't flatten arrays into strings (`keys.join(':')`) or build arrays out of colon strings (`key.split(':')`).
+- **Flat arrays on the client.** Never nest an array inside a Query key. `['species', 'search', query]`, never `['species', ['search', query]]`.
+- **One key per consumer.** If two controllers return popular species, both read `species:popular:v1`. The writer doesn't own the namespace — the resource does.
+- **Bump, don't chain.** Schema change → `:v2`, old entries expire naturally. Never `species:popular:v1:new`.
+
 ### Naming
 
 - **Be explicit with variable names.** No single-letter or ultra-short abbreviations (`s`, `x`, `fn`, `cfg`, `tmp`) — even in tiny helper functions. Use `schemeRecipe` not `s`, `handleSubmit` not `fn`, `roomCount` not `rc`. A reader should understand what a variable holds without scrolling up to the declaration.

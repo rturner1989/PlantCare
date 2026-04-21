@@ -31,8 +31,15 @@ class PerenualClient
   def search(query)
     return [] if @api_key.blank?
 
+    normalized = query.to_s.downcase.strip
+    cache_key = "perenual_search:#{normalized}"
+    cached = Rails.cache.read(cache_key)
+    return cached if cached
+
     response = @conn.get('species-list', q: query, indoor: 1)
-    (response.body['data'] || []).reject { |result| group_rollup?(result) }
+    data = (response.body['data'] || []).reject { |result| group_rollup?(result) }
+    Rails.cache.write(cache_key, data, expires_in: 24.hours)
+    data
   rescue Faraday::Error => e
     Rails.logger.error("Perenual search failed: #{e.message}")
     []
