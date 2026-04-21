@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useToast } from '../context/ToastContext'
+import { RateLimitError } from '../errors/RateLimitError'
 import { ValidationError } from '../errors/ValidationError'
 
 /**
@@ -83,7 +84,13 @@ export function useFormSubmit({ action, successMessage, errorMessage, errorField
         setFieldErrors(err.fields)
       } else {
         const message = err.message || errorMessage || 'Something went wrong'
-        toast.error(message)
+        // Rate limits are self-healing after a short cooldown — yellow,
+        // not red. Everything else is a real error.
+        if (err instanceof RateLimitError) {
+          toast.warning(message)
+        } else {
+          toast.error(message)
+        }
         if (errorField) {
           // Sets aria-invalid on the mapped field; the fieldErrors useEffect
           // above then picks it up and focuses it like a validation error.
