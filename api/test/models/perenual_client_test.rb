@@ -5,6 +5,21 @@ require 'test_helper'
 class PerenualClientTest < ActiveSupport::TestCase
   setup do
     @client = PerenualClient.new
+    Rails.cache.clear
+  end
+
+  teardown do
+    Rails.cache.clear
+  end
+
+  def stubbed_client(&)
+    stubs = Faraday::Adapter::Test::Stubs.new(&)
+    connection = Faraday.new do |f|
+      f.response :json
+      f.response :raise_error
+      f.adapter :test, stubs
+    end
+    [PerenualClient.new(connection: connection), stubs]
   end
 
   test 'build_species maps common fields' do
@@ -63,6 +78,38 @@ class PerenualClientTest < ActiveSupport::TestCase
 
     temperate = base_data.merge('tropical' => false, 'watering' => 'Minimum')
     assert_equal 'low', @client.build_species(temperate).humidity_preference
+  end
+
+  test 'search caches the response so a second call with the same query skips Perenual' do
+    call_count = 0
+    client, stubs = stubbed_client do |stub|
+      stub.get('species-list') do |_env|
+        call_count += 1
+        [200, { 'Content-Type' => 'application/json' }, { 'data' => [{ 'id' => 1, 'common_name' => 'Rose' }] }.to_json]
+      end
+    end
+
+    first = client.search('rose')
+    second = client.search('Rose ')
+
+    assert_equal 1, call_count
+    assert_equal first, second
+    stubs.verify_stubbed_calls
+  end
+
+  test 'search does not cache Faraday errors so the next call retries the API' do
+    call_count = 0
+    client, _stubs = stubbed_client do |stub|
+      stub.get('species-list') do |_env|
+        call_count += 1
+        [500, {}, 'boom']
+      end
+    end
+
+    assert_empty client.search('rose')
+    assert_empty client.search('rose')
+
+    assert_equal 2, call_count
   end
 
   private def base_data
