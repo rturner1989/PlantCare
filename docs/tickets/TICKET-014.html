@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-014: Sidebar live counts + profile route</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-low { background: #a8dadc; color: #1a1a1a; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.hook { background: #4a6fa5; }
+.artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.page { background: #2d6a4f; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-014</div>
+    <h1>Sidebar live counts + profile route</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-low">Low</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>The desktop <code>Sidebar</code> renders a <strong>Today</strong> badge count of <code>2</code> and a <strong>House</strong> badge count of <code>12</code> &mdash; both hardcoded. Logout currently lives in the sidebar footer next to the user avatar; it should live on the Me profile page where the rest of the account-level actions belong. Two long-standing TODOs in <code>Sidebar.jsx</code> point at both gaps.</p>
+    <p>In one sentence: <strong>wire the badges to real data and move logout off the nav chrome.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <p>TICKET-008 built the sidebar/dock primitives with placeholder numbers and a placeholder logout spot; the comments have carried <code>TODO(ticket 14)</code> tags ever since. TICKET-009 and TICKET-010 (Today + House screens) bring the real data hooks that this ticket consumes. When the Me screen lands as part of the broader tasks&nbsp;11&ndash;14 polish, the avatar/logout section moves with it.</p>
+    <p>Sequencing-wise, this only makes sense after TICKET-009 (dashboard) and TICKET-010 (house) are in &mdash; those are where <code>overdue</code> and <code>plants_count</code> live. Doing it earlier means inventing placeholder contracts we'd throw away.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind extend">extend</span><span class="name">client/src/components/Sidebar.jsx</span>
+        <div class="role">Replace the hardcoded <code>count: 2</code> and <code>count: 12</code> with live values from <code>useDashboard()</code> (overdue count for Today) and <code>useRooms()</code> or <code>usePlants()</code> for total plants (House). Counts hide when the value is zero so the badge doesn't draw attention with nothing to say.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind hook">hook</span><span class="name">client/src/hooks/useDashboard.js</span>
+        <div class="role">Already exists. Surface a derived <code>overdueCount</code> in the hook's return shape so every consumer (sidebar, Today) doesn't re-count. Cheap: <code>data?.overdue?.length ?? 0</code>.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind page">page</span><span class="name">client/src/pages/Me.jsx</span>
+        <div class="role">New profile page at <code>/me</code>. Hosts name/email display, "Log out" button (moves in from Sidebar), and a placeholder for future account settings. Route already exists as a PlaceholderPage &mdash; swap it for this.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind extend">extend</span><span class="name">client/src/components/Sidebar.jsx (footer)</span>
+        <div class="role">The footer stays: avatar + name + email + link to <code>/me</code>. The logout <em>button</em> goes away. Clicking the avatar goes to the profile page and logout happens there. Dock already behaves this way via the Me tab &mdash; sidebar catches up.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li>Sidebar's Today badge shows the actual number of overdue tasks, not <code>2</code>.</li>
+      <li>Sidebar's House badge shows the actual total plant count, not <code>12</code>.</li>
+      <li>Badges render as zero-hidden &mdash; a user with no overdue tasks sees no number, not a pill saying "0".</li>
+      <li>Logout is no longer a sidebar element. A new <code>/me</code> page renders the logout button alongside the user's profile info.</li>
+      <li>Clicking the avatar in the sidebar footer navigates to <code>/me</code>.</li>
+      <li>Both <code>TODO(ticket 14)</code> comments in <code>Sidebar.jsx</code> are deleted (they self-resolve).</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Fresh signup with no plants: Today and House badges render no number. Sidebar footer avatar is present; no separate logout icon.</span></div>
+    <div class="criterion"><div class="box"></div><span>Add one overdue task: Today badge becomes <code>1</code>. Add a plant: House badge becomes <code>1</code>. Numbers update live after mutations (invalidation via TanStack Query already wired).</span></div>
+    <div class="criterion"><div class="box"></div><span>Click avatar: lands on <code>/me</code>. Click "Log out": session ends and redirects to <code>/login</code> with a toast (same behaviour as today's sidebar button).</span></div>
+    <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> and <code>./scripts/run_tests.sh client</code> both pass. Playwright spec for the new Me page + logout flow added.</span></div>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li><code>client/src/components/Sidebar.jsx</code> <span class="action">extend</span></li>
+      <li><code>client/src/hooks/useDashboard.js</code> <span class="action">extend</span></li>
+      <li><code>client/src/pages/Me.jsx</code> <span class="action">create</span></li>
+      <li><code>client/src/App.jsx</code> <span class="action">extend (wire route)</span></li>
+      <li><code>client/tests/pages/me.spec.js</code> <span class="action">create</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li><strong>Dock already has a Me tab</strong> &mdash; don't duplicate it. The mobile logout flow routes via Dock &rarr; Me page, same as desktop after this lands.</li>
+      <li><strong>Don't over-build the Me page.</strong> Name, email, logout. Anything else (password change, email change, delete account) is out of scope &mdash; those earn their own tickets when the product needs them.</li>
+      <li><strong>Zero-hidden badges</strong>: check how <code>Badge</code> handles falsy counts. Easiest is to render <code>null</code> when count is 0 from the mapping code, rather than teaching Badge new tricks.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>
