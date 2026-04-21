@@ -22,6 +22,7 @@ class PerenualClient
   def initialize(connection: nil)
     @api_key = ENV.fetch('PERENUAL_API_KEY', nil)
     @conn = connection || build_connection
+    @reachable = connection.present? || @api_key.present?
   end
 
   private def build_connection
@@ -33,7 +34,7 @@ class PerenualClient
   end
 
   def search(query)
-    return [] if @api_key.blank?
+    return [] unless @reachable
 
     Rails.cache.fetch("perenual_search:#{query.to_s.downcase.strip}", expires_in: 24.hours) do
       response = @conn.get('species-list', q: query, indoor: 1)
@@ -45,7 +46,7 @@ class PerenualClient
   end
 
   def details(perenual_id)
-    return nil if @api_key.blank?
+    return nil unless @reachable
 
     response = @conn.get("species/details/#{perenual_id}")
     response.body
