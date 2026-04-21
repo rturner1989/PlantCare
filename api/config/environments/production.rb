@@ -43,9 +43,7 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Redis-backed cache so Perenual responses (and any other Rails.cache
-  # use) dedupe across Puma workers. db 2 is reserved for cache so a
-  # Rails.cache.clear can't touch Sidekiq (db 0) or ActionCable (db 1).
+  # db 2 keeps Rails.cache.clear from touching Sidekiq (db 0) or ActionCable (db 1).
   config.cache_store = :redis_cache_store, { url: ENV.fetch('REDIS_CACHE_URL', 'redis://redis:6379/2') }
 
   # Replace the default in-process and non-durable queuing backend for Active Job.

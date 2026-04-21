@@ -96,9 +96,6 @@ class SpeciesTest < ActiveSupport::TestCase
     assert_equal Plant.level_options, payload[:plant_levels]
   end
 
-  # The Perenual client is injected via a keyword arg so tests can swap in
-  # a stub without touching the live API — same seam the production code
-  # uses, defaulted to PerenualClient.new.
   class StubClient
     def initialize(details_response: nil) = @details_response = details_response
     def details(_perenual_id) = @details_response

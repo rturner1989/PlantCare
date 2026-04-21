@@ -116,10 +116,6 @@ class Species < ApplicationRecord
     species
   end
 
-  # Build a minimal Species row from search-summary data when the Perenual
-  # details endpoint is unavailable (typically rate-limited). Care data
-  # falls back to neutral defaults — the user can edit, or a future
-  # background job can backfill once quota resets.
   def self.build_fallback_from_search(perenual_id, data)
     new(
       common_name: data[:common_name],

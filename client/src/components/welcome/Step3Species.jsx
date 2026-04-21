@@ -46,9 +46,7 @@ export default function Step3Species({
   const [continuing, setContinuing] = useState(false)
   const toast = useToast()
 
-  // Debounced rather than deferred — deferral defers the render, but the
-  // Perenual quota cares about how many fetches we fire. One search per
-  // typing pause keeps us well inside the free tier.
+  // Debounced not deferred — defer delays the render, not the fetch, and Perenual charges per fetch.
   const debouncedQuery = useDebouncedValue(query, 300)
   const { data: fetched = [], isLoading, isPlaceholderData } = useSpeciesSearch(debouncedQuery)
   // While the user's live input crosses modes (popular ↔ search) ahead of
@@ -102,9 +100,6 @@ export default function Step3Species({
     try {
       let species = selected
       if (species.id === null && species.perenual_id) {
-        // Pass the search-summary fields as fallback so the backend can
-        // persist a minimal row if Perenual's details endpoint is rate-
-        // limited — user isn't blocked by our external quota.
         const params = new URLSearchParams({
           perenual_id: species.perenual_id,
           common_name: species.common_name ?? '',

@@ -75,10 +75,8 @@ export default function Welcome() {
 
   if (step === undefined) return null
 
-  // Steps 2 and 3 lazy-init state from props. Gate on `existingRooms ===
-  // undefined` only — gating on isFetching would re-fire after every
-  // mutation's background revalidation, snapping the wizard shell out
-  // from under the AnimatePresence transition mid-navigation.
+  // Not isFetching — post-mutation background revalidation would re-fire the gate and unmount
+  // the AnimatePresence shell mid-navigation.
   const needsRooms = step === 2 || step === 3
   if (needsRooms && existingRooms === undefined) {
     return (

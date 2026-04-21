@@ -31,10 +31,6 @@ module Api
         }
       end
 
-      # Serialize once, cache the JSON payload so the hot path is a straight
-      # Redis read → render. TTL is short because TICKET-011 (nightly
-      # Sidekiq reranker) will want the list to refresh soon after the flag
-      # flips; the reranker can also blow the key explicitly when it lands.
       private def popular_species_payload
         Rails.cache.fetch('species:popular:v1', expires_in: 1.hour) do
           Species.popular.order(:common_name).limit(10).as_json
