@@ -29,47 +29,49 @@ describe('TaskRow', () => {
 
     it('omits the voice quote element entirely when not passed', () => {
       render_(<TaskRow plant={plant()} careType="watering" />)
-      // Name + care-tag label — no second <p> for the quote.
       expect(screen.queryByText(/wilting/)).not.toBeInTheDocument()
     })
   })
 
-  describe('care-type + status badges', () => {
-    it('shows "Water" for watering tasks and "Feed" for feeding tasks', () => {
-      const { rerender } = render_(<TaskRow plant={plant()} careType="watering" />)
-      expect(screen.getByText('Water')).toBeInTheDocument()
-
-      rerender(
-        <MemoryRouter>
-          <TaskRow plant={plant()} careType="feeding" />
-        </MemoryRouter>,
-      )
-      expect(screen.getByText('Feed')).toBeInTheDocument()
+  describe('care-type + status tag', () => {
+    it('shows the water emoji + label for watering tasks', () => {
+      render_(<TaskRow plant={plant({ water_status: 'due_today' })} careType="watering" />)
+      expect(screen.getByText(/💧 Water · Due today/)).toBeInTheDocument()
     })
 
-    it('renders an "Overdue" status badge when water_status is overdue', () => {
+    it('shows the feed emoji + label for feeding tasks', () => {
+      render_(<TaskRow plant={plant({ feed_status: 'due_today' })} careType="feeding" />)
+      expect(screen.getByText(/🍃 Feed · Due today/)).toBeInTheDocument()
+    })
+
+    it('appends the Overdue status when water_status is overdue', () => {
       render_(<TaskRow plant={plant({ water_status: 'overdue' })} careType="watering" />)
-      expect(screen.getByText('Overdue')).toBeInTheDocument()
+      expect(screen.getByText(/💧 Water · Overdue/)).toBeInTheDocument()
     })
 
     it('reads feed_status instead of water_status when careType is feeding', () => {
       render_(<TaskRow plant={plant({ water_status: 'overdue', feed_status: 'due_today' })} careType="feeding" />)
-      expect(screen.getByText('Due today')).toBeInTheDocument()
-      expect(screen.queryByText('Overdue')).not.toBeInTheDocument()
+      expect(screen.getByText(/🍃 Feed · Due today/)).toBeInTheDocument()
+      expect(screen.queryByText(/Overdue/)).not.toBeInTheDocument()
     })
 
-    it('hides the status badge for healthy/unknown (non-events on Today)', () => {
+    it('omits the status suffix for healthy/unknown (non-events on Today)', () => {
       render_(<TaskRow plant={plant({ water_status: 'healthy' })} careType="watering" />)
-      expect(screen.queryByText('Overdue')).not.toBeInTheDocument()
-      expect(screen.queryByText('Due today')).not.toBeInTheDocument()
-      expect(screen.queryByText('Due soon')).not.toBeInTheDocument()
+      // Tag shows just care type, no status suffix.
+      expect(screen.getByText(/^💧 Water$/)).toBeInTheDocument()
+      expect(screen.queryByText(/Overdue/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Due/)).not.toBeInTheDocument()
+    })
+
+    it('shows · Done status when the task is completed', () => {
+      render_(<TaskRow plant={plant()} careType="watering" done />)
+      expect(screen.getByText(/💧 Water · Done/)).toBeInTheDocument()
     })
   })
 
   describe('visual state precedence', () => {
     it("done > overdue — a completed row doesn't show the coral overdue tint", () => {
       const { container } = render_(<TaskRow plant={plant({ water_status: 'overdue' })} careType="watering" done />)
-      // The root row <div> is the direct child of the render container.
       const row = container.firstChild
       expect(row.className).not.toContain('border-coral/30')
       expect(row.className).toContain('opacity-75')

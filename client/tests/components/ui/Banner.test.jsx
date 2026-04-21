@@ -4,16 +4,18 @@ import Banner from '../../../src/components/ui/Banner'
 
 describe('Banner', () => {
   describe('modes', () => {
-    it('renders with the leaf circle in the calm (non-urgent) state', () => {
+    it('renders a leaf-coloured icon in the calm (non-urgent) state', () => {
       const { container } = render(<Banner title="All good" />)
       const iconCircle = container.querySelectorAll('div')[1]
-      expect(iconCircle).toHaveClass('bg-leaf')
+      expect(iconCircle).toHaveClass('bg-card')
+      expect(iconCircle).toHaveClass('text-leaf')
     })
 
-    it('renders with the coral circle when urgent', () => {
+    it('renders a coral-deep icon when urgent', () => {
       const { container } = render(<Banner urgent title="3 things changed" />)
       const iconCircle = container.querySelectorAll('div')[1]
-      expect(iconCircle).toHaveClass('bg-coral')
+      expect(iconCircle).toHaveClass('bg-card')
+      expect(iconCircle).toHaveClass('text-coral-deep')
     })
   })
 

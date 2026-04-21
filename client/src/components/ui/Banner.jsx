@@ -18,11 +18,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
  */
 export default function Banner({ urgent = false, title, subtitle, time }) {
   const icon = urgent ? faTriangleExclamation : faCheck
-  const iconBg = urgent ? 'bg-coral' : 'bg-leaf'
+  const iconColor = urgent ? 'text-coral-deep' : 'text-leaf'
 
   return (
     <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-mint">
-      <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-card ${iconBg}`}>
+      <div
+        className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center bg-card shadow-[var(--shadow-sm)] ${iconColor}`}
+      >
         <FontAwesomeIcon icon={icon} className="text-xs" />
       </div>
 

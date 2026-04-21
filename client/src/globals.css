@@ -73,6 +73,7 @@
    * on the top edge. Gives Continue / Log in / Save the slight glossy
    * raise seen in the onboarding mockup. */
   --shadow-cta: 0 6px 16px rgba(20, 144, 47, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  --shadow-lime-cta: 0 4px 12px rgba(134, 219, 101, 0.3);
   --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #dff2e2 50%, #c7ecca 100%);
   --gradient-forest: linear-gradient(135deg, var(--forest), var(--forest-2));
   --gradient-brand: linear-gradient(135deg, var(--leaf), var(--emerald));
