@@ -16,20 +16,10 @@
  *
  *   <PlantAvatar species={plant.species} size={48} />
  */
-
-// Keyed to the five personalities on Species.personality (see UI spec
-// §12.1). The TICKET-009 work will move this table next to the rest of
-// the personality config; keeping it inline for MVP.
-const PERSONALITY_EMOJI = {
-  dramatic: '🌿',
-  prickly: '🌵',
-  chill: '🪴',
-  needy: '🌸',
-  stoic: '🌲',
-}
+import { getPersonalityEmoji } from '../personality/emoji'
 
 export default function PlantAvatar({ species, size = 48 }) {
-  const emoji = PERSONALITY_EMOJI[species?.personality] ?? '🌱'
+  const emoji = getPersonalityEmoji(species?.personality)
 
   return (
     <div

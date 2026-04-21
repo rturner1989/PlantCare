@@ -2,27 +2,26 @@ import { faCheck, faTriangleExclamation } from '@fortawesome/free-solid-svg-icon
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
- * SinceRibbon — compact "since you were gone" strip at the top of Today.
+ * Banner — compact status strip with icon + title + optional subtitle and time.
  *
  * Two visual modes driven by the `urgent` boolean:
- *   urgent=true  → coral alert circle + triangle icon ("3 things changed")
- *   urgent=false → leaf circle + check icon          ("You're on top of things")
+ *   urgent=true  → coral alert circle + triangle icon
+ *   urgent=false → leaf circle + check icon
  *
- * The icon is decorative — the title/subtitle carry the message, so
- * FontAwesomeIcon stays `aria-hidden` by default. `time` renders
- * right-aligned as small meta (e.g. "18h ago").
+ * The icon is decorative — title/subtitle carry the message, so FontAwesomeIcon
+ * stays `aria-hidden` by default. `time` renders right-aligned as small meta.
  *
- * Not interactive — it's informational, not a button. If a future design
- * makes the whole ribbon clickable, wrap it in an Action at the call site.
+ * Informational, not interactive. Wrap in an Action at the call site if a future
+ * design needs the whole banner clickable.
  *
- *   <SinceRibbon urgent title="3 things changed" subtitle="Monty's mood dropped" time="18h ago" />
+ *   <Banner urgent title="3 things changed" subtitle="Monty's mood dropped" time="18h ago" />
  */
-export default function SinceRibbon({ urgent = false, title, subtitle, time }) {
+export default function Banner({ urgent = false, title, subtitle, time }) {
   const icon = urgent ? faTriangleExclamation : faCheck
   const iconBg = urgent ? 'bg-coral' : 'bg-leaf'
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-mint">
+    <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-mint">
       <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-card ${iconBg}`}>
         <FontAwesomeIcon icon={icon} className="text-xs" />
       </div>

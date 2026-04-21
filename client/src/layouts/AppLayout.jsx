@@ -1,11 +1,20 @@
 import { motion, useReducedMotion } from 'motion/react'
-import { useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Dock from '../components/Dock'
 import Sidebar from '../components/Sidebar'
+import Spinner from '../components/ui/Spinner'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
 import { useFirstRunReveal } from '../hooks/useFirstRunReveal'
+
+function RouteFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-[50dvh]">
+      <Spinner />
+    </div>
+  )
+}
 
 export default function AppLayout() {
   const mainRef = useRef(null)
@@ -65,7 +74,9 @@ export default function AppLayout() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut', delay: 0.15 }}
         >
-          <Outlet />
+          <Suspense fallback={<RouteFallback />}>
+            <Outlet />
+          </Suspense>
         </motion.main>
       ) : (
         <main
@@ -74,7 +85,9 @@ export default function AppLayout() {
           tabIndex={-1}
           className="lg:ml-[260px] pt-[env(safe-area-inset-top)] pb-24 lg:pt-0 lg:pb-0 min-h-dvh focus:outline-none"
         >
-          <Outlet />
+          <Suspense fallback={<RouteFallback />}>
+            <Outlet />
+          </Suspense>
         </main>
       )}
 

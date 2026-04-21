@@ -1,4 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { pluralize } from '../utils/pluralize'
 import { getRoomIcon } from '../utils/roomIcons'
 import Action from './ui/Action'
 import Badge from './ui/Badge'
@@ -46,9 +47,7 @@ export default function RoomCard({ room, attentionCount = 0, onClick }) {
 
       <div>
         <p className="text-[15px] font-extrabold text-ink">{room.name}</p>
-        <p className="text-[11px] font-semibold text-ink-soft">
-          {room.plants_count} {room.plants_count === 1 ? 'plant' : 'plants'}
-        </p>
+        <p className="text-[11px] font-semibold text-ink-soft">{pluralize(room.plants_count, 'plant')}</p>
       </div>
     </Action>
   )

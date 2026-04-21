@@ -178,7 +178,7 @@ export default function Step3Species({
                 transition={{ duration: shouldReduceMotion ? 0 : 0.22, ease: [0.33, 1, 0.68, 1] }}
               >
                 <div
-                  className="relative rounded-2xl text-white overflow-hidden min-h-[140px]"
+                  className="relative rounded-lg text-white overflow-hidden min-h-[140px]"
                   style={{ background: 'var(--gradient-forest)' }}
                 >
                   {selected.image_url && (
