@@ -37,7 +37,7 @@ export default function Avatar({ src, fallback = null, size = 'md', shape = 'til
 
   return (
     <div
-      className={`flex items-center justify-center bg-mint overflow-hidden shrink-0 ${SIZE_CLASSES[size]} ${SHAPE_CLASSES[shape]} ${className}`}
+      className={`flex items-center justify-center leading-none bg-mint overflow-hidden shrink-0 ${SIZE_CLASSES[size]} ${SHAPE_CLASSES[shape]} ${className}`}
       {...kwargs}
     >
       {showImage ? (
