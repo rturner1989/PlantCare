@@ -6,9 +6,22 @@ import Action from './ui/Action'
 
 export default function HeroCard({ plant, onWater }) {
   const daysText = getDaysDisplay(plant.days_until_water)
+  const imageUrl = plant.species?.image_url
 
   return (
     <div className="relative rounded-lg overflow-hidden px-5 py-5 lg:px-7 lg:py-7 bg-[image:var(--gradient-forest)]">
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover scale-[1.15] origin-right"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none'
+          }}
+        />
+      )}
+      <div className="absolute inset-0 pointer-events-none hero-image-fade" aria-hidden="true" />
       <div className="absolute inset-0 pointer-events-none hero-glow-urgent" aria-hidden="true" />
 
       <div className="relative z-10 max-w-[240px] lg:max-w-[440px]">
@@ -40,9 +53,11 @@ export default function HeroCard({ plant, onWater }) {
         </Action>
       </div>
 
-      <div className="absolute bottom-4 right-4 opacity-85">
-        <PlantAvatar species={plant.species} size={80} />
-      </div>
+      {!imageUrl && (
+        <div className="absolute bottom-4 right-4 opacity-85">
+          <PlantAvatar species={plant.species} size={80} />
+        </div>
+      )}
     </div>
   )
 }
