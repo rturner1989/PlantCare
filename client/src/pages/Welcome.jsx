@@ -22,7 +22,6 @@ function stepPath(step) {
   return slug ? `/welcome/${slug}` : '/welcome'
 }
 
-// custom direction: 1 forward, -1 back, 0 on first mount (skip entrance anim).
 const SLIDE_OFFSET = 40
 const stepVariants = {
   enter: (direction) => ({
@@ -43,6 +42,7 @@ export default function Welcome() {
   const [selectedSpecies, setSelectedSpecies] = useState(null)
   const [nickname, setNickname] = useState('')
   const [roomId, setRoomId] = useState(null)
+  const [createdPlants, setCreatedPlants] = useState([])
   const [finishing, setFinishing] = useState(false)
 
   const navigate = useNavigate()
@@ -93,6 +93,18 @@ export default function Welcome() {
     navigate(stepPath(species ? 4 : 5))
   }
 
+  function handlePlantCreated(plant) {
+    setCreatedPlants((prev) => [...prev, plant])
+    navigate(stepPath(5))
+  }
+
+  function handleAddAnother() {
+    setSelectedSpecies(null)
+    setNickname('')
+    setRoomId(null)
+    navigate(stepPath(3))
+  }
+
   // Stay on Step 5 on failure — navigating with `onboarded: false` would have
   // ProtectedRoute bounce the user straight back here.
   async function handleFinish() {
@@ -132,6 +144,7 @@ export default function Welcome() {
             {step === 3 && (
               <Step3Species
                 availableRooms={existingRooms}
+                createdPlants={createdPlants}
                 initialSpecies={selectedSpecies}
                 initialNickname={nickname}
                 initialRoomId={roomId}
@@ -145,11 +158,16 @@ export default function Welcome() {
                 nickname={nickname}
                 roomId={roomId}
                 onBack={() => navigate(stepPath(3))}
-                onComplete={() => navigate(stepPath(5))}
+                onComplete={handlePlantCreated}
               />
             )}
             {step === 5 && (
-              <Step5Done species={selectedSpecies} nickname={nickname} onFinish={handleFinish} finishing={finishing} />
+              <Step5Done
+                createdPlants={createdPlants}
+                onAddAnother={handleAddAnother}
+                onFinish={handleFinish}
+                finishing={finishing}
+              />
             )}
           </motion.div>
         </AnimatePresence>

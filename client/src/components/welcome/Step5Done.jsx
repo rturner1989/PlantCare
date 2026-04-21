@@ -4,15 +4,31 @@ import { getWelcomeQuote } from '../../personality/welcomeQuotes'
 import Action from '../ui/Action'
 import { CardBody, CardFooter } from '../ui/Card'
 
-export default function Step5Done({ species, nickname, onFinish, finishing = false }) {
+export default function Step5Done({ createdPlants = [], onAddAnother, onFinish, finishing = false }) {
   const { user } = useAuth()
-  const plantName = nickname || species?.common_name
+  const latest = createdPlants.at(-1) ?? null
+  const species = latest?.species ?? null
+  const plantName = latest?.nickname || species?.common_name
+
+  // Quote is keyed off the latest plant's personality so each "add another"
+  // lands on a fresh line. With no latest plant (skip path), falls through
+  // to the generic pool.
   const quote = useMemo(() => getWelcomeQuote(species?.personality), [species?.personality])
-  const eyebrow = species
-    ? species.personality
-      ? `🎭 ${plantName?.toUpperCase() ?? ''}`
-      : plantName?.toUpperCase()
-    : 'Your jungle'
+
+  const count = createdPlants.length
+  const eyebrow = count === 0 ? 'Your jungle' : count === 1 ? plantName?.toUpperCase() : `Your jungle of ${count}`
+  const headline =
+    count >= 2 ? (
+      <>
+        Your <em className="not-italic text-leaf">jungle</em> is taking shape
+        {user?.name ? `, ${user.name.split(' ')[0]}` : ''}.
+      </>
+    ) : (
+      <>
+        You&rsquo;re <em className="not-italic text-leaf">all set</em>
+        {user?.name ? `, ${user.name.split(' ')[0]}` : ''}.
+      </>
+    )
 
   return (
     <>
@@ -22,9 +38,7 @@ export default function Step5Done({ species, nickname, onFinish, finishing = fal
         </div>
 
         <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight mt-2">
-          {"You're "}
-          <em className="not-italic text-leaf">all set</em>
-          {user?.name ? `, ${user.name.split(' ')[0]}` : ''}.
+          {headline}
         </h1>
 
         <div className="mt-4 p-4 rounded-lg text-white relative overflow-hidden bg-[image:var(--gradient-forest)]">
@@ -35,10 +49,15 @@ export default function Step5Done({ species, nickname, onFinish, finishing = fal
         </div>
       </CardBody>
 
-      <CardFooter className="border-t-0">
+      <CardFooter className="border-t-0 flex flex-col gap-2.5">
         <Action variant="primary" onClick={onFinish} disabled={finishing} className="w-full">
           {finishing ? 'Finishing up...' : 'Enter your jungle'}
         </Action>
+        {count >= 1 && onAddAnother && (
+          <Action variant="secondary" onClick={onAddAnother} disabled={finishing} className="w-full">
+            Add another plant
+          </Action>
+        )}
       </CardFooter>
     </>
   )

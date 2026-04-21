@@ -308,6 +308,48 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByRole('button', { name: 'Shed' })).toHaveCount(0)
   })
 
+  test('add another plant: Step 5 → back to Step 3 with chip → submit second plant', async ({ page }) => {
+    await registerFreshUser(page)
+
+    // First plant: Monty the Monstera in Living Room.
+    await page.getByRole('button', { name: /begin/i }).click()
+    await page.getByRole('checkbox', { name: /Living Room/i }).click()
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await page.getByLabel('Search species', { exact: true }).fill('monstera')
+    await page.getByRole('option', { name: /Monstera/i }).first().click()
+    await page.getByLabel(/What should we call them/).fill('Monty')
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await expect(page.getByText('Step 4 of 5')).toBeVisible()
+    await page.getByRole('button', { name: /Continue/i }).click()
+
+    // Step 5 with one plant: both actions visible.
+    await expect(page).toHaveURL(/\/welcome\/done$/)
+    await expect(page.getByRole('button', { name: /Add another plant/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Enter your jungle/i })).toBeVisible()
+
+    // Add another → returns to Step 3 with "Added so far" chip.
+    await page.getByRole('button', { name: /Add another plant/i }).click()
+    await expect(page).toHaveURL(/\/welcome\/species$/)
+    await expect(page.getByText(/Add another\?/i)).toBeVisible()
+    await expect(page.getByText(/Added so far/i)).toBeVisible()
+    await expect(page.getByText('Monty', { exact: true })).toBeVisible()
+
+    // Pick a second species (Snake Plant if seeded; fall back to first result).
+    await page.getByLabel('Search species', { exact: true }).fill('snake')
+    await page.getByRole('option', { name: /Snake/i }).first().click()
+    await page.getByLabel(/What should we call them/).fill('Slither')
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await expect(page.getByText('Step 4 of 5')).toBeVisible()
+    await page.getByRole('button', { name: /Continue/i }).click()
+
+    // Step 5 with two plants: eyebrow shows the collection copy.
+    await expect(page).toHaveURL(/\/welcome\/done$/)
+    await expect(page.getByText(/Your jungle of 2/i)).toBeVisible()
+
+    await page.getByRole('button', { name: /Enter your jungle/i }).click()
+    await expect(page).toHaveURL('/')
+  })
+
   test('add-custom-room: scroll position is preserved across the reveal/cancel toggle', async ({ page }) => {
     // Short viewport forces CardBody to scroll — matches the desktop
     // condition the user hit (scrolled to bottom of Step 2 to reach the

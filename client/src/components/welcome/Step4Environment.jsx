@@ -21,7 +21,7 @@ export default function Step4Environment({ species, nickname, roomId, onBack, on
 
   const { submitting, handleSubmit, formRef } = useFormSubmit({
     action: async () => {
-      await apiPost('/api/v1/plants', {
+      const plant = await apiPost('/api/v1/plants', {
         plant: {
           species_id: species.id,
           room_id: roomId,
@@ -29,7 +29,7 @@ export default function Step4Environment({ species, nickname, roomId, onBack, on
           ...environment,
         },
       })
-      onComplete()
+      onComplete(plant)
     },
     errorMessage: 'Could not add plant',
   })

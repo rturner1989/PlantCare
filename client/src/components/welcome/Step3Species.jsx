@@ -31,12 +31,14 @@ function SpeciesRow({ species }) {
 
 export default function Step3Species({
   availableRooms = [],
+  createdPlants = [],
   initialSpecies = null,
   initialNickname = '',
   initialRoomId = null,
   onBack,
   onComplete,
 }) {
+  const hasExistingPlants = createdPlants.length > 0
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(initialSpecies)
   const [nickname, setNickname] = useState(initialNickname)
@@ -123,11 +125,32 @@ export default function Step3Species({
     <>
       <CardBody className={`flex flex-col ${!selected ? 'pb-3' : ''}`}>
         <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight">
-          Meet your <em className="not-italic text-leaf">first plant</em>.
+          {hasExistingPlants ? (
+            <>
+              Add <em className="not-italic text-leaf">another</em>?
+            </>
+          ) : (
+            <>
+              Meet your <em className="not-italic text-leaf">first plant</em>.
+            </>
+          )}
         </h1>
         <p className="mt-3 text-sm text-ink-soft font-medium leading-snug">
-          Or skip — you can add plants anytime from the Add button.
+          {hasExistingPlants
+            ? 'Keep going, or finish up to land in your jungle.'
+            : 'Or skip — you can add plants anytime from the Add button.'}
         </p>
+
+        {hasExistingPlants && (
+          <div className="mt-4 flex flex-wrap items-center gap-1.5">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-ink-soft mr-1">Added so far</span>
+            {createdPlants.map((plant) => (
+              <span key={plant.id} className="text-[11px] font-bold bg-mint text-emerald px-2.5 py-1 rounded-full">
+                {plant.nickname}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Selected state scrolls the whole stack inside the wizard card so the
             title/subtitle don't get pushed off-screen. Search state defers
@@ -269,10 +292,21 @@ export default function Step3Species({
         </div>
 
         <p className="text-center text-xs text-ink-soft font-bold">
-          Prefer to do this later?{' '}
-          <Action variant="unstyled" onClick={() => onComplete(null, '', null)} className="text-emerald">
-            Skip for now
-          </Action>
+          {hasExistingPlants ? (
+            <>
+              Done adding?{' '}
+              <Action variant="unstyled" onClick={() => onComplete(null, '', null)} className="text-emerald">
+                Finish up
+              </Action>
+            </>
+          ) : (
+            <>
+              Prefer to do this later?{' '}
+              <Action variant="unstyled" onClick={() => onComplete(null, '', null)} className="text-emerald">
+                Skip for now
+              </Action>
+            </>
+          )}
         </p>
       </CardFooter>
     </>
