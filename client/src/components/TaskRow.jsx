@@ -2,35 +2,43 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import PlantAvatar from './PlantAvatar'
 import Action from './ui/Action'
-import Badge from './ui/Badge'
 
 // Keys match backend care_logs.action values — rename-safe for telemetry later.
 const CARE_TYPE_META = {
-  watering: { label: 'Water', scheme: 'emerald' },
-  feeding: { label: 'Feed', scheme: 'sunshine' },
+  watering: { label: 'Water', emoji: '💧', defaultColor: 'text-emerald' },
+  feeding: { label: 'Feed', emoji: '🍃', defaultColor: 'text-sunshine-deep' },
 }
 
 // 'healthy'/'unknown' deliberately absent — Today only surfaces care due.
 const STATUS_META = {
-  overdue: { label: 'Overdue', scheme: 'coral' },
-  due_today: { label: 'Due today', scheme: 'leaf' },
-  due_soon: { label: 'Due soon', scheme: 'neutral' },
+  overdue: 'Overdue',
+  due_today: 'Due today',
+  due_soon: 'Due soon',
 }
 
 export default function TaskRow({ plant, careType = 'watering', voiceQuote, done = false, onComplete }) {
   const careMeta = CARE_TYPE_META[careType] ?? CARE_TYPE_META.watering
   const statusKey = careType === 'feeding' ? plant.feed_status : plant.water_status
-  const statusMeta = STATUS_META[statusKey]
+  const statusLabel = done ? 'Done' : STATUS_META[statusKey]
   const isOverdue = statusKey === 'overdue'
 
   // done beats overdue — a completed coral-tinted row would be noisy.
   let rowClasses
   if (done) {
-    rowClasses = 'bg-mint/30 opacity-75 border border-mint'
+    rowClasses = 'bg-mint/40 opacity-75'
   } else if (isOverdue) {
-    rowClasses = 'bg-coral/5 border border-coral/30'
+    rowClasses = 'bg-coral/10'
   } else {
-    rowClasses = 'bg-card border border-mint'
+    rowClasses = 'bg-transparent'
+  }
+
+  let tagColor
+  if (done) {
+    tagColor = 'text-emerald'
+  } else if (isOverdue) {
+    tagColor = 'text-coral-deep'
+  } else {
+    tagColor = careMeta.defaultColor
   }
 
   const checkLabel = done
@@ -48,16 +56,9 @@ export default function TaskRow({ plant, careType = 'watering', voiceQuote, done
             {voiceQuote}
           </p>
         )}
-        <div className="flex gap-1.5 mt-1.5">
-          <Badge scheme={careMeta.scheme} variant="soft">
-            {careMeta.label}
-          </Badge>
-          {statusMeta && (
-            <Badge scheme={statusMeta.scheme} variant="soft">
-              {statusMeta.label}
-            </Badge>
-          )}
-        </div>
+        <p className={`mt-1.5 text-[10px] font-extrabold uppercase tracking-[0.06em] ${tagColor}`}>
+          {`${careMeta.emoji} ${careMeta.label}${statusLabel ? ` · ${statusLabel}` : ''}`}
+        </p>
       </div>
 
       <Action

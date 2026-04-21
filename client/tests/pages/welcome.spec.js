@@ -108,7 +108,7 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByRole('checkbox', { name: /Bedroom/i })).toHaveAttribute('aria-checked', 'true')
   })
 
-  test('skip plant path lands on Step 5 with no speech card', async ({ page }) => {
+  test('skip plant path lands on Step 5 with a generic welcome card', async ({ page }) => {
     await registerFreshUser(page)
 
     await page.getByRole('button', { name: /begin/i }).click()
@@ -121,8 +121,9 @@ test.describe('Onboarding wizard', () => {
     await page.getByRole('button', { name: /Skip for now/i }).click()
 
     await expect(page.getByText('All set!')).toBeVisible()
-    // No species = no speech card.
-    await expect(page.getByText(/I'm having the best day/)).toHaveCount(0)
+    // No species = generic welcome card (no personality eyebrow).
+    await expect(page.getByText('Your jungle', { exact: true })).toBeVisible()
+    await expect(page.getByText(/🎭/)).toHaveCount(0)
   })
 
   test('refreshing on /welcome/species lands on Step 3 with rooms intact', async ({ page }) => {

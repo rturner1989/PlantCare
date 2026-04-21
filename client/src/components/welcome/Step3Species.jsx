@@ -177,10 +177,7 @@ export default function Step3Species({
                 exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
                 transition={{ duration: shouldReduceMotion ? 0 : 0.22, ease: [0.33, 1, 0.68, 1] }}
               >
-                <div
-                  className="relative rounded-2xl text-white overflow-hidden min-h-[140px]"
-                  style={{ background: 'var(--gradient-forest)' }}
-                >
+                <div className="relative rounded-lg text-white overflow-hidden min-h-[140px] bg-[image:var(--gradient-forest)]">
                   {selected.image_url && (
                     <img
                       src={selected.image_url}
@@ -192,13 +189,7 @@ export default function Step3Species({
                     />
                   )}
 
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background:
-                        'linear-gradient(to right, var(--forest) 0%, rgba(11,58,26,0.9) 45%, rgba(11,58,26,0.4) 70%, rgba(11,58,26,0) 100%)',
-                    }}
-                  />
+                  <div className="absolute inset-0 pointer-events-none hero-image-fade" />
 
                   <div className="relative p-4 pr-[40%]">
                     <p className="text-[9px] font-extrabold text-lime uppercase tracking-wider mb-1">
