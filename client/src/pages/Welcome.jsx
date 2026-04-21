@@ -10,6 +10,7 @@ import Step5Done from '../components/welcome/Step5Done'
 import WizardCard from '../components/welcome/WizardCard'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
+import { usePlants } from '../hooks/usePlants'
 import { useRooms } from '../hooks/useRooms'
 import { useSpeciesSearch } from '../hooks/useSpecies'
 
@@ -22,7 +23,6 @@ function stepPath(step) {
   return slug ? `/welcome/${slug}` : '/welcome'
 }
 
-// custom direction: 1 forward, -1 back, 0 on first mount (skip entrance anim).
 const SLIDE_OFFSET = 40
 const stepVariants = {
   enter: (direction) => ({
@@ -44,6 +44,11 @@ export default function Welcome() {
   const [nickname, setNickname] = useState('')
   const [roomId, setRoomId] = useState(null)
   const [finishing, setFinishing] = useState(false)
+
+  // Plants are the server's source of truth — this survives page reloads mid-wizard
+  // where a useState-only list would reset to empty and the user would lose their
+  // "Add another" button + avatar row on Step 5.
+  const { data: createdPlants = [] } = usePlants()
 
   const navigate = useNavigate()
   const { user, markOnboarded } = useAuth()
@@ -93,6 +98,17 @@ export default function Welcome() {
     navigate(stepPath(species ? 4 : 5))
   }
 
+  function handlePlantCreated() {
+    navigate(stepPath(5))
+  }
+
+  function handleAddAnother() {
+    setSelectedSpecies(null)
+    setNickname('')
+    setRoomId(null)
+    navigate(stepPath(3))
+  }
+
   // Stay on Step 5 on failure — navigating with `onboarded: false` would have
   // ProtectedRoute bounce the user straight back here.
   async function handleFinish() {
@@ -132,6 +148,7 @@ export default function Welcome() {
             {step === 3 && (
               <Step3Species
                 availableRooms={existingRooms}
+                createdPlants={createdPlants}
                 initialSpecies={selectedSpecies}
                 initialNickname={nickname}
                 initialRoomId={roomId}
@@ -145,11 +162,16 @@ export default function Welcome() {
                 nickname={nickname}
                 roomId={roomId}
                 onBack={() => navigate(stepPath(3))}
-                onComplete={() => navigate(stepPath(5))}
+                onComplete={handlePlantCreated}
               />
             )}
             {step === 5 && (
-              <Step5Done species={selectedSpecies} nickname={nickname} onFinish={handleFinish} finishing={finishing} />
+              <Step5Done
+                createdPlants={createdPlants}
+                onAddAnother={handleAddAnother}
+                onFinish={handleFinish}
+                finishing={finishing}
+              />
             )}
           </motion.div>
         </AnimatePresence>
