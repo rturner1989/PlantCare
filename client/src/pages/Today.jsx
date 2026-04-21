@@ -47,20 +47,41 @@ export default function Today() {
   const tasks = useMemo(() => {
     if (!data) return []
 
-    const items = []
+    const allTasks = []
     for (const plant of data.plants_needing_water ?? []) {
-      // Hero card already owns the water CTA for the urgent plant — don't duplicate it in the list.
-      if (plant.id === urgentPlant?.id) continue
-      items.push({ plant, careType: 'watering' })
+      allTasks.push({ plant, careType: 'watering' })
     }
     for (const plant of data.plants_needing_feeding ?? []) {
-      items.push({ plant, careType: 'feeding' })
+      allTasks.push({ plant, careType: 'feeding' })
     }
+
+    // Hero owns the urgent plant's water CTA, so filter its row out of the list —
+    // but only when there's something else to interact with. Otherwise the list
+    // would vanish entirely for one-plant accounts, leaving the hero as the sole
+    // affordance on the page.
+    const withoutHero = allTasks.filter((task) => !(task.plant.id === urgentPlant?.id && task.careType === 'watering'))
+    const items = withoutHero.length > 0 ? withoutHero : allTasks
+
     items.sort((a, b) => (STATUS_PRIORITY[taskStatus(a)] ?? 3) - (STATUS_PRIORITY[taskStatus(b)] ?? 3))
     return items
   }, [data, urgentPlant])
 
   const totalTasks = tasks.length
+  const attentionCount = (data?.plants_needing_water?.length ?? 0) + (data?.plants_needing_feeding?.length ?? 0)
+  const attentionPlants = useMemo(() => {
+    const seen = new Set()
+    const names = []
+    if (urgentPlant) {
+      seen.add(urgentPlant.id)
+      names.push(urgentPlant.nickname)
+    }
+    for (const task of tasks) {
+      if (seen.has(task.plant.id)) continue
+      seen.add(task.plant.id)
+      names.push(task.plant.nickname)
+    }
+    return names
+  }, [urgentPlant, tasks])
   const totalPlants = data?.stats?.total_plants ?? 0
   const firstName = user?.name?.split(' ')[0]
 
@@ -110,11 +131,8 @@ export default function Today() {
             {urgentPlant ? (
               <Banner
                 urgent
-                title={`${pluralize(totalTasks + 1, 'thing')} need attention`}
-                subtitle={[urgentPlant, ...tasks.slice(0, 2).map((task) => task.plant)]
-                  .slice(0, 2)
-                  .map((plant) => plant.nickname)
-                  .join(', ')}
+                title={attentionCount === 1 ? '1 thing needs attention' : `${attentionCount} things need attention`}
+                subtitle={attentionPlants.slice(0, 2).join(', ')}
               />
             ) : (
               <Banner
@@ -158,7 +176,7 @@ export default function Today() {
 function WaterableHeroCard({ plant }) {
   const logCare = useLogCare(plant.id)
 
-  return <HeroCard plant={plant} variant="urgent" onWater={() => logCare.mutate({ care_type: 'watering' })} />
+  return <HeroCard plant={plant} onWater={() => logCare.mutate({ care_type: 'watering' })} />
 }
 
 function WaterableTaskRow({ task }) {
