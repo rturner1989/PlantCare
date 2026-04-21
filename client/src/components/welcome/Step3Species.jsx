@@ -50,7 +50,14 @@ export default function Step3Species({
   // Perenual quota cares about how many fetches we fire. One search per
   // typing pause keeps us well inside the free tier.
   const debouncedQuery = useDebouncedValue(query, 300)
-  const { data: results = [], isLoading, isPlaceholderData } = useSpeciesSearch(debouncedQuery)
+  const { data: fetched = [], isLoading, isPlaceholderData } = useSpeciesSearch(debouncedQuery)
+  // While the user's live input crosses modes (popular ↔ search) ahead of
+  // the debounced fetch, hide the stale list so the spinner transitions
+  // smoothly instead of flashing the previous mode's results.
+  const liveIsSearch = query.trim().length >= 2
+  const debouncedIsSearch = debouncedQuery.trim().length >= 2
+  const modeChanging = liveIsSearch !== debouncedIsSearch
+  const results = modeChanging ? [] : fetched
   const searching = isLoading || isPlaceholderData || query !== debouncedQuery
   const shouldReduceMotion = useReducedMotion()
 
