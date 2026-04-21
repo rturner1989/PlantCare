@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import HeroCard from '../components/HeroCard'
 import TaskRow from '../components/TaskRow'
+import Action from '../components/ui/Action'
 import Banner from '../components/ui/Banner'
 import EmptyState from '../components/ui/EmptyState'
 import Spinner from '../components/ui/Spinner'
@@ -32,7 +33,7 @@ function taskStatus(task) {
 
 export default function Today() {
   const { user } = useAuth()
-  const { data, isLoading, error } = useDashboard()
+  const { data, isLoading, error, refetch } = useDashboard()
 
   const tasks = useMemo(() => {
     if (!data) return []
@@ -89,7 +90,12 @@ export default function Today() {
       </header>
 
       {isLoading && (
-        <div className="flex items-center justify-center py-16">
+        <div
+          role="status"
+          aria-live="polite"
+          aria-label="Loading your plants"
+          className="flex items-center justify-center py-16"
+        >
           <Spinner />
         </div>
       )}
@@ -97,7 +103,12 @@ export default function Today() {
       {error && (
         <EmptyState
           title="We couldn't load today"
-          description="Something went wrong fetching your plants. Try again in a moment."
+          description="Something went wrong fetching your plants."
+          action={
+            <Action variant="secondary" onClick={() => refetch()}>
+              Try again
+            </Action>
+          }
         />
       )}
 
