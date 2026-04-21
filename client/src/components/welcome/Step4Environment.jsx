@@ -1,7 +1,7 @@
 import { faDroplet, faSun, faTemperatureHalf } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react'
-import { apiPost } from '../../api/client'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
+import { useCreatePlant } from '../../hooks/usePlants'
 import SegmentedControl from '../form/SegmentedControl'
 import Action from '../ui/Action'
 import { CardBody, CardFooter } from '../ui/Card'
@@ -19,17 +19,20 @@ export default function Step4Environment({ species, nickname, roomId, onBack, on
     humidity_level: species.suggested_humidity_level,
   }))
 
+  // useCreatePlant invalidates ['plants'] on success — Welcome.jsx reads that
+  // same query for its createdPlants source, so Step 5 reflects the new plant
+  // automatically + survives a page reload (server is source of truth).
+  const createPlant = useCreatePlant()
+
   const { submitting, handleSubmit, formRef } = useFormSubmit({
     action: async () => {
-      const plant = await apiPost('/api/v1/plants', {
-        plant: {
-          species_id: species.id,
-          room_id: roomId,
-          nickname: nickname || species.common_name,
-          ...environment,
-        },
+      await createPlant.mutateAsync({
+        species_id: species.id,
+        room_id: roomId,
+        nickname: nickname || species.common_name,
+        ...environment,
       })
-      onComplete(plant)
+      onComplete()
     },
     errorMessage: 'Could not add plant',
   })

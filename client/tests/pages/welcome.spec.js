@@ -358,6 +358,36 @@ test.describe('Onboarding wizard', () => {
     await expect(page).toHaveURL('/')
   })
 
+  test('refreshing on Step 5 after adding a plant keeps the avatar + Add another button', async ({ page }) => {
+    await registerFreshUser(page)
+
+    await page.getByRole('button', { name: /begin/i }).click()
+    await page.getByRole('checkbox', { name: /Living Room/i }).click()
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await page.getByLabel('Search species', { exact: true }).fill('monstera')
+    await page
+      .getByRole('option', { name: /Monstera/i })
+      .first()
+      .click()
+    await page.getByLabel(/What should we call them/).fill('Monty')
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await expect(page.getByText('Step 4 of 5')).toBeVisible()
+    await page.getByRole('button', { name: /Continue/i }).click()
+
+    // Step 5 with one plant: avatar + both buttons.
+    await expect(page).toHaveURL(/\/welcome\/done$/)
+    await expect(page.locator('[data-testid="added-avatar"]')).toHaveCount(1)
+    await expect(page.getByRole('button', { name: /Add another/i })).toBeVisible()
+
+    // Refresh — Welcome re-mounts and rehydrates createdPlants from the server,
+    // not from component state. Everything should still be there.
+    await page.reload()
+    await expect(page).toHaveURL(/\/welcome\/done$/)
+    await expect(page.locator('[data-testid="added-avatar"]')).toHaveCount(1)
+    await expect(page.getByRole('button', { name: /Add another/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Enter your jungle/i })).toBeVisible()
+  })
+
   test('add-custom-room: scroll position is preserved across the reveal/cancel toggle', async ({ page }) => {
     // Short viewport forces CardBody to scroll — matches the desktop
     // condition the user hit (scrolled to bottom of Step 2 to reach the

@@ -10,6 +10,7 @@ import Step5Done from '../components/welcome/Step5Done'
 import WizardCard from '../components/welcome/WizardCard'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
+import { usePlants } from '../hooks/usePlants'
 import { useRooms } from '../hooks/useRooms'
 import { useSpeciesSearch } from '../hooks/useSpecies'
 
@@ -42,8 +43,12 @@ export default function Welcome() {
   const [selectedSpecies, setSelectedSpecies] = useState(null)
   const [nickname, setNickname] = useState('')
   const [roomId, setRoomId] = useState(null)
-  const [createdPlants, setCreatedPlants] = useState([])
   const [finishing, setFinishing] = useState(false)
+
+  // Plants are the server's source of truth — this survives page reloads mid-wizard
+  // where a useState-only list would reset to empty and the user would lose their
+  // "Add another" button + avatar row on Step 5.
+  const { data: createdPlants = [] } = usePlants()
 
   const navigate = useNavigate()
   const { user, markOnboarded } = useAuth()
@@ -93,8 +98,7 @@ export default function Welcome() {
     navigate(stepPath(species ? 4 : 5))
   }
 
-  function handlePlantCreated(plant) {
-    setCreatedPlants((prev) => [...prev, plant])
+  function handlePlantCreated() {
     navigate(stepPath(5))
   }
 
