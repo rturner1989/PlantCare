@@ -126,7 +126,7 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByText(/🎭/)).toHaveCount(0)
     // 0 plants = no avatar row, no "Add another" button.
     await expect(page.locator('[data-testid="added-avatar"]')).toHaveCount(0)
-    await expect(page.getByRole('button', { name: /Add another plant/i })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /Add another/i })).toHaveCount(0)
   })
 
   test('refreshing on /welcome/species lands on Step 3 with rooms intact', async ({ page }) => {
@@ -330,12 +330,12 @@ test.describe('Onboarding wizard', () => {
 
     // Step 5 with one plant: both actions visible + one avatar rendered.
     await expect(page).toHaveURL(/\/welcome\/done$/)
-    await expect(page.getByRole('button', { name: /Add another plant/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Add another/i })).toBeVisible()
     await expect(page.getByRole('button', { name: /Enter your jungle/i })).toBeVisible()
     await expect(page.locator('[data-testid="added-avatar"]')).toHaveCount(1)
 
     // Add another → returns to Step 3 with "Added so far" chip.
-    await page.getByRole('button', { name: /Add another plant/i }).click()
+    await page.getByRole('button', { name: /Add another/i }).click()
     await expect(page).toHaveURL(/\/welcome\/species$/)
     await expect(page.getByText(/Add another\?/i)).toBeVisible()
     await expect(page.getByText(/Added so far/i)).toBeVisible()

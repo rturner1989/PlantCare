@@ -110,15 +110,15 @@ export default function Step5Done({ createdPlants = [], onAddAnother, onFinish, 
         </div>
       </CardBody>
 
-      <CardFooter className="border-t-0 flex flex-col gap-2.5">
-        <Action variant="primary" onClick={onFinish} disabled={finishing} className="w-full">
-          {finishing ? 'Finishing up...' : 'Enter your jungle'}
-        </Action>
+      <CardFooter className="border-t-0 flex gap-2.5">
         {count >= 1 && onAddAnother && (
-          <Action variant="secondary" onClick={onAddAnother} disabled={finishing} className="w-full">
-            Add another plant
+          <Action variant="secondary" onClick={onAddAnother} disabled={finishing}>
+            Add another
           </Action>
         )}
+        <Action variant="primary" onClick={onFinish} disabled={finishing} className="flex-1">
+          {finishing ? 'Finishing up...' : 'Enter your jungle'}
+        </Action>
       </CardFooter>
     </>
   )
