@@ -99,7 +99,7 @@ export default function Today() {
   const firstName = user?.name?.split(' ')[0]
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 gap-3 lg:gap-4 px-3 pt-3 lg:px-4 lg:pt-4 lg:pb-4">
+    <div className="flex flex-col flex-1 min-h-0 gap-3 lg:gap-4 px-3 lg:px-4 lg:pt-4 lg:pb-4">
       <header className="bg-card rounded-md shadow-[var(--shadow-sm)] p-4">
         <p className="text-[13px] font-semibold text-ink-soft">
           {getGreeting()} · {formatToday()}
