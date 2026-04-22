@@ -14,6 +14,11 @@ export default function Dialog({ open, onClose, title, children, className = '' 
 
   useEffect(() => {
     if (!containerRef.current) return
+    // Seed aria-hidden before instantiating, but don't set it declaratively on
+    // the JSX — React would re-assert "true" on every render and fight
+    // a11y-dialog's own show/hide mutations, keeping the dialog permanently
+    // invisible.
+    containerRef.current.setAttribute('aria-hidden', 'true')
     const instance = new A11yDialog(containerRef.current)
     dialogRef.current = instance
     instance.on('hide', () => {
@@ -37,7 +42,6 @@ export default function Dialog({ open, onClose, title, children, className = '' 
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? titleId : undefined}
-      aria-hidden="true"
       className="dialog"
     >
       <div className="dialog-overlay" data-a11y-dialog-hide />
