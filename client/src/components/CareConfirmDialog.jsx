@@ -1,7 +1,10 @@
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import { getConfirmQuote } from '../personality/confirmQuotes'
 import PlantAvatar from './PlantAvatar'
 import Action from './ui/Action'
+import { CardBody, CardFooter, CardHeader } from './ui/Card'
 import Dialog from './ui/Dialog'
 
 const CARE_LABELS = {
@@ -14,33 +17,45 @@ export default function CareConfirmDialog({ open, onClose, onConfirm, plant, car
   const personality = plant?.species?.personality
   const [quote, setQuote] = useState('')
 
-  // Picks a fresh quote each time the dialog opens so repeated confirmations
-  // cycle through the personality pool instead of showing the same line.
   useEffect(() => {
     if (open) setQuote(getConfirmQuote(personality))
   }, [open, personality])
 
   if (!plant) return null
 
+  const headingText = `${labels.verb} ${plant.nickname}?`
+
   return (
-    <Dialog open={open} onClose={onClose} title={`${labels.verb} ${plant.nickname}?`}>
-      <div className="flex flex-col items-center text-center p-6 gap-4">
+    <Dialog open={open} onClose={onClose} title={headingText}>
+      <CardHeader className="flex items-center justify-between gap-3">
+        <p className="text-lg font-extrabold text-ink">{headingText}</p>
+        <Action
+          variant="unstyled"
+          onClick={onClose}
+          aria-label="Close"
+          className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-ink-soft hover:text-ink hover:bg-mint/60 transition-colors"
+        >
+          <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
+        </Action>
+      </CardHeader>
+
+      <CardBody className="flex flex-col items-center text-center gap-4">
         <PlantAvatar species={plant.species} size="xl" shape="circle" />
 
         <div>
           <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-emerald">{plant.nickname}</p>
           <p className="mt-2 font-display text-xl italic font-medium text-forest leading-snug">{quote}</p>
         </div>
-      </div>
+      </CardBody>
 
-      <div className="flex gap-2.5 p-4 border-t border-mint">
+      <CardFooter className="flex gap-2.5">
         <Action variant="secondary" onClick={onClose} disabled={submitting}>
           Cancel
         </Action>
         <Action variant="primary" onClick={onConfirm} disabled={submitting} className="flex-1">
           {submitting ? `${labels.verb}ing...` : `${labels.verb} ${plant.nickname}`}
         </Action>
-      </div>
+      </CardFooter>
     </Dialog>
   )
 }

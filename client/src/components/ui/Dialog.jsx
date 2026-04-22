@@ -1,11 +1,39 @@
+import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
+
+const overlayMotion = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.18, ease: 'easeOut' },
+}
+
+const desktopCardMotion = {
+  initial: { opacity: 0, y: 16, scale: 0.98 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: 16, scale: 0.98 },
+  transition: { duration: 0.22, ease: [0.33, 1, 0.68, 1] },
+}
+
+const mobileCardMotion = {
+  initial: { opacity: 0, y: '100%' },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: '100%' },
+  transition: { duration: 0.26, ease: [0.33, 1, 0.68, 1] },
+}
+
+function isMobileViewport() {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia('(max-width: 1023px)').matches
+}
 
 export default function Dialog({ open, onClose, title, children, className = '' }) {
   const cardRef = useRef(null)
   const previouslyFocusedRef = useRef(null)
   const onCloseRef = useRef(onClose)
   const titleId = useId()
+  const cardMotion = isMobileViewport() ? mobileCardMotion : desktopCardMotion
 
   useEffect(() => {
     onCloseRef.current = onClose
@@ -26,34 +54,38 @@ export default function Dialog({ open, onClose, title, children, className = '' 
     }
   }, [open])
 
-  if (!open) return null
-
   return createPortal(
-    <div className="dialog-root">
-      <button
-        type="button"
-        aria-label="Close dialog"
-        className="dialog-overlay"
-        onClick={() => onCloseRef.current?.()}
-      />
-      <div className="dialog-content">
-        <div
-          ref={cardRef}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={title ? titleId : undefined}
-          tabIndex={-1}
-          className={`dialog-card bg-card rounded-md shadow-[var(--shadow-md)] flex flex-col min-h-0 ${className}`}
-        >
-          {title && (
-            <h2 id={titleId} className="sr-only">
-              {title}
-            </h2>
-          )}
-          {children}
+    <AnimatePresence>
+      {open && (
+        <div className="dialog-root">
+          <motion.button
+            type="button"
+            aria-label="Close dialog"
+            className="dialog-overlay"
+            onClick={() => onCloseRef.current?.()}
+            {...overlayMotion}
+          />
+          <div className="dialog-content">
+            <motion.div
+              ref={cardRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={title ? titleId : undefined}
+              tabIndex={-1}
+              className={`bg-card rounded-md border border-mint shadow-[var(--shadow-md)] flex flex-col min-h-0 overflow-hidden ${className}`}
+              {...cardMotion}
+            >
+              {title && (
+                <h2 id={titleId} className="sr-only">
+                  {title}
+                </h2>
+              )}
+              {children}
+            </motion.div>
+          </div>
         </div>
-      </div>
-    </div>,
+      )}
+    </AnimatePresence>,
     document.body,
   )
 }

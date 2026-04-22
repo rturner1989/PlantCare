@@ -274,6 +274,10 @@ input[type="search"]::-webkit-search-cancel-button {
  * look with PlantCare palette tokens.
  * ---------------------------------------------------------------------- */
 
+/* Layout only — entry/exit animations live on the Framer motion elements
+ * in Dialog.jsx so open AND close both animate (CSS @keyframes can't
+ * play on unmount). */
+
 .dialog-overlay {
   position: fixed;
   inset: 0;
@@ -282,7 +286,6 @@ input[type="search"]::-webkit-search-cancel-button {
   border: 0;
   padding: 0;
   cursor: pointer;
-  animation: dialog-overlay-in 180ms ease-out;
 }
 
 .dialog-content {
@@ -301,31 +304,10 @@ input[type="search"]::-webkit-search-cancel-button {
   width: 100%;
   max-width: 28rem;
   max-height: calc(100dvh - 2rem);
-  animation: dialog-card-in 220ms cubic-bezier(0.33, 1, 0.68, 1);
 }
 
-@keyframes dialog-overlay-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes dialog-card-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Mobile: dialog docks to the bottom as a sheet. Sheet slides up from
- * below, hugs the viewport width, respects safe-area for home indicator. */
+/* Mobile: dialog docks to the bottom as a sheet. Safe-area-aware bottom
+ * padding keeps content clear of the home indicator. */
 @media (max-width: 1023px) {
   .dialog-content {
     padding: 0;
@@ -337,22 +319,5 @@ input[type="search"]::-webkit-search-cancel-button {
     max-height: 85dvh;
     border-radius: var(--radius-md) var(--radius-md) 0 0;
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
-    animation: dialog-sheet-in 260ms cubic-bezier(0.33, 1, 0.68, 1);
-  }
-}
-
-@keyframes dialog-sheet-in {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .dialog-overlay,
-  .dialog-content > * {
-    animation: none;
   }
 }
