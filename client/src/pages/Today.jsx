@@ -100,7 +100,7 @@ export default function Today() {
   const firstName = user?.name?.split(' ')[0]
 
   return (
-    <div className="flex flex-col flex-1 gap-4 lg:gap-6 px-5 pt-4 lg:px-6 lg:pt-6 lg:pb-6">
+    <div className="flex flex-col flex-1 gap-4 lg:gap-6 px-5 pt-3 lg:px-6 lg:pt-6 lg:pb-6">
       <header className="flex items-start justify-between gap-4 bg-card rounded-lg shadow-[var(--shadow-sm)] p-5 lg:p-6">
         <div className="min-w-0">
           <p className="text-[13px] font-semibold text-ink-soft">
