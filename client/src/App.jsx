@@ -4,7 +4,6 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import Action from './components/ui/Action'
-import ProgressBar from './components/ui/ProgressBar'
 import Spinner from './components/ui/Spinner'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider, useToast } from './context/ToastContext'
@@ -73,7 +72,6 @@ function ProtectedAppLayout() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ProgressBar />
       <AuthProvider>
         <ToastProvider>
           <BrowserRouter>

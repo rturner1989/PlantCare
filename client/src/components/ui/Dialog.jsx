@@ -1,6 +1,9 @@
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, motion, useDragControls } from 'motion/react'
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import Card from './Card'
+
+const MotionCard = motion.create(Card)
 
 const overlayMotion = {
   initial: { opacity: 0 },
@@ -33,7 +36,9 @@ export default function Dialog({ open, onClose, title, children, className = '' 
   const previouslyFocusedRef = useRef(null)
   const onCloseRef = useRef(onClose)
   const titleId = useId()
-  const cardMotion = isMobileViewport() ? mobileCardMotion : desktopCardMotion
+  const dragControls = useDragControls()
+  const isMobile = isMobileViewport()
+  const cardMotion = isMobile ? mobileCardMotion : desktopCardMotion
 
   useEffect(() => {
     onCloseRef.current = onClose
@@ -54,6 +59,12 @@ export default function Dialog({ open, onClose, title, children, className = '' 
     }
   }, [open])
 
+  function handleDragEnd(_event, info) {
+    if (info.offset.y > 100 || info.velocity.y > 500) {
+      onCloseRef.current?.()
+    }
+  }
+
   return createPortal(
     <AnimatePresence>
       {open && (
@@ -66,22 +77,38 @@ export default function Dialog({ open, onClose, title, children, className = '' 
             {...overlayMotion}
           />
           <div className="dialog-content">
-            <motion.div
+            <MotionCard
               ref={cardRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby={title ? titleId : undefined}
               tabIndex={-1}
-              className={`bg-card rounded-md border border-mint shadow-[var(--shadow-md)] flex flex-col min-h-0 overflow-hidden ${className}`}
+              className={`shadow-[var(--shadow-md)] flex flex-col min-h-0 ${className}`}
+              drag={isMobile ? 'y' : false}
+              dragListener={false}
+              dragControls={dragControls}
+              dragConstraints={{ top: 0 }}
+              dragElastic={{ top: 0, bottom: 0.6 }}
+              onDragEnd={handleDragEnd}
               {...cardMotion}
             >
+              {isMobile && (
+                <button
+                  type="button"
+                  aria-label="Drag to dismiss"
+                  className="dialog-handle-wrapper"
+                  onPointerDown={(event) => dragControls.start(event)}
+                >
+                  <span aria-hidden="true" className="dialog-handle" />
+                </button>
+              )}
               {title && (
                 <h2 id={titleId} className="sr-only">
                   {title}
                 </h2>
               )}
               {children}
-            </motion.div>
+            </MotionCard>
           </div>
         </div>
       )}

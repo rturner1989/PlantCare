@@ -4,6 +4,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import Dock from '../components/Dock'
 import MobileTopBar from '../components/MobileTopBar'
 import Sidebar from '../components/Sidebar'
+import ProgressBar from '../components/ui/ProgressBar'
 import Spinner from '../components/ui/Spinner'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
@@ -65,6 +66,7 @@ export default function AppLayout() {
 
       <Sidebar isFirstRun={isFirstRun} />
       <MobileTopBar isFirstRun={isFirstRun} />
+      <ProgressBar />
 
       {animateMain ? (
         <motion.main

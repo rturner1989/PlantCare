@@ -27,7 +27,7 @@ export default function CareConfirmDialog({ open, onClose, onConfirm, plant, car
 
   return (
     <Dialog open={open} onClose={onClose} title={headingText}>
-      <CardHeader className="flex items-center justify-between gap-3">
+      <CardHeader divider={false} className="flex items-center justify-between gap-3">
         <p className="text-lg font-extrabold text-ink">{headingText}</p>
         <Action
           variant="unstyled"
@@ -48,7 +48,7 @@ export default function CareConfirmDialog({ open, onClose, onConfirm, plant, car
         </div>
       </CardBody>
 
-      <CardFooter className="flex gap-2.5">
+      <CardFooter divider={false} className="flex gap-2.5">
         <Action variant="secondary" onClick={onClose} disabled={submitting}>
           Cancel
         </Action>

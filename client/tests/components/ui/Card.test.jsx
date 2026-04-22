@@ -8,11 +8,11 @@ describe('Card', () => {
     expect(screen.getByText('Content')).toBeInTheDocument()
   })
 
-  it('applies base classes (bg-card, rounded-lg, border border-mint)', () => {
+  it('applies base classes (bg-card, rounded-md, border border-mint)', () => {
     const { container } = render(<Card>Content</Card>)
     const card = container.firstChild
     expect(card).toHaveClass('bg-card')
-    expect(card).toHaveClass('rounded-lg')
+    expect(card).toHaveClass('rounded-md')
     expect(card).toHaveClass('border')
     expect(card).toHaveClass('border-mint')
   })
@@ -42,11 +42,17 @@ describe('Card', () => {
 })
 
 describe('CardHeader', () => {
-  it('renders children with a bottom border divider', () => {
+  it('renders children with a bottom border divider by default', () => {
     const { container } = render(<CardHeader>Title</CardHeader>)
     expect(screen.getByText('Title')).toBeInTheDocument()
     expect(container.firstChild).toHaveClass('border-b')
     expect(container.firstChild).toHaveClass('border-mint')
+  })
+
+  it('drops the divider when divider={false}', () => {
+    const { container } = render(<CardHeader divider={false}>Title</CardHeader>)
+    expect(container.firstChild).not.toHaveClass('border-b')
+    expect(container.firstChild).not.toHaveClass('border-mint')
   })
 
   it('merges a user-provided className', () => {
@@ -69,11 +75,17 @@ describe('CardBody', () => {
 })
 
 describe('CardFooter', () => {
-  it('renders children with a top border divider', () => {
+  it('renders children with a top border divider by default', () => {
     const { container } = render(<CardFooter>Actions</CardFooter>)
     expect(screen.getByText('Actions')).toBeInTheDocument()
     expect(container.firstChild).toHaveClass('border-t')
     expect(container.firstChild).toHaveClass('border-mint')
+  })
+
+  it('drops the divider when divider={false}', () => {
+    const { container } = render(<CardFooter divider={false}>Actions</CardFooter>)
+    expect(container.firstChild).not.toHaveClass('border-t')
+    expect(container.firstChild).not.toHaveClass('border-mint')
   })
 })
 
