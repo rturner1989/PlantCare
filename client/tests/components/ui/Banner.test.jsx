@@ -41,11 +41,11 @@ describe('Banner', () => {
   })
 
   describe('layout', () => {
-    it('uses the spec radius (rounded-lg = 18px) and sits on a white card', () => {
+    it('uses the spec radius (rounded-lg = 18px) and a mint background to sit as a ribbon on a white page canvas', () => {
       const { container } = render(<Banner title="x" />)
       const root = container.firstChild
       expect(root).toHaveClass('rounded-lg')
-      expect(root).toHaveClass('bg-card')
+      expect(root).toHaveClass('bg-mint')
     })
   })
 })

@@ -21,7 +21,7 @@ export default function Banner({ urgent = false, title, subtitle, time }) {
   const iconBg = urgent ? 'bg-coral' : 'bg-leaf'
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-card shadow-[var(--shadow-sm)]">
+    <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-mint">
       <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-card ${iconBg}`}>
         <FontAwesomeIcon icon={icon} className="text-xs" />
       </div>

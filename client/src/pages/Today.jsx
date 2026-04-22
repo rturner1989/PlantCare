@@ -128,114 +128,116 @@ export default function Today() {
         )}
       </header>
 
-      {isLoading && (
-        <div
-          role="status"
-          aria-live="polite"
-          aria-label="Loading your plants"
-          className="flex items-center justify-center py-16"
-        >
-          <Spinner />
-        </div>
-      )}
-
-      {error && (
-        <div className="relative bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 lg:p-12 w-full flex-1 flex items-center justify-center overflow-hidden">
-          <EmptyState
-            title="We couldn't load today"
-            description="Something went wrong fetching your plants."
-            action={
-              <Action variant="secondary" onClick={() => refetch()}>
-                Try again
-              </Action>
-            }
-          />
-        </div>
-      )}
-
-      {!isLoading && !error && (
-        <>
-          {urgentPlant && (
-            <div className="mb-4">
-              <WaterableHeroCard plant={urgentPlant} />
-            </div>
-          )}
-
-          <div className="mb-6">
-            {urgentPlant ? (
-              <Banner
-                urgent
-                title={attentionCount === 1 ? '1 thing needs attention' : `${attentionCount} things need attention`}
-                subtitle={attentionPlants.slice(0, 2).join(', ')}
-              />
-            ) : (
-              <Banner
-                title="You're on top of things"
-                subtitle={totalTasks > 0 ? `${pluralize(totalTasks, 'ritual')} to go` : 'No tasks for today'}
-              />
-            )}
+      <div className="relative flex flex-col flex-1 bg-card rounded-lg shadow-[var(--shadow-sm)] p-5 lg:p-8 overflow-hidden">
+        {isLoading && (
+          <div
+            role="status"
+            aria-live="polite"
+            aria-label="Loading your plants"
+            className="flex-1 flex items-center justify-center"
+          >
+            <Spinner />
           </div>
+        )}
 
-          {totalTasks > 0 && (
-            <section className="mb-8 rounded-lg bg-card p-4 shadow-[var(--shadow-sm)]">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-[22px] font-extrabold tracking-tight text-ink">Today's rituals</h2>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-ink-soft">
-                    {doneCount > 0 && <strong className="text-leaf">{doneCount} done · </strong>}
-                    {totalTasks} to go
-                  </span>
-                  <ProgressRing value={progressPercent} size={44} strokeWidth={3}>
-                    <span className="text-[11px] font-extrabold text-ink">
-                      {doneCount}/{ritualsAtStart}
-                    </span>
-                  </ProgressRing>
-                </div>
+        {error && (
+          <div className="flex-1 flex items-center justify-center">
+            <EmptyState
+              title="We couldn't load today"
+              description="Something went wrong fetching your plants."
+              action={
+                <Action variant="secondary" onClick={() => refetch()}>
+                  Try again
+                </Action>
+              }
+            />
+          </div>
+        )}
+
+        {!isLoading && !error && (
+          <>
+            {urgentPlant && (
+              <div className="mb-4">
+                <WaterableHeroCard plant={urgentPlant} />
               </div>
+            )}
 
-              <ul className="space-y-2">
-                {tasks.map((task) => (
-                  <li key={`${task.plant.id}-${task.careType}`}>
-                    <WaterableTaskRow task={task} />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {totalTasks === 0 && !urgentPlant && (
-            <div className="relative bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 lg:p-12 w-full flex-1 flex items-center justify-center overflow-hidden">
-              <span aria-hidden="true" className="absolute -top-4 -right-4 text-7xl opacity-20 rotate-12">
-                🌿
-              </span>
-              <span aria-hidden="true" className="absolute -bottom-4 -left-4 text-6xl opacity-25 -rotate-12">
-                🪴
-              </span>
-              <span aria-hidden="true" className="absolute top-8 left-8 text-4xl opacity-15 rotate-45">
-                🌸
-              </span>
-              {totalPlants > 0 ? (
-                <EmptyState
-                  icon={<span>✨</span>}
-                  title="All caught up"
-                  description="Your plants are thriving. Check back later."
+            <div className="mb-6">
+              {urgentPlant ? (
+                <Banner
+                  urgent
+                  title={attentionCount === 1 ? '1 thing needs attention' : `${attentionCount} things need attention`}
+                  subtitle={attentionPlants.slice(0, 2).join(', ')}
                 />
               ) : (
-                <EmptyState
-                  icon={<span>🌱</span>}
-                  title="Your jungle starts here"
-                  description="Add a plant to see it come alive."
-                  action={
-                    <Action to="/add-plant" variant="primary">
-                      Add a plant
-                    </Action>
-                  }
+                <Banner
+                  title="You're on top of things"
+                  subtitle={totalTasks > 0 ? `${pluralize(totalTasks, 'ritual')} to go` : 'No tasks for today'}
                 />
               )}
             </div>
-          )}
-        </>
-      )}
+
+            {totalTasks > 0 && (
+              <section>
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 className="text-[22px] font-extrabold tracking-tight text-ink">Today's rituals</h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-ink-soft">
+                      {doneCount > 0 && <strong className="text-leaf">{doneCount} done · </strong>}
+                      {totalTasks} to go
+                    </span>
+                    <ProgressRing value={progressPercent} size={44} strokeWidth={3}>
+                      <span className="text-[11px] font-extrabold text-ink">
+                        {doneCount}/{ritualsAtStart}
+                      </span>
+                    </ProgressRing>
+                  </div>
+                </div>
+
+                <ul className="space-y-2">
+                  {tasks.map((task) => (
+                    <li key={`${task.plant.id}-${task.careType}`}>
+                      <WaterableTaskRow task={task} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {totalTasks === 0 && !urgentPlant && (
+              <div className="relative flex-1 flex items-center justify-center">
+                <span aria-hidden="true" className="absolute -top-4 -right-4 text-7xl opacity-20 rotate-12">
+                  🌿
+                </span>
+                <span aria-hidden="true" className="absolute -bottom-4 -left-4 text-6xl opacity-25 -rotate-12">
+                  🪴
+                </span>
+                <span aria-hidden="true" className="absolute top-8 left-8 text-4xl opacity-15 rotate-45">
+                  🌸
+                </span>
+                {totalPlants > 0 ? (
+                  <EmptyState
+                    icon={<span>✨</span>}
+                    title="All caught up"
+                    description="Your plants are thriving. Check back later."
+                  />
+                ) : (
+                  <EmptyState
+                    icon={<span>🌱</span>}
+                    title="Your jungle starts here"
+                    description="Add a plant to see it come alive."
+                    action={
+                      <Action to="/add-plant" variant="primary">
+                        Add a plant
+                      </Action>
+                    }
+                  />
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }
