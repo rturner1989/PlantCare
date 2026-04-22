@@ -52,7 +52,7 @@ export default function AppLayout() {
   const animateMain = isFirstRun && !shouldReduceMotion
 
   return (
-    <div className="min-h-dvh flex flex-col">
+    <div className="h-dvh flex flex-col">
       {/* Skip link — first focusable element on the page. Appears on focus
           so keyboard users can jump past the Sidebar/Dock without Tabbing
           through every nav item first. */}
