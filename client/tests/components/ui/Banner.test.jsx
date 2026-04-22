@@ -41,11 +41,10 @@ describe('Banner', () => {
   })
 
   describe('layout', () => {
-    it('is rounded-md by default (lg:rounded-lg on desktop) and sits as a mint ribbon on the page canvas', () => {
+    it('is rounded-md (same across breakpoints) and sits as a mint ribbon on the page canvas', () => {
       const { container } = render(<Banner title="x" />)
       const root = container.firstChild
       expect(root).toHaveClass('rounded-md')
-      expect(root).toHaveClass('lg:rounded-lg')
       expect(root).toHaveClass('bg-mint')
     })
   })
