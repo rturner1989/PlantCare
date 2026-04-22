@@ -95,6 +95,11 @@ html {
    * into the safe-area insets (notch, home indicator). If it lives on
    * <body>, the insets render as the default white behind the body. */
   background: var(--gradient-mint);
+  /* Kills iOS rubber-band on the page root so users can't pull past
+   * the gradient and see white chrome beyond its end. Inner scrollers
+   * (Today's canvas) still bounce inside their own bounds because
+   * that's scoped by the `contain` option. */
+  overscroll-behavior: none;
 }
 
 body {
@@ -104,6 +109,7 @@ body {
   /* Lock horizontal scroll — iOS sometimes overflows by a pixel or two
    * after zooming, and no layout in the app should scroll horizontally. */
   overflow-x: hidden;
+  overscroll-behavior: none;
 }
 
 #root {
