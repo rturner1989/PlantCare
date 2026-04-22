@@ -48,28 +48,30 @@ export default function Dock({ isFirstRun = false }) {
   return (
     <motion.nav
       aria-label="Primary"
-      className="fixed bottom-[10px] left-3 right-3 h-[74px] z-50 flex items-center justify-around px-4 lg:hidden bg-white/[0.78] backdrop-blur-xl backdrop-saturate-150 rounded-3xl border border-white/60 shadow-[var(--shadow-dock)]"
+      className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-white/[0.78] backdrop-blur-xl backdrop-saturate-150 rounded-t-md border-t border-white/60 shadow-[var(--shadow-dock)]"
       variants={dockVariants}
       initial={shouldAnimate ? 'hidden' : false}
       animate={shouldAnimate ? 'visible' : false}
     >
-      {leftItems.map((item) => (
-        <motion.div key={item.to} variants={itemVariants}>
-          <DockNavLink {...item} />
-        </motion.div>
-      ))}
+      <div className="flex items-center justify-around px-4 h-[74px]">
+        {leftItems.map((item) => (
+          <motion.div key={item.to} variants={itemVariants}>
+            <DockNavLink {...item} />
+          </motion.div>
+        ))}
 
-      <motion.div variants={itemVariants}>
-        <Action to="/add-plant" variant="fab" aria-label="Add plant" className="relative -top-3.5">
-          <FontAwesomeIcon icon={faPlus} className="w-6 h-6" />
-        </Action>
-      </motion.div>
-
-      {rightItems.map((item) => (
-        <motion.div key={item.to} variants={itemVariants}>
-          <DockNavLink {...item} />
+        <motion.div variants={itemVariants}>
+          <Action to="/add-plant" variant="fab" aria-label="Add plant" className="relative -top-3.5">
+            <FontAwesomeIcon icon={faPlus} className="w-6 h-6" />
+          </Action>
         </motion.div>
-      ))}
+
+        {rightItems.map((item) => (
+          <motion.div key={item.to} variants={itemVariants}>
+            <DockNavLink {...item} />
+          </motion.div>
+        ))}
+      </div>
     </motion.nav>
   )
 }

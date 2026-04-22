@@ -9,7 +9,7 @@ export default function HeroCard({ plant, onWater }) {
   const imageUrl = plant.species?.image_url
 
   return (
-    <div className="relative rounded-lg overflow-hidden px-5 py-5 lg:px-7 lg:py-7 bg-[image:var(--gradient-forest)]">
+    <div className="relative rounded-md overflow-hidden px-5 py-5 lg:px-7 lg:py-7 bg-[image:var(--gradient-forest)]">
       {imageUrl && (
         <img
           src={imageUrl}
