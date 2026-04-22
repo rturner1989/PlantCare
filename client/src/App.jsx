@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import LandscapeLock from './components/LandscapeLock'
 import ProtectedRoute from './components/ProtectedRoute'
 import Action from './components/ui/Action'
 import Spinner from './components/ui/Spinner'
@@ -72,6 +73,7 @@ function ProtectedAppLayout() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <LandscapeLock />
       <AuthProvider>
         <ToastProvider>
           <BrowserRouter>

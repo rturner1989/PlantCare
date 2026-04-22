@@ -343,3 +343,17 @@ input[type="search"]::-webkit-search-cancel-button {
   background: var(--ink-soft);
   opacity: 0.3;
 }
+
+/* Landscape lock — shown when a phone (short viewport) is held in
+ * landscape in a regular browser tab. The installed PWA already locks
+ * to portrait via manifest.json's orientation field; this handles the
+ * browser-tab case where the manifest doesn't apply. */
+.landscape-lock {
+  display: none;
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .landscape-lock {
+    display: flex;
+  }
+}
