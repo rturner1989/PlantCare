@@ -1,9 +1,10 @@
 import { motion, useReducedMotion } from 'motion/react'
-import { Suspense, useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Dock from '../components/Dock'
 import MobileTopBar from '../components/MobileTopBar'
 import Sidebar from '../components/Sidebar'
+import ProgressBar from '../components/ui/ProgressBar'
 import Spinner from '../components/ui/Spinner'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
@@ -30,6 +31,7 @@ export default function AppLayout() {
   // keeps a single welcome toast regardless of how many times the effect
   // fires against the same mount.
   const welcomeToastFiredRef = useRef(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   // Move focus to <main> on every route change so screen-reader users hear
   // the new page's context instead of dead silence after a NavLink click.
@@ -40,6 +42,7 @@ export default function AppLayout() {
     if (previousPathRef.current === location.pathname) return
     previousPathRef.current = location.pathname
     mainRef.current?.focus()
+    setDrawerOpen(false)
   }, [location.pathname])
 
   useEffect(() => {
@@ -63,15 +66,16 @@ export default function AppLayout() {
         Skip to main content
       </a>
 
-      <Sidebar isFirstRun={isFirstRun} />
-      <MobileTopBar isFirstRun={isFirstRun} />
+      <Sidebar isFirstRun={isFirstRun} isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <MobileTopBar isFirstRun={isFirstRun} onMenuOpen={() => setDrawerOpen(true)} />
+      <ProgressBar />
 
       {animateMain ? (
         <motion.main
           ref={mainRef}
           id="main-content"
           tabIndex={-1}
-          className="lg:ml-[260px] pt-[calc(env(safe-area-inset-top)+74px)] lg:pt-0 pb-[86px] lg:pb-0 flex flex-col flex-1 min-h-0 focus:outline-none"
+          className="lg:ml-[260px] pt-[calc(env(safe-area-inset-top)+74px)] lg:pt-0 pb-[86px] md:pb-0 flex flex-col flex-1 min-h-0 focus:outline-none"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut', delay: 0.15 }}
@@ -85,7 +89,7 @@ export default function AppLayout() {
           ref={mainRef}
           id="main-content"
           tabIndex={-1}
-          className="lg:ml-[260px] pt-[calc(env(safe-area-inset-top)+74px)] lg:pt-0 pb-[86px] lg:pb-0 flex flex-col flex-1 min-h-0 focus:outline-none"
+          className="lg:ml-[260px] pt-[calc(env(safe-area-inset-top)+74px)] lg:pt-0 pb-[86px] md:pb-0 flex flex-col flex-1 min-h-0 focus:outline-none"
         >
           <Suspense fallback={<RouteFallback />}>
             <Outlet />

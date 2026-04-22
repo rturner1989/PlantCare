@@ -1,4 +1,4 @@
-import { faBell } from '@fortawesome/free-solid-svg-icons'
+import { faBars, faBell } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { motion, useReducedMotion } from 'motion/react'
 import { useAuth } from '../hooks/useAuth'
@@ -19,7 +19,7 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
 }
 
-export default function MobileTopBar({ isFirstRun = false }) {
+export default function MobileTopBar({ isFirstRun = false, onMenuOpen }) {
   const { user } = useAuth()
   const shouldReduceMotion = useReducedMotion()
   const shouldAnimate = isFirstRun && !shouldReduceMotion
@@ -32,9 +32,23 @@ export default function MobileTopBar({ isFirstRun = false }) {
       animate={shouldAnimate ? 'visible' : false}
     >
       <div className="flex items-center justify-between gap-3 px-4 py-3">
-        <motion.div variants={itemVariants}>
-          <Logo to="/" size="sm" />
-        </motion.div>
+        <div className="flex items-center gap-2">
+          {onMenuOpen && (
+            <motion.div variants={itemVariants} className="hidden md:flex">
+              <Action
+                variant="unstyled"
+                onClick={onMenuOpen}
+                aria-label="Open menu"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-ink-soft hover:text-ink hover:bg-mint/60 transition-colors"
+              >
+                <FontAwesomeIcon icon={faBars} className="w-4 h-4" />
+              </Action>
+            </motion.div>
+          )}
+          <motion.div variants={itemVariants}>
+            <Logo to="/" size="sm" />
+          </motion.div>
+        </div>
 
         <div className="flex items-center gap-2">
           <motion.div variants={itemVariants}>
