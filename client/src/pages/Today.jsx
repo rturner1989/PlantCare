@@ -100,8 +100,8 @@ export default function Today() {
   const firstName = user?.name?.split(' ')[0]
 
   return (
-    <div className="flex flex-col flex-1 gap-3 lg:gap-6 px-3 pt-3 lg:px-6 lg:pt-6 lg:pb-6">
-      <header className="flex items-start justify-between gap-4 bg-card rounded-md lg:rounded-lg shadow-[var(--shadow-sm)] p-4 lg:p-6">
+    <div className="flex flex-col flex-1 gap-3 lg:gap-4 px-3 pt-3 lg:px-4 lg:pt-4 lg:pb-4">
+      <header className="flex items-start justify-between gap-4 bg-card rounded-md lg:rounded-lg shadow-[var(--shadow-sm)] p-4">
         <div className="min-w-0">
           <p className="text-[13px] font-semibold text-ink-soft">
             {getGreeting()} · {formatToday()}
@@ -128,7 +128,7 @@ export default function Today() {
         )}
       </header>
 
-      <div className="relative flex flex-col flex-1 bg-card rounded-md lg:rounded-lg shadow-[var(--shadow-sm)] p-4 lg:p-8 overflow-hidden">
+      <div className="relative flex flex-col flex-1 bg-card rounded-md lg:rounded-lg shadow-[var(--shadow-sm)] p-4 lg:p-6 overflow-hidden">
         {isLoading && (
           <div
             role="status"
