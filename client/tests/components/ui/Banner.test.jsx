@@ -41,10 +41,11 @@ describe('Banner', () => {
   })
 
   describe('layout', () => {
-    it('uses the spec radius (rounded-lg = 18px) and a mint background to sit as a ribbon on a white page canvas', () => {
+    it('is rounded-md by default (lg:rounded-lg on desktop) and sits as a mint ribbon on the page canvas', () => {
       const { container } = render(<Banner title="x" />)
       const root = container.firstChild
-      expect(root).toHaveClass('rounded-lg')
+      expect(root).toHaveClass('rounded-md')
+      expect(root).toHaveClass('lg:rounded-lg')
       expect(root).toHaveClass('bg-mint')
     })
   })
