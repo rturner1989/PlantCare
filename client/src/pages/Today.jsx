@@ -140,15 +140,19 @@ export default function Today() {
       )}
 
       {error && (
-        <EmptyState
-          title="We couldn't load today"
-          description="Something went wrong fetching your plants."
-          action={
-            <Action variant="secondary" onClick={() => refetch()}>
-              Try again
-            </Action>
-          }
-        />
+        <div className="min-h-[50dvh] flex items-center justify-center">
+          <div className="bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 w-full max-w-sm">
+            <EmptyState
+              title="We couldn't load today"
+              description="Something went wrong fetching your plants."
+              action={
+                <Action variant="secondary" onClick={() => refetch()}>
+                  Try again
+                </Action>
+              }
+            />
+          </div>
+        </div>
       )}
 
       {!isLoading && !error && (
@@ -202,13 +206,17 @@ export default function Today() {
           )}
 
           {totalTasks === 0 && !urgentPlant && (
-            <EmptyState
-              icon={<span>🌱</span>}
-              title="No tasks today"
-              description={
-                totalPlants > 0 ? 'Every plant is happy. Check back later.' : 'Add your first plant to get started.'
-              }
-            />
+            <div className="min-h-[50dvh] flex items-center justify-center">
+              <div className="bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 w-full max-w-sm">
+                <EmptyState
+                  icon={<span>🌱</span>}
+                  title="No tasks today"
+                  description={
+                    totalPlants > 0 ? 'Every plant is happy. Check back later.' : 'Add your first plant to get started.'
+                  }
+                />
+              </div>
+            </div>
           )}
         </>
       )}
