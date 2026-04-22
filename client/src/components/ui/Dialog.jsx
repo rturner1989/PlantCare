@@ -1,10 +1,9 @@
-import A11yDialog from 'a11y-dialog'
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
 export default function Dialog({ open, onClose, title, children, className = '' }) {
-  const containerRef = useRef(null)
-  const dialogRef = useRef(null)
+  const cardRef = useRef(null)
+  const previouslyFocusedRef = useRef(null)
   const onCloseRef = useRef(onClose)
   const titleId = useId()
 
@@ -13,40 +12,39 @@ export default function Dialog({ open, onClose, title, children, className = '' 
   })
 
   useEffect(() => {
-    if (!containerRef.current) return
-    // Seed aria-hidden before instantiating, but don't set it declaratively on
-    // the JSX — React would re-assert "true" on every render and fight
-    // a11y-dialog's own show/hide mutations, keeping the dialog permanently
-    // invisible.
-    containerRef.current.setAttribute('aria-hidden', 'true')
-    const instance = new A11yDialog(containerRef.current)
-    dialogRef.current = instance
-    instance.on('hide', () => {
-      onCloseRef.current?.()
-    })
-    return () => {
-      instance.destroy()
-      dialogRef.current = null
-    }
-  }, [])
+    if (!open) return
+    previouslyFocusedRef.current = document.activeElement
+    cardRef.current?.focus()
 
-  useEffect(() => {
-    if (!dialogRef.current) return
-    if (open) dialogRef.current.show()
-    else dialogRef.current.hide()
+    function handleKey(event) {
+      if (event.key === 'Escape') onCloseRef.current?.()
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => {
+      document.removeEventListener('keydown', handleKey)
+      previouslyFocusedRef.current?.focus?.()
+    }
   }, [open])
 
+  if (!open) return null
+
   return createPortal(
-    <div
-      ref={containerRef}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={title ? titleId : undefined}
-      className="dialog"
-    >
-      <div className="dialog-overlay" data-a11y-dialog-hide />
-      <div className="dialog-content" role="document">
-        <div className={`dialog-card bg-card rounded-md shadow-[var(--shadow-md)] flex flex-col min-h-0 ${className}`}>
+    <div className="dialog-root">
+      <button
+        type="button"
+        aria-label="Close dialog"
+        className="dialog-overlay"
+        onClick={() => onCloseRef.current?.()}
+      />
+      <div className="dialog-content">
+        <div
+          ref={cardRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={title ? titleId : undefined}
+          tabIndex={-1}
+          className={`dialog-card bg-card rounded-md shadow-[var(--shadow-md)] flex flex-col min-h-0 ${className}`}
+        >
           {title && (
             <h2 id={titleId} className="sr-only">
               {title}

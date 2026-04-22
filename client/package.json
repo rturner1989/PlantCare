@@ -25,7 +25,6 @@
     "@fortawesome/react-fontawesome": "^3.3.0",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-query": "^5.96.2",
-    "a11y-dialog": "^8.1.5",
     "driver.js": "^1.4.0",
     "motion": "^12.38.0",
     "react": "^19.2.4",
