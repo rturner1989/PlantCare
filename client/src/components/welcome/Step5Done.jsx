@@ -81,7 +81,7 @@ export default function Step5Done({ createdPlants = [], onAddAnother, onFinish, 
             </div>
           )}
 
-          <div className="mt-5 p-4 rounded-lg text-white relative overflow-hidden bg-[image:var(--gradient-forest)]">
+          <div className="mt-5 p-4 rounded-md text-white relative overflow-hidden bg-[image:var(--gradient-forest)]">
             <p className="text-[9px] font-extrabold text-lime uppercase tracking-wider mb-1.5">{eyebrow}</p>
             <p className="font-display text-base italic font-medium leading-snug pl-2.5 border-l-2 border-coral">
               {quote}

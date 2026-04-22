@@ -200,7 +200,7 @@ export default function Step3Species({
                 exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
                 transition={{ duration: shouldReduceMotion ? 0 : 0.22, ease: [0.33, 1, 0.68, 1] }}
               >
-                <div className="relative rounded-lg text-white overflow-hidden min-h-[140px] bg-[image:var(--gradient-forest)]">
+                <div className="relative rounded-md text-white overflow-hidden min-h-[140px] bg-[image:var(--gradient-forest)]">
                   {selected.image_url && (
                     <img
                       src={selected.image_url}
