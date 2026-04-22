@@ -30,11 +30,11 @@ export default function EmptyState({ icon, title, description, action, headingLe
   return (
     <div className={`flex flex-col items-center justify-center text-center ${className}`}>
       {icon && (
-        <div className="w-14 h-14 rounded-full bg-mint flex items-center justify-center text-emerald text-xl mb-3">
+        <div className="w-20 h-20 rounded-full bg-mint flex items-center justify-center text-emerald text-3xl mb-4 shadow-[var(--shadow-sm)]">
           {icon}
         </div>
       )}
-      {title && <Heading className="text-base font-extrabold text-ink">{title}</Heading>}
+      {title && <Heading className="text-lg font-extrabold text-ink">{title}</Heading>}
       {description && (
         <p className={`text-sm text-ink-soft leading-snug max-w-xs ${title ? 'mt-1' : ''}`}>{description}</p>
       )}
