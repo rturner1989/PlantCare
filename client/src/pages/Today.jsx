@@ -140,18 +140,16 @@ export default function Today() {
       )}
 
       {error && (
-        <div className="min-h-[50dvh] flex items-center justify-center">
-          <div className="bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 w-full max-w-sm">
-            <EmptyState
-              title="We couldn't load today"
-              description="Something went wrong fetching your plants."
-              action={
-                <Action variant="secondary" onClick={() => refetch()}>
-                  Try again
-                </Action>
-              }
-            />
-          </div>
+        <div className="relative bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 lg:p-12 w-full min-h-[60dvh] flex items-center justify-center overflow-hidden">
+          <EmptyState
+            title="We couldn't load today"
+            description="Something went wrong fetching your plants."
+            action={
+              <Action variant="secondary" onClick={() => refetch()}>
+                Try again
+              </Action>
+            }
+          />
         </div>
       )}
 
@@ -206,33 +204,34 @@ export default function Today() {
           )}
 
           {totalTasks === 0 && !urgentPlant && (
-            <div className="min-h-[50dvh] flex items-center justify-center">
-              <div className="relative bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 lg:p-12 w-full max-w-sm lg:max-w-md overflow-hidden">
-                <span aria-hidden="true" className="absolute -top-2 -right-3 text-5xl opacity-20 rotate-12">
-                  🌿
-                </span>
-                <span aria-hidden="true" className="absolute -bottom-3 -left-2 text-4xl opacity-25 -rotate-12">
-                  🪴
-                </span>
-                {totalPlants > 0 ? (
-                  <EmptyState
-                    icon={<span>✨</span>}
-                    title="All caught up"
-                    description="Your plants are thriving. Check back later."
-                  />
-                ) : (
-                  <EmptyState
-                    icon={<span>🌱</span>}
-                    title="Your jungle starts here"
-                    description="Add a plant to see it come alive."
-                    action={
-                      <Action to="/add-plant" variant="primary">
-                        Add a plant
-                      </Action>
-                    }
-                  />
-                )}
-              </div>
+            <div className="relative bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 lg:p-12 w-full min-h-[60dvh] flex items-center justify-center overflow-hidden">
+              <span aria-hidden="true" className="absolute -top-4 -right-4 text-7xl opacity-20 rotate-12">
+                🌿
+              </span>
+              <span aria-hidden="true" className="absolute -bottom-4 -left-4 text-6xl opacity-25 -rotate-12">
+                🪴
+              </span>
+              <span aria-hidden="true" className="absolute top-8 left-8 text-4xl opacity-15 rotate-45">
+                🌸
+              </span>
+              {totalPlants > 0 ? (
+                <EmptyState
+                  icon={<span>✨</span>}
+                  title="All caught up"
+                  description="Your plants are thriving. Check back later."
+                />
+              ) : (
+                <EmptyState
+                  icon={<span>🌱</span>}
+                  title="Your jungle starts here"
+                  description="Add a plant to see it come alive."
+                  action={
+                    <Action to="/add-plant" variant="primary">
+                      Add a plant
+                    </Action>
+                  }
+                />
+              )}
             </div>
           )}
         </>
