@@ -2,6 +2,7 @@ import { motion, useReducedMotion } from 'motion/react'
 import { Suspense, useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Dock from '../components/Dock'
+import MobileTopBar from '../components/MobileTopBar'
 import Sidebar from '../components/Sidebar'
 import Spinner from '../components/ui/Spinner'
 import { useToast } from '../context/ToastContext'
@@ -51,7 +52,7 @@ export default function AppLayout() {
   const animateMain = isFirstRun && !shouldReduceMotion
 
   return (
-    <div className="min-h-dvh">
+    <div className="min-h-dvh flex flex-col">
       {/* Skip link — first focusable element on the page. Appears on focus
           so keyboard users can jump past the Sidebar/Dock without Tabbing
           through every nav item first. */}
@@ -63,13 +64,14 @@ export default function AppLayout() {
       </a>
 
       <Sidebar isFirstRun={isFirstRun} />
+      <MobileTopBar />
 
       {animateMain ? (
         <motion.main
           ref={mainRef}
           id="main-content"
           tabIndex={-1}
-          className="lg:ml-[260px] pt-[env(safe-area-inset-top)] pb-24 lg:pt-0 lg:pb-0 min-h-dvh flex flex-col focus:outline-none"
+          className="lg:ml-[260px] pb-24 lg:pb-0 flex flex-col flex-1 focus:outline-none"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut', delay: 0.15 }}
@@ -83,7 +85,7 @@ export default function AppLayout() {
           ref={mainRef}
           id="main-content"
           tabIndex={-1}
-          className="lg:ml-[260px] pt-[env(safe-area-inset-top)] pb-24 lg:pt-0 lg:pb-0 min-h-dvh flex flex-col focus:outline-none"
+          className="lg:ml-[260px] pb-24 lg:pb-0 flex flex-col flex-1 focus:outline-none"
         >
           <Suspense fallback={<RouteFallback />}>
             <Outlet />

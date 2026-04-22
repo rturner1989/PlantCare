@@ -3,7 +3,6 @@ import HeroCard from '../components/HeroCard'
 import ProgressRing from '../components/ProgressRing'
 import TaskRow from '../components/TaskRow'
 import Action from '../components/ui/Action'
-import Avatar from '../components/ui/Avatar'
 import Banner from '../components/ui/Banner'
 import EmptyState from '../components/ui/EmptyState'
 import Spinner from '../components/ui/Spinner'
@@ -101,31 +100,13 @@ export default function Today() {
 
   return (
     <div className="flex flex-col flex-1 gap-3 lg:gap-4 px-3 pt-3 lg:px-4 lg:pt-4 lg:pb-4">
-      <header className="flex items-start justify-between gap-4 bg-card rounded-md shadow-[var(--shadow-sm)] p-4">
-        <div className="min-w-0">
-          <p className="text-[13px] font-semibold text-ink-soft">
-            {getGreeting()} · {formatToday()}
-          </p>
-          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-ink lg:font-display lg:text-5xl lg:italic lg:font-medium">
-            Hi, <span className="text-leaf">{firstName ?? 'there'}</span>
-          </h1>
-        </div>
-        {user && (
-          <Action to="/me" variant="unstyled" aria-label="View profile" className="lg:hidden relative shrink-0">
-            <Avatar
-              src={user.avatar_url}
-              fallback={<span className="text-emerald font-bold">{user.name?.[0]?.toUpperCase() ?? '?'}</span>}
-              size="lg"
-              shape="circle"
-            />
-            {attentionCount > 0 && (
-              <span
-                aria-hidden="true"
-                className="absolute top-0 right-0 w-3 h-3 rounded-full bg-coral border-2 border-card"
-              />
-            )}
-          </Action>
-        )}
+      <header className="bg-card rounded-md shadow-[var(--shadow-sm)] p-4">
+        <p className="text-[13px] font-semibold text-ink-soft">
+          {getGreeting()} · {formatToday()}
+        </p>
+        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-ink lg:font-display lg:text-5xl lg:italic lg:font-medium">
+          Hi, <span className="text-leaf">{firstName ?? 'there'}</span>
+        </h1>
       </header>
 
       <div className="relative flex flex-col flex-1 bg-card rounded-md shadow-[var(--shadow-sm)] p-4 lg:p-6 overflow-hidden">
