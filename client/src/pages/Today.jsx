@@ -1,4 +1,6 @@
-import { useMemo, useRef } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import { useMemo, useRef, useState } from 'react'
+import CareConfirmDialog from '../components/CareConfirmDialog'
 import HeroCard from '../components/HeroCard'
 import ProgressRing from '../components/ProgressRing'
 import TaskRow from '../components/TaskRow'
@@ -177,11 +179,19 @@ export default function Today() {
                   </div>
 
                   <ul className="space-y-2">
-                    {tasks.map((task) => (
-                      <li key={`${task.plant.id}-${task.careType}`}>
-                        <WaterableTaskRow task={task} />
-                      </li>
-                    ))}
+                    <AnimatePresence initial={false}>
+                      {tasks.map((task) => (
+                        <motion.li
+                          key={`${task.plant.id}-${task.careType}`}
+                          layout
+                          initial={{ opacity: 1 }}
+                          exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                          transition={{ duration: 0.28, ease: [0.33, 1, 0.68, 1] }}
+                        >
+                          <WaterableTaskRow task={task} />
+                        </motion.li>
+                      ))}
+                    </AnimatePresence>
                   </ul>
                 </section>
               )}
@@ -227,19 +237,53 @@ export default function Today() {
 
 function WaterableHeroCard({ plant }) {
   const logCare = useLogCare(plant.id)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
-  return <HeroCard plant={plant} onWater={() => logCare.mutate({ care_type: 'watering' })} />
+  function handleConfirm() {
+    logCare.mutate({ care_type: 'watering' })
+    setConfirmOpen(false)
+  }
+
+  return (
+    <>
+      <HeroCard plant={plant} onWater={() => setConfirmOpen(true)} />
+      <CareConfirmDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleConfirm}
+        plant={plant}
+        careType="watering"
+        submitting={logCare.isPending}
+      />
+    </>
+  )
 }
 
 function WaterableTaskRow({ task }) {
   const logCare = useLogCare(task.plant.id)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+
+  function handleConfirm() {
+    logCare.mutate({ care_type: task.careType })
+    setConfirmOpen(false)
+  }
 
   return (
-    <TaskRow
-      plant={task.plant}
-      careType={task.careType}
-      done={logCare.isSuccess}
-      onComplete={() => logCare.mutate({ care_type: task.careType })}
-    />
+    <>
+      <TaskRow
+        plant={task.plant}
+        careType={task.careType}
+        done={logCare.isSuccess}
+        onComplete={() => setConfirmOpen(true)}
+      />
+      <CareConfirmDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleConfirm}
+        plant={task.plant}
+        careType={task.careType}
+        submitting={logCare.isPending}
+      />
+    </>
   )
 }
