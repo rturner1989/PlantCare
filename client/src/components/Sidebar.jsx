@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
 import Logo from './Logo'
 import Action from './ui/Action'
+import Avatar from './ui/Avatar'
 import Badge from './ui/Badge'
 
 // TODO(ticket 14): real counts from dashboard + house queries.
@@ -109,9 +110,12 @@ export default function Sidebar({ isFirstRun = false }) {
               aria-label="View profile"
               className="flex items-center gap-3 flex-1 min-w-0 p-1 rounded-md hover:bg-mint/50 transition-colors"
             >
-              <div className="w-[38px] h-[38px] rounded-full bg-mint flex items-center justify-center text-emerald font-bold text-sm shrink-0">
-                {user.name?.[0]?.toUpperCase() || '?'}
-              </div>
+              <Avatar
+                src={user.avatar_url}
+                fallback={<span className="text-emerald font-bold">{user.name?.[0]?.toUpperCase() ?? '?'}</span>}
+                size="sm"
+                shape="circle"
+              />
               <div className="flex-1 min-w-0 text-left">
                 <p className="text-sm font-bold text-ink truncate">{user.name}</p>
                 <p className="text-xs text-ink-soft truncate">{user.email}</p>

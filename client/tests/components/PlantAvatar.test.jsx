@@ -29,19 +29,14 @@ describe('PlantAvatar', () => {
   })
 
   describe('sizing', () => {
-    it('defaults to 48px square', () => {
+    it('defaults to the md size preset (48px via w-12 class)', () => {
       const { container } = render(<PlantAvatar species={species('chill')} />)
-      const el = container.firstChild
-      expect(el.style.width).toBe('48px')
-      expect(el.style.height).toBe('48px')
+      expect(container.firstChild).toHaveClass('w-12')
     })
 
-    it('accepts a custom size and scales the font accordingly (0.45 ratio)', () => {
-      const { container } = render(<PlantAvatar species={species('chill')} size={64} />)
-      const el = container.firstChild
-      expect(el.style.width).toBe('64px')
-      expect(el.style.height).toBe('64px')
-      expect(el.style.fontSize).toBe(`${64 * 0.45}px`)
+    it('accepts a preset size and passes it through to Avatar', () => {
+      const { container } = render(<PlantAvatar species={species('chill')} size="xl" />)
+      expect(container.firstChild).toHaveClass('w-20')
     })
   })
 

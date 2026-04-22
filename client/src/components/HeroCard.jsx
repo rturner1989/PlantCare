@@ -55,7 +55,7 @@ export default function HeroCard({ plant, onWater }) {
 
       {!imageUrl && (
         <div className="absolute bottom-4 right-4 opacity-85">
-          <PlantAvatar species={plant.species} size={80} />
+          <PlantAvatar species={plant.species} size="xl" />
         </div>
       )}
     </div>

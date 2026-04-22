@@ -47,7 +47,7 @@ export default function TaskRow({ plant, careType = 'watering', voiceQuote, done
 
   return (
     <div className={`flex items-center gap-3 p-3 rounded-md transition-all ${rowClasses}`}>
-      <PlantAvatar species={plant.species} size={48} />
+      <PlantAvatar species={plant.species} />
 
       <div className="flex-1 min-w-0">
         <p className={`text-[15px] font-extrabold text-ink ${done ? 'line-through' : ''}`}>{plant.nickname}</p>
