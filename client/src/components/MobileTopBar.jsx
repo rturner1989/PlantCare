@@ -21,7 +21,7 @@ export default function MobileTopBar() {
   const { user } = useAuth()
 
   return (
-    <div className="lg:hidden sticky top-0 z-30 bg-card border-b border-mint pt-[env(safe-area-inset-top)]">
+    <div className="lg:hidden sticky top-0 z-30 bg-card rounded-b-md shadow-[var(--shadow-sm)] pt-[env(safe-area-inset-top)]">
       <div className="flex items-center justify-between gap-3 px-4 py-3">
         <Logo to="/" size="sm" />
 
