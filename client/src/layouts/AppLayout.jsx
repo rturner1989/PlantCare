@@ -69,7 +69,7 @@ export default function AppLayout() {
           ref={mainRef}
           id="main-content"
           tabIndex={-1}
-          className="lg:ml-[260px] pt-[env(safe-area-inset-top)] pb-24 lg:pt-0 lg:pb-0 min-h-dvh focus:outline-none"
+          className="lg:ml-[260px] pt-[env(safe-area-inset-top)] pb-24 lg:pt-0 lg:pb-0 min-h-dvh flex flex-col focus:outline-none"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut', delay: 0.15 }}
@@ -83,7 +83,7 @@ export default function AppLayout() {
           ref={mainRef}
           id="main-content"
           tabIndex={-1}
-          className="lg:ml-[260px] pt-[env(safe-area-inset-top)] pb-24 lg:pt-0 lg:pb-0 min-h-dvh focus:outline-none"
+          className="lg:ml-[260px] pt-[env(safe-area-inset-top)] pb-24 lg:pt-0 lg:pb-0 min-h-dvh flex flex-col focus:outline-none"
         >
           <Suspense fallback={<RouteFallback />}>
             <Outlet />

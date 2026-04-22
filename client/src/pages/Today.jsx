@@ -100,7 +100,7 @@ export default function Today() {
   const firstName = user?.name?.split(' ')[0]
 
   return (
-    <div className="px-5 pt-4 lg:px-6 lg:pt-6">
+    <div className="flex flex-col flex-1 px-5 pt-4 pb-5 lg:px-6 lg:pt-6 lg:pb-6">
       <header className="mb-5 flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[13px] font-semibold text-ink-soft">
@@ -140,7 +140,7 @@ export default function Today() {
       )}
 
       {error && (
-        <div className="relative bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 lg:p-12 w-full min-h-[60dvh] flex items-center justify-center overflow-hidden">
+        <div className="relative bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 lg:p-12 w-full flex-1 flex items-center justify-center overflow-hidden">
           <EmptyState
             title="We couldn't load today"
             description="Something went wrong fetching your plants."
@@ -204,7 +204,7 @@ export default function Today() {
           )}
 
           {totalTasks === 0 && !urgentPlant && (
-            <div className="relative bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 lg:p-12 w-full min-h-[60dvh] flex items-center justify-center overflow-hidden">
+            <div className="relative bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 lg:p-12 w-full flex-1 flex items-center justify-center overflow-hidden">
               <span aria-hidden="true" className="absolute -top-4 -right-4 text-7xl opacity-20 rotate-12">
                 🌿
               </span>
