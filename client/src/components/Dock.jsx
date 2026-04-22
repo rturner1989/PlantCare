@@ -48,7 +48,7 @@ export default function Dock({ isFirstRun = false }) {
   return (
     <motion.nav
       aria-label="Primary"
-      className="fixed bottom-[10px] left-3 right-3 h-[74px] z-50 flex items-center justify-around px-4 lg:hidden bg-white/[0.78] backdrop-blur-xl backdrop-saturate-150 rounded-2xl border border-white/60 shadow-[var(--shadow-dock)]"
+      className="fixed bottom-[10px] left-3 right-3 h-[74px] z-50 flex items-center justify-around px-4 lg:hidden bg-white/[0.78] backdrop-blur-xl backdrop-saturate-150 rounded-t-md rounded-b-3xl border border-white/60 shadow-[var(--shadow-dock)]"
       variants={dockVariants}
       initial={shouldAnimate ? 'hidden' : false}
       animate={shouldAnimate ? 'visible' : false}
