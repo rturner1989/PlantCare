@@ -1,6 +1,7 @@
 import { faArrowRightFromBracket, faHouse, faMagnifyingGlass, faPlus, faSun } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { useEffect, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
@@ -139,6 +140,20 @@ export default function Sidebar({ isFirstRun = false, isOpen = false, onClose })
   const toast = useToast()
   const shouldReduceMotion = useReducedMotion()
   const shouldAnimateReveal = isFirstRun && !shouldReduceMotion
+  const onCloseRef = useRef(onClose)
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  })
+
+  useEffect(() => {
+    if (!isOpen) return
+    function handleKey(event) {
+      if (event.key === 'Escape') onCloseRef.current?.()
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [isOpen])
 
   async function handleLogout() {
     await logout()
