@@ -64,7 +64,7 @@ export default function AppLayout() {
       </a>
 
       <Sidebar isFirstRun={isFirstRun} />
-      <MobileTopBar />
+      <MobileTopBar isFirstRun={isFirstRun} />
 
       {animateMain ? (
         <motion.main
