@@ -207,14 +207,31 @@ export default function Today() {
 
           {totalTasks === 0 && !urgentPlant && (
             <div className="min-h-[50dvh] flex items-center justify-center">
-              <div className="bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 w-full max-w-sm">
-                <EmptyState
-                  icon={<span>🌱</span>}
-                  title="No tasks today"
-                  description={
-                    totalPlants > 0 ? 'Every plant is happy. Check back later.' : 'Add your first plant to get started.'
-                  }
-                />
+              <div className="relative bg-card rounded-lg shadow-[var(--shadow-sm)] p-8 lg:p-12 w-full max-w-sm lg:max-w-md overflow-hidden">
+                <span aria-hidden="true" className="absolute -top-2 -right-3 text-5xl opacity-20 rotate-12">
+                  🌿
+                </span>
+                <span aria-hidden="true" className="absolute -bottom-3 -left-2 text-4xl opacity-25 -rotate-12">
+                  🪴
+                </span>
+                {totalPlants > 0 ? (
+                  <EmptyState
+                    icon={<span>✨</span>}
+                    title="All caught up"
+                    description="Your plants are thriving. Check back later."
+                  />
+                ) : (
+                  <EmptyState
+                    icon={<span>🌱</span>}
+                    title="Your jungle starts here"
+                    description="Add a plant to see it come alive."
+                    action={
+                      <Action to="/add-plant" variant="primary">
+                        Add a plant
+                      </Action>
+                    }
+                  />
+                )}
               </div>
             </div>
           )}
