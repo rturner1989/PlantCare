@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — Today mobile · iPhone 15 Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --paper-deep: #f3eee2;
+    --paper-edge: #e8ddc6;
+    --base: #f6fbf4;
+    --mint: #dff2e2;
+    --lime: #86db65;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --forest-2: #124626;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --coral-deep: #c4412a;
+    --sunshine: #ffb83d;
+    --sunshine-deep: #a56d12;
+
+    --shadow-warm-sm: 0 2px 10px rgba(80,56,18,0.07), 0 0 0 1px rgba(80,56,18,0.025);
+    --shadow-warm-md: 0 18px 40px rgba(80,56,18,0.10), 0 2px 8px rgba(80,56,18,0.04);
+    --shadow-warm-lg: 0 36px 80px -8px rgba(80,56,18,0.18), 0 6px 16px rgba(80,56,18,0.06);
+
+    --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #eff7e6 55%, #e4efd5 100%);
+    --gradient-paper: linear-gradient(180deg, #fbf8f1 0%, #f6f0e0 100%);
+    --gradient-display: linear-gradient(130deg, #0b3a1a 0%, #14902f 60%, #32c456 100%);
+    --gradient-brand: linear-gradient(135deg, #32c456, #14902f);
+
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+
+    --blur-heavy: 24px;
+    --blur-primary: 20px;
+    --blur-medium: 12px;
+    --blur-light: 2px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #ecece0;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+
+  .page { max-width: 1440px; margin: 0 auto; }
+
+  .page-header { text-align: center; margin-bottom: 56px; }
+  .page-header .eyebrow {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 64px; letter-spacing: -0.035em;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+  .page-header p {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 760px; margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ---- Phone-frame row ---- */
+
+  .phones-row {
+    display: flex;
+    justify-content: center;
+    gap: 80px;
+    flex-wrap: wrap;
+    padding: 40px 0 80px;
+  }
+
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .phone-caption {
+    text-align: center; max-width: 380px;
+  }
+  .phone-caption .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .phone-caption h3 {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic; font-weight: 400;
+    font-size: 22px; letter-spacing: -0.02em;
+  }
+  .phone-caption p {
+    font-size: 13px; color: var(--ink-soft);
+    margin-top: 6px; line-height: 1.5;
+  }
+
+  /* ---- iPhone 15 Pro silhouette ---- */
+  /* Viewport: 393 × 852 pt */
+
+  .phone {
+    width: 413px;
+    height: 872px;
+    background: #0a0a0a;
+    border-radius: 56px;
+    padding: 10px;
+    box-shadow:
+      0 0 0 2px #2a2a2a,
+      0 36px 80px -8px rgba(11,58,26,0.3),
+      0 12px 24px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .phone .screen {
+    width: 393px;
+    height: 852px;
+    border-radius: 48px;
+    background: var(--gradient-mint);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .phone .screen::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+
+  .phone .island {
+    position: absolute;
+    top: 21px; left: 50%;
+    transform: translateX(-50%);
+    width: 123px; height: 37px;
+    background: #000;
+    border-radius: 100px;
+    z-index: 40;
+  }
+
+  .phone .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 30px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    z-index: 30;
+    pointer-events: none;
+  }
+  .phone .status-bar .ios-icons {
+    display: flex; gap: 5px; align-items: center;
+  }
+  .phone .status-bar .ios-icons svg { width: 16px; height: 11px; fill: currentColor; }
+
+  /* ---- Blobs ---- */
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.55;
+  }
+  .blob-mint   { background: rgba(134,219,101,0.35); }
+  .blob-sun    { background: rgba(255,184,61,0.25); }
+  .blob-coral  { background: rgba(255,107,61,0.18); }
+
+  /* ---- Mobile top bar (flush, edge-to-edge, TICKET-019 style) ---- */
+
+  .m-topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: 58px 16px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(251,248,241,0.82);
+    backdrop-filter: blur(var(--blur-primary)) saturate(1.4);
+    -webkit-backdrop-filter: blur(var(--blur-primary)) saturate(1.4);
+    border-bottom: 1px solid var(--paper-edge);
+    z-index: 20;
+  }
+  .m-topbar a { color: inherit; text-decoration: none; }
+  .m-topbar .logo {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 17px;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+  .m-topbar .logo-mark {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--gradient-brand);
+    position: relative;
+    box-shadow: inset 0 0 0 2px var(--paper);
+  }
+  .m-topbar .logo-mark::after {
+    content: ""; position: absolute; inset: 6px;
+    border-radius: 50%;
+    background: var(--paper);
+  }
+  .m-topbar .logo em { font-family: "Fraunces"; font-style: italic; font-weight: 400; color: var(--emerald); }
+  .m-topbar .top-actions { display: flex; gap: 8px; }
+  .m-topbar .top-btn {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--paper);
+    box-shadow: var(--shadow-warm-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    color: var(--ink-soft);
+    position: relative;
+  }
+  .m-topbar .top-btn.bell::after {
+    content: "";
+    position: absolute; top: 4px; right: 4px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--coral);
+    box-shadow: 0 0 0 2px var(--paper);
+  }
+
+  /* ---- Mobile content scroll area ---- */
+
+  .m-content {
+    position: absolute;
+    top: 104px; left: 0; right: 0; bottom: 86px;
+    overflow-y: auto;
+    padding: 14px 0 20px;
+    z-index: 10;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .m-content::-webkit-scrollbar { display: none; }
+  /* Fix: prevent flex children from compressing when content overflows — otherwise rituals card collapses */
+  .m-content > * { flex-shrink: 0; }
+
+  /* ---- Greeting + rings ---- */
+
+  .m-head {
+    padding: 4px 16px 0;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .m-head .greet .eyebrow {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--emerald);
+    margin-bottom: 4px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .m-head .greet .eyebrow .dot-concentric {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 2.5px rgba(20,144,47,0.2);
+  }
+  .m-head .greet h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 32px; letter-spacing: -0.03em;
+    color: var(--ink); line-height: 1;
+  }
+  .m-head .greet h1 em { color: var(--emerald); font-weight: 400; }
+  .m-head .greet .greet-sub {
+    font-size: 12px; color: var(--ink-soft);
+    margin-top: 6px;
+  }
+  .m-head .rings { display: flex; gap: 8px; flex-shrink: 0; }
+  .m-head .m-ring {
+    width: 54px; height: 54px;
+    position: relative;
+  }
+  .m-head .m-ring svg { width: 100%; height: 100%; }
+  .m-head .m-ring .pr-bg { fill: none; stroke: var(--paper-deep); stroke-width: 6; }
+  .m-head .m-ring .pr-fg { fill: none; stroke-linecap: round; stroke-width: 6; }
+  .m-head .m-ring.streak .pr-fg { stroke: var(--coral); }
+  .m-head .m-ring.vitality .pr-fg { stroke: var(--emerald); }
+  .m-head .m-ring .pr-inner {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .m-head .m-ring .pr-num {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 17px; line-height: 1; color: var(--ink);
+  }
+  .m-head .m-ring.streak .pr-num { color: var(--coral-deep); }
+  .m-head .m-ring .pr-label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-softer); margin-top: 2px;
+  }
+
+  /* ---- Weather compact ---- */
+
+  .m-weather {
+    margin: 0 16px;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    box-shadow: var(--shadow-warm-sm);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .m-weather .ws-icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ffe7a3, #ffc061);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: inset 0 0 0 1px rgba(165,109,18,0.15);
+    flex-shrink: 0;
+  }
+  .m-weather .ws-body { flex: 1; min-width: 0; }
+  .m-weather .ws-head {
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .m-weather .ws-temp {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 22px; color: var(--ink); line-height: 1;
+  }
+  .m-weather .ws-cond {
+    font-size: 12px; font-weight: 700; color: var(--ink);
+  }
+  .m-weather .ws-advice {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 11px; color: var(--emerald);
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  /* ---- Section label ---- */
+
+  .m-section-label {
+    padding: 0 16px;
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .m-section-label h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic; font-weight: 400;
+    font-size: 17px; letter-spacing: -0.02em;
+  }
+  .m-section-label .m-more {
+    font-size: 11px; font-weight: 700; color: var(--emerald);
+  }
+
+  /* ---- Rituals (primary) ---- */
+
+  .m-rituals {
+    margin: 0 16px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px 8px;
+    box-shadow: var(--shadow-warm-sm);
+    overflow: hidden;
+    display: block;
+    min-height: 60px;
+  }
+  .m-rituals-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .m-rituals-head h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 17px; letter-spacing: -0.02em;
+  }
+  .m-rituals-head .m-meta {
+    font-size: 11px; color: var(--ink-soft); font-weight: 600;
+  }
+  .m-rituals-head .m-meta strong { color: var(--emerald); font-weight: 800; }
+
+  .m-ritual-row {
+    position: relative;
+    border-top: 1px solid var(--paper-edge);
+    overflow: hidden;
+    display: block;
+    min-height: 62px;
+  }
+  .m-ritual-row:first-child { border-top: none; }
+  .m-ritual-row::before {
+    /* permanent 6px forest peek — swipe discoverability */
+    content: "";
+    position: absolute; top: 0; bottom: 0; left: 0;
+    width: 5px;
+    background: var(--forest);
+    opacity: 0.75;
+    z-index: 1;
+  }
+  .m-ritual-row .rr-behind {
+    position: absolute; inset: 0;
+    background: var(--forest);
+    display: flex; align-items: center;
+    padding-left: 18px;
+    color: var(--paper);
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 17px;
+    gap: 10px;
+  }
+  .m-ritual-row .rr-behind .check {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--leaf);
+    color: var(--paper); font-weight: 900;
+    font-family: inherit; font-style: normal;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 10px rgba(20,144,47,0.32);
+  }
+  .m-ritual-row .rr-front {
+    position: relative;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 10px 10px 12px;
+    background: var(--paper);
+    z-index: 2;
+    min-height: 62px;
+  }
+  .m-ritual-row.swiping .rr-front {
+    transform: translateX(110px);
+    transition: transform 280ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  .m-ritual-row .rr-handle {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--ink-softer);
+    opacity: 0.55;
+    flex-shrink: 0;
+    padding: 0 4px;
+  }
+  .m-ritual-row .rr-handle span {
+    width: 3px; height: 3px; border-radius: 50%;
+    background: currentColor;
+    display: block;
+  }
+  .m-ritual-row .rr-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .m-ritual-row .rr-body { flex: 1; min-width: 0; }
+  .m-ritual-row .rr-name {
+    font-size: 13px; font-weight: 700; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .m-ritual-row .rr-sub { font-size: 10px; color: var(--ink-soft); margin-top: 1px; }
+  .m-ritual-row .rr-sub em {
+    font-family: "Fraunces"; font-style: italic;
+    color: var(--coral-deep); font-weight: 500;
+  }
+  .m-ritual-row .rr-tag {
+    padding: 2px 8px;
+    background: var(--mint);
+    color: var(--emerald);
+    border-radius: var(--radius-full);
+    font-size: 10px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .m-ritual-row .rr-tag.overdue { background: rgba(255,107,61,0.14); color: var(--coral-deep); }
+
+  .m-rituals-hint {
+    text-align: center;
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 10px; color: var(--ink-softer);
+    padding: 6px;
+  }
+
+  /* ---- Horizontal scrollers (jobs / collection) ---- */
+
+  .m-hscroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 4px 16px;
+    margin: 0 -16px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 16px;
+    /* Two-sided mask — both edges feather so items don't collide with the card rail above/below */
+    -webkit-mask-image: linear-gradient(to right, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
+  }
+  .m-hscroll::-webkit-scrollbar { display: none; }
+  .m-hscroll > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  /* Job card mobile */
+  .m-job {
+    width: 220px;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-warm-sm);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .m-job .jc-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+  }
+  .m-job.urgent .jc-icon {
+    background: rgba(255,107,61,0.1);
+    box-shadow: inset 0 0 0 1px rgba(255,107,61,0.3);
+    color: var(--coral-deep);
+  }
+  .m-job .jc-body { flex: 1; min-width: 0; }
+  .m-job .jc-title { font-size: 12px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+  .m-job .jc-sub { font-size: 10px; color: var(--ink-soft); margin-top: 1px; }
+  .m-job .jc-sub em { font-family: "Fraunces"; font-style: italic; color: var(--coral-deep); font-weight: 500; }
+
+  /* Plant card mobile */
+  .m-plant {
+    width: 130px;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 12px 10px 10px;
+    box-shadow: var(--shadow-warm-sm);
+    text-align: center;
+    position: relative;
+  }
+  .m-plant .pc-portrait {
+    position: relative;
+    width: 96px; height: 96px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge), 0 4px 10px rgba(11,58,26,0.1);
+    display: flex; align-items: flex-end; justify-content: center;
+    overflow: hidden;
+  }
+  .m-plant .pc-portrait::before {
+    content: ""; position: absolute; inset: 4px;
+    border-radius: 50%; border: 1px solid rgba(11,58,26,0.05);
+  }
+  .m-plant .pc-portrait::after {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 25%, rgba(255,240,200,0.5) 0%, transparent 55%);
+    border-radius: 50%; pointer-events: none;
+  }
+  .m-plant .p-mini {
+    font-size: 48px; line-height: 1; margin-bottom: -2px;
+    filter: drop-shadow(0 6px 10px rgba(11,58,26,0.2));
+    position: relative; z-index: 2;
+  }
+  .m-plant .pc-mood {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    box-shadow: var(--shadow-warm-sm);
+    z-index: 3;
+  }
+  .m-plant .pc-mood.thriving { color: var(--leaf); }
+  .m-plant .pc-mood.thirsty { color: var(--sunshine); }
+  .m-plant .pc-mood.wilting { color: var(--coral); box-shadow: 0 0 0 2px rgba(255,107,61,0.22), var(--shadow-warm-sm); }
+  .m-plant.urgent .pc-portrait {
+    box-shadow: inset 0 0 0 2px var(--coral), 0 4px 10px rgba(255,107,61,0.2);
+  }
+  .m-plant .pc-name {
+    font-size: 12px; font-weight: 700; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .m-plant .pc-species {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 10px; color: var(--ink-soft);
+    margin-top: 1px;
+  }
+
+  /* ---- Weekly calendar (mobile compact) ---- */
+
+  .m-calendar {
+    margin: 0 16px;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 12px 10px;
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .m-calendar-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 0 6px;
+    margin-bottom: 8px;
+  }
+  .m-calendar-head h3 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 14px;
+  }
+  .m-calendar-head .wk-meta { font-size: 10px; color: var(--ink-softer); font-weight: 600; }
+  .m-calendar-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+  }
+  .m-day {
+    padding: 8px 2px;
+    border-radius: var(--radius-sm);
+    background: var(--paper-deep);
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .m-day.today {
+    background: var(--mint);
+    box-shadow: inset 0 0 0 1.5px var(--leaf);
+  }
+  .m-day .dc-dow { font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-softer); }
+  .m-day.today .dc-dow { color: var(--forest); }
+  .m-day .dc-day { font-family: "Fraunces"; font-style: italic; font-weight: 500; font-size: 17px; color: var(--ink); line-height: 1; }
+  .m-day .dc-dots { display: flex; gap: 2px; min-height: 5px; }
+  .m-day .dc-dots span { width: 4px; height: 4px; border-radius: 50%; background: var(--ink-softer); }
+  .m-day .dc-dots span.coral { background: var(--coral); }
+  .m-day .dc-dots span.leaf { background: var(--leaf); }
+  .m-day .dc-dots span.sun { background: var(--sunshine); }
+
+  /* ---- Bottom dock (flush, edge-to-edge, TICKET-019 style) ---- */
+
+  .m-dock {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 86px;
+    background: rgba(251,248,241,0.82);
+    backdrop-filter: blur(var(--blur-primary)) saturate(1.4);
+    -webkit-backdrop-filter: blur(var(--blur-primary)) saturate(1.4);
+    border-top: 1px solid var(--paper-edge);
+    padding: 10px 10px 30px;  /* 30px for home indicator */
+    display: flex; justify-content: space-around; align-items: center;
+    z-index: 20;
+  }
+  .m-dock .dock-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--ink-softer);
+    padding: 4px 6px;
+    min-width: 48px;
+    cursor: pointer;
+  }
+  .m-dock .dock-item .di-icon {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .m-dock .dock-item.active { color: var(--forest); }
+  .m-dock .dock-item.active .di-icon {
+    background: var(--mint);
+    color: var(--emerald);
+  }
+  .m-dock .dock-item .di-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .m-dock .dock-item.fab {
+    position: relative;
+    top: -12px;
+  }
+  .m-dock .dock-item.fab .di-icon {
+    width: 52px; height: 52px;
+    background: var(--gradient-brand);
+    color: var(--paper);
+    font-size: 22px; font-weight: 700;
+    box-shadow: 0 10px 24px -4px rgba(20,144,47,0.45), 0 4px 10px rgba(11,58,26,0.2), inset 0 0 0 3px var(--paper);
+  }
+  .m-dock .dock-item.fab .di-icon::before {
+    /* dashed orbit ring */
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px dashed rgba(20,144,47,0.3);
+  }
+  .m-dock .dock-item.fab .di-label { display: none; }
+
+  /* ---- Organiser RIGHT-SLIDE drawer (frame 2) ---- */
+  /* Organiser / notification centre slides in from the right edge. Distinct from CRUD bottom sheets.
+     Pattern: right = contextual info panel, bottom = transient action dialog. */
+
+  .m-sheet {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    width: 100%;
+    background: var(--paper);
+    z-index: 50;
+    padding: 54px 0 20px;
+    display: flex; flex-direction: column;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
+  }
+  .m-sheet::before {
+    /* subtle slide-in affordance — left-edge gradient hinting drag-from-right-edge to dismiss */
+    content: "";
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 20px;
+    background: linear-gradient(to right, rgba(11,58,26,0.06), transparent);
+    pointer-events: none;
+  }
+  .m-sheet .sheet-handle {
+    /* Back / dismiss indicator — top-left, arrow-style */
+    position: absolute;
+    top: 60px; left: 16px;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--paper-deep);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-soft);
+    font-size: 17px;
+    font-weight: 600;
+    opacity: 1;
+  }
+  .m-sheet .sheet-handle::after {
+    content: "‹";
+  }
+  .m-sheet .sheet-head {
+    padding: 4px 16px 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .m-sheet .sheet-head h2 { flex: 1; }
+  .m-sheet .sheet-head .sheet-back {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--paper-deep);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-soft);
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .m-sheet .sheet-head h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 22px; letter-spacing: -0.02em;
+  }
+  .m-sheet .sheet-close {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(80,56,18,0.08);
+    color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .m-sheet .sheet-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 60px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .m-sheet .sheet-body::-webkit-scrollbar { display: none; }
+
+  .m-sheet .m-tabs {
+    display: flex; gap: 4px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-full);
+    padding: 3px;
+    margin: 0 4px 12px;
+  }
+  .m-sheet .m-tab {
+    flex: 1; padding: 7px 10px;
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 700;
+    color: var(--ink-soft); text-align: center;
+  }
+  .m-sheet .m-tab.active {
+    background: var(--paper);
+    color: var(--forest);
+    box-shadow: var(--shadow-warm-sm);
+  }
+
+  /* Rail card on sheet */
+  .m-rail-card {
+    background: rgba(251,248,241,0.6);
+    backdrop-filter: blur(var(--blur-medium));
+    -webkit-backdrop-filter: blur(var(--blur-medium));
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(80,56,18,0.05);
+  }
+  .m-rail-card .rail-card-head {
+    padding: 14px 16px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .m-rail-card .rail-card-head h3 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 14px; letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .m-rail-card .rch-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+  .m-rail-card .rail-card-body { padding: 0 16px 12px; }
+
+  .m-rail-card .je {
+    padding: 9px 0;
+    border-top: 1px solid var(--paper-edge);
+    display: flex; gap: 10px;
+  }
+  .m-rail-card .je:first-of-type { border-top: none; padding-top: 2px; }
+  .m-rail-card .je .je-dot {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .m-rail-card .je .je-text { font-size: 11px; color: var(--ink); line-height: 1.4; }
+  .m-rail-card .je .je-meta {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 2px;
+  }
+  .m-rail-card .je .je-author { color: var(--emerald); }
+  .m-rail-card .je .je-author.sys { color: var(--sunshine-deep); }
+
+  /* Sheet backdrop dim */
+  .sheet-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(11,58,26,0.25);
+    backdrop-filter: blur(var(--blur-light));
+    -webkit-backdrop-filter: blur(var(--blur-light));
+    z-index: 45;
+  }
+
+  /* ---- Button primitive ---- */
+  .btn {
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.005em;
+    cursor: pointer;
+    border: none;
+    padding: 14px 26px;
+    border-radius: var(--radius-full);
+    transition: transform 140ms ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+  }
+  .btn-primary {
+    background: var(--gradient-brand);
+    color: var(--paper);
+    box-shadow: 0 6px 16px rgba(20,144,47,0.32), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .btn-secondary {
+    background: var(--mint);
+    color: var(--emerald);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+  }
+
+  /* ---- Bottom-sheet CRUD dialog (frame 4) ---- */
+  .m-sheet-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 88%;
+    background: var(--paper);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -12px 40px rgba(11,58,26,0.18), inset 0 1px 0 rgba(255,255,255,0.6);
+    z-index: 50;
+    display: flex; flex-direction: column;
+    padding: 8px 0 0;
+  }
+  .m-sheet-bottom .bs-handle {
+    width: 44px; height: 4px;
+    border-radius: 2px;
+    background: var(--ink-soft);
+    opacity: 0.3;
+    margin: 0 auto 8px;
+  }
+  .m-sheet-bottom .bs-head {
+    padding: 4px 16px 14px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--paper-edge);
+  }
+  .m-sheet-bottom .bs-head h2 {
+    flex: 1;
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 22px; letter-spacing: -0.02em;
+  }
+  .m-sheet-bottom .bs-head .bs-close {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(80,56,18,0.08);
+    color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .m-sheet-bottom .bs-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .m-sheet-bottom .bs-body::-webkit-scrollbar { display: none; }
+  .m-sheet-bottom .bs-footer {
+    padding: 12px 20px 30px;
+    border-top: 1px solid var(--paper-edge);
+    display: flex; gap: 10px;
+    background: var(--paper);
+  }
+  .m-sheet-bottom .bs-footer .btn {
+    flex: 1; justify-content: center;
+  }
+
+  /* Form field primitive */
+  .m-field { display: flex; flex-direction: column; gap: 6px; }
+  .m-field label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-softer);
+  }
+  .m-field input[type="text"] {
+    background: var(--paper-deep);
+    border: 1px solid var(--paper-edge);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    outline: none;
+  }
+  .m-field input[type="text"]:focus {
+    border-color: var(--leaf);
+    box-shadow: 0 0 0 3px rgba(50,196,86,0.18);
+  }
+
+  /* Species mini card */
+  .m-species-mini {
+    background: var(--gradient-forest, linear-gradient(135deg, #0b3a1a, #124626));
+    color: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .m-species-mini .sm-avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: rgba(255,255,255,0.96);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+  }
+  .m-species-mini .sm-info { min-width: 0; }
+  .m-species-mini .sm-name {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+  .m-species-mini .sm-meta {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+  /* Space picker chips */
+  .m-space-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+  .m-space-chip {
+    padding: 9px 14px;
+    background: var(--paper-deep);
+    border: 1px solid var(--paper-edge);
+    border-radius: var(--radius-full);
+    font-size: 12px; font-weight: 700;
+    color: var(--ink-soft);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .m-space-chip .ch-icon {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--mint);
+    color: var(--emerald);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+  .m-space-chip.active {
+    background: var(--leaf);
+    border-color: var(--leaf);
+    color: var(--paper);
+  }
+  .m-space-chip.active .ch-icon {
+    background: rgba(255,255,255,0.25);
+    color: var(--paper);
+  }
+
+  /* Segmented controls — mobile */
+  .m-segmented {
+    display: flex;
+    background: var(--paper-deep);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+    gap: 3px;
+  }
+  .m-segmented .seg-option {
+    flex: 1;
+    padding: 9px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    border-radius: 4px;
+  }
+  .m-segmented .seg-option.active {
+    background: var(--paper);
+    color: var(--forest);
+    box-shadow: var(--shadow-warm-sm);
+  }
+
+  /* Bottom-sheet backdrop */
+  .bsheet-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(11,58,26,0.42);
+    backdrop-filter: blur(var(--blur-light));
+    -webkit-backdrop-filter: blur(var(--blur-light));
+    z-index: 45;
+  }
+
+  /* ---- Radial action wheel (mobile) ---- */
+  .wheel-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(11,58,26,0.42);
+    backdrop-filter: blur(var(--blur-light));
+    -webkit-backdrop-filter: blur(var(--blur-light));
+    z-index: 50;
+  }
+  .m-wheel {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 260px; height: 260px;
+    z-index: 55;
+    pointer-events: none;
+  }
+  .m-wheel .rw-bg {
+    position: absolute; inset: -30px;
+    background: radial-gradient(circle at center,
+      rgba(20,144,47,0.22) 0%,
+      rgba(20,144,47,0.06) 45%,
+      transparent 75%);
+    border-radius: 50%;
+    filter: blur(10px);
+  }
+  .m-wheel .rw-ring {
+    position: absolute; inset: 30px;
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: var(--shadow-warm-lg), 0 0 0 1px rgba(80,56,18,0.08);
+  }
+  .m-wheel .rw-centre {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 78px; height: 78px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge), var(--shadow-warm-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    z-index: 4;
+  }
+  .m-wheel .rw-spoke {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: var(--shadow-warm-sm), 0 0 0 1px var(--paper-edge);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 22px;
+    z-index: 3;
+  }
+  .m-wheel .rw-spoke .rw-lbl {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-soft); margin-top: 1px;
+  }
+  .m-wheel .rw-spoke.top        { transform: translate(-50%, -50%) translate(0,   -96px); }
+  .m-wheel .rw-spoke.top-right  { transform: translate(-50%, -50%) translate(82px, -52px); }
+  .m-wheel .rw-spoke.bot-right  { transform: translate(-50%, -50%) translate(82px,  52px); }
+  .m-wheel .rw-spoke.bottom     { transform: translate(-50%, -50%) translate(0,    96px); }
+  .m-wheel .rw-spoke.bot-left   { transform: translate(-50%, -50%) translate(-82px, 52px); }
+  .m-wheel .rw-spoke.top-left   { transform: translate(-50%, -50%) translate(-82px,-52px); }
+  .m-wheel .rw-spoke.primary {
+    background: var(--gradient-brand);
+    color: var(--paper);
+    box-shadow: 0 8px 16px rgba(20,144,47,0.38), 0 0 0 1px rgba(20,144,47,0.45);
+    transform: translate(-50%, -50%) translate(0, -96px) scale(1.08);
+  }
+  .m-wheel .rw-spoke.primary .rw-lbl { color: rgba(255,255,255,0.9); }
+
+  /* Touch point indicator — subtle dot at finger position */
+  .touch-point {
+    position: absolute;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: rgba(20,144,47,0.18);
+    box-shadow: 0 0 0 2px rgba(20,144,47,0.35);
+    transform: translate(-50%, -50%);
+    z-index: 56;
+    pointer-events: none;
+  }
+  .touch-point::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: rgba(20,144,47,0.5);
+    box-shadow: 0 0 0 6px rgba(20,144,47,0.15);
+  }
+  .wheel-hint {
+    position: absolute;
+    bottom: 100px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(11,58,26,0.85);
+    color: var(--paper);
+    padding: 8px 14px;
+    border-radius: var(--radius-full);
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 12px;
+    z-index: 57;
+    white-space: nowrap;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  }
+
+  /* ---- Wrap up notes ---- */
+
+  .note {
+    max-width: 1100px; margin: 0 auto 48px;
+    padding: 20px 26px;
+    background: var(--paper);
+    border-left: 4px solid var(--emerald);
+    border-radius: 12px;
+    font-size: 13px; color: var(--ink);
+    line-height: 1.6;
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .note strong { color: var(--emerald); }
+
+  .wrap-up {
+    max-width: 1000px; margin: 0 auto 40px;
+    padding: 32px 40px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+  }
+  .wrap-up h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 32px; letter-spacing: -0.03em;
+    margin-bottom: 10px; text-align: center;
+  }
+  .wrap-up p {
+    color: var(--ink-soft); font-size: 14px;
+    max-width: 640px; margin: 0 auto 8px;
+    line-height: 1.65; text-align: center;
+  }
+  .wrap-up .key-list { text-align: left; max-width: 680px; margin: 24px auto 0; }
+  .wrap-up .key-list li {
+    position: relative;
+    padding: 10px 0 10px 32px;
+    list-style: none;
+    border-bottom: 1px dashed var(--paper-edge);
+    font-size: 13px;
+  }
+  .wrap-up .key-list li:last-child { border-bottom: none; }
+  .wrap-up .key-list li::before {
+    content: ""; position: absolute; left: 8px; top: 15px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.15);
+  }
+  .wrap-up .key-list li strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--ink); font-size: 14px; margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <span class="eyebrow">Mockup 18 · Today mobile · iPhone 15 Pro</span>
+    <h1>Today, <em>in hand</em>.</h1>
+    <p>Same vocabulary as the desktop Today — flush chrome, warm paper surfaces, circular plant portraits, swipe-to-complete rituals, circle-motif progress rings. Adapted for 393×852pt. Two frames: default state + organiser as Mac-notification-centre-style bottom sheet. Collection + jobs become horizontal carousels to preserve the same content without cramming.</p>
+  </header>
+
+  <!-- ==================================================== -->
+  <!-- Frame 1 — Default Today mobile -->
+  <!-- ==================================================== -->
+
+  <div class="phones-row">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="screen">
+
+          <!-- Background blobs -->
+          <div class="blob blob-mint" style="width: 320px; height: 320px; top: -120px; right: -140px;"></div>
+          <div class="blob blob-sun" style="width: 240px; height: 240px; bottom: 120px; left: -80px;"></div>
+          <div class="blob blob-coral" style="width: 180px; height: 180px; top: 45%; right: 20%;"></div>
+
+          <!-- Dynamic Island + status bar -->
+          <div class="island"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="ios-icons">
+              <svg viewBox="0 0 18 12"><path d="M1 10 C1 5 4 2 9 2 C14 2 17 5 17 10 L15 10 C15 7 13 5 9 5 C5 5 3 7 3 10 Z"/><circle cx="9" cy="10" r="1.5"/></svg>
+              <svg viewBox="0 0 18 12"><rect x="1" y="4" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1" fill="none"/><rect x="3" y="6" width="10" height="2" fill="currentColor"/><rect x="15.5" y="5.5" width="1" height="3" fill="currentColor"/></svg>
+            </span>
+          </div>
+
+          <!-- Top bar -->
+          <header class="m-topbar">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="top-actions">
+              <button class="top-btn">⌕</button>
+              <button class="top-btn bell">🔔</button>
+            </div>
+          </header>
+
+          <!-- Scrollable content -->
+          <div class="m-content">
+
+            <!-- Greeting + rings -->
+            <div class="m-head">
+              <div class="greet">
+                <span class="eyebrow"><span class="dot-concentric"></span>Wed · 23 Apr</span>
+                <h1>Morning, <em>Rob</em>.</h1>
+                <div class="greet-sub">One needs you — the rest are thriving.</div>
+              </div>
+              <div class="rings">
+                <div class="m-ring streak">
+                  <svg viewBox="0 0 40 40">
+                    <circle class="pr-bg" cx="20" cy="20" r="17"/>
+                    <circle class="pr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="25" transform="rotate(-90 20 20)"/>
+                  </svg>
+                  <div class="pr-inner"><div class="pr-num">7</div><div class="pr-label">Streak</div></div>
+                </div>
+                <div class="m-ring vitality">
+                  <svg viewBox="0 0 40 40">
+                    <circle class="pr-bg" cx="20" cy="20" r="17"/>
+                    <circle class="pr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="6" transform="rotate(-90 20 20)"/>
+                  </svg>
+                  <div class="pr-inner"><div class="pr-num">94</div><div class="pr-label">Vital</div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Weather compact -->
+            <div class="m-weather">
+              <div class="ws-icon">☀</div>
+              <div class="ws-body">
+                <div class="ws-head">
+                  <span class="ws-temp">22°</span>
+                  <span class="ws-cond">Bright · Manchester</span>
+                </div>
+                <div class="ws-advice">No rain today — outdoor plants need you.</div>
+              </div>
+            </div>
+
+            <!-- Rituals (primary action) -->
+            <div class="m-rituals">
+              <div class="m-rituals-head">
+                <h2>Today's rituals</h2>
+                <div class="m-meta"><strong>1 done</strong> · 2 to go</div>
+              </div>
+              <div class="m-ritual-row swiping">
+                <div class="rr-behind"><span class="check">✓</span>Done!</div>
+                <div class="rr-front">
+                  <div class="rr-avatar">🌿</div>
+                  <div class="rr-body">
+                    <div class="rr-name">Water Monty</div>
+                    <div class="rr-sub"><em>3 days overdue</em> · 500ml</div>
+                  </div>
+                  <div class="rr-tag overdue">Overdue</div>
+                  <div class="rr-handle"><span></span><span></span><span></span></div>
+                </div>
+              </div>
+              <div class="m-ritual-row">
+                <div class="rr-front">
+                  <div class="rr-avatar">🪴</div>
+                  <div class="rr-body">
+                    <div class="rr-name">Water Basil</div>
+                    <div class="rr-sub">Due today · 150ml</div>
+                  </div>
+                  <div class="rr-tag">Today</div>
+                  <div class="rr-handle"><span></span><span></span><span></span></div>
+                </div>
+              </div>
+              <div class="m-ritual-row">
+                <div class="rr-front">
+                  <div class="rr-avatar">🌱</div>
+                  <div class="rr-body">
+                    <div class="rr-name">Feed Fernie</div>
+                    <div class="rr-sub">Due today · half-strength</div>
+                  </div>
+                  <div class="rr-tag">Today</div>
+                  <div class="rr-handle"><span></span><span></span><span></span></div>
+                </div>
+              </div>
+              <div class="m-rituals-hint">← swipe to mark done</div>
+            </div>
+
+            <!-- Weekly calendar — promoted up, planning context near top -->
+            <div class="m-calendar">
+              <div class="m-calendar-head">
+                <h3>This week</h3>
+                <span class="wk-meta">rain Sun</span>
+              </div>
+              <div class="m-calendar-grid">
+                <div class="m-day">
+                  <span class="dc-dow">Mon</span>
+                  <span class="dc-day">21</span>
+                  <span class="dc-dots"><span class="leaf"></span></span>
+                </div>
+                <div class="m-day">
+                  <span class="dc-dow">Tue</span>
+                  <span class="dc-day">22</span>
+                  <span class="dc-dots"></span>
+                </div>
+                <div class="m-day today">
+                  <span class="dc-dow">Wed</span>
+                  <span class="dc-day">23</span>
+                  <span class="dc-dots"><span class="coral"></span><span class="leaf"></span><span class="leaf"></span></span>
+                </div>
+                <div class="m-day">
+                  <span class="dc-dow">Thu</span>
+                  <span class="dc-day">24</span>
+                  <span class="dc-dots"><span class="leaf"></span></span>
+                </div>
+                <div class="m-day">
+                  <span class="dc-dow">Fri</span>
+                  <span class="dc-day">25</span>
+                  <span class="dc-dots"><span class="sun"></span></span>
+                </div>
+                <div class="m-day">
+                  <span class="dc-dow">Sat</span>
+                  <span class="dc-day">26</span>
+                  <span class="dc-dots"><span class="leaf"></span><span class="leaf"></span></span>
+                </div>
+                <div class="m-day">
+                  <span class="dc-dow">Sun</span>
+                  <span class="dc-day">27</span>
+                  <span class="dc-dots"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Jobs rail (horizontal scroll) -->
+            <div>
+              <div class="m-section-label">
+                <h2>What can I help with?</h2>
+                <span class="m-more">all →</span>
+              </div>
+              <div class="m-hscroll">
+                <div class="m-job">
+                  <div class="jc-icon">💧</div>
+                  <div class="jc-body">
+                    <div class="jc-title">Water a plant</div>
+                    <div class="jc-sub">Pick who</div>
+                  </div>
+                </div>
+                <div class="m-job">
+                  <div class="jc-icon">🌱</div>
+                  <div class="jc-body">
+                    <div class="jc-title">Feed a plant</div>
+                    <div class="jc-sub">Pick who</div>
+                  </div>
+                </div>
+                <div class="m-job">
+                  <div class="jc-icon">📷</div>
+                  <div class="jc-body">
+                    <div class="jc-title">Take a photo</div>
+                    <div class="jc-sub">Track growth</div>
+                  </div>
+                </div>
+                <div class="m-job">
+                  <div class="jc-icon">＋</div>
+                  <div class="jc-body">
+                    <div class="jc-title">Meet a new plant</div>
+                    <div class="jc-sub">Add one</div>
+                  </div>
+                </div>
+                <div class="m-job">
+                  <div class="jc-icon">🩺</div>
+                  <div class="jc-body">
+                    <div class="jc-title">Diagnose a plant</div>
+                    <div class="jc-sub">Something off?</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Collection (horizontal scroll) -->
+            <div>
+              <div class="m-section-label">
+                <h2>Your greenhouse</h2>
+                <span class="m-more">5 plants →</span>
+              </div>
+              <div class="m-hscroll">
+                <div class="m-plant urgent">
+                  <div class="pc-portrait"><span class="p-mini">🌿</span></div>
+                  <div class="pc-mood wilting">●</div>
+                  <div class="pc-name">Monty</div>
+                  <div class="pc-species">Monstera deliciosa</div>
+                </div>
+                <div class="m-plant">
+                  <div class="pc-portrait"><span class="p-mini">🌵</span></div>
+                  <div class="pc-mood thriving">●</div>
+                  <div class="pc-name">Spike</div>
+                  <div class="pc-species">Echinocactus</div>
+                </div>
+                <div class="m-plant">
+                  <div class="pc-portrait"><span class="p-mini">🪴</span></div>
+                  <div class="pc-mood thirsty">●</div>
+                  <div class="pc-name">Basil</div>
+                  <div class="pc-species">Ocimum basilicum</div>
+                </div>
+                <div class="m-plant">
+                  <div class="pc-portrait"><span class="p-mini">🍃</span></div>
+                  <div class="pc-mood thriving">●</div>
+                  <div class="pc-name">Fernie</div>
+                  <div class="pc-species">Nephrolepis</div>
+                </div>
+                <div class="m-plant">
+                  <div class="pc-portrait"><span class="p-mini">🌱</span></div>
+                  <div class="pc-mood thriving">●</div>
+                  <div class="pc-name">Zee</div>
+                  <div class="pc-species">Zamioculcas</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom dock -->
+          <nav class="m-dock">
+            <div class="dock-item active">
+              <div class="di-icon">☀</div>
+              <div class="di-label">Today</div>
+            </div>
+            <div class="dock-item">
+              <div class="di-icon">⌂</div>
+              <div class="di-label">House</div>
+            </div>
+            <div class="dock-item fab">
+              <div class="di-icon">＋</div>
+            </div>
+            <div class="dock-item">
+              <div class="di-icon">✎</div>
+              <div class="di-label">Journal</div>
+            </div>
+            <div class="dock-item">
+              <div class="di-icon">◉</div>
+              <div class="di-label">Me</div>
+            </div>
+          </nav>
+
+        </div>
+      </div>
+      <div class="phone-caption">
+        <span class="tag">Frame 1</span>
+        <h3>Default Today</h3>
+        <p>Flush top bar · flush bottom dock · scrollable canvas between. Rituals primary. Jobs + collection as horizontal carousels.</p>
+      </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- Frame 2 — Organiser bottom sheet open -->
+    <!-- ==================================================== -->
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="screen">
+
+          <div class="blob blob-mint" style="width: 320px; height: 320px; top: -120px; right: -140px;"></div>
+          <div class="blob blob-sun" style="width: 240px; height: 240px; bottom: 120px; left: -80px;"></div>
+
+          <div class="island"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="ios-icons">
+              <svg viewBox="0 0 18 12"><path d="M1 10 C1 5 4 2 9 2 C14 2 17 5 17 10 L15 10 C15 7 13 5 9 5 C5 5 3 7 3 10 Z"/><circle cx="9" cy="10" r="1.5"/></svg>
+              <svg viewBox="0 0 18 12"><rect x="1" y="4" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1" fill="none"/><rect x="3" y="6" width="10" height="2" fill="currentColor"/><rect x="15.5" y="5.5" width="1" height="3" fill="currentColor"/></svg>
+            </span>
+          </div>
+
+          <header class="m-topbar">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="top-actions">
+              <button class="top-btn">⌕</button>
+              <button class="top-btn bell">🔔</button>
+            </div>
+          </header>
+
+          <!-- Partial content visible behind sheet -->
+          <div class="m-content">
+            <div class="m-head">
+              <div class="greet">
+                <span class="eyebrow"><span class="dot-concentric"></span>Wed · 23 Apr</span>
+                <h1>Morning, <em>Rob</em>.</h1>
+                <div class="greet-sub">One needs you — the rest are thriving.</div>
+              </div>
+              <div class="rings">
+                <div class="m-ring streak">
+                  <svg viewBox="0 0 40 40">
+                    <circle class="pr-bg" cx="20" cy="20" r="17"/>
+                    <circle class="pr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="25" transform="rotate(-90 20 20)"/>
+                  </svg>
+                  <div class="pr-inner"><div class="pr-num">7</div><div class="pr-label">Streak</div></div>
+                </div>
+                <div class="m-ring vitality">
+                  <svg viewBox="0 0 40 40">
+                    <circle class="pr-bg" cx="20" cy="20" r="17"/>
+                    <circle class="pr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="6" transform="rotate(-90 20 20)"/>
+                  </svg>
+                  <div class="pr-inner"><div class="pr-num">94</div><div class="pr-label">Vital</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="m-weather">
+              <div class="ws-icon">☀</div>
+              <div class="ws-body">
+                <div class="ws-head">
+                  <span class="ws-temp">22°</span>
+                  <span class="ws-cond">Bright · Manchester</span>
+                </div>
+                <div class="ws-advice">No rain today — outdoor plants need you.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Organiser full-width drawer — slides in from right; back arrow dismisses -->
+          <div class="m-sheet">
+            <div class="sheet-head">
+              <div class="sheet-back">‹</div>
+              <h2>Organiser</h2>
+              <div class="sheet-close">✕</div>
+            </div>
+
+            <div class="sheet-body">
+              <div class="m-tabs">
+                <div class="m-tab active">Journal</div>
+                <div class="m-tab">Goals</div>
+                <div class="m-tab">Earned</div>
+                <div class="m-tab">Weather</div>
+              </div>
+
+              <div class="m-rail-card">
+                <div class="rail-card-head">
+                  <h3><span class="rch-icon">✎</span>Latest entries</h3>
+                </div>
+                <div class="rail-card-body">
+                  <div class="je">
+                    <div class="je-dot">🌿</div>
+                    <div>
+                      <div class="je-meta"><span class="je-author sys">System</span> · just now</div>
+                      <div class="je-text">Monty moved from content to thirsty</div>
+                    </div>
+                  </div>
+                  <div class="je">
+                    <div class="je-dot">📷</div>
+                    <div>
+                      <div class="je-meta"><span class="je-author">You</span> · yesterday</div>
+                      <div class="je-text">New photo of Basil — doubled since March.</div>
+                    </div>
+                  </div>
+                  <div class="je">
+                    <div class="je-dot">🌵</div>
+                    <div>
+                      <div class="je-meta"><span class="je-author sys">Milestone</span> · 3d ago</div>
+                      <div class="je-text">Spike has been with you for 100 days</div>
+                    </div>
+                  </div>
+                  <div class="je">
+                    <div class="je-dot">🌿</div>
+                    <div>
+                      <div class="je-meta"><span class="je-author sys">System</span> · 17 Apr</div>
+                      <div class="je-text">You watered Monty · 500ml</div>
+                    </div>
+                  </div>
+                  <div class="je">
+                    <div class="je-dot">✎</div>
+                    <div>
+                      <div class="je-meta"><span class="je-author">You</span> · 15 Apr</div>
+                      <div class="je-text">Moved Monty closer to the window. Aerial roots going wild.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <nav class="m-dock">
+            <div class="dock-item active">
+              <div class="di-icon">☀</div>
+              <div class="di-label">Today</div>
+            </div>
+            <div class="dock-item">
+              <div class="di-icon">⌂</div>
+              <div class="di-label">House</div>
+            </div>
+            <div class="dock-item fab">
+              <div class="di-icon">＋</div>
+            </div>
+            <div class="dock-item">
+              <div class="di-icon">✎</div>
+              <div class="di-label">Journal</div>
+            </div>
+            <div class="dock-item">
+              <div class="di-icon">◉</div>
+              <div class="di-label">Me</div>
+            </div>
+          </nav>
+
+        </div>
+      </div>
+      <div class="phone-caption">
+        <span class="tag">Frame 2</span>
+        <h3>Organiser · full-width drawer</h3>
+        <p>Organiser slides in from the right edge and covers the full screen. Back arrow (top-left) + ✕ (top-right) dismiss. Tabs: Journal / Goals / Earned / Weather. Distinct from CRUD bottom sheets — right-slide means "info panel", bottom-slide means "action dialog".</p>
+      </div>
+    </div>
+
+    <!-- ================================================= -->
+    <!-- Frame 3 — Action wheel on mobile (long-press gesture) -->
+    <!-- ================================================= -->
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="screen">
+
+          <div class="blob blob-mint" style="width: 320px; height: 320px; top: -120px; right: -140px;"></div>
+
+          <div class="island"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="ios-icons">
+              <svg viewBox="0 0 18 12"><path d="M1 10 C1 5 4 2 9 2 C14 2 17 5 17 10 L15 10 C15 7 13 5 9 5 C5 5 3 7 3 10 Z"/><circle cx="9" cy="10" r="1.5"/></svg>
+              <svg viewBox="0 0 18 12"><rect x="1" y="4" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1" fill="none"/><rect x="3" y="6" width="10" height="2" fill="currentColor"/><rect x="15.5" y="5.5" width="1" height="3" fill="currentColor"/></svg>
+            </span>
+          </div>
+
+          <header class="m-topbar">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="top-actions">
+              <button class="top-btn">⌕</button>
+              <button class="top-btn bell">🔔</button>
+            </div>
+          </header>
+
+          <!-- Content dimmed behind the wheel (abbreviated — user long-pressed on collection strip) -->
+          <div class="m-content">
+            <div class="m-head">
+              <div class="greet">
+                <span class="eyebrow"><span class="dot-concentric"></span>Wed · 23 Apr</span>
+                <h1>Morning, <em>Rob</em>.</h1>
+                <div class="greet-sub">One needs you — the rest are thriving.</div>
+              </div>
+              <div class="rings">
+                <div class="m-ring streak">
+                  <svg viewBox="0 0 40 40">
+                    <circle class="pr-bg" cx="20" cy="20" r="17"/>
+                    <circle class="pr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="25" transform="rotate(-90 20 20)"/>
+                  </svg>
+                  <div class="pr-inner"><div class="pr-num">7</div><div class="pr-label">Streak</div></div>
+                </div>
+                <div class="m-ring vitality">
+                  <svg viewBox="0 0 40 40">
+                    <circle class="pr-bg" cx="20" cy="20" r="17"/>
+                    <circle class="pr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="6" transform="rotate(-90 20 20)"/>
+                  </svg>
+                  <div class="pr-inner"><div class="pr-num">94</div><div class="pr-label">Vital</div></div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="m-section-label">
+                <h2>Your greenhouse</h2>
+                <span class="m-more">5 plants →</span>
+              </div>
+              <div class="m-hscroll">
+                <div class="m-plant urgent">
+                  <div class="pc-portrait"><span class="p-mini">🌿</span></div>
+                  <div class="pc-mood wilting">●</div>
+                  <div class="pc-name">Monty</div>
+                  <div class="pc-species">Monstera deliciosa</div>
+                </div>
+                <div class="m-plant">
+                  <div class="pc-portrait"><span class="p-mini">🌵</span></div>
+                  <div class="pc-mood thriving">●</div>
+                  <div class="pc-name">Spike</div>
+                  <div class="pc-species">Echinocactus</div>
+                </div>
+                <div class="m-plant">
+                  <div class="pc-portrait"><span class="p-mini">🪴</span></div>
+                  <div class="pc-mood thirsty">●</div>
+                  <div class="pc-name">Basil</div>
+                  <div class="pc-species">Ocimum basilicum</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dim backdrop -->
+          <div class="wheel-backdrop"></div>
+
+          <!-- Touch point indicator — where the user's finger is long-pressing -->
+          <div class="touch-point" style="top: 50%; left: 50%;"></div>
+
+          <!-- Radial action wheel -->
+          <div class="m-wheel">
+            <div class="rw-bg"></div>
+            <div class="rw-ring"></div>
+            <div class="rw-spoke primary top">💧<span class="rw-lbl">Water</span></div>
+            <div class="rw-spoke top-right">🌱<span class="rw-lbl">Feed</span></div>
+            <div class="rw-spoke bot-right">📷<span class="rw-lbl">Photo</span></div>
+            <div class="rw-spoke bottom">✎<span class="rw-lbl">Note</span></div>
+            <div class="rw-spoke bot-left">🩺<span class="rw-lbl">Doctor</span></div>
+            <div class="rw-spoke top-left">⌂<span class="rw-lbl">Move</span></div>
+            <div class="rw-centre">🌿</div>
+          </div>
+
+          <div class="wheel-hint">Slide to a spoke &middot; release to commit</div>
+
+          <nav class="m-dock">
+            <div class="dock-item active">
+              <div class="di-icon">☀</div>
+              <div class="di-label">Today</div>
+            </div>
+            <div class="dock-item">
+              <div class="di-icon">⌂</div>
+              <div class="di-label">House</div>
+            </div>
+            <div class="dock-item fab">
+              <div class="di-icon">＋</div>
+            </div>
+            <div class="dock-item">
+              <div class="di-icon">✎</div>
+              <div class="di-label">Journal</div>
+            </div>
+            <div class="dock-item">
+              <div class="di-icon">◉</div>
+              <div class="di-label">Me</div>
+            </div>
+          </nav>
+
+        </div>
+      </div>
+      <div class="phone-caption">
+        <span class="tag">Frame 3</span>
+        <h3>Action wheel · long-press</h3>
+        <p>User long-pressed Monty in the collection carousel. Wheel blooms centred on the touch point. Slide finger to a spoke for haptic feedback, release to commit. Release at centre = cancel. Water spoke is primary (brand gradient), because Monty's wilting.</p>
+      </div>
+    </div>
+
+    <!-- ================================================= -->
+    <!-- Frame 4 — CRUD bottom-sheet dialog (Add Plant example) -->
+    <!-- ================================================= -->
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="screen">
+
+          <div class="blob blob-mint" style="width: 320px; height: 320px; top: -120px; right: -140px;"></div>
+
+          <div class="island"></div>
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="ios-icons">
+              <svg viewBox="0 0 18 12"><path d="M1 10 C1 5 4 2 9 2 C14 2 17 5 17 10 L15 10 C15 7 13 5 9 5 C5 5 3 7 3 10 Z"/><circle cx="9" cy="10" r="1.5"/></svg>
+              <svg viewBox="0 0 18 12"><rect x="1" y="4" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1" fill="none"/><rect x="3" y="6" width="10" height="2" fill="currentColor"/><rect x="15.5" y="5.5" width="1" height="3" fill="currentColor"/></svg>
+            </span>
+          </div>
+
+          <header class="m-topbar">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="top-actions">
+              <button class="top-btn">⌕</button>
+              <button class="top-btn bell">🔔</button>
+            </div>
+          </header>
+
+          <!-- Abbreviated content behind sheet (just enough to show it's dimmed) -->
+          <div class="m-content">
+            <div class="m-head">
+              <div class="greet">
+                <span class="eyebrow"><span class="dot-concentric"></span>Wed · 23 Apr</span>
+                <h1>Morning, <em>Rob</em>.</h1>
+              </div>
+            </div>
+          </div>
+
+          <!-- Backdrop dims content -->
+          <div class="bsheet-backdrop"></div>
+
+          <!-- Bottom-sheet CRUD dialog -->
+          <div class="m-sheet-bottom">
+            <div class="bs-handle"></div>
+            <div class="bs-head">
+              <h2>Meet a new plant</h2>
+              <div class="bs-close">✕</div>
+            </div>
+            <div class="bs-body">
+
+              <div class="m-field">
+                <label>Species</label>
+                <div class="m-species-mini">
+                  <div class="sm-avatar">🌿</div>
+                  <div class="sm-info">
+                    <div class="sm-name">Monstera deliciosa</div>
+                    <div class="sm-meta">Swiss cheese plant</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="m-field">
+                <label>Nickname</label>
+                <input type="text" value="Monty">
+              </div>
+
+              <div class="m-field">
+                <label>Space</label>
+                <div class="m-space-picker">
+                  <div class="m-space-chip active"><span class="ch-icon">🛋</span>Living Room</div>
+                  <div class="m-space-chip"><span class="ch-icon">🍳</span>Kitchen</div>
+                  <div class="m-space-chip"><span class="ch-icon">🛏</span>Bedroom</div>
+                  <div class="m-space-chip"><span class="ch-icon">☕</span>Patio</div>
+                </div>
+              </div>
+
+              <div class="m-field">
+                <label>Light</label>
+                <div class="m-segmented">
+                  <div class="seg-option">Low</div>
+                  <div class="seg-option active">Medium</div>
+                  <div class="seg-option">Bright</div>
+                </div>
+              </div>
+
+              <div class="m-field">
+                <label>Temperature</label>
+                <div class="m-segmented">
+                  <div class="seg-option">Cool</div>
+                  <div class="seg-option active">Average</div>
+                  <div class="seg-option">Warm</div>
+                </div>
+              </div>
+
+              <div class="m-field">
+                <label>Humidity</label>
+                <div class="m-segmented">
+                  <div class="seg-option">Dry</div>
+                  <div class="seg-option active">Average</div>
+                  <div class="seg-option">Humid</div>
+                </div>
+              </div>
+
+            </div>
+            <div class="bs-footer">
+              <button class="btn btn-primary">Add to greenhouse →</button>
+            </div>
+          </div>
+
+          <nav class="m-dock">
+            <div class="dock-item active">
+              <div class="di-icon">☀</div>
+              <div class="di-label">Today</div>
+            </div>
+            <div class="dock-item">
+              <div class="di-icon">⌂</div>
+              <div class="di-label">House</div>
+            </div>
+            <div class="dock-item fab">
+              <div class="di-icon">＋</div>
+            </div>
+            <div class="dock-item">
+              <div class="di-icon">✎</div>
+              <div class="di-label">Journal</div>
+            </div>
+            <div class="dock-item">
+              <div class="di-icon">◉</div>
+              <div class="di-label">Me</div>
+            </div>
+          </nav>
+
+        </div>
+      </div>
+      <div class="phone-caption">
+        <span class="tag">Frame 4</span>
+        <h3>CRUD · bottom sheet</h3>
+        <p>Add Plant dialog as Vaul-style bottom sheet. Drag-handle at top for swipe-down dismiss. Form: species mini-card (forest gradient) + nickname + space picker chips + 3 segmented controls for environment. Primary CTA at the sheet footer. Covers ~88% of viewport; dashboard dimmed behind.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Three distinct motions on mobile — all shown.</strong> User learns "right = info, bottom = action, centre = wheel". <strong>Frame 2 · right-slide full-width drawer</strong> hosts the Organiser / notification centre — matches desktop's right-side placement; back arrow + ✕ dismiss. <strong>Frame 4 · Vaul-style bottom sheet</strong> hosts transient CRUD actions: Add / Edit / Delete / Log care / Add space. Drag-handle on top for swipe-down dismiss. Dedicated dialog library lives in mockup 20 covering all CRUD variants. <strong>Frame 3 · radial wheel</strong> at long-press anchor — for single-plant rich actions. Same visual language across all three (circles, warm paper, gradients), different gesture vocabulary per purpose. <br><br>
+    <strong>Desktop vocabulary → mobile adaptation.</strong> Sidebar → bottom dock (5 slots, FAB raised centre). Right-rail glass overlay → right-slide drawer (same content, different container). Collection + jobs grids → horizontal scroll carousels with right-edge fade. Weather strip one-line. Weekly calendar 7-column grid. Rituals keep swipe-to-complete + handle-dots + 6px peek. Circles everywhere — rings 54px, portraits 96px, wheel 260px.
+  </div>
+
+  <div class="wrap-up">
+    <h2>Mobile rules carried forward</h2>
+    <p>What the iPhone frame establishes for the other six regions.</p>
+    <p><strong>2026-04-24 polish pass.</strong> Ritual row padding rebalanced (10px top/bottom, flex-centered) so tag-less rows don't sag. Horizontal carousel primitive now feathers on <em>both</em> edges with a 16px linear-gradient mask + -16px negative margin, so items breathe at the card rail's left and right equally — post-21 canonical shape. Greet-sub warmed to match mockup 17's tone ("One needs you — the rest are thriving."). Confirmed clean against frozen rules: no <code>--radius-xl</code>, no hard-coded blur/radius px, no personality-badge chips, no voice-sample markup, Plus Jakarta + Fraunces only.</p>
+    <ul class="key-list">
+      <li><strong>Sidebar → Dock.</strong> 5-slot bottom dock becomes the canonical mobile nav. Same 5 regions as desktop sidebar; FAB at centre slot, elevated.</li>
+      <li><strong>Right-rail → bottom sheet.</strong> Whatever was in the glass rail on desktop becomes a bottom sheet on mobile. Tabs replace the card stack. Vaul-style drag-dismiss handle at top.</li>
+      <li><strong>Horizontal multi-item rows become scroll carousels.</strong> No grid wrapping on mobile — keep content flowing horizontally.</li>
+      <li><strong>All circles stay circular.</strong> Plant portraits, rings, FAB, dock icons, sheet avatars — all round. Motif survives the shrink.</li>
+      <li><strong>Top bar + dock are both flush edge-to-edge</strong> with backdrop-filter translucency. No floating dock (that was v1 / abandoned), no floating top bar.</li>
+      <li><strong>Swipe-to-complete + handle dots + permanent 6px peek</strong> carry over unchanged. iOS-native feel.</li>
+      <li><strong>Radial wheel on tap-hold</strong> appears at tap point — not drawn in this mockup but same vocabulary as desktop. Will surface on the House + Plant Detail mobile mockups.</li>
+      <li><strong>Dynamic Island + safe areas respected.</strong> 54pt top safe area, 34pt home indicator zone at bottom (30px dock bottom padding accounts for it).</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

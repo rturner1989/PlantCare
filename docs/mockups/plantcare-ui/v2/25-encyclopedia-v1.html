@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — Encyclopedia · both viewports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --paper-deep: #f3eee2;
+    --paper-edge: #e8ddc6;
+    --base: #f6fbf4;
+    --mint: #dff2e2;
+    --lime: #86db65;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --forest-2: #124626;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --coral-deep: #c4412a;
+    --sunshine: #ffb83d;
+    --sunshine-deep: #a56d12;
+    --sky: #c7e3f5;
+    --sky-deep: #2c6a94;
+    --shadow-warm-sm: 0 2px 10px rgba(80,56,18,0.07), 0 0 0 1px rgba(80,56,18,0.025);
+    --shadow-warm-md: 0 18px 40px rgba(80,56,18,0.10), 0 2px 8px rgba(80,56,18,0.04);
+    --shadow-warm-lg: 0 36px 80px -8px rgba(80,56,18,0.18), 0 6px 16px rgba(80,56,18,0.06);
+    --shadow-cta: 0 6px 16px rgba(20,144,47,0.32), inset 0 1px 0 rgba(255,255,255,0.3);
+    --shadow-fab: 0 12px 32px -4px rgba(20,144,47,0.45), 0 4px 10px rgba(11,58,26,0.2), inset 0 1px 0 rgba(255,255,255,0.25);
+    --shadow-medallion: 0 30px 60px -12px rgba(11,58,26,0.28), inset 0 0 0 1px rgba(11,58,26,0.08);
+    --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #eff7e6 55%, #e4efd5 100%);
+    --gradient-paper: linear-gradient(180deg, #fbf8f1 0%, #f6f0e0 100%);
+    --gradient-display: linear-gradient(130deg, #0b3a1a 0%, #14902f 60%, #32c456 100%);
+    --gradient-brand: linear-gradient(135deg, #32c456, #14902f);
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+
+    --blur-heavy: 24px;
+    --blur-primary: 20px;
+    --blur-medium: 12px;
+    --blur-light: 2px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #ecece0;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+  .page { max-width: 1440px; margin: 0 auto; }
+  .page-header { text-align: center; margin-bottom: 56px; }
+  .page-header .eyebrow {
+    display: inline-block; padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 64px; letter-spacing: -0.035em;
+    line-height: 1; margin-bottom: 18px;
+  }
+  .page-header p {
+    font-size: 17px; color: var(--ink-soft);
+    max-width: 760px; margin: 0 auto; line-height: 1.6;
+  }
+  .step-caption {
+    max-width: 1360px; margin: 48px auto 14px; padding: 0 8px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .step-caption .tag {
+    display: inline-block; padding: 4px 12px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .step-caption h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 32px; letter-spacing: -0.02em;
+  }
+  .step-caption .spec {
+    margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600;
+  }
+  .step-row {
+    display: flex; gap: 40px; align-items: flex-start;
+    justify-content: center; flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  /* Browser frame */
+  .browser {
+    background: #f5f1e8;
+    border-radius: 16px;
+    box-shadow: var(--shadow-warm-lg);
+    overflow: hidden;
+    border: 1px solid rgba(80,56,18,0.1);
+    width: 960px;
+    flex-shrink: 0;
+  }
+  .browser .chrome {
+    height: 38px; background: #ede6d5;
+    border-bottom: 1px solid rgba(80,56,18,0.1);
+    display: flex; align-items: center; padding: 0 14px; gap: 8px;
+  }
+  .browser .chrome .dots { display: flex; gap: 6px; }
+  .browser .chrome .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .browser .chrome .dot-r { background: #ff5f57; }
+  .browser .chrome .dot-y { background: #febc2e; }
+  .browser .chrome .dot-g { background: #28c840; }
+  .browser .chrome .url {
+    flex: 1; margin: 0 14px; height: 22px;
+    background: var(--paper);
+    border: 1px solid rgba(80,56,18,0.08);
+    border-radius: 5px;
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 11px; color: var(--ink-softer);
+    font-family: "SF Mono", Consolas, monospace;
+  }
+  .browser .viewport {
+    height: 780px;
+    background: var(--gradient-mint);
+    position: relative; overflow: hidden;
+  }
+  .browser .viewport::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+
+  /* iPhone 15 Pro */
+  .phone {
+    width: 413px; height: 872px;
+    background: #0a0a0a;
+    border-radius: 56px; padding: 10px;
+    box-shadow: 0 0 0 2px #2a2a2a, 0 36px 80px -8px rgba(11,58,26,0.3), 0 12px 24px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+  }
+  .phone .screen {
+    width: 393px; height: 852px;
+    border-radius: 48px;
+    background: var(--gradient-mint);
+    overflow: hidden; position: relative;
+  }
+  .phone .screen::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+  .phone .island {
+    position: absolute; top: 21px; left: 50%;
+    transform: translateX(-50%);
+    width: 123px; height: 37px;
+    background: #000; border-radius: 100px;
+    z-index: 40;
+  }
+  .phone .status-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 30px 0;
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    z-index: 30; pointer-events: none;
+  }
+
+  /* Blobs */
+  .blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(70px);
+    pointer-events: none; z-index: 0;
+    opacity: 0.55;
+  }
+  .blob-mint { background: rgba(134,219,101,0.35); }
+  .blob-sun { background: rgba(255,184,61,0.25); }
+
+  /* Logo */
+  .logo {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 17px; letter-spacing: -0.01em;
+    color: var(--ink); text-decoration: none;
+  }
+  .logo-mark {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--gradient-brand);
+    position: relative;
+    box-shadow: inset 0 0 0 2px var(--paper);
+  }
+  .logo-mark::after {
+    content: ""; position: absolute; inset: 6px;
+    border-radius: 50%; background: var(--paper);
+  }
+  .logo em { font-family: "Fraunces"; font-style: italic; font-weight: 400; color: var(--emerald); }
+
+  /* Desktop shell */
+  .t-shell {
+    width: 100%; height: 100%;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    grid-template-rows: 1fr;
+    position: relative; z-index: 3;
+    min-height: 0;
+  }
+  .t-sidebar {
+    background: var(--paper);
+    border-right: 1px solid var(--paper-edge);
+    padding: 18px 14px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .t-sidebar .sb-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px; }
+  .t-sidebar .sb-bell {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--paper-deep);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--ink-soft);
+    position: relative;
+  }
+  .t-sidebar .sb-bell::after {
+    content: ""; position: absolute; top: 3px; right: 3px;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--coral);
+    box-shadow: 0 0 0 1.5px var(--paper);
+  }
+  .t-sidebar .sb-cmd {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-full);
+    font-size: 11px; color: var(--ink-softer);
+    font-weight: 600;
+  }
+  .t-sidebar .sb-cmd .cmd-icon { color: var(--emerald); }
+  .t-sidebar .sb-cmd .cmd-kbd {
+    margin-left: auto;
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 9px; padding: 1px 5px;
+    background: var(--paper); border-radius: 3px;
+    color: var(--ink-soft);
+    border: 1px solid var(--paper-edge);
+  }
+  .t-sidebar .sb-nav-label {
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-softer);
+    padding: 0 12px 6px;
+  }
+  .t-sidebar .sb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .t-sidebar .sb-item .sb-icon {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; border-radius: 50%;
+    color: var(--ink-softer);
+  }
+  .t-sidebar .sb-item.active { background: var(--mint); color: var(--forest); font-weight: 700; }
+  .t-sidebar .sb-item.active .sb-icon { background: var(--emerald); color: var(--paper); }
+  .t-sidebar .sb-item .count { margin-left: auto; font-size: 10px; font-weight: 700; color: var(--ink-softer); }
+  .t-sidebar .sb-spacer { flex: 1; }
+  .t-sidebar .user-card {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--paper-deep);
+    font-size: 12px;
+  }
+  .t-sidebar .user-card .ua {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--gradient-brand);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--paper); font-weight: 700; font-size: 12px;
+  }
+  .t-sidebar .user-card .un { font-weight: 700; color: var(--ink); line-height: 1.2; }
+  .t-sidebar .user-card .um { font-size: 10px; color: var(--ink-softer); font-weight: 500; }
+
+  /* Main */
+  .t-main {
+    padding: 22px 24px 24px;
+    position: relative;
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 18px;
+    min-width: 0;
+    min-height: 0;
+    scrollbar-width: none;
+  }
+  .t-main::-webkit-scrollbar { display: none; }
+
+  /* Encyclopedia head */
+  .enc-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+  .enc-head .title-block { min-width: 0; }
+  .enc-head .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--emerald);
+    margin-bottom: 6px;
+  }
+  .enc-head .dot-concentric {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.2);
+  }
+  .enc-head h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 38px; letter-spacing: -0.025em;
+    line-height: 1;
+  }
+  .enc-head h1 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .enc-head .meta { font-size: 12px; color: var(--ink-soft); font-weight: 600; margin-top: 6px; }
+
+  /* Search */
+  .enc-search {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px;
+    background: var(--paper);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-warm-sm);
+    flex-shrink: 0;
+  }
+  .enc-search .s-icon {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--mint); color: var(--emerald);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; flex-shrink: 0;
+  }
+  .enc-search input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-family: inherit; font-size: 14px; color: var(--ink);
+    min-width: 0;
+  }
+  .enc-search input::placeholder { color: var(--ink-softer); }
+  .enc-search .s-clear {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--paper-deep); color: var(--ink-softer);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; cursor: pointer; border: none;
+  }
+
+  /* Featured articles carousel */
+  .enc-articles {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .art-card {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-warm-md);
+    padding: 14px 16px;
+    min-height: 120px;
+    display: flex; flex-direction: column; justify-content: flex-start;
+    cursor: pointer;
+  }
+  .art-card.featured {
+    background: linear-gradient(135deg, #1a5e2a 0%, #0b3a1a 50%, #124626 100%);
+    color: var(--paper);
+    min-height: 140px;
+  }
+  .art-card.featured::before {
+    content: "";
+    position: absolute; top: -40px; right: -40px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(255,184,61,0.35), transparent 60%);
+    pointer-events: none;
+  }
+  .art-card.chill {
+    background: linear-gradient(135deg, var(--paper) 0%, var(--mint) 120%);
+    color: var(--ink);
+  }
+  .art-card.warm {
+    background: linear-gradient(135deg, rgba(255,184,61,0.18) 0%, var(--paper) 100%);
+    color: var(--ink);
+  }
+  .art-card .art-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.22);
+    border-radius: var(--radius-full);
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    width: fit-content;
+    margin-bottom: 10px;
+    position: relative; z-index: 2;
+  }
+  .art-card.chill .art-tag, .art-card.warm .art-tag {
+    background: var(--paper);
+    color: var(--emerald);
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .art-card .art-tag .tag-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--sunshine);
+  }
+  .art-card h3 {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic; font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin-bottom: 6px;
+    position: relative; z-index: 2;
+  }
+  .art-card.featured h3 { font-size: 22px; }
+  .art-card.chill h3, .art-card.warm h3 { font-size: 16px; }
+  .art-card.featured h3 em {
+    background: linear-gradient(135deg, #ffd479, #ffb83d);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .art-card .art-meta {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    opacity: 0.7;
+    position: relative; z-index: 2;
+    margin-top: auto;
+    padding-top: 10px;
+  }
+
+  /* Unified filter toolbar — shared vocabulary with Journal (mockup 23).
+     Wrapped in a paper strip so button + badges read as a contained unit on the mint bg. */
+  .enc-toolbar {
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0; flex-wrap: wrap;
+    position: relative;
+    padding: 10px 14px;
+    background: var(--paper);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .enc-filter-btn {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px 6px 10px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-full);
+    border: none; font-family: inherit;
+    font-size: 12px; font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 140ms ease;
+  }
+  .enc-filter-btn:hover { background: var(--paper-edge); }
+  .enc-filter-btn .fb-icon {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--paper); color: var(--emerald);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+  }
+  .enc-filter-btn.has-active { background: var(--mint); color: var(--forest); }
+  .enc-filter-btn.has-active .fb-icon { background: var(--emerald); color: var(--paper); box-shadow: none; }
+  .enc-filter-btn .fb-count {
+    margin-left: 2px; padding: 0 6px;
+    background: var(--emerald); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 10px; font-weight: 800;
+    min-width: 18px; text-align: center;
+  }
+  .enc-badges {
+    display: flex; gap: 4px; align-items: center;
+    flex-wrap: wrap;
+  }
+  .enc-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 4px 3px 10px;
+    background: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 700;
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+  }
+  .enc-badge .b-x {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--paper-deep);
+    color: var(--ink-soft);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800;
+    cursor: pointer;
+  }
+  .enc-badge .b-x:hover { background: var(--coral); color: var(--paper); }
+  .enc-clear {
+    background: none; border: none; padding: 4px 8px;
+    color: var(--ink-softer); font-size: 11px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    text-decoration: underline dotted;
+  }
+  .enc-clear:hover { color: var(--coral-deep); }
+  .enc-sort {
+    margin-left: auto;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 12px;
+    background: transparent;
+    color: var(--ink-soft);
+    border: none; font-family: inherit;
+    font-size: 11px; font-weight: 700;
+    cursor: pointer;
+    border-radius: var(--radius-full);
+  }
+  .enc-sort:hover { background: var(--paper-deep); color: var(--ink); }
+
+  /* Filter popover — mirrors Journal */
+  .enc-filter-popover {
+    position: absolute;
+    top: calc(100% + 8px); left: 0;
+    width: 360px;
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-warm-lg);
+    padding: 16px 18px;
+    z-index: 30;
+    display: none;
+  }
+  .enc-filter-popover.open { display: block; }
+  .enc-filter-popover::before {
+    content: "";
+    position: absolute;
+    top: -6px; left: 22px;
+    width: 12px; height: 12px;
+    background: var(--paper);
+    transform: rotate(45deg);
+    border-top: 1px solid var(--paper-edge);
+    border-left: 1px solid var(--paper-edge);
+  }
+  .enc-filter-popover h5 {
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 8px;
+    margin-top: 14px;
+  }
+  .enc-filter-popover h5:first-child { margin-top: 0; }
+  .enc-filter-popover .fp-row {
+    display: flex; flex-wrap: wrap; gap: 4px;
+  }
+  .enc-filter-popover .fp-chip {
+    padding: 4px 10px;
+    background: var(--paper-deep);
+    color: var(--ink-soft);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 700;
+    cursor: pointer;
+    border: none; font-family: inherit;
+  }
+  .enc-filter-popover .fp-chip:hover { background: var(--paper-edge); }
+  .enc-filter-popover .fp-chip.selected {
+    background: var(--emerald); color: var(--paper);
+  }
+  .enc-filter-popover .fp-count {
+    margin-left: 4px; opacity: 0.6; font-weight: 800;
+  }
+  .enc-filter-popover .fp-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 16px; padding-top: 12px;
+    border-top: 1px solid var(--paper-edge);
+  }
+  .enc-filter-popover .fp-footer .fp-reset {
+    background: none; border: none;
+    color: var(--ink-softer); font-size: 11px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+  }
+  .enc-filter-popover .fp-footer .fp-apply {
+    padding: 6px 14px; border-radius: var(--radius-full);
+    background: var(--gradient-brand); color: var(--paper);
+    border: none; font-family: inherit;
+    font-size: 11px; font-weight: 800;
+    cursor: pointer; box-shadow: var(--shadow-cta);
+  }
+
+  /* Species grid */
+  .enc-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    padding-bottom: 4px;
+  }
+  .sp-card {
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-warm-sm);
+    padding: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+    cursor: pointer;
+    transition: box-shadow 160ms ease, transform 160ms ease;
+    position: relative;
+  }
+  .sp-card:hover { box-shadow: var(--shadow-warm-md); transform: translateY(-2px); }
+  .sp-card .sp-photo {
+    width: 100%;
+    aspect-ratio: 1.2;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #a8d9aa, #77b97a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 54px;
+    position: relative;
+    overflow: hidden;
+  }
+  .sp-card .sp-photo::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 25% 20%, rgba(255,255,255,0.25), transparent 55%);
+  }
+  .sp-card .sp-photo .have-pill {
+    position: absolute; top: 8px; right: 8px;
+    padding: 3px 8px;
+    background: var(--paper); color: var(--emerald);
+    border-radius: var(--radius-full);
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.06em;
+    display: inline-flex; align-items: center; gap: 4px;
+    box-shadow: var(--shadow-warm-sm);
+    z-index: 2;
+  }
+  .sp-card .sp-photo .have-pill .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--emerald);
+  }
+  .sp-card .sp-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .sp-card .sp-name {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 17px; color: var(--ink);
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  .sp-card .sp-sci {
+    font-size: 11px; color: var(--ink-softer);
+    font-style: italic;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sp-card .sp-traits {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    margin-top: 4px;
+  }
+  .trait {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px 2px 4px;
+    background: var(--paper-deep);
+    color: var(--ink-soft);
+    border-radius: var(--radius-full);
+    font-size: 10px; font-weight: 700;
+  }
+  .trait .t-icon {
+    width: 14px; height: 14px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px;
+  }
+  .trait.water { background: rgba(75,180,216,0.18); color: var(--sky-deep); }
+  .trait.water .t-icon { background: var(--sky-deep); color: #fff; }
+  .trait.light { background: rgba(255,184,61,0.2); color: var(--sunshine-deep); }
+  .trait.light .t-icon { background: var(--sunshine-deep); color: #fff; }
+  .trait.safe { background: var(--mint); color: var(--emerald); }
+  .trait.safe .t-icon { background: var(--emerald); color: #fff; }
+  .trait.caution { background: rgba(255,107,61,0.18); color: var(--coral-deep); }
+  .trait.caution .t-icon { background: var(--coral-deep); color: #fff; }
+
+  /* Legend strip */
+  .enc-legend {
+    display: flex; gap: 16px; align-items: center;
+    padding: 10px 16px;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-warm-sm);
+    font-size: 11px; color: var(--ink-soft); font-weight: 600;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .enc-legend .lg-label {
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-right: -8px;
+  }
+  .enc-legend .lg-item {
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .enc-legend .lg-icon {
+    width: 18px; height: 18px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; color: #fff;
+  }
+  .enc-legend .lg-icon.water { background: var(--sky-deep); }
+  .enc-legend .lg-icon.light { background: var(--sunshine-deep); }
+  .enc-legend .lg-icon.safe { background: var(--emerald); }
+  .enc-legend .lg-icon.caution { background: var(--coral-deep); }
+
+  /* ================= SPECIES DETAIL ================= */
+
+  .sp-detail-wrap {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 18px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .sp-hero {
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+    overflow: hidden;
+    position: relative;
+  }
+  .sp-hero .sp-image {
+    height: 220px;
+    background: linear-gradient(135deg, #77b97a 0%, #32c456 50%, #155e2a 100%);
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 120px;
+  }
+  .sp-hero .sp-image::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,240,200,0.4), transparent 55%);
+  }
+  .sp-hero .sp-image .sp-personality {
+    position: absolute; top: 16px; right: 16px;
+    padding: 6px 12px 6px 6px;
+    background: var(--paper); color: var(--ink);
+    border-radius: var(--radius-full);
+    display: inline-flex; align-items: center; gap: 6px;
+    box-shadow: var(--shadow-warm-sm);
+    font-size: 11px; font-weight: 700;
+    z-index: 2;
+  }
+  .sp-hero .sp-image .sp-personality .em {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--mint); color: var(--emerald);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .sp-hero-body { padding: 18px 24px 22px; }
+  .sp-hero-body .eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--emerald);
+    margin-bottom: 4px;
+  }
+  .sp-hero-body .eyebrow .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.2);
+  }
+  .sp-hero-body h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 36px; letter-spacing: -0.025em;
+    line-height: 1;
+  }
+  .sp-hero-body h1 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .sp-hero-body .sci {
+    font-family: "Fraunces"; font-style: italic;
+    font-size: 14px; color: var(--ink-soft);
+    margin-top: 4px;
+  }
+  .sp-hero-body .summary {
+    font-size: 14px; color: var(--ink-soft); line-height: 1.6;
+    margin-top: 14px;
+    max-width: 560px;
+  }
+
+  /* Reader body */
+  .sp-sections { display: flex; flex-direction: column; gap: 16px; }
+  .sp-section {
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-sm);
+    padding: 18px 24px;
+  }
+  .sp-section h3 {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic; font-weight: 400;
+    font-size: 22px; letter-spacing: -0.015em;
+    margin-bottom: 8px;
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .sp-section h3 em { color: var(--emerald); }
+  .sp-section h3 .h-meta {
+    margin-left: auto;
+    font-family: "Plus Jakarta Sans"; font-style: normal;
+    font-size: 10px; font-weight: 700;
+    color: var(--ink-softer);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .sp-section p {
+    font-size: 14px; color: var(--ink-soft); line-height: 1.65;
+    margin-bottom: 10px;
+  }
+  .sp-section p strong { color: var(--ink); }
+  .sp-section p em { font-family: "Fraunces"; color: var(--ink); font-style: italic; }
+  .sp-section ul.tips {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 8px;
+    margin-top: 6px;
+  }
+  .sp-section ul.tips li {
+    position: relative;
+    padding-left: 22px;
+    font-size: 13px; color: var(--ink-soft); line-height: 1.55;
+  }
+  .sp-section ul.tips li::before {
+    content: "";
+    position: absolute; left: 4px; top: 6px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.15);
+  }
+
+  /* Right rail — care at a glance */
+  .sp-rail {
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .care-card {
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-sm);
+    padding: 18px 20px;
+  }
+  .care-card h4 {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 12px;
+  }
+  .care-fact {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0;
+    border-top: 1px solid var(--paper-edge);
+  }
+  .care-fact:first-of-type { border-top: none; padding-top: 0; }
+  .care-fact .cf-icon {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--mint); color: var(--emerald);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .care-fact.water .cf-icon { background: rgba(75,180,216,0.2); color: var(--sky-deep); }
+  .care-fact.light .cf-icon { background: rgba(255,184,61,0.22); color: var(--sunshine-deep); }
+  .care-fact.temp .cf-icon { background: rgba(255,107,61,0.18); color: var(--coral-deep); }
+  .care-fact .cf-label {
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-softer);
+  }
+  .care-fact .cf-value {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 15px; color: var(--ink);
+    line-height: 1.1;
+  }
+
+  .community-card {
+    background: linear-gradient(135deg, var(--paper) 0%, var(--mint) 180%);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-sm);
+    padding: 18px 20px;
+  }
+  .community-card h4 {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 8px;
+  }
+  .community-card .count {
+    font-family: "Fraunces"; font-style: italic;
+    font-size: 32px; color: var(--ink);
+    line-height: 1;
+  }
+  .community-card .count .u {
+    font-family: "Plus Jakarta Sans"; font-style: normal;
+    font-size: 12px; color: var(--ink-soft); font-weight: 700;
+    margin-left: 4px;
+  }
+  .community-card .meta {
+    font-size: 11px; color: var(--ink-soft); font-weight: 600;
+    margin-top: 4px;
+  }
+  .community-card .you {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: var(--paper);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-warm-sm);
+    font-size: 11px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .community-card .you .dot-concentric {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.2);
+  }
+
+  .add-card {
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    border: 2px dashed rgba(20,144,47,0.3);
+    padding: 16px;
+    text-align: center;
+  }
+  .add-card .add-btn {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-brand); color: var(--paper);
+    font-size: 13px; font-weight: 800;
+    border: none; font-family: inherit;
+    box-shadow: var(--shadow-cta);
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .add-card .add-meta {
+    font-size: 10px; color: var(--ink-softer);
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .breadcrumb a { color: var(--emerald); text-decoration: none; }
+  .breadcrumb .sep { opacity: 0.5; }
+  .breadcrumb .curr { color: var(--ink); font-weight: 800; }
+
+  /* FAB */
+  .fab {
+    position: absolute;
+    right: 24px; bottom: 24px;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--gradient-brand);
+    color: var(--paper);
+    box-shadow: var(--shadow-fab);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 30;
+    font-size: 22px; font-weight: 700;
+    cursor: pointer;
+  }
+  .fab::before {
+    content: "";
+    position: absolute; inset: -6px;
+    border-radius: 50%;
+    border: 1px dashed rgba(20,144,47,0.3);
+  }
+
+  /* ================= MOBILE ================= */
+
+  .m-topbar {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 58px 16px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(251,248,241,0.82);
+    backdrop-filter: blur(var(--blur-primary)) saturate(1.4);
+    -webkit-backdrop-filter: blur(var(--blur-primary)) saturate(1.4);
+    border-bottom: 1px solid var(--paper-edge);
+    z-index: 20;
+  }
+  .m-topbar a { color: inherit; text-decoration: none; }
+  .m-topbar .top-actions { display: flex; gap: 6px; }
+  .m-topbar .top-btn {
+    position: relative;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--paper); box-shadow: var(--shadow-warm-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--ink-soft);
+    border: none;
+  }
+  .m-topbar .back-btn {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--paper); color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; box-shadow: var(--shadow-warm-sm);
+    border: none;
+  }
+  .m-topbar .m-title {
+    flex: 1; text-align: center;
+    font-size: 15px; font-weight: 800; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .m-content {
+    position: absolute;
+    top: 104px; left: 0; right: 0; bottom: 86px;
+    overflow-y: auto;
+    z-index: 10;
+    display: flex; flex-direction: column; gap: 14px;
+    padding: 12px 0 16px;
+    scrollbar-width: none;
+  }
+  .m-content::-webkit-scrollbar { display: none; }
+  .m-content > * { flex-shrink: 0; max-width: 100%; }
+
+  .m-enc-head { padding: 0 18px; }
+  .m-enc-head .eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--emerald);
+  }
+  .m-enc-head .eyebrow .dot-concentric {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.2);
+  }
+  .m-enc-head h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 28px; letter-spacing: -0.02em;
+    line-height: 1;
+    margin-top: 4px;
+  }
+  .m-enc-head h1 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .m-enc-head .meta { font-size: 11px; color: var(--ink-soft); font-weight: 600; margin-top: 4px; }
+  .m-enc-search {
+    margin: 0 16px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    background: var(--paper);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .m-enc-search .s-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--mint); color: var(--emerald);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0;
+  }
+  .m-enc-search input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-size: 13px; font-family: inherit;
+    min-width: 0;
+  }
+  .m-enc-toolbar {
+    margin: 0 16px;
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 12px;
+    background: var(--paper);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-warm-sm);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .m-enc-toolbar::-webkit-scrollbar { display: none; }
+  .m-enc-toolbar .enc-filter-btn, .m-enc-toolbar .enc-badge {
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+  .m-enc-toolbar .enc-filter-btn { padding: 5px 12px 5px 7px; }
+  .m-enc-toolbar .enc-filter-btn .fb-icon { width: 16px; height: 16px; font-size: 9px; }
+  .m-enc-toolbar .enc-filter-btn .fb-count { font-size: 9px; padding: 0 5px; min-width: 16px; }
+  .m-enc-toolbar .enc-badge { font-size: 10px; padding: 2px 3px 2px 8px; }
+  .m-enc-toolbar .enc-badge .b-x { width: 15px; height: 15px; font-size: 9px; }
+  .m-enc-featured {
+    display: flex; gap: 10px;
+    padding: 0 16px 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+  }
+  .m-enc-featured::-webkit-scrollbar { display: none; }
+  .m-enc-featured .art-card {
+    padding: 12px 14px;
+    min-height: 96px;
+    flex: 0 0 72%;
+    scroll-snap-align: start;
+  }
+  .m-enc-featured .art-card.featured { min-height: 108px; }
+  .m-enc-featured .art-card.featured h3 { font-size: 18px; }
+  .m-enc-featured .art-card.chill h3, .m-enc-featured .art-card.warm h3 { font-size: 14px; }
+  .m-enc-featured .art-card .art-tag { font-size: 8px; padding: 3px 8px; margin-bottom: 6px; }
+  .m-enc-featured .art-card .art-meta { font-size: 9px; padding-top: 6px; }
+
+  .m-enc-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 0 16px;
+  }
+  .m-enc-grid .sp-card { padding: 10px; gap: 8px; }
+  .m-enc-grid .sp-card .sp-photo { font-size: 46px; }
+  .m-enc-grid .sp-card .sp-name { font-size: 14px; }
+  .m-enc-grid .sp-card .sp-sci { font-size: 10px; }
+  .m-enc-grid .sp-card .sp-traits { gap: 3px; }
+  .m-enc-grid .sp-card .trait { font-size: 9px; padding: 1px 6px 1px 2px; }
+  .m-enc-grid .sp-card .trait .t-icon { width: 12px; height: 12px; font-size: 8px; }
+
+  /* Mobile legend — matches web legend vocab, horizontal-scroll */
+  .m-enc-legend {
+    margin: 0 16px;
+    display: flex; gap: 10px; align-items: center;
+    padding: 8px 12px;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-warm-sm);
+    font-size: 10px; color: var(--ink-soft); font-weight: 600;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .m-enc-legend::-webkit-scrollbar { display: none; }
+  .m-enc-legend .lg-label {
+    font-size: 8px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-softer);
+    flex-shrink: 0;
+  }
+  .m-enc-legend .lg-item {
+    display: inline-flex; align-items: center; gap: 4px;
+    flex-shrink: 0;
+  }
+  .m-enc-legend .lg-icon {
+    width: 16px; height: 16px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; color: #fff;
+    flex-shrink: 0;
+  }
+  .m-enc-legend .lg-icon.water { background: var(--sky-deep); }
+  .m-enc-legend .lg-icon.light { background: var(--sunshine-deep); }
+  .m-enc-legend .lg-icon.safe { background: var(--emerald); }
+  .m-enc-legend .lg-icon.caution { background: var(--coral-deep); }
+
+  /* Mobile species detail */
+  .m-sp-hero .sp-image { height: 200px; font-size: 96px; }
+  .m-sp-hero .sp-hero-body { padding: 14px 18px 16px; }
+  .m-sp-hero .sp-hero-body h1 { font-size: 26px; }
+  .m-sp-hero .sp-hero-body .sci { font-size: 12px; }
+  .m-sp-hero .sp-hero-body .summary { font-size: 13px; max-width: none; }
+  .m-sp-detail .sp-section { padding: 14px 18px; }
+  .m-sp-detail .sp-section h3 { font-size: 17px; }
+  .m-sp-detail .sp-section p { font-size: 13px; }
+  .m-sp-detail .care-card, .m-sp-detail .community-card, .m-sp-detail .add-card { padding: 14px 18px; }
+  .m-sp-detail > * { margin: 0 16px; }
+
+  /* Mobile dock */
+  .m-dock {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(251,248,241,0.92);
+    backdrop-filter: blur(var(--blur-primary)) saturate(1.4);
+    -webkit-backdrop-filter: blur(var(--blur-primary)) saturate(1.4);
+    border-top: 1px solid var(--paper-edge);
+    padding: 10px 16px 24px;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    z-index: 20;
+  }
+  .m-dock .dock-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--ink-softer);
+    font-size: 10px; font-weight: 700;
+    flex: 1; min-width: 48px;
+    text-align: center;
+  }
+  .m-dock .dock-item.active { color: var(--emerald); }
+  .m-dock .dock-item .di-icon {
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .m-dock .dock-item.active .di-icon {
+    background: var(--mint); color: var(--emerald);
+  }
+  .m-dock .dock-item.fab {
+    flex: 0 0 auto;
+    position: relative;
+    transform: translateY(-10px);
+  }
+  .m-dock .dock-item.fab .di-icon {
+    width: 54px; height: 54px;
+    background: var(--gradient-brand);
+    color: var(--paper);
+    font-size: 22px;
+    box-shadow: var(--shadow-fab);
+  }
+  .m-dock .dock-item.fab .di-label { display: none; }
+
+  /* note + wrap-up */
+  .note {
+    max-width: 1360px; margin: 32px auto;
+    padding: 18px 24px;
+    background: rgba(251,248,241,0.5);
+    border: 1px dashed rgba(80,56,18,0.2);
+    border-radius: var(--radius-md);
+    font-size: 13px; color: var(--ink-soft); line-height: 1.7;
+  }
+  .note strong { color: var(--ink); font-weight: 800; }
+  .wrap-up {
+    max-width: 1360px;
+    margin: 64px auto 0;
+    padding: 36px 48px 44px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+  }
+  .wrap-up h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 28px; letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .wrap-up h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .wrap-up p {
+    font-size: 14px; color: var(--ink-soft); line-height: 1.7;
+    margin-bottom: 18px;
+  }
+  .wrap-up .key-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .wrap-up .key-list li {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.55;
+    padding-left: 24px; position: relative;
+  }
+  .wrap-up .key-list li::before {
+    content: ""; position: absolute; left: 6px; top: 7px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.15);
+  }
+  .wrap-up .key-list li strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--ink); font-size: 14px; margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <span class="eyebrow">Mockup 25 · Encyclopedia · both viewports</span>
+    <h1>The <em>reference</em> that reads like a magazine</h1>
+    <p>Encyclopedia is two things fused: the species library (every plant Perenual knows about, plus local seed-data) and the article reader (Care Tips + Plant Doctor pieces). Discover dies here. Users can browse species for curiosity, or open an article to learn. "Add to my greenhouse" is always one tap away on any species page.</p>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- Library (default) -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">View 1 of 2</span>
+    <h2>Library · default</h2>
+    <span class="spec">· search · featured article carousel · category chips · species grid</span>
+  </div>
+
+  <div class="step-row">
+
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/encyclopedia</div>
+      </div>
+      <div class="viewport">
+        <div class="blob blob-mint" style="width: 420px; height: 420px; top: -160px; right: -180px;"></div>
+        <div class="blob blob-sun" style="width: 260px; height: 260px; bottom: -80px; left: 20%;"></div>
+
+        <div class="t-shell">
+          <aside class="t-sidebar">
+            <div class="sb-head">
+              <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+              <div class="sb-bell">🔔</div>
+            </div>
+            <div class="sb-cmd">
+              <span class="cmd-icon">⌕</span>
+              <span>Search species…</span>
+              <span class="cmd-kbd">⌘K</span>
+            </div>
+            <div>
+              <div class="sb-nav-label">Tend</div>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <div class="sb-item"><span class="sb-icon">☀</span>Today<span class="count">3</span></div>
+                <div class="sb-item"><span class="sb-icon">⌂</span>House<span class="count">12</span></div>
+                <div class="sb-item"><span class="sb-icon">✎</span>Journal<span class="count">48</span></div>
+                <div class="sb-item active"><span class="sb-icon">❋</span>Encyclopedia</div>
+                <div class="sb-item"><span class="sb-icon">◉</span>Me</div>
+              </div>
+            </div>
+            <div class="sb-spacer"></div>
+            <div class="user-card">
+              <div class="ua">R</div>
+              <div>
+                <div class="un">Rob</div>
+                <div class="um">12 plants · 5 spaces</div>
+              </div>
+            </div>
+          </aside>
+
+          <main class="t-main">
+            <div class="enc-head">
+              <div class="title-block">
+                <span class="eyebrow"><span class="dot-concentric"></span>Encyclopedia</span>
+                <h1>Everything <em>worth</em> knowing</h1>
+                <div class="meta">4,812 species · 73 care articles · updated weekly</div>
+              </div>
+            </div>
+
+            <div class="enc-search">
+              <span class="s-icon">⌕</span>
+              <input type="search" placeholder="Search by common or scientific name… (⌘K)"/>
+            </div>
+
+            <div class="enc-articles">
+              <div class="art-card featured">
+                <span class="art-tag"><span class="tag-dot"></span>Plant Doctor</span>
+                <h3>My plant's leaves are <em>yellowing</em>. Overwatering or underwatering?</h3>
+                <div class="art-meta">8 min read · updated 3 days ago</div>
+              </div>
+              <div class="art-card chill">
+                <span class="art-tag">Care tips</span>
+                <h3>Repotting: when, why, and how to not kill the roots</h3>
+                <div class="art-meta">6 min read</div>
+              </div>
+              <div class="art-card warm">
+                <span class="art-tag">Seasonal</span>
+                <h3>Spring care — what your plants actually need this week</h3>
+                <div class="art-meta">5 min read</div>
+              </div>
+            </div>
+
+            <div class="enc-toolbar">
+              <button class="enc-filter-btn has-active">
+                <span class="fb-icon">⊞</span>
+                Filters
+                <span class="fb-count">2</span>
+              </button>
+              <div class="enc-badges">
+                <span class="enc-badge">Tropical<span class="b-x">×</span></span>
+                <span class="enc-badge">Pet-safe<span class="b-x">×</span></span>
+              </div>
+              <button class="enc-clear">Clear all</button>
+              <button class="enc-sort">↕ Sort: Popular</button>
+
+              <!-- Popover shown open to demo filter sections -->
+              <div class="enc-filter-popover open">
+                <h5>Category</h5>
+                <div class="fp-row">
+                  <button class="fp-chip selected">Tropical <span class="fp-count">612</span></button>
+                  <button class="fp-chip">Succulents <span class="fp-count">284</span></button>
+                  <button class="fp-chip">Herbs <span class="fp-count">89</span></button>
+                  <button class="fp-chip">Ferns <span class="fp-count">147</span></button>
+                  <button class="fp-chip">Flowering <span class="fp-count">1203</span></button>
+                  <button class="fp-chip">Trees <span class="fp-count">380</span></button>
+                </div>
+                <h5>Light preference</h5>
+                <div class="fp-row">
+                  <button class="fp-chip">Low</button>
+                  <button class="fp-chip">Medium</button>
+                  <button class="fp-chip">Bright</button>
+                </div>
+                <h5>Water frequency</h5>
+                <div class="fp-row">
+                  <button class="fp-chip">Every 3 days</button>
+                  <button class="fp-chip">Weekly</button>
+                  <button class="fp-chip">Biweekly</button>
+                  <button class="fp-chip">Monthly</button>
+                </div>
+                <h5>Safety</h5>
+                <div class="fp-row">
+                  <button class="fp-chip selected">Pet-safe <span class="fp-count">1402</span></button>
+                  <button class="fp-chip">Edible</button>
+                  <button class="fp-chip">Air-purifying</button>
+                </div>
+                <h5>Experience</h5>
+                <div class="fp-row">
+                  <button class="fp-chip">Beginner</button>
+                  <button class="fp-chip">Intermediate</button>
+                  <button class="fp-chip">Advanced</button>
+                </div>
+                <div class="fp-footer">
+                  <button class="fp-reset">Reset</button>
+                  <button class="fp-apply">Apply · 2 filters</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="enc-legend">
+              <span class="lg-label">Card key</span>
+              <span class="lg-item"><span class="lg-icon water">💧</span>Water every N days</span>
+              <span class="lg-item"><span class="lg-icon light">☀</span>Light preference</span>
+              <span class="lg-item"><span class="lg-icon safe">🐾</span>Pet-safe</span>
+              <span class="lg-item"><span class="lg-icon caution">🐾</span>Toxic to pets</span>
+            </div>
+
+            <div class="enc-grid">
+              <div class="sp-card">
+                <div class="sp-photo">🌿<span class="have-pill"><span class="dot"></span>You have 1</span></div>
+                <div class="sp-body">
+                  <div class="sp-name">Monstera</div>
+                  <div class="sp-sci">Monstera deliciosa</div>
+                  <div class="sp-traits">
+                    <span class="trait water"><span class="t-icon">💧</span>7d</span>
+                    <span class="trait light"><span class="t-icon">☀</span>Medium</span>
+                    <span class="trait caution"><span class="t-icon">🐾</span>Toxic</span>
+                  </div>
+                </div>
+              </div>
+              <div class="sp-card">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #e3c38c, #c48a3a);">🌵</div>
+                <div class="sp-body">
+                  <div class="sp-name">Echinocactus</div>
+                  <div class="sp-sci">Echinocactus grusonii</div>
+                  <div class="sp-traits">
+                    <span class="trait water"><span class="t-icon">💧</span>21d</span>
+                    <span class="trait light"><span class="t-icon">☀</span>Bright</span>
+                    <span class="trait safe"><span class="t-icon">🐾</span>Safe</span>
+                  </div>
+                </div>
+              </div>
+              <div class="sp-card">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #9bc9a0, #4a8a54);">🪴<span class="have-pill"><span class="dot"></span>You have 1</span></div>
+                <div class="sp-body">
+                  <div class="sp-name">Rosemary</div>
+                  <div class="sp-sci">Salvia rosmarinus</div>
+                  <div class="sp-traits">
+                    <span class="trait water"><span class="t-icon">💧</span>5d</span>
+                    <span class="trait light"><span class="t-icon">☀</span>Bright</span>
+                    <span class="trait safe"><span class="t-icon">🌿</span>Edible</span>
+                  </div>
+                </div>
+              </div>
+              <div class="sp-card">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #8fb58f, #4a7a50);">🌱</div>
+                <div class="sp-body">
+                  <div class="sp-name">Boston fern</div>
+                  <div class="sp-sci">Nephrolepis exaltata</div>
+                  <div class="sp-traits">
+                    <span class="trait water"><span class="t-icon">💧</span>3d</span>
+                    <span class="trait light"><span class="t-icon">☀</span>Medium</span>
+                    <span class="trait safe"><span class="t-icon">🐾</span>Safe</span>
+                  </div>
+                </div>
+              </div>
+              <div class="sp-card">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #c9e0a0, #7aa04a);">🍃<span class="have-pill"><span class="dot"></span>You have 1</span></div>
+                <div class="sp-body">
+                  <div class="sp-name">Pothos</div>
+                  <div class="sp-sci">Epipremnum aureum</div>
+                  <div class="sp-traits">
+                    <span class="trait water"><span class="t-icon">💧</span>7d</span>
+                    <span class="trait light"><span class="t-icon">☀</span>Low</span>
+                    <span class="trait caution"><span class="t-icon">🐾</span>Toxic</span>
+                  </div>
+                </div>
+              </div>
+              <div class="sp-card">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #a5c9e3, #5a93bc);">🌺</div>
+                <div class="sp-body">
+                  <div class="sp-name">African violet</div>
+                  <div class="sp-sci">Saintpaulia ionantha</div>
+                  <div class="sp-traits">
+                    <span class="trait water"><span class="t-icon">💧</span>4d</span>
+                    <span class="trait light"><span class="t-icon">☀</span>Medium</span>
+                    <span class="trait safe"><span class="t-icon">🐾</span>Safe</span>
+                  </div>
+                </div>
+              </div>
+              <div class="sp-card">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #8bd3a5, #2ea05a);">🌿</div>
+                <div class="sp-body">
+                  <div class="sp-name">Snake plant</div>
+                  <div class="sp-sci">Dracaena trifasciata</div>
+                  <div class="sp-traits">
+                    <span class="trait water"><span class="t-icon">💧</span>14d</span>
+                    <span class="trait light"><span class="t-icon">☀</span>Low</span>
+                    <span class="trait caution"><span class="t-icon">🐾</span>Toxic</span>
+                  </div>
+                </div>
+              </div>
+              <div class="sp-card">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #d8bc8c, #a56d12);">🌳</div>
+                <div class="sp-body">
+                  <div class="sp-name">Fiddle leaf fig</div>
+                  <div class="sp-sci">Ficus lyrata</div>
+                  <div class="sp-traits">
+                    <span class="trait water"><span class="t-icon">💧</span>7d</span>
+                    <span class="trait light"><span class="t-icon">☀</span>Bright</span>
+                    <span class="trait caution"><span class="t-icon">🐾</span>Toxic</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </main>
+
+          <div class="fab" title="Add a plant (N)">＋</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile library -->
+    <div class="phone">
+      <div class="screen">
+        <div class="blob blob-mint" style="width: 240px; height: 240px; top: -80px; right: -80px;"></div>
+        <div class="island"></div>
+        <div class="status-bar"><span>9:41</span></div>
+
+        <header class="m-topbar">
+          <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+          <div class="top-actions">
+            <button class="top-btn">⌕</button>
+            <button class="top-btn bell">🔔</button>
+          </div>
+        </header>
+
+        <div class="m-content">
+          <div class="m-enc-head">
+            <span class="eyebrow"><span class="dot-concentric"></span>Encyclopedia</span>
+            <h1>Worth <em>knowing</em></h1>
+            <div class="meta">4,812 species · 73 articles</div>
+          </div>
+
+          <div class="m-enc-search">
+            <span class="s-icon">⌕</span>
+            <input type="search" placeholder="Search species…"/>
+          </div>
+
+          <div class="m-enc-featured">
+            <div class="art-card featured">
+              <span class="art-tag"><span class="tag-dot"></span>Plant Doctor</span>
+              <h3>Leaves <em>yellowing</em>?</h3>
+              <div class="art-meta">8 min read</div>
+            </div>
+            <div class="art-card chill">
+              <span class="art-tag">Care tips</span>
+              <h3>Repotting without killing the roots</h3>
+              <div class="art-meta">6 min read</div>
+            </div>
+            <div class="art-card warm">
+              <span class="art-tag">Seasonal</span>
+              <h3>Spring care this week</h3>
+              <div class="art-meta">5 min read</div>
+            </div>
+          </div>
+
+          <div class="m-enc-toolbar">
+            <button class="enc-filter-btn has-active">
+              <span class="fb-icon">⊞</span>
+              Filters
+              <span class="fb-count">2</span>
+            </button>
+            <span class="enc-badge">Tropical<span class="b-x">×</span></span>
+            <span class="enc-badge">Pet-safe<span class="b-x">×</span></span>
+          </div>
+
+          <div class="m-enc-legend">
+            <span class="lg-label">Key</span>
+            <span class="lg-item"><span class="lg-icon water">💧</span>Water</span>
+            <span class="lg-item"><span class="lg-icon light">☀</span>Light</span>
+            <span class="lg-item"><span class="lg-icon safe">🐾</span>Safe</span>
+            <span class="lg-item"><span class="lg-icon caution">🐾</span>Toxic</span>
+          </div>
+
+          <div class="m-enc-grid">
+            <div class="sp-card">
+              <div class="sp-photo">🌿<span class="have-pill"><span class="dot"></span>1</span></div>
+              <div class="sp-body">
+                <div class="sp-name">Monstera</div>
+                <div class="sp-sci">M. deliciosa</div>
+                <div class="sp-traits">
+                  <span class="trait water"><span class="t-icon">💧</span>7d</span>
+                  <span class="trait light"><span class="t-icon">☀</span>Med</span>
+                  <span class="trait caution"><span class="t-icon">🐾</span>Toxic</span>
+                </div>
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-photo" style="background: linear-gradient(135deg, #e3c38c, #c48a3a);">🌵</div>
+              <div class="sp-body">
+                <div class="sp-name">Echinocactus</div>
+                <div class="sp-sci">E. grusonii</div>
+                <div class="sp-traits">
+                  <span class="trait water"><span class="t-icon">💧</span>21d</span>
+                  <span class="trait light"><span class="t-icon">☀</span>Bright</span>
+                  <span class="trait safe"><span class="t-icon">🐾</span>Safe</span>
+                </div>
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-photo" style="background: linear-gradient(135deg, #9bc9a0, #4a8a54);">🪴<span class="have-pill"><span class="dot"></span>1</span></div>
+              <div class="sp-body">
+                <div class="sp-name">Rosemary</div>
+                <div class="sp-sci">Salvia ros.</div>
+                <div class="sp-traits">
+                  <span class="trait water"><span class="t-icon">💧</span>5d</span>
+                  <span class="trait light"><span class="t-icon">☀</span>Bright</span>
+                  <span class="trait safe"><span class="t-icon">🌿</span>Edible</span>
+                </div>
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-photo" style="background: linear-gradient(135deg, #8fb58f, #4a7a50);">🌱</div>
+              <div class="sp-body">
+                <div class="sp-name">Boston fern</div>
+                <div class="sp-sci">N. exaltata</div>
+                <div class="sp-traits">
+                  <span class="trait water"><span class="t-icon">💧</span>3d</span>
+                  <span class="trait light"><span class="t-icon">☀</span>Med</span>
+                  <span class="trait safe"><span class="t-icon">🐾</span>Safe</span>
+                </div>
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-photo" style="background: linear-gradient(135deg, #c9e0a0, #7aa04a);">🍃<span class="have-pill"><span class="dot"></span>1</span></div>
+              <div class="sp-body">
+                <div class="sp-name">Pothos</div>
+                <div class="sp-sci">E. aureum</div>
+                <div class="sp-traits">
+                  <span class="trait water"><span class="t-icon">💧</span>7d</span>
+                  <span class="trait light"><span class="t-icon">☀</span>Low</span>
+                  <span class="trait caution"><span class="t-icon">🐾</span>Toxic</span>
+                </div>
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-photo" style="background: linear-gradient(135deg, #8bd3a5, #2ea05a);">🌿</div>
+              <div class="sp-body">
+                <div class="sp-name">Snake plant</div>
+                <div class="sp-sci">D. trifasciata</div>
+                <div class="sp-traits">
+                  <span class="trait water"><span class="t-icon">💧</span>14d</span>
+                  <span class="trait light"><span class="t-icon">☀</span>Low</span>
+                  <span class="trait caution"><span class="t-icon">🐾</span>Toxic</span>
+                </div>
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-photo" style="background: linear-gradient(135deg, #a5c9e3, #5a93bc);">🌺</div>
+              <div class="sp-body">
+                <div class="sp-name">African violet</div>
+                <div class="sp-sci">Saintpaulia</div>
+                <div class="sp-traits">
+                  <span class="trait water"><span class="t-icon">💧</span>4d</span>
+                  <span class="trait light"><span class="t-icon">☀</span>Med</span>
+                  <span class="trait safe"><span class="t-icon">🐾</span>Safe</span>
+                </div>
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-photo" style="background: linear-gradient(135deg, #d8bc8c, #a56d12);">🌳</div>
+              <div class="sp-body">
+                <div class="sp-name">Fiddle leaf fig</div>
+                <div class="sp-sci">Ficus lyrata</div>
+                <div class="sp-traits">
+                  <span class="trait water"><span class="t-icon">💧</span>7d</span>
+                  <span class="trait light"><span class="t-icon">☀</span>Bright</span>
+                  <span class="trait caution"><span class="t-icon">🐾</span>Toxic</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="m-dock">
+          <div class="dock-item"><div class="di-icon">☀</div><div class="di-label">Today</div></div>
+          <div class="dock-item"><div class="di-icon">⌂</div><div class="di-label">House</div></div>
+          <div class="dock-item fab"><div class="di-icon">＋</div></div>
+          <div class="dock-item"><div class="di-icon">✎</div><div class="di-label">Journal</div></div>
+          <div class="dock-item active"><div class="di-icon">❋</div><div class="di-label">Library</div></div>
+        </nav>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <strong>Library (default).</strong> Full-width search at the top — pg_search-backed on the Rails side, Perenual fallback for unknowns. Featured-article carousel right below: one hero card (dark forest gradient, sunshine glow, Fraunces italic) + 2 companion cards (lighter paper variants). <strong>Plant Doctor</strong> and <strong>Care Tips</strong> articles live here — they're the primary Encyclopedia surface that isn't just "a species grid". Filter toolbar reuses the Journal vocabulary — single <code>⊞ Filters</code> button, active filters render as dismissible badges next to it, "Clear all" link, sort toggle on the right. Popover opens with grouped sections: Category (Tropical/Succulents/...) · Light preference · Water frequency · Safety (Pet-safe, Edible, Air-purifying) · Experience level. Selected chips emerald-fill. Apply/Reset footer. 4-column species grid below (2-col on mobile). Each species card: hero photo (aspect 1.2, species-colour gradient with subtle grain), "You have N" emerald pill when the user owns one, Fraunces italic common name, italic scientific name, 3 trait chips (water interval · light preference · safe/toxic flag). Tapping a species opens the detail view (view 2). On mobile the filter popover becomes a bottom sheet — same sections, same apply vocabulary as every mobile filter surface.
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Species detail -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">View 2 of 2</span>
+    <h2>Species detail · reader</h2>
+    <span class="spec">· hero image · personality pill · voice sample · 3-col layout · care-at-a-glance rail · "Add to my greenhouse" CTA</span>
+  </div>
+
+  <div class="step-row">
+
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/encyclopedia/monstera-deliciosa</div>
+      </div>
+      <div class="viewport">
+        <div class="blob blob-mint" style="width: 380px; height: 380px; top: -140px; right: -140px;"></div>
+
+        <div class="t-shell">
+          <aside class="t-sidebar">
+            <div class="sb-head">
+              <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+              <div class="sb-bell">🔔</div>
+            </div>
+            <div class="sb-cmd">
+              <span class="cmd-icon">⌕</span>
+              <span>Search species…</span>
+              <span class="cmd-kbd">⌘K</span>
+            </div>
+            <div>
+              <div class="sb-nav-label">Tend</div>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <div class="sb-item"><span class="sb-icon">☀</span>Today<span class="count">3</span></div>
+                <div class="sb-item"><span class="sb-icon">⌂</span>House<span class="count">12</span></div>
+                <div class="sb-item"><span class="sb-icon">✎</span>Journal<span class="count">48</span></div>
+                <div class="sb-item active"><span class="sb-icon">❋</span>Encyclopedia</div>
+                <div class="sb-item"><span class="sb-icon">◉</span>Me</div>
+              </div>
+            </div>
+            <div class="sb-spacer"></div>
+            <div class="user-card">
+              <div class="ua">R</div>
+              <div>
+                <div class="un">Rob</div>
+                <div class="um">12 plants · 5 spaces</div>
+              </div>
+            </div>
+          </aside>
+
+          <main class="t-main">
+            <div class="breadcrumb">
+              <a href="#">Encyclopedia</a>
+              <span class="sep">/</span>
+              <a href="#">Tropical</a>
+              <span class="sep">/</span>
+              <span class="curr">Monstera deliciosa</span>
+            </div>
+
+            <div class="sp-detail-wrap">
+
+              <div class="sp-sections">
+                <div class="sp-hero">
+                  <div class="sp-image">
+                    🌿
+                  </div>
+                  <div class="sp-hero-body">
+                    <span class="eyebrow"><span class="dot"></span>Tropical · climber</span>
+                    <h1><em>Monstera</em></h1>
+                    <div class="sci">Monstera deliciosa · Swiss cheese plant</div>
+                    <p class="summary">A fast-growing tropical vine from the Central American rainforests. Famous for its fenestrated leaves — the signature holes develop as the plant matures and only if it's getting enough light. Often mistaken for a houseplant that's easy to kill; it's actually forgiving, it just complains loudly.</p>
+                  </div>
+                </div>
+
+                <div class="sp-section">
+                  <h3><em>Care tips</em><span class="h-meta">what actually matters</span></h3>
+                  <ul class="tips">
+                    <li><strong>Water when the top 5cm of soil is dry</strong> — don't water on a schedule, water on a check. Stick your finger in.</li>
+                    <li><strong>Give it a moss pole early.</strong> Aerial roots want something to climb. The leaves get bigger and holier when they can climb.</li>
+                    <li><strong>Fenestration is earned through light.</strong> Bright indirect is the sweet spot. Direct sun scorches; low light means leaves stay round and hole-less.</li>
+                    <li><strong>Repot every 18–24 months.</strong> Roots circling the pot = it's time. Go one pot size up, not three.</li>
+                  </ul>
+                </div>
+
+                <div class="sp-section">
+                  <h3><em>Common issues</em></h3>
+                  <p><strong>Yellow leaves, base of the plant.</strong> Old growth dying off is normal — monstera sheds lower leaves as it climbs. If it's widespread, check for overwatering.</p>
+                  <p><strong>Brown crispy leaf edges.</strong> Humidity too low, or water too salty. Use filtered water; group with other plants to raise local humidity.</p>
+                  <p><strong>No holes on new leaves.</strong> Not enough light, or plant too young. Leaves start fenestrating around leaf 4–6 on most plants.</p>
+                </div>
+
+                <div class="sp-section">
+                  <h3><em>Related</em></h3>
+                  <p>Part of the <em>Monstera</em> genus — siblings include <strong>Monstera adansonii</strong> (smaller leaves, same vibe), <strong>Monstera siltepecana</strong> (silvery juvenile leaves), <strong>Monstera dubia</strong> (shingling climber). For a non-climbing alternative with similar dramatic cuts: try <strong>Philodendron selloum</strong>.</p>
+                </div>
+              </div>
+
+              <aside class="sp-rail">
+                <div class="add-card">
+                  <button class="add-btn">＋ Add to my greenhouse</button>
+                  <div class="add-meta">2.3k users have one · avg rescue rate 87%</div>
+                </div>
+
+                <div class="care-card">
+                  <h4>Care at a glance</h4>
+                  <div class="care-fact water">
+                    <div class="cf-icon">💧</div>
+                    <div>
+                      <div class="cf-label">Water</div>
+                      <div class="cf-value">Every 7 days</div>
+                    </div>
+                  </div>
+                  <div class="care-fact light">
+                    <div class="cf-icon">☀</div>
+                    <div>
+                      <div class="cf-label">Light</div>
+                      <div class="cf-value">Bright indirect</div>
+                    </div>
+                  </div>
+                  <div class="care-fact temp">
+                    <div class="cf-icon">🌡</div>
+                    <div>
+                      <div class="cf-label">Temperature</div>
+                      <div class="cf-value">18 – 27°C</div>
+                    </div>
+                  </div>
+                  <div class="care-fact">
+                    <div class="cf-icon">💦</div>
+                    <div>
+                      <div class="cf-label">Humidity</div>
+                      <div class="cf-value">Average – high</div>
+                    </div>
+                  </div>
+                  <div class="care-fact">
+                    <div class="cf-icon">🐾</div>
+                    <div>
+                      <div class="cf-label">Pet safety</div>
+                      <div class="cf-value" style="color: var(--coral-deep);">Toxic if ingested</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="community-card">
+                  <h4>Community</h4>
+                  <div class="count">2.3k <span class="u">users have one</span></div>
+                  <div class="meta">Avg rescue 87% · most popular tropical</div>
+                  <div class="you"><span class="dot-concentric"></span>You have 1 · "Monty"</div>
+                </div>
+              </aside>
+
+            </div>
+          </main>
+
+          <div class="fab" title="Add a plant (N)">＋</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile species detail -->
+    <div class="phone">
+      <div class="screen">
+        <div class="blob blob-mint" style="width: 240px; height: 240px; top: -80px; left: -80px;"></div>
+        <div class="island"></div>
+        <div class="status-bar"><span>9:41</span></div>
+
+        <header class="m-topbar">
+          <button class="back-btn">←</button>
+          <div class="m-title">Monstera</div>
+          <div class="top-actions">
+            <button class="top-btn">⌕</button>
+            <button class="top-btn">⋯</button>
+          </div>
+        </header>
+
+        <div class="m-content">
+          <div class="m-sp-detail" style="display: contents;">
+            <div class="sp-hero m-sp-hero" style="margin: 0 16px; border-radius: var(--radius-lg);">
+              <div class="sp-image">
+                🌿
+              </div>
+              <div class="sp-hero-body">
+                <span class="eyebrow"><span class="dot"></span>Tropical · climber</span>
+                <h1><em>Monstera</em></h1>
+                <div class="sci">Monstera deliciosa</div>
+                <p class="summary">A fast-growing tropical vine from the Central American rainforests. Famous for its fenestrated leaves — the signature holes develop as the plant matures and only if it's getting enough light. Often mistaken for a houseplant that's easy to kill; it's actually forgiving, it just complains loudly.</p>
+              </div>
+            </div>
+
+            <div class="add-card" style="margin: 0 16px;">
+              <button class="add-btn">＋ Add to my greenhouse</button>
+              <div class="add-meta">2.3k users · 87% rescue rate</div>
+            </div>
+
+            <div class="care-card" style="margin: 0 16px;">
+              <h4>Care at a glance</h4>
+              <div class="care-fact water">
+                <div class="cf-icon">💧</div>
+                <div>
+                  <div class="cf-label">Water</div>
+                  <div class="cf-value">Every 7 days</div>
+                </div>
+              </div>
+              <div class="care-fact light">
+                <div class="cf-icon">☀</div>
+                <div>
+                  <div class="cf-label">Light</div>
+                  <div class="cf-value">Bright indirect</div>
+                </div>
+              </div>
+              <div class="care-fact temp">
+                <div class="cf-icon">🌡</div>
+                <div>
+                  <div class="cf-label">Temperature</div>
+                  <div class="cf-value">18 – 27°C</div>
+                </div>
+              </div>
+              <div class="care-fact">
+                <div class="cf-icon">🐾</div>
+                <div>
+                  <div class="cf-label">Pet safety</div>
+                  <div class="cf-value" style="color: var(--coral-deep);">Toxic</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sp-section" style="margin: 0 16px;">
+              <h3><em>Care tips</em></h3>
+              <ul class="tips">
+                <li><strong>Water when the top 5cm of soil is dry</strong> — don't water on a schedule, water on a check. Stick your finger in.</li>
+                <li><strong>Give it a moss pole early.</strong> Aerial roots want something to climb. The leaves get bigger and holier when they can climb.</li>
+                <li><strong>Fenestration is earned through light.</strong> Bright indirect is the sweet spot. Direct sun scorches; low light means leaves stay round and hole-less.</li>
+                <li><strong>Repot every 18–24 months.</strong> Roots circling the pot = it's time. Go one pot size up, not three.</li>
+              </ul>
+            </div>
+
+            <div class="sp-section" style="margin: 0 16px;">
+              <h3><em>Common issues</em></h3>
+              <p><strong>Yellow leaves, base of the plant.</strong> Old growth dying off is normal — monstera sheds lower leaves as it climbs. If it's widespread, check for overwatering.</p>
+              <p><strong>Brown crispy leaf edges.</strong> Humidity too low, or water too salty. Use filtered water; group with other plants to raise local humidity.</p>
+              <p><strong>No holes on new leaves.</strong> Not enough light, or plant too young. Leaves start fenestrating around leaf 4–6 on most plants.</p>
+            </div>
+
+            <div class="sp-section" style="margin: 0 16px;">
+              <h3><em>Related</em></h3>
+              <p>Part of the <em>Monstera</em> genus — siblings include <strong>Monstera adansonii</strong> (smaller leaves, same vibe), <strong>Monstera siltepecana</strong> (silvery juvenile leaves), <strong>Monstera dubia</strong> (shingling climber). For a non-climbing alternative with similar dramatic cuts: try <strong>Philodendron selloum</strong>.</p>
+            </div>
+
+            <div class="community-card" style="margin: 0 16px;">
+              <h4>Community</h4>
+              <div class="count">2.3k <span class="u">users</span></div>
+              <div class="meta">Most popular tropical</div>
+              <div class="you"><span class="dot-concentric"></span>You have 1 · "Monty"</div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="m-dock">
+          <div class="dock-item"><div class="di-icon">☀</div><div class="di-label">Today</div></div>
+          <div class="dock-item"><div class="di-icon">⌂</div><div class="di-label">House</div></div>
+          <div class="dock-item fab"><div class="di-icon">＋</div></div>
+          <div class="dock-item"><div class="di-icon">✎</div><div class="di-label">Journal</div></div>
+          <div class="dock-item active"><div class="di-icon">❋</div><div class="di-label">Library</div></div>
+        </nav>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <strong>Species detail.</strong> Two-column on desktop — reader column on the left (hero + care tips + common issues + related), care-at-a-glance rail on the right (Add-CTA card · care facts · community stats). Hero image uses a species-matched gradient with subtle radial wash — not a real photo in the mockup but the rendered version swaps in Perenual imagery. No personality badge, no voice sample — personality stays inferred through copy, never surfaced as a UI label. Add-to-greenhouse CTA is prominent (dashed-green outlined card at the top of the rail) with community stats as the micro-social-proof line. Care-at-a-glance = 5 facts (Water · Light · Temperature · Humidity · Pet safety) — same primitives as Plant Detail's Schedule panel but read-only. Mobile collapses to single-column: hero → Add CTA → Care facts → tips → community.
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Wrap-up -->
+  <!-- ========================================================= -->
+  <div class="wrap-up">
+    <h2>Encyclopedia <em>locked</em></h2>
+    <p>Encyclopedia is where Discover died and Care Tips + Plant Doctor articles grew back in its place. One region for reference material — species + articles — with a clean path from "browse" to "add to my greenhouse". Articles at the top, species grid below. Species cards always show user-ownership status ("You have 1") so the library doubles as a collection overview.</p>
+    <ul class="key-list">
+      <li><strong>Two views.</strong> Library (default — search + articles + grid) and Species detail (hero + tips + rail). Deep links to <code>/encyclopedia/:slug</code> and <code>/encyclopedia/articles/:slug</code>.</li>
+      <li><strong>Featured article carousel.</strong> Hero card dark forest gradient with sunshine glow (Plant Doctor lead piece) + two lighter companion cards. Articles filed under <em>Plant Doctor</em> (troubleshooting) or <em>Care Tips</em> (general how-to) or <em>Seasonal</em> (time-of-year specific).</li>
+      <li><strong>Filter toolbar.</strong> Same primitive as Journal — <code>⊞ Filters</code> button (mint-tinted + count pill when active), active filters as dismissible badges beside it, Clear all link. Popover on desktop / bottom sheet on mobile. Grouped sections: Category · Light · Water frequency · Safety (Pet-safe/Edible/Air-purifying) · Experience. Sort toggle ("Popular/A-Z/Recently added") on the right of the toolbar. One filter vocabulary across the whole app.</li>
+      <li><strong>Species card.</strong> Photo + common name + scientific name + 3 trait chips (water interval · light · pet-safety). "You have N" emerald pill when owned. Always-clickable to detail view.</li>
+      <li><strong>Species detail hero.</strong> Large photo. Below: common + scientific name, summary paragraph. No personality badge, no voice sample — personality is never surfaced as a UI label anywhere.</li>
+      <li><strong>Add-to-greenhouse CTA.</strong> Dashed-green outlined card at the top of the right rail. Primary action on this whole view. Includes community stats as social proof.</li>
+      <li><strong>Care at a glance.</strong> Read-only version of Plant Detail's Schedule panel — Water · Light · Temp · Humidity · Pet safety. Standardised format across every species page so scanning is muscle-memory.</li>
+      <li><strong>Community stat card.</strong> Count + rescue-rate + user's own status ("You have 1 · Monty"). Light, not dominant — the Encyclopedia isn't a social network, just a reference.</li>
+      <li><strong>Mobile single-column.</strong> Hero → Add CTA → Care facts → tips → community. Back button in topbar replaces breadcrumb. Dock's 5th slot labelled "Library" instead of "Me" when viewing Encyclopedia — shows active context.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

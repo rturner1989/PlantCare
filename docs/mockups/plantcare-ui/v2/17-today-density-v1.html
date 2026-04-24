@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — Today Density v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:       #fbf8f1;
+    --paper-deep:  #f3eee2;
+    --paper-deeper:#ebe0c8;
+    --paper-edge:  #e8ddc6;
+
+    --base: #f6fbf4;
+    --mint: #dff2e2;
+    --mint-2: #c7ecca;
+    --lime: #86db65;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --forest-2: #124626;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --coral-deep: #c4412a;
+    --sunshine: #ffb83d;
+    --sunshine-deep: #a56d12;
+
+    --shadow-warm-sm: 0 2px 10px rgba(80,56,18,0.07), 0 0 0 1px rgba(80,56,18,0.025);
+    --shadow-warm-md: 0 18px 40px rgba(80,56,18,0.10), 0 2px 8px rgba(80,56,18,0.04);
+    --shadow-warm-lg: 0 36px 80px -8px rgba(80,56,18,0.18), 0 6px 16px rgba(80,56,18,0.06);
+    --shadow-cta: 0 6px 16px rgba(20,144,47,0.32), inset 0 1px 0 rgba(255,255,255,0.3);
+    --shadow-fab: 0 12px 32px -4px rgba(20,144,47,0.45), 0 4px 10px rgba(11,58,26,0.2), inset 0 1px 0 rgba(255,255,255,0.25);
+    --shadow-photo: 0 40px 60px -12px rgba(11,58,26,0.35), 0 8px 24px rgba(80,56,18,0.15);
+
+    --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #eff7e6 55%, #e4efd5 100%);
+    --gradient-paper: linear-gradient(180deg, #fbf8f1 0%, #f6f0e0 100%);
+    --gradient-display: linear-gradient(130deg, #0b3a1a 0%, #14902f 60%, #32c456 100%);
+    --gradient-brand: linear-gradient(135deg, #32c456, #14902f);
+
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+
+    --blur-heavy: 24px;
+    --blur-primary: 20px;
+    --blur-medium: 12px;
+    --blur-light: 2px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #ecece0;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+
+  .page { max-width: 1440px; margin: 0 auto; }
+
+  .page-header { text-align: center; margin-bottom: 56px; }
+  .page-header .eyebrow {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 64px; letter-spacing: -0.035em;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+  .page-header p {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 760px; margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .step-caption {
+    max-width: 1360px; margin: 0 auto 14px; padding: 0 8px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .step-caption .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .step-caption h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 32px; letter-spacing: -0.02em;
+  }
+  .step-caption .spec {
+    margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600;
+  }
+
+  .browser {
+    max-width: 1360px; margin: 0 auto 64px;
+    background: #f5f1e8;
+    border-radius: 16px;
+    box-shadow: var(--shadow-warm-lg);
+    overflow: hidden;
+    border: 1px solid rgba(80,56,18,0.1);
+  }
+  .browser .chrome {
+    height: 42px; background: #ede6d5;
+    border-bottom: 1px solid rgba(80,56,18,0.1);
+    display: flex; align-items: center; padding: 0 16px; gap: 10px;
+  }
+  .browser .chrome .dots { display: flex; gap: 7px; }
+  .browser .chrome .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .browser .chrome .dot-r { background: #ff5f57; }
+  .browser .chrome .dot-y { background: #febc2e; }
+  .browser .chrome .dot-g { background: #28c840; }
+  .browser .chrome .url {
+    flex: 1; margin: 0 20px; height: 24px;
+    background: var(--paper);
+    border: 1px solid rgba(80,56,18,0.08);
+    border-radius: 6px;
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 11px; color: var(--ink-softer);
+    font-family: "SF Mono", Consolas, monospace;
+  }
+  .browser .viewport {
+    height: 900px;
+    background: var(--gradient-mint);
+    position: relative;
+    overflow: hidden;
+  }
+  .browser.tall .viewport { height: 1200px; }
+
+  .viewport::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.55;
+  }
+  .blob-mint   { background: rgba(134,219,101,0.35); }
+  .blob-sun    { background: rgba(255,184,61,0.25); }
+  .blob-coral  { background: rgba(255,107,61,0.18); }
+  .blob-forest { background: rgba(11,58,26,0.12); }
+
+  /* ---- Logo ---- */
+
+  .logo {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 17px; letter-spacing: -0.02em;
+    color: var(--ink); text-decoration: none;
+  }
+  .logo-mark {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--gradient-brand);
+    position: relative;
+    box-shadow: inset 0 0 0 2px var(--paper), 0 2px 6px rgba(20,144,47,0.2);
+  }
+  .logo-mark::after {
+    content: ""; position: absolute; inset: 7px;
+    border-radius: 50%;
+    background: var(--paper);
+  }
+  .logo em { font-family: "Fraunces"; font-style: italic; font-weight: 400; color: var(--emerald); margin-left: 1px; }
+
+  /* ---- Sidebar (shared) ---- */
+
+  .t-shell {
+    width: 100%; height: 100%;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    position: relative; z-index: 3;
+  }
+  .t-shell.collapsed-rail { grid-template-columns: 260px 1fr; }
+
+  .t-sidebar {
+    background: var(--paper);
+    border-right: 1px solid var(--paper-edge);
+    padding: 20px 18px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .t-sidebar .sb-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px;
+  }
+  .t-sidebar .sb-bell {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--paper-deep);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-soft); font-size: 13px;
+    position: relative; cursor: pointer;
+  }
+  .t-sidebar .sb-bell::after {
+    content: ""; position: absolute; top: 4px; right: 4px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--coral);
+    box-shadow: 0 0 0 2px var(--paper);
+  }
+  .t-sidebar .sb-cmd {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-full);
+    font-size: 12px; color: var(--ink-softer); cursor: pointer; font-weight: 600;
+  }
+  .t-sidebar .sb-cmd .cmd-icon { font-size: 12px; color: var(--emerald); }
+  .t-sidebar .sb-cmd .cmd-kbd {
+    margin-left: auto;
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 10px; padding: 2px 6px;
+    background: var(--paper);
+    border-radius: 4px;
+    color: var(--ink-soft);
+    border: 1px solid var(--paper-edge);
+  }
+  .t-sidebar .sb-nav { display: flex; flex-direction: column; gap: 2px; }
+  .t-sidebar .sb-nav-label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-softer);
+    padding: 0 12px 8px;
+  }
+  .t-sidebar .sb-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-size: 14px; font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .t-sidebar .sb-item .sb-icon {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-softer);
+    font-size: 13px;
+    border-radius: 50%;
+  }
+  .t-sidebar .sb-item.active {
+    background: var(--mint);
+    color: var(--forest);
+    font-weight: 700;
+  }
+  .t-sidebar .sb-item.active .sb-icon { color: var(--paper); background: var(--emerald); }
+  .t-sidebar .sb-item .count {
+    margin-left: auto;
+    font-size: 11px; font-weight: 700;
+    color: var(--ink-softer);
+  }
+  .t-sidebar .sb-item.active .count { color: var(--forest); }
+  .t-sidebar .sb-spacer { flex: 1; }
+  .t-sidebar .user-card {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--paper-deep);
+    font-size: 13px;
+  }
+  .t-sidebar .user-card .ua {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--gradient-brand);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--paper); font-weight: 700; font-size: 14px;
+  }
+  .t-sidebar .user-card .un { font-weight: 700; color: var(--ink); font-size: 13px; line-height: 1.2; }
+  .t-sidebar .user-card .um { font-size: 11px; color: var(--ink-softer); font-weight: 500; }
+
+  /* ---- FAB ---- */
+
+  .fab {
+    position: absolute;
+    right: 36px; bottom: 36px;
+    width: 62px; height: 62px;
+    border-radius: 50%;
+    background: var(--gradient-brand);
+    color: var(--paper);
+    box-shadow: var(--shadow-fab);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 30;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .fab::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px dashed rgba(20,144,47,0.3);
+  }
+
+  /* =================================================================== */
+  /*  SCREEN 1 — WELCOME (photo overflow composition)                    */
+  /* =================================================================== */
+
+  .ob-shell { width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 3; }
+  .ob-topbar { height: 72px; padding: 0 48px; display: flex; align-items: center; justify-content: space-between; }
+  .ob-topbar .skip { font-size: 13px; font-weight: 600; color: var(--ink-soft); text-decoration: none; }
+
+  .ob-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 0 48px 48px;
+    gap: 48px;
+  }
+
+  .ob-editorial { padding: 20px 0 20px 32px; position: relative; }
+  .ob-editorial .small-caps {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--emerald);
+    margin-bottom: 22px;
+  }
+  .ob-editorial .small-caps .dot-concentric {
+    display: inline-block;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.2);
+  }
+  .ob-editorial h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 300; font-style: italic;
+    font-size: 88px; letter-spacing: -0.04em;
+    line-height: 0.96;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+  .ob-editorial h2 em {
+    font-weight: 400;
+    background: var(--gradient-display);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: block;
+  }
+  .ob-editorial p.lead {
+    font-size: 17px; line-height: 1.65;
+    color: var(--ink-soft);
+    max-width: 460px;
+    margin-bottom: 14px;
+  }
+  .ob-editorial .drop {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic; font-weight: 400;
+    font-size: 48px; line-height: 0.9;
+    float: left;
+    margin: 4px 8px -6px 0;
+    color: var(--emerald);
+  }
+  .ob-editorial .cta-row {
+    margin-top: 40px;
+    display: flex; align-items: center; gap: 24px;
+  }
+
+  .btn {
+    font-family: inherit; font-weight: 700; font-size: 14px; letter-spacing: -0.005em;
+    cursor: pointer; border: none;
+    padding: 14px 26px;
+    border-radius: var(--radius-full);
+    transition: transform 140ms ease;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary {
+    background: var(--gradient-brand);
+    color: var(--paper);
+    box-shadow: var(--shadow-cta);
+  }
+  .btn-primary .arrow {
+    display: inline-block; width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    text-align: center; font-size: 11px; line-height: 20px;
+  }
+
+  .ob-editorial .serif-note {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 14px; color: var(--ink-soft);
+  }
+
+  /* Welcome portrait — photo overflow composition */
+
+  .portrait-composition {
+    position: relative;
+    width: 520px;
+    height: 620px;
+    margin: 0 auto;
+  }
+  .portrait-frame-v2 {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 420px;
+    background: var(--gradient-paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+    overflow: hidden;
+  }
+  .portrait-frame-v2::before {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(11,58,26,0.08);
+    pointer-events: none;
+  }
+  .portrait-frame-v2::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,240,200,0.45) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .portrait-frame-v2 .grain-mask {
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' seed='12'/><feColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 0 0.14 0 0 0 0.5 0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 160px 160px;
+    opacity: 0.22; mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+
+  .portrait-photo {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 440px;
+    height: 600px;
+    /* Monstera leaves — close-up, no chair */
+    background-image: url("https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=900&q=85");
+    background-color: #2e8a3f;
+    background-size: cover;
+    background-position: center center;
+    -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 8%, rgba(0,0,0,1) 100%);
+    mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 8%, rgba(0,0,0,1) 100%);
+    filter: drop-shadow(0 30px 40px rgba(11,58,26,0.25));
+    z-index: 2;
+  }
+
+  .portrait-caption {
+    position: absolute;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    background: var(--paper);
+    padding: 10px 20px;
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-warm-sm);
+    display: flex; align-items: center; gap: 10px;
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 14px; color: var(--ink);
+  }
+  .portrait-caption .p-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--leaf);
+  }
+
+  .portrait-flourish {
+    position: absolute;
+    top: 40px; right: -40px;
+    width: 140px; height: 100px;
+    opacity: 0.7;
+    pointer-events: none;
+    z-index: 6;
+  }
+  .portrait-flourish svg { width: 100%; height: 100%; }
+
+  /* =================================================================== */
+  /*  SCREEN 2 — TODAY FULL DENSITY (expanded rail)                     */
+  /* =================================================================== */
+
+  .t-main {
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  /* Dashboard column — full width of t-main, scrolls independently */
+  .t-col-main {
+    display: flex; flex-direction: column; gap: 18px;
+    padding: 28px 32px 120px;
+    overflow-y: auto;
+    height: 100%;
+    position: relative;
+    z-index: 1;
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+  /* Prevent flex children from compressing when content overflows */
+  .t-col-main > * { flex-shrink: 0; }
+  .t-shell.rail-open .t-col-main { padding-right: 380px; max-width: 100%; margin: 0; }
+
+  /* Floating glass organiser — overlays main area, doesn't reshape layout */
+  .t-rail.floating {
+    position: absolute;
+    top: 14px; right: 14px; bottom: 14px;
+    width: 340px;
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 18px 16px 18px;
+    overflow-y: auto;
+    z-index: 40;  /* above FAB (z-index 30) — organiser covers the add button when open */
+    /* Mac-notification-centre translucency + blur */
+    background: rgba(251,248,241,0.72);
+    backdrop-filter: blur(var(--blur-heavy)) saturate(1.4);
+    -webkit-backdrop-filter: blur(var(--blur-heavy)) saturate(1.4);
+    border-radius: 18px;
+    box-shadow:
+      0 30px 60px -8px rgba(11,58,26,0.25),
+      0 8px 24px rgba(80,56,18,0.12),
+      inset 0 0 0 1px rgba(255,255,255,0.5),
+      inset 0 1px 0 rgba(255,255,255,0.7);
+  }
+  .t-rail.floating .rail-card {
+    background: rgba(251,248,241,0.6);
+    backdrop-filter: blur(var(--blur-medium));
+    -webkit-backdrop-filter: blur(var(--blur-medium));
+    box-shadow: 0 0 0 1px rgba(80,56,18,0.05);
+  }
+  .t-rail.floating .rail-card .weather-placeholder { background: transparent; }
+  .t-rail.floating .rail-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 6px 10px;
+  }
+  .t-rail.floating .rail-head h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 22px; letter-spacing: -0.02em;
+  }
+  .t-rail.floating .rail-close {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(80,56,18,0.08);
+    color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* Organiser trigger — small glass circle top-right of main. Always visible. */
+  .organiser-trigger {
+    position: absolute;
+    top: 24px; right: 24px;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(251,248,241,0.75);
+    backdrop-filter: blur(var(--blur-primary)) saturate(1.4);
+    -webkit-backdrop-filter: blur(var(--blur-primary)) saturate(1.4);
+    box-shadow: 0 6px 18px rgba(11,58,26,0.18), inset 0 0 0 1px rgba(255,255,255,0.6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    color: var(--forest);
+    cursor: pointer;
+    z-index: 20;
+  }
+  .organiser-trigger::after {
+    content: "";
+    position: absolute;
+    top: 2px; right: 4px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--coral);
+    box-shadow: 0 0 0 2px var(--paper);
+  }
+
+  .t-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 32px;
+  }
+  .t-head .eyebrow {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--emerald);
+    margin-bottom: 8px;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .t-head .eyebrow .dot-concentric {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.2);
+  }
+  .t-head h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 48px; letter-spacing: -0.03em;
+    color: var(--ink); line-height: 1;
+  }
+  .t-head h1 em { color: var(--emerald); font-weight: 400; }
+  .t-head .greet-meta {
+    font-size: 13px; color: var(--ink-soft); margin-top: 10px;
+  }
+
+  .t-stats { display: flex; gap: 12px; }
+  .progress-ring {
+    position: relative;
+    width: 78px; height: 78px;
+  }
+  .progress-ring svg { width: 100%; height: 100%; }
+  .progress-ring .pr-bg { fill: none; stroke: var(--paper-deep); stroke-width: 6; }
+  .progress-ring .pr-fg { fill: none; stroke-linecap: round; stroke-width: 6; }
+  .progress-ring .pr-inner {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .progress-ring .pr-num {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 22px; line-height: 1; color: var(--ink);
+  }
+  .progress-ring .pr-label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-softer); margin-top: 4px;
+  }
+  .progress-ring.streak .pr-fg { stroke: var(--coral); }
+  .progress-ring.streak .pr-num { color: var(--coral-deep); }
+  .progress-ring.vitality .pr-fg { stroke: var(--emerald); }
+
+  /* ---- Section anchors ---- */
+
+  .section-label {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 12px;
+  }
+  .section-label h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic; font-weight: 400;
+    font-size: 22px; letter-spacing: -0.02em;
+  }
+  .section-label .sl-meta {
+    font-size: 11px; color: var(--ink-softer); font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+  .section-label .sl-meta strong { color: var(--emerald); font-weight: 800; }
+  .section-label .sl-more {
+    margin-left: auto; font-size: 11px; font-weight: 700;
+    color: var(--emerald); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+
+  /* ---- Collection strip ---- */
+
+  .collection-strip {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+  }
+  .plant-card {
+    position: relative;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 16px 10px 12px;
+    box-shadow: var(--shadow-warm-sm);
+    text-align: center;
+    cursor: pointer;
+  }
+  .plant-card:hover { box-shadow: var(--shadow-warm-md); }
+  .plant-card .pc-portrait {
+    position: relative;
+    width: 100px; height: 100px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge), 0 4px 10px rgba(11,58,26,0.1);
+    display: flex; align-items: flex-end; justify-content: center;
+    overflow: hidden;
+  }
+  .plant-card .pc-portrait::before {
+    content: ""; position: absolute; inset: 4px;
+    border-radius: 50%; border: 1px solid rgba(11,58,26,0.05);
+  }
+  .plant-card .pc-portrait::after {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 25%, rgba(255,240,200,0.5) 0%, transparent 55%);
+    border-radius: 50%; pointer-events: none;
+  }
+  .plant-card .pc-portrait .p-mini {
+    font-size: 48px; line-height: 1; margin-bottom: 0;
+    filter: drop-shadow(0 6px 10px rgba(11,58,26,0.2));
+    position: relative; z-index: 2;
+  }
+  .plant-card .pc-mood {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    box-shadow: var(--shadow-warm-sm);
+    z-index: 3;
+  }
+  .plant-card .pc-mood.thriving { color: var(--leaf); }
+  .plant-card .pc-mood.thirsty { color: var(--sunshine); }
+  .plant-card .pc-mood.wilting { color: var(--coral); box-shadow: 0 0 0 2px rgba(255,107,61,0.22), var(--shadow-warm-sm); }
+  .plant-card .pc-name {
+    font-size: 13px; font-weight: 700; color: var(--ink);
+    margin-bottom: 1px; letter-spacing: -0.01em;
+  }
+  .plant-card .pc-species {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 11px; color: var(--ink-soft);
+  }
+  .plant-card.urgent .pc-portrait {
+    box-shadow: inset 0 0 0 2px var(--coral), 0 4px 10px rgba(255,107,61,0.2);
+  }
+
+  /* ---- Radial wheel ---- */
+
+  .radial-host { position: relative; }
+  .radial-wheel {
+    position: absolute;
+    top: 50px; left: 50%;
+    width: 200px; height: 200px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 20;
+  }
+  .radial-wheel .rw-bg {
+    position: absolute; inset: -20px;
+    background: radial-gradient(circle at center,
+      rgba(20,144,47,0.14) 0%,
+      rgba(20,144,47,0.04) 45%,
+      transparent 75%);
+    border-radius: 50%;
+    filter: blur(8px);
+  }
+  .radial-wheel .rw-ring {
+    position: absolute; inset: 20px;
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: var(--shadow-warm-lg), 0 0 0 1px rgba(80,56,18,0.06);
+  }
+  .radial-wheel .rw-centre {
+    position: absolute; top: 50%; left: 50%;
+    width: 66px; height: 66px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge), var(--shadow-warm-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; z-index: 4;
+  }
+  .radial-wheel .rw-spoke {
+    position: absolute; top: 50%; left: 50%;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: var(--shadow-warm-sm), 0 0 0 1px var(--paper-edge);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 17px; z-index: 3;
+  }
+  .radial-wheel .rw-spoke .rw-lbl {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-soft); margin-top: 1px;
+  }
+  .radial-wheel .rw-spoke.top        { transform: translate(-50%, -50%) translate(0,   -74px); }
+  .radial-wheel .rw-spoke.top-right  { transform: translate(-50%, -50%) translate(64px, -40px); }
+  .radial-wheel .rw-spoke.bot-right  { transform: translate(-50%, -50%) translate(64px,  40px); }
+  .radial-wheel .rw-spoke.bottom     { transform: translate(-50%, -50%) translate(0,    74px); }
+  .radial-wheel .rw-spoke.bot-left   { transform: translate(-50%, -50%) translate(-64px, 40px); }
+  .radial-wheel .rw-spoke.top-left   { transform: translate(-50%, -50%) translate(-64px,-40px); }
+  .radial-wheel .rw-spoke.primary {
+    background: var(--gradient-brand);
+    color: var(--paper);
+    box-shadow: 0 8px 16px rgba(20,144,47,0.35), 0 0 0 1px rgba(20,144,47,0.4);
+  }
+  .radial-wheel .rw-spoke.primary .rw-lbl { color: rgba(255,255,255,0.88); }
+  .radial-wheel .rw-spoke.primary.urgent {
+    background: linear-gradient(135deg, #ff8a5c, #c4412a);
+    box-shadow: 0 8px 16px rgba(255,107,61,0.4), 0 0 0 1px rgba(196,65,42,0.4);
+    animation: wheel-pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes wheel-pulse {
+    0%, 100% { transform: translate(-50%, -50%) translate(0, -74px) scale(1); }
+    50%      { transform: translate(-50%, -50%) translate(0, -74px) scale(1.08); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .radial-wheel .rw-spoke.primary.urgent { animation: none; }
+  }
+
+  /* ---- Jobs-to-be-done rail ---- */
+
+  .jobs-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  .job-card {
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-warm-sm);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 12px;
+    transition: transform 140ms ease, box-shadow 140ms ease;
+  }
+  .job-card:hover { box-shadow: var(--shadow-warm-md); transform: translateY(-1px); }
+  .job-card .jc-icon {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+  }
+  .job-card.urgent .jc-icon {
+    background: rgba(255,107,61,0.16);
+    box-shadow: inset 0 0 0 1px rgba(255,107,61,0.4);
+    color: var(--coral-deep);
+  }
+  .job-card.urgent .jc-title { color: var(--coral-deep); }
+  .job-card .jc-body { flex: 1; min-width: 0; }
+  .job-card .jc-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+  .job-card .jc-sub { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  .job-card .jc-sub em { font-family: "Fraunces"; font-style: italic; color: var(--coral-deep); font-weight: 500; }
+  .job-card .jc-arrow {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--paper-deep);
+    color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  /* ---- Rituals card ---- */
+
+  .rituals {
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    padding: 18px 22px 12px;
+    box-shadow: var(--shadow-warm-sm);
+    overflow: hidden;
+  }
+  .rituals-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .rituals-head h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 22px; letter-spacing: -0.02em;
+  }
+  .rituals-head .ritual-meta {
+    font-size: 12px; color: var(--ink-soft); font-weight: 600;
+  }
+  .rituals-head .ritual-meta strong { color: var(--emerald); font-weight: 800; }
+
+  .ritual-list { display: flex; flex-direction: column; }
+  .ritual-row {
+    position: relative;
+    border-top: 1px solid var(--paper-edge);
+    overflow: hidden;
+    border-radius: 0;
+  }
+  .ritual-row:first-child { border-top: none; }
+
+  /* Permanent peek — tiny sliver of reveal always visible on the left */
+  .ritual-row::before {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: 6px;
+    background: var(--forest);
+    opacity: 0.75;
+    z-index: 1;
+  }
+  .ritual-row.swiping::before { opacity: 1; }
+
+  .ritual-row .rr-behind {
+    position: absolute; inset: 0;
+    background: var(--forest);
+    display: flex; align-items: center;
+    padding-left: 22px;
+    color: var(--paper);
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 17px;
+    gap: 12px;
+  }
+  .ritual-row .rr-behind .check {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--leaf);
+    color: var(--paper); font-weight: 900;
+    font-family: inherit; font-style: normal;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 10px rgba(20,144,47,0.32);
+  }
+
+  .ritual-row .rr-front {
+    position: relative;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 4px 12px 14px;
+    min-height: 56px;
+    background: var(--paper);
+    z-index: 2;
+  }
+  .ritual-row.swiping .rr-front {
+    transform: translateX(120px);
+    transition: transform 280ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+
+  /* Drag handle dots on right edge — discoverability cue */
+  .ritual-row .rr-handle {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--ink-softer);
+    opacity: 0.55;
+    font-size: 10px;
+    flex-shrink: 0;
+    padding: 0 4px;
+  }
+  .ritual-row .rr-handle span {
+    width: 3px; height: 3px; border-radius: 50%;
+    background: currentColor;
+    display: block;
+  }
+
+  .ritual-row .rr-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .ritual-row .rr-body { flex: 1; min-width: 0; }
+  .ritual-row .rr-name { font-size: 14px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+  .ritual-row .rr-sub { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  .ritual-row .rr-sub em { font-family: "Fraunces"; font-style: italic; color: var(--coral-deep); font-weight: 500; }
+  .ritual-row .rr-tag {
+    padding: 3px 10px;
+    background: var(--mint);
+    color: var(--emerald);
+    border-radius: var(--radius-full);
+    font-size: 10px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .ritual-row .rr-tag.overdue { background: rgba(255,107,61,0.14); color: var(--coral-deep); }
+
+  .rituals-hint {
+    text-align: center;
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 11px; color: var(--ink-softer);
+    margin-top: 10px;
+    padding: 6px;
+  }
+
+  /* ---- Weekly calendar glance ---- */
+
+  .week-calendar {
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .week-calendar-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .week-calendar-head h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 22px; letter-spacing: -0.02em;
+  }
+  .week-calendar-head .wk-meta {
+    font-size: 11px; color: var(--ink-soft); font-weight: 600;
+  }
+  .week-calendar-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+  }
+  .day-cell {
+    padding: 10px 8px 12px;
+    border-radius: var(--radius-md);
+    background: var(--paper-deep);
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    cursor: pointer;
+  }
+  .day-cell.today {
+    background: var(--mint);
+    box-shadow: inset 0 0 0 2px var(--leaf);
+  }
+  .day-cell .dc-dow {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-softer);
+  }
+  .day-cell.today .dc-dow { color: var(--forest); }
+  .day-cell .dc-day {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 22px; line-height: 1;
+    color: var(--ink);
+  }
+  .day-cell .dc-dots {
+    display: flex; gap: 3px;
+    min-height: 10px;
+  }
+  .day-cell .dc-dots span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ink-softer);
+  }
+  .day-cell .dc-dots span.coral { background: var(--coral); }
+  .day-cell .dc-dots span.leaf  { background: var(--leaf); }
+  .day-cell .dc-dots span.sun   { background: var(--sunshine); }
+  .day-cell .dc-note {
+    font-size: 10px; color: var(--ink-softer);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .day-cell .dc-note.rain { color: #4bb4d8; }
+
+  /* ---- Right rail (expanded) ---- */
+
+  .t-rail {
+    display: flex; flex-direction: column; gap: 12px;
+    position: sticky;
+    top: 0;
+  }
+  .rail-card {
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-warm-sm);
+    overflow: hidden;
+  }
+  .rail-card-head {
+    padding: 16px 18px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .rail-card-head h3 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 17px; letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .rail-card-head .rch-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+  .rail-card-head .rch-collapse {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--paper-deep);
+    color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .rail-card-body { padding: 0 18px 12px; }
+
+  .je {
+    padding: 10px 0;
+    border-top: 1px solid var(--paper-edge);
+    display: flex; gap: 10px;
+  }
+  .je:first-of-type { border-top: none; padding-top: 4px; }
+  .je .je-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .je .je-text { font-size: 12px; color: var(--ink); line-height: 1.4; }
+  .je .je-meta {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 2px;
+  }
+  .je .je-meta .je-author { color: var(--emerald); }
+  .je .je-meta .je-author.sys { color: var(--sunshine-deep); }
+
+  /* Goals */
+  .goal-item {
+    padding: 10px 0;
+    border-top: 1px solid var(--paper-edge);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .goal-item:first-of-type { border-top: none; padding-top: 4px; }
+  .goal-item .gi-ring { width: 36px; height: 36px; flex-shrink: 0; position: relative; }
+  .goal-item .gi-ring svg { width: 100%; height: 100%; }
+  .goal-item .gi-ring .gr-bg { fill: none; stroke: var(--paper-deep); stroke-width: 3; }
+  .goal-item .gi-ring .gr-fg { fill: none; stroke-linecap: round; stroke-width: 3; stroke: var(--emerald); }
+  .goal-item .gi-ring.streak .gr-fg { stroke: var(--coral); }
+  .goal-item .gi-ring.milestone .gr-fg { stroke: var(--sunshine); }
+  .goal-item .gi-ring.rescue .gr-fg { stroke: var(--leaf); }
+  .goal-item .gi-ring-inner {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .goal-item .gi-body { flex: 1; min-width: 0; }
+  .goal-item .gi-name {
+    font-size: 12px; font-weight: 700; color: var(--ink);
+    letter-spacing: -0.005em; line-height: 1.3;
+  }
+  .goal-item .gi-sub {
+    font-size: 10px; color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  /* Achievements */
+  .ach-item {
+    padding: 10px 0;
+    border-top: 1px solid var(--paper-edge);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ach-item:first-of-type { border-top: none; padding-top: 4px; }
+  .ach-item .ach-badge {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 2px var(--leaf), 0 2px 6px rgba(20,144,47,0.18);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+  }
+  .ach-item.coral .ach-badge { box-shadow: inset 0 0 0 2px var(--coral), 0 2px 6px rgba(255,107,61,0.22); }
+  .ach-item.sun .ach-badge { box-shadow: inset 0 0 0 2px var(--sunshine), 0 2px 6px rgba(255,184,61,0.22); }
+  .ach-item .ach-body { flex: 1; min-width: 0; }
+  .ach-item .ach-name { font-size: 12px; font-weight: 700; color: var(--ink); }
+  .ach-item .ach-date {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-top: 2px;
+  }
+
+  /* Today weather summary strip */
+  .weather-pill.weather-pill-strip {
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-warm-sm);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .weather-pill.weather-pill-strip .ws-icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ffe7a3, #ffc061);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: inset 0 0 0 1px rgba(165,109,18,0.15), 0 4px 10px rgba(255,184,61,0.2);
+    flex-shrink: 0;
+  }
+  .weather-pill.weather-pill-strip .ws-icon.rain {
+    background: radial-gradient(circle at 30% 30%, #bfe0eb, #6eb9d1);
+  }
+  .weather-pill.weather-pill-strip .ws-body { flex: 1; min-width: 0; }
+  .weather-pill.weather-pill-strip .ws-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 4px;
+  }
+  .weather-pill.weather-pill-strip .ws-temp {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 32px; line-height: 1;
+    color: var(--ink);
+  }
+  .weather-pill.weather-pill-strip .ws-cond {
+    font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em;
+  }
+  .weather-pill.weather-pill-strip .ws-city {
+    font-size: 11px; color: var(--ink-softer); font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .weather-pill.weather-pill-strip .ws-advice {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 13px; color: var(--emerald);
+  }
+  .weather-pill.weather-pill-strip .ws-meta {
+    display: flex; flex-direction: column; gap: 4px;
+    text-align: right; flex-shrink: 0;
+    padding-left: 16px;
+    border-left: 1px solid var(--paper-edge);
+  }
+  .weather-pill.weather-pill-strip .ws-meta .ws-mrow {
+    font-size: 11px; color: var(--ink-soft); font-weight: 600;
+  }
+  .weather-pill.weather-pill-strip .ws-meta .ws-mrow strong { color: var(--ink); font-weight: 800; }
+
+  /* Weather phase-2 placeholder */
+  .weather-placeholder {
+    padding: 16px 18px;
+    text-align: center;
+    color: var(--ink-softer);
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 13px;
+    position: relative;
+  }
+  .weather-placeholder .coming {
+    display: inline-block;
+    padding: 3px 10px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-full);
+    font-family: "Plus Jakarta Sans";
+    font-style: normal;
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 6px;
+  }
+  .weather-placeholder .wp-icon { font-size: 32px; opacity: 0.4; display: block; margin-bottom: 6px; }
+
+  /* ---- Rail toggle button (collapsed state) ---- */
+
+  .rail-toggle {
+    position: absolute;
+    top: 180px; right: 0;
+    background: var(--paper);
+    border-radius: var(--radius-full) 0 0 var(--radius-full);
+    padding: 10px 14px 10px 18px;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: var(--shadow-warm-md);
+    cursor: pointer;
+    z-index: 25;
+    font-size: 12px; font-weight: 700;
+    color: var(--ink-soft);
+    border-right: none;
+  }
+  .rail-toggle .rt-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--gradient-brand);
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+  .rail-toggle .rt-dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--coral);
+    margin-left: 2px;
+  }
+
+  /* ---- Wrap-up ---- */
+  .wrap-up {
+    max-width: 1000px; margin: 0 auto 40px;
+    padding: 32px 40px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+  }
+  .wrap-up h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 32px; letter-spacing: -0.03em;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .wrap-up p {
+    color: var(--ink-soft); font-size: 14px;
+    max-width: 640px; margin: 0 auto 8px;
+    line-height: 1.65;
+    text-align: center;
+  }
+  .wrap-up .key-list { text-align: left; max-width: 680px; margin: 24px auto 0; }
+  .wrap-up .key-list li {
+    position: relative;
+    padding: 10px 0 10px 32px;
+    list-style: none;
+    border-bottom: 1px dashed var(--paper-edge);
+    font-size: 13px;
+  }
+  .wrap-up .key-list li:last-child { border-bottom: none; }
+  .wrap-up .key-list li::before {
+    content: ""; position: absolute; left: 8px; top: 15px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.15);
+  }
+  .wrap-up .key-list li strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--ink); font-size: 14px; margin-right: 6px;
+  }
+
+  .note {
+    max-width: 1360px; margin: -48px auto 56px;
+    padding: 18px 24px;
+    background: var(--paper);
+    border-left: 4px solid var(--coral);
+    border-radius: 12px;
+    font-size: 13px; color: var(--ink);
+    line-height: 1.55;
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .note strong { color: var(--emerald); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <span class="eyebrow">Mockup 17 · Today density · Welcome photo fix · rail collapse</span>
+    <h1>Going <em>wide</em>.</h1>
+    <p>Welcome redone with a real Monstera photo breaking the frame. Today goes wide — jobs rail, collection strip, rituals (with permanent peek + handle dots + swipe nudge), weekly calendar, and a stacking right rail (journal / goals / achievements / weather Phase-2 slot). Collapsed rail state shown as a TanStack-style floating toggle button. Three browser frames, the last two tall (1200px viewport) so the full Today fits without scroll artefacts.</p>
+  </header>
+
+  <!-- =============================================== -->
+  <!-- Screen 1 — Welcome w/ overflow photo -->
+  <!-- =============================================== -->
+  <div class="step-caption">
+    <span class="tag">01</span>
+    <h2>Welcome · photo overflow</h2>
+    <span class="spec">· Monstera breaks the top of the frame · caption pill sits below · dashed "meet Monty" annotation on the right</span>
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app/welcome</div>
+    </div>
+    <div class="viewport">
+      <div class="blob blob-mint"   style="width: 540px; height: 540px; top: -200px; left: -220px;"></div>
+      <div class="blob blob-sun"    style="width: 420px; height: 420px; bottom: -160px; right: -120px;"></div>
+      <div class="blob blob-coral"  style="width: 260px; height: 260px; top: 45%; left: 55%;"></div>
+
+      <div class="ob-shell">
+        <div class="ob-topbar">
+          <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+          <a class="skip" href="#">Log in</a>
+        </div>
+        <div class="ob-main">
+          <div class="ob-editorial">
+            <span class="small-caps"><span class="dot-concentric"></span>Begin here</span>
+            <h2>Say hello to<em>your greenhouse.</em></h2>
+            <p class="lead">
+              <span class="drop">A</span>place for every plant you've met. Water, feed, notice. Watch them grow. Write a little. Forget sometimes — it's allowed.
+            </p>
+            <div class="cta-row">
+              <button class="btn btn-primary">
+                Let's meet them
+                <span class="arrow">→</span>
+              </button>
+              <span class="serif-note">takes about two minutes</span>
+            </div>
+          </div>
+
+          <div class="portrait-composition">
+            <div class="portrait-flourish">
+              <svg viewBox="0 0 140 100">
+                <path d="M 10 70 C 30 20 80 10 115 25" stroke="#14902f" stroke-width="1.5" stroke-dasharray="3 3" fill="none" opacity="0.85"/>
+                <path d="M 108 17 L 118 25 L 110 35" stroke="#14902f" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+                <text x="40" y="14" font-family="Fraunces" font-style="italic" font-size="12" fill="#14902f" opacity="0.9">meet Monty</text>
+              </svg>
+            </div>
+            <div class="portrait-frame-v2">
+              <div class="grain-mask"></div>
+            </div>
+            <div class="portrait-photo"></div>
+            <div class="portrait-caption">
+              <span class="p-dot"></span>
+              <em style="font-style: italic;">Monstera deliciosa</em>
+              <span style="color: var(--ink-softer); font-family: 'Plus Jakarta Sans'; font-style: normal; font-size: 12px;">· Living Room</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top: 0;">
+    <strong>Welcome · what changed.</strong> Swapped our SVG cartoon Monstera for a real Unsplash photo of <em>Monstera deliciosa</em>. The photo extends <em>above</em> the frame — plant leaves spill out of the top. Soft mask on the photo's top edge blends it into the gradient behind. Caption pill floats near the bottom of the frame ("<em>Monstera deliciosa · Living Room</em>"). Note: if Unsplash blocks, the fallback is a green gradient in the photo area — production will use Perenual's cached image per species instead.
+  </div>
+
+  <!-- =============================================== -->
+  <!-- Screen 2 — Today full density -->
+  <!-- =============================================== -->
+  <div class="step-caption">
+    <span class="tag">02</span>
+    <h2>Today · full density (rail expanded)</h2>
+    <span class="spec">· jobs rail · collection + wheel · rituals w/ peek + handle · weekly calendar · 4 rail cards (journal, goals, achievements, weather)</span>
+  </div>
+  <div class="browser tall">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app</div>
+    </div>
+    <div class="viewport">
+      <div class="blob blob-mint"   style="width: 600px; height: 600px; top: -200px; right: -240px;"></div>
+      <div class="blob blob-sun"    style="width: 320px; height: 320px; bottom: -120px; left: 40%;"></div>
+      <div class="blob blob-forest" style="width: 260px; height: 260px; top: 40%; left: -80px;"></div>
+
+      <div class="t-shell">
+
+        <aside class="t-sidebar">
+          <div class="sb-head">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="sb-bell">🔔</div>
+          </div>
+          <div class="sb-cmd">
+            <span class="cmd-icon">⌕</span>
+            <span>Search, add, go to…</span>
+            <span class="cmd-kbd">⌘K</span>
+          </div>
+          <nav class="sb-nav">
+            <div class="sb-nav-label">Tend</div>
+            <div class="sb-item active"><span class="sb-icon">☀</span>Today<span class="count">3</span></div>
+            <div class="sb-item"><span class="sb-icon">⌂</span>House<span class="count">12</span></div>
+            <div class="sb-item"><span class="sb-icon">✎</span>Journal</div>
+            <div class="sb-item"><span class="sb-icon">❋</span>Encyclopedia</div>
+            <div class="sb-item"><span class="sb-icon">◉</span>Me</div>
+          </nav>
+          <div class="sb-spacer"></div>
+          <div class="user-card">
+            <div class="ua">R</div>
+            <div>
+              <div class="un">Rob</div>
+              <div class="um">12 plants · 4 spaces</div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="t-main">
+          <!-- Dashboard column — scrolls independently, stays full-width; organiser floats OVER it Mac-style -->
+          <div class="t-col-main" style="max-width: 1040px; margin: 0 auto;">
+
+              <!-- Head -->
+              <div class="t-head">
+                <div>
+                  <span class="eyebrow"><span class="dot-concentric"></span>Wednesday · 23 April</span>
+                  <h1>Good morning,<em> Rob</em>.</h1>
+                  <div class="greet-meta">One plant needs you. The rest are thriving.</div>
+                </div>
+                <div class="t-stats">
+                  <div class="progress-ring streak">
+                    <svg viewBox="0 0 40 40">
+                      <circle class="pr-bg" cx="20" cy="20" r="17"/>
+                      <circle class="pr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="25" transform="rotate(-90 20 20)"/>
+                    </svg>
+                    <div class="pr-inner"><div class="pr-num">7</div><div class="pr-label">Streak</div></div>
+                  </div>
+                  <div class="progress-ring vitality">
+                    <svg viewBox="0 0 40 40">
+                      <circle class="pr-bg" cx="20" cy="20" r="17"/>
+                      <circle class="pr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="6" transform="rotate(-90 20 20)"/>
+                    </svg>
+                    <div class="pr-inner"><div class="pr-num">94</div><div class="pr-label">Vitality</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Today's weather summary -->
+              <div class="weather-pill weather-pill-strip">
+                <div class="ws-icon">☀</div>
+                <div class="ws-body">
+                  <div class="ws-head">
+                    <span class="ws-temp">22°</span>
+                    <span class="ws-cond">Bright · light breeze</span>
+                    <span class="ws-city">· Manchester</span>
+                  </div>
+                  <div class="ws-advice">No rain expected — outdoor plants will need your help today.</div>
+                </div>
+                <div class="ws-meta">
+                  <div class="ws-mrow"><strong>18°</strong> overnight</div>
+                  <div class="ws-mrow"><strong>Sun</strong> · rain 80%</div>
+                </div>
+              </div>
+
+              <!-- Rituals — primary action surface, moved up near the top -->
+              <div class="rituals">
+                <div class="rituals-head">
+                  <h2>Today's rituals</h2>
+                  <div class="ritual-meta"><strong>1 done</strong> · 2 to go</div>
+                </div>
+                <div class="ritual-list">
+                  <div class="ritual-row swiping">
+                    <div class="rr-behind">
+                      <span class="check">✓</span>
+                      Done!
+                    </div>
+                    <div class="rr-front">
+                      <div class="rr-avatar">🌿</div>
+                      <div class="rr-body">
+                        <div class="rr-name">Water Monty</div>
+                        <div class="rr-sub"><em>3 days overdue</em> · 500ml</div>
+                      </div>
+                      <div class="rr-tag overdue">Overdue</div>
+                      <div class="rr-handle"><span></span><span></span><span></span></div>
+                    </div>
+                  </div>
+                  <div class="ritual-row">
+                    <div class="rr-front">
+                      <div class="rr-avatar">🪴</div>
+                      <div class="rr-body">
+                        <div class="rr-name">Water Basil</div>
+                        <div class="rr-sub">Due today · 150ml</div>
+                      </div>
+                      <div class="rr-tag">Due today</div>
+                      <div class="rr-handle"><span></span><span></span><span></span></div>
+                    </div>
+                  </div>
+                  <div class="ritual-row">
+                    <div class="rr-front">
+                      <div class="rr-avatar">🌱</div>
+                      <div class="rr-body">
+                        <div class="rr-name">Feed Fernie</div>
+                        <div class="rr-sub">Due today · half-strength</div>
+                      </div>
+                      <div class="rr-tag">Due today</div>
+                      <div class="rr-handle"><span></span><span></span><span></span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="rituals-hint">← swipe to mark done</div>
+              </div>
+
+              <!-- Weekly calendar glance — promoted up, near-top planning context -->
+              <div class="week-calendar">
+                <div class="week-calendar-head">
+                  <h2>This week</h2>
+                  <span class="wk-meta">5 rituals ahead · rain Sunday</span>
+                </div>
+                <div class="week-calendar-grid">
+                  <div class="day-cell">
+                    <span class="dc-dow">Mon</span><span class="dc-day">21</span>
+                    <span class="dc-dots"><span class="leaf"></span></span>
+                  </div>
+                  <div class="day-cell">
+                    <span class="dc-dow">Tue</span><span class="dc-day">22</span>
+                    <span class="dc-dots"></span>
+                  </div>
+                  <div class="day-cell today">
+                    <span class="dc-dow">Wed</span><span class="dc-day">23</span>
+                    <span class="dc-dots"><span class="coral"></span><span class="leaf"></span><span class="leaf"></span></span>
+                  </div>
+                  <div class="day-cell">
+                    <span class="dc-dow">Thu</span><span class="dc-day">24</span>
+                    <span class="dc-dots"><span class="leaf"></span></span>
+                  </div>
+                  <div class="day-cell">
+                    <span class="dc-dow">Fri</span><span class="dc-day">25</span>
+                    <span class="dc-dots"><span class="sun"></span></span>
+                    <span class="dc-note">anniv.</span>
+                  </div>
+                  <div class="day-cell">
+                    <span class="dc-dow">Sat</span><span class="dc-day">26</span>
+                    <span class="dc-dots"><span class="leaf"></span><span class="leaf"></span></span>
+                  </div>
+                  <div class="day-cell">
+                    <span class="dc-dow">Sun</span><span class="dc-day">27</span>
+                    <span class="dc-dots"></span>
+                    <span class="dc-note rain">rain</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Jobs-to-be-done rail -->
+              <div>
+                <div class="section-label">
+                  <h2>What can I help with?</h2>
+                  <span class="sl-meta"><strong>6</strong> of 15 things you can do</span>
+                  <span class="sl-more">see all →</span>
+                </div>
+                <div class="jobs-grid">
+                  <div class="job-card">
+                    <div class="jc-icon">💧</div>
+                    <div class="jc-body">
+                      <div class="jc-title">Water a plant</div>
+                      <div class="jc-sub">Pick who from your greenhouse</div>
+                    </div>
+                    <div class="jc-arrow">→</div>
+                  </div>
+                  <div class="job-card">
+                    <div class="jc-icon">🌱</div>
+                    <div class="jc-body">
+                      <div class="jc-title">Feed a plant</div>
+                      <div class="jc-sub">Pick who from your greenhouse</div>
+                    </div>
+                    <div class="jc-arrow">→</div>
+                  </div>
+                  <div class="job-card">
+                    <div class="jc-icon">📷</div>
+                    <div class="jc-body">
+                      <div class="jc-title">Take a photo</div>
+                      <div class="jc-sub">Track the growth</div>
+                    </div>
+                    <div class="jc-arrow">→</div>
+                  </div>
+                  <div class="job-card">
+                    <div class="jc-icon">＋</div>
+                    <div class="jc-body">
+                      <div class="jc-title">Meet a new plant</div>
+                      <div class="jc-sub">Add to your greenhouse</div>
+                    </div>
+                    <div class="jc-arrow">→</div>
+                  </div>
+                  <div class="job-card">
+                    <div class="jc-icon">✎</div>
+                    <div class="jc-body">
+                      <div class="jc-title">Write a journal entry</div>
+                      <div class="jc-sub">Today felt like spring</div>
+                    </div>
+                    <div class="jc-arrow">→</div>
+                  </div>
+                  <div class="job-card urgent">
+                    <div class="jc-icon">🩺</div>
+                    <div class="jc-body">
+                      <div class="jc-title">Check on Monty</div>
+                      <div class="jc-sub"><em>Looks like he's wilting</em></div>
+                    </div>
+                    <div class="jc-arrow">→</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Collection strip -->
+              <div>
+                <div class="section-label">
+                  <h2>What you've got</h2>
+                  <span class="sl-meta"><strong>5 plants</strong> · Living Room · Kitchen · Patio</span>
+                  <span class="sl-more">see all →</span>
+                </div>
+                <div class="collection-strip">
+                  <div class="plant-card urgent radial-host">
+                    <div class="pc-portrait"><span class="p-mini">🌿</span></div>
+                    <div class="pc-mood wilting">●</div>
+                    <div class="pc-name">Monty</div>
+                    <div class="pc-species">Monstera deliciosa</div>
+                    <div class="radial-wheel">
+                      <div class="rw-bg"></div>
+                      <div class="rw-ring"></div>
+                      <div class="rw-spoke primary urgent top">💧<span class="rw-lbl">Water</span></div>
+                      <div class="rw-spoke top-right">🌱<span class="rw-lbl">Feed</span></div>
+                      <div class="rw-spoke bot-right">📷<span class="rw-lbl">Photo</span></div>
+                      <div class="rw-spoke bottom">✎<span class="rw-lbl">Note</span></div>
+                      <div class="rw-spoke bot-left">🩺<span class="rw-lbl">Doctor</span></div>
+                      <div class="rw-spoke top-left">⌂<span class="rw-lbl">Move</span></div>
+                      <div class="rw-centre">🌿</div>
+                    </div>
+                  </div>
+                  <div class="plant-card">
+                    <div class="pc-portrait"><span class="p-mini">🌵</span></div>
+                    <div class="pc-mood thriving">●</div>
+                    <div class="pc-name">Spike</div>
+                    <div class="pc-species">Echinocactus</div>
+                  </div>
+                  <div class="plant-card">
+                    <div class="pc-portrait"><span class="p-mini">🪴</span></div>
+                    <div class="pc-mood thirsty">●</div>
+                    <div class="pc-name">Basil</div>
+                    <div class="pc-species">Ocimum basilicum</div>
+                  </div>
+                  <div class="plant-card">
+                    <div class="pc-portrait"><span class="p-mini">🍃</span></div>
+                    <div class="pc-mood thriving">●</div>
+                    <div class="pc-name">Fernie</div>
+                    <div class="pc-species">Nephrolepis</div>
+                  </div>
+                  <div class="plant-card">
+                    <div class="pc-portrait"><span class="p-mini">🌱</span></div>
+                    <div class="pc-mood thriving">●</div>
+                    <div class="pc-name">Zee</div>
+                    <div class="pc-species">Zamioculcas</div>
+                  </div>
+                </div>
+              </div>
+
+          </div>
+
+          <!-- ============ FLOATING GLASS ORGANISER — Mac notification-centre style ============ -->
+          <aside class="t-rail floating">
+
+            <div class="rail-head">
+              <h2>Organiser</h2>
+              <div class="rail-close" title="Close organiser (⌘])">✕</div>
+            </div>
+
+              <div class="rail-card">
+                <div class="rail-card-head">
+                  <h3><span class="rch-icon">✎</span>Journal</h3>
+                  <div class="rch-collapse" title="Collapse">›</div>
+                </div>
+                <div class="rail-card-body">
+                  <div class="je">
+                    <div class="je-dot">🌿</div>
+                    <div>
+                      <div class="je-meta"><span class="je-author sys">System</span> · just now</div>
+                      <div class="je-text">Monty moved from content to thirsty</div>
+                    </div>
+                  </div>
+                  <div class="je">
+                    <div class="je-dot">📷</div>
+                    <div>
+                      <div class="je-meta"><span class="je-author">You</span> · yesterday</div>
+                      <div class="je-text">New photo of Basil — doubled since March.</div>
+                    </div>
+                  </div>
+                  <div class="je">
+                    <div class="je-dot">🌵</div>
+                    <div>
+                      <div class="je-meta"><span class="je-author sys">Milestone</span> · 3d ago</div>
+                      <div class="je-text">Spike has been with you for 100 days</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rail-card">
+                <div class="rail-card-head">
+                  <h3><span class="rch-icon">◎</span>Next goals</h3>
+                  <div class="rch-collapse" title="Collapse">›</div>
+                </div>
+                <div class="rail-card-body">
+                  <div class="goal-item">
+                    <div class="gi-ring streak">
+                      <svg viewBox="0 0 40 40">
+                        <circle class="gr-bg" cx="20" cy="20" r="17"/>
+                        <circle class="gr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="82" transform="rotate(-90 20 20)"/>
+                      </svg>
+                      <div class="gi-ring-inner">🔥</div>
+                    </div>
+                    <div class="gi-body">
+                      <div class="gi-name">30-day streak</div>
+                      <div class="gi-sub">7 of 30 days</div>
+                    </div>
+                  </div>
+                  <div class="goal-item">
+                    <div class="gi-ring milestone">
+                      <svg viewBox="0 0 40 40">
+                        <circle class="gr-bg" cx="20" cy="20" r="17"/>
+                        <circle class="gr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="23" transform="rotate(-90 20 20)"/>
+                      </svg>
+                      <div class="gi-ring-inner">✨</div>
+                    </div>
+                    <div class="gi-body">
+                      <div class="gi-name">Monty's 60-day anniversary</div>
+                      <div class="gi-sub">47 of 60 days</div>
+                    </div>
+                  </div>
+                  <div class="goal-item">
+                    <div class="gi-ring rescue">
+                      <svg viewBox="0 0 40 40">
+                        <circle class="gr-bg" cx="20" cy="20" r="17"/>
+                        <circle class="gr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="50" transform="rotate(-90 20 20)"/>
+                      </svg>
+                      <div class="gi-ring-inner">🛟</div>
+                    </div>
+                    <div class="gi-body">
+                      <div class="gi-name">First rescue</div>
+                      <div class="gi-sub">Water an overdue plant</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rail-card">
+                <div class="rail-card-head">
+                  <h3><span class="rch-icon">★</span>Recently earned</h3>
+                  <div class="rch-collapse" title="Collapse">›</div>
+                </div>
+                <div class="rail-card-body">
+                  <div class="ach-item coral">
+                    <div class="ach-badge">🔥</div>
+                    <div class="ach-body">
+                      <div class="ach-name">7-day streak</div>
+                      <div class="ach-date">Earned · Monday</div>
+                    </div>
+                  </div>
+                  <div class="ach-item">
+                    <div class="ach-badge">🌵</div>
+                    <div class="ach-body">
+                      <div class="ach-name">Spike · 100 days</div>
+                      <div class="ach-date">Earned · last week</div>
+                    </div>
+                  </div>
+                  <div class="ach-item sun">
+                    <div class="ach-badge">🌱</div>
+                    <div class="ach-body">
+                      <div class="ach-name">Basil · thriving</div>
+                      <div class="ach-date">Earned · 2 weeks</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rail-card">
+                <div class="rail-card-head">
+                  <h3><span class="rch-icon">☁</span>Weather</h3>
+                  <div class="rch-collapse" title="Collapse">›</div>
+                </div>
+                <div class="weather-placeholder">
+                  <span class="coming">Phase 2</span>
+                  <span class="wp-icon">🌤</span>
+                  We'll tell you when to skip<br/>the outdoor watering.
+                </div>
+              </div>
+
+          </aside>
+        </main>
+
+        <!-- FAB -->
+        <div class="fab" title="Add a plant (N)">＋</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top: 0;">
+    <strong>Today full density · what's new.</strong> Jobs rail ("What can I help with?") sits between greeting and collection — six named verbs in a 3×2 grid, urgent job (Water Monty) coral-flagged, each card has a forward-arrow circle. Collection strip gets 5 plants w/ radial wheel open on Monty. Rituals rail has <strong>permanent 6px peek</strong> of forest-green on every row's left edge + <strong>3-dot drag handle</strong> on the right + <em>← swipe to mark done</em> hint below. Week calendar glance at the bottom — each day shows ritual dots (coral = overdue, leaf = due, sunshine = milestone), rain-flag on Sunday hints at Phase-2 weather awareness. Right rail stacks four cards: Journal / Next goals (with tiny progress rings) / Recently earned (with badge circles) / Weather (Phase-2 placeholder).
+  </div>
+
+  <!-- =============================================== -->
+  <!-- Screen 3 — Today collapsed rail -->
+  <!-- =============================================== -->
+  <div class="step-caption">
+    <span class="tag">03</span>
+    <h2>Today · rail collapsed (TanStack-style toggle)</h2>
+    <span class="spec">· rail hidden · single floating pill-button top-right · coral dot signals unread in journal · click to expand</span>
+  </div>
+  <div class="browser tall">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app</div>
+    </div>
+    <div class="viewport">
+      <div class="blob blob-mint"   style="width: 600px; height: 600px; top: -200px; right: -240px;"></div>
+      <div class="blob blob-sun"    style="width: 320px; height: 320px; bottom: -120px; left: 40%;"></div>
+      <div class="blob blob-forest" style="width: 260px; height: 260px; top: 40%; left: -80px;"></div>
+
+      <div class="t-shell">
+        <aside class="t-sidebar">
+          <div class="sb-head">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="sb-bell">🔔</div>
+          </div>
+          <div class="sb-cmd">
+            <span class="cmd-icon">⌕</span>
+            <span>Search, add, go to…</span>
+            <span class="cmd-kbd">⌘K</span>
+          </div>
+          <nav class="sb-nav">
+            <div class="sb-nav-label">Tend</div>
+            <div class="sb-item active"><span class="sb-icon">☀</span>Today<span class="count">3</span></div>
+            <div class="sb-item"><span class="sb-icon">⌂</span>House<span class="count">12</span></div>
+            <div class="sb-item"><span class="sb-icon">✎</span>Journal</div>
+            <div class="sb-item"><span class="sb-icon">❋</span>Encyclopedia</div>
+            <div class="sb-item"><span class="sb-icon">◉</span>Me</div>
+          </nav>
+          <div class="sb-spacer"></div>
+          <div class="user-card">
+            <div class="ua">R</div>
+            <div>
+              <div class="un">Rob</div>
+              <div class="um">12 plants · 4 spaces</div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="t-main">
+
+          <!-- Glass organiser trigger — always visible, Mac-style -->
+          <div class="organiser-trigger" title="Open organiser (⌘])">✎</div>
+
+          <div class="t-col-main" style="max-width: 1080px; margin: 0 auto;">
+
+            <div class="t-head">
+              <div>
+                <span class="eyebrow"><span class="dot-concentric"></span>Wednesday · 23 April</span>
+                <h1>Good morning,<em> Rob</em>.</h1>
+                <div class="greet-meta">One plant needs you. The rest are thriving.</div>
+              </div>
+              <div class="t-stats">
+                <div class="progress-ring streak">
+                  <svg viewBox="0 0 40 40">
+                    <circle class="pr-bg" cx="20" cy="20" r="17"/>
+                    <circle class="pr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="25" transform="rotate(-90 20 20)"/>
+                  </svg>
+                  <div class="pr-inner"><div class="pr-num">7</div><div class="pr-label">Streak</div></div>
+                </div>
+                <div class="progress-ring vitality">
+                  <svg viewBox="0 0 40 40">
+                    <circle class="pr-bg" cx="20" cy="20" r="17"/>
+                    <circle class="pr-fg" cx="20" cy="20" r="17" stroke-dasharray="107" stroke-dashoffset="6" transform="rotate(-90 20 20)"/>
+                  </svg>
+                  <div class="pr-inner"><div class="pr-num">94</div><div class="pr-label">Vitality</div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Today's weather summary — collapsed view -->
+            <div class="weather-pill weather-pill-strip">
+              <div class="ws-icon">☀</div>
+              <div class="ws-body">
+                <div class="ws-head">
+                  <span class="ws-temp">22°</span>
+                  <span class="ws-cond">Bright · light breeze</span>
+                  <span class="ws-city">· Manchester</span>
+                </div>
+                <div class="ws-advice">No rain expected — outdoor plants will need your help today.</div>
+              </div>
+              <div class="ws-meta">
+                <div class="ws-mrow"><strong>18°</strong> overnight</div>
+                <div class="ws-mrow"><strong>Sun</strong> · rain 80%</div>
+              </div>
+            </div>
+
+            <!-- Rituals — moved up, primary action surface -->
+            <div class="rituals">
+              <div class="rituals-head">
+                <h2>Today's rituals</h2>
+                <div class="ritual-meta"><strong>1 done</strong> · 2 to go</div>
+              </div>
+              <div class="ritual-list">
+                <div class="ritual-row">
+                  <div class="rr-front">
+                    <div class="rr-avatar">🌿</div>
+                    <div class="rr-body">
+                      <div class="rr-name">Water Monty</div>
+                      <div class="rr-sub"><em>3 days overdue</em> · 500ml</div>
+                    </div>
+                    <div class="rr-tag overdue">Overdue</div>
+                    <div class="rr-handle"><span></span><span></span><span></span></div>
+                  </div>
+                </div>
+                <div class="ritual-row">
+                  <div class="rr-front">
+                    <div class="rr-avatar">🪴</div>
+                    <div class="rr-body">
+                      <div class="rr-name">Water Basil</div>
+                      <div class="rr-sub">Due today · 150ml</div>
+                    </div>
+                    <div class="rr-tag">Due today</div>
+                    <div class="rr-handle"><span></span><span></span><span></span></div>
+                  </div>
+                </div>
+                <div class="ritual-row">
+                  <div class="rr-front">
+                    <div class="rr-avatar">🌱</div>
+                    <div class="rr-body">
+                      <div class="rr-name">Feed Fernie</div>
+                      <div class="rr-sub">Due today · half-strength</div>
+                    </div>
+                    <div class="rr-tag">Due today</div>
+                    <div class="rr-handle"><span></span><span></span><span></span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="rituals-hint">← swipe to mark done</div>
+            </div>
+
+            <!-- Weekly calendar — promoted up for near-top planning context -->
+            <div class="week-calendar">
+              <div class="week-calendar-head">
+                <h2>This week</h2>
+                <span class="wk-meta">5 rituals ahead · rain Sunday</span>
+              </div>
+              <div class="week-calendar-grid">
+                <div class="day-cell">
+                  <span class="dc-dow">Mon</span><span class="dc-day">21</span>
+                  <span class="dc-dots"><span class="leaf"></span></span>
+                </div>
+                <div class="day-cell">
+                  <span class="dc-dow">Tue</span><span class="dc-day">22</span>
+                  <span class="dc-dots"></span>
+                </div>
+                <div class="day-cell today">
+                  <span class="dc-dow">Wed</span><span class="dc-day">23</span>
+                  <span class="dc-dots"><span class="coral"></span><span class="leaf"></span><span class="leaf"></span></span>
+                </div>
+                <div class="day-cell">
+                  <span class="dc-dow">Thu</span><span class="dc-day">24</span>
+                  <span class="dc-dots"><span class="leaf"></span></span>
+                </div>
+                <div class="day-cell">
+                  <span class="dc-dow">Fri</span><span class="dc-day">25</span>
+                  <span class="dc-dots"><span class="sun"></span></span>
+                  <span class="dc-note">anniv.</span>
+                </div>
+                <div class="day-cell">
+                  <span class="dc-dow">Sat</span><span class="dc-day">26</span>
+                  <span class="dc-dots"><span class="leaf"></span><span class="leaf"></span></span>
+                </div>
+                <div class="day-cell">
+                  <span class="dc-dow">Sun</span><span class="dc-day">27</span>
+                  <span class="dc-dots"></span>
+                  <span class="dc-note rain">rain</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-label">
+                <h2>What can I help with?</h2>
+                <span class="sl-meta"><strong>4</strong> of 15 things you can do</span>
+                <span class="sl-more">see all →</span>
+              </div>
+              <div class="jobs-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="job-card">
+                  <div class="jc-icon">💧</div>
+                  <div class="jc-body">
+                    <div class="jc-title">Water a plant</div>
+                    <div class="jc-sub">Pick who from your greenhouse</div>
+                  </div>
+                  <div class="jc-arrow">→</div>
+                </div>
+                <div class="job-card">
+                  <div class="jc-icon">🌱</div>
+                  <div class="jc-body">
+                    <div class="jc-title">Feed a plant</div>
+                    <div class="jc-sub">Pick who from your greenhouse</div>
+                  </div>
+                  <div class="jc-arrow">→</div>
+                </div>
+                <div class="job-card">
+                  <div class="jc-icon">📷</div>
+                  <div class="jc-body">
+                    <div class="jc-title">Take a photo</div>
+                    <div class="jc-sub">Track the growth</div>
+                  </div>
+                  <div class="jc-arrow">→</div>
+                </div>
+                <div class="job-card urgent">
+                  <div class="jc-icon">🩺</div>
+                  <div class="jc-body">
+                    <div class="jc-title">Check on Monty</div>
+                    <div class="jc-sub"><em>Looks like he's wilting</em></div>
+                  </div>
+                  <div class="jc-arrow">→</div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-label">
+                <h2>What you've got</h2>
+                <span class="sl-meta"><strong>5 plants</strong> · three spaces</span>
+                <span class="sl-more">see all →</span>
+              </div>
+              <div class="collection-strip">
+                <div class="plant-card urgent">
+                  <div class="pc-portrait"><span class="p-mini">🌿</span></div>
+                  <div class="pc-mood wilting">●</div>
+                  <div class="pc-name">Monty</div>
+                  <div class="pc-species">Monstera deliciosa</div>
+                </div>
+                <div class="plant-card">
+                  <div class="pc-portrait"><span class="p-mini">🌵</span></div>
+                  <div class="pc-mood thriving">●</div>
+                  <div class="pc-name">Spike</div>
+                  <div class="pc-species">Echinocactus</div>
+                </div>
+                <div class="plant-card">
+                  <div class="pc-portrait"><span class="p-mini">🪴</span></div>
+                  <div class="pc-mood thirsty">●</div>
+                  <div class="pc-name">Basil</div>
+                  <div class="pc-species">Ocimum basilicum</div>
+                </div>
+                <div class="plant-card">
+                  <div class="pc-portrait"><span class="p-mini">🍃</span></div>
+                  <div class="pc-mood thriving">●</div>
+                  <div class="pc-name">Fernie</div>
+                  <div class="pc-species">Nephrolepis</div>
+                </div>
+                <div class="plant-card">
+                  <div class="pc-portrait"><span class="p-mini">🌱</span></div>
+                  <div class="pc-mood thriving">●</div>
+                  <div class="pc-name">Zee</div>
+                  <div class="pc-species">Zamioculcas</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </main>
+
+        <div class="fab" title="Add a plant (N)">＋</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top: 0;">
+    <strong>Rail collapsed · what you get.</strong> Content reflows to ~920px centred — focused reading mode. Single floating pill-button top-right: forest-green circle icon (book/journal), label "Open journal", coral dot signalling unread entry. One click restores the rail. State persists per-region (<code>ui:today:rail=collapsed</code>). Follows TanStack devtool pattern — unobtrusive at rest, one-click to expand. Jobs rail widens from 3 columns to 4 in collapsed mode. Rituals + collection stay the same.
+  </div>
+
+  <!-- =============================================== -->
+  <!-- Wrap-up -->
+  <!-- =============================================== -->
+  <div class="wrap-up">
+    <h2>Mac notification-centre glass overlay</h2>
+    <p>Organiser no longer reshapes the dashboard — it floats <em>over</em> the content as a translucent glass panel. Dashboard stays where it is; user focuses on rail when it's open, dashboard when it's closed. Click outside or the ✕ to dismiss. <code>⌘]</code> toggles.</p>
+    <p style="margin-top: 18px; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 15px; color: var(--emerald);">2026-04-24 · moderate polish pass — post-21 density baseline</p>
+    <p>Tightened vertical rhythm (main-col section gap 22 → 18px, section-label gap/margin 14 → 12px, stats gap 14 → 12px). Locked ritual-row slab height to 56px with centred flex so rows with vs without subtitles match. Reduced job-card padding (14×16 → 12×14) and added an <code>.urgent</code> variant — "Check on Monty" flags with coral-tinted icon + coral-deep title, matching House room-card urgency signalling. Radial-wheel primary spoke picks up a <code>2.2s wheel-pulse</code> when Water is overdue, sharing vocabulary with mockup 22's hero wheel. Copy tone: "Your greenhouse" → <em>What you've got</em>, generic "· six of fifteen" → <em>4 of 15 things you can do</em> with emerald-800 emphasis, UI narration on the collapsed-rail greeting swapped for the intimate companion phrasing. Tokens: dropped the stale <code>--radius-xl</code> from the palette, normalised the blob bleed blur to 70px (matches 21). Personality-chip <code>🎭</code> on the anniversary goal ring replaced with <code>✨</code> — anniversary is a milestone, not a personality type.</p>
+    <ul class="key-list">
+      <li><strong>No more layout reshape.</strong> Previously the rail stole 300px of main column when expanded. Now it's <code>position: absolute</code> floating on top with <code>backdrop-filter: blur(24px) saturate(1.4)</code> + <code>rgba(251,248,241,0.72)</code> paper-tinted translucent bg. Dashboard stays full-width underneath.</li>
+      <li><strong>Mac-style persistent trigger.</strong> Single small glass circle top-right of main when rail closed (mockup frame 3). Round, translucent, backdrop-blur, coral unread dot. Click opens the organiser. Always in the same spot — no more random floating pill.</li>
+      <li><strong>Independent scroll.</strong> Dashboard column scrolls inside the main viewport area; organiser scrolls inside its own floating panel. Two <code>overflow-y: auto</code> containers, no interference. Scroll position preserved per-surface.</li>
+      <li><strong>Calendar interactability — Phase 1 plan.</strong> Calendar is interactive:
+        <ul style="padding-left: 20px; margin-top: 6px; font-size: 13px;">
+          <li>Click a day → popover shows that day's rituals + option to "Add note / event" for that day.</li>
+          <li>Hover a day → small tooltip showing the ritual count.</li>
+          <li>Flag a date-range as "away" / "vacation" — suggests frontloading care before leaving, catches you up on return.</li>
+          <li>Phase 2: drag a ritual row from Today's list onto a future day to reschedule. Weather-aware conflict warnings.</li>
+          <li>Phase 3: recurring manual events (family birthdays, out-of-town, etc.) via the organiser.</li>
+        </ul>
+      </li>
+      <li><strong>Journal = organiser, codified.</strong> The Organiser panel (formerly "right rail") houses multiple cards — journal is one of them. Full Journal <em>region</em> expands from the rail toggle: Entries / Album / By plant / By mood / Milestones. Rail glance; region archive.</li>
+      <li><strong>Glass + blur treatment.</strong> Kept recognisable (Mac Monterey vocabulary), not iOS-26 rim-highlight — that direction was retired 2026-04-22 and isn't coming back. The translucency + blur + inset white highlight + soft drop shadow = enough depth; no refraction, no edge-lighting gimmicks.</li>
+      <li><strong>Animation on open/close.</strong> Framer Motion: <code>initial={{ x: 40, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 40, opacity: 0 }}</code> with <code>{ type: 'spring', stiffness: 260, damping: 28 }</code>. Organiser trigger cross-fades to close button. Cards inside stagger-fade (40ms gap). Reduced-motion = pure opacity cross-fade.</li>
+      <li><strong>Accessibility.</strong> <code>role="dialog" aria-label="Organiser"</code>, focus trap while open, Esc to close, Tab cycles within. Click outside panel dismisses. Screen readers announce state changes.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

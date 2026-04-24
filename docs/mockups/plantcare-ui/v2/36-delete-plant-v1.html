@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — Delete Plant · both viewports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --paper-deep: #f3eee2;
+    --paper-edge: #e8ddc6;
+    --base: #f6fbf4;
+    --mint: #dff2e2;
+    --mint-2: #c7ecca;
+    --lime: #86db65;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --coral-deep: #c4412a;
+    --coral-soft: #fbe3d9;
+    --sunshine: #ffb83d;
+    --sunshine-deep: #a56d12;
+    --sky: #c7e3f5;
+    --sky-deep: #2c6a94;
+    --shadow-warm-sm: 0 2px 10px rgba(80,56,18,0.07), 0 0 0 1px rgba(80,56,18,0.025);
+    --shadow-warm-md: 0 18px 40px rgba(80,56,18,0.10), 0 2px 8px rgba(80,56,18,0.04);
+    --shadow-warm-lg: 0 36px 80px -8px rgba(80,56,18,0.18), 0 6px 16px rgba(80,56,18,0.06);
+    --shadow-cta-danger: 0 6px 16px rgba(196,65,42,0.32), inset 0 1px 0 rgba(255,255,255,0.22);
+    --shadow-medallion: 0 20px 44px -10px rgba(11,58,26,0.22), inset 0 0 0 1px rgba(11,58,26,0.08);
+    --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #eff7e6 55%, #e4efd5 100%);
+    --gradient-display: linear-gradient(130deg, #0b3a1a 0%, #14902f 60%, #32c456 100%);
+    --gradient-brand: linear-gradient(135deg, #32c456, #14902f);
+    --gradient-coral: linear-gradient(135deg, #d65437, #c4412a);
+
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+
+    --blur-heavy: 24px;
+    --blur-primary: 20px;
+    --blur-medium: 12px;
+    --blur-light: 2px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #ecece0;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+  .page { max-width: 1440px; margin: 0 auto; }
+
+  .page-header { text-align: center; margin-bottom: 40px; }
+  .page-header .eyebrow {
+    display: inline-block; padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 60px; letter-spacing: -0.035em;
+    line-height: 1; margin-bottom: 18px;
+  }
+  .page-header h1 em {
+    background: var(--gradient-coral);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .page-header p {
+    font-size: 17px; color: var(--ink-soft);
+    max-width: 760px; margin: 0 auto; line-height: 1.6;
+  }
+
+  .step-caption {
+    max-width: 1360px; margin: 48px auto 14px; padding: 0 8px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .step-caption .tag {
+    display: inline-block; padding: 4px 12px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .step-caption h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 32px; letter-spacing: -0.02em;
+  }
+  .step-caption .spec {
+    margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600;
+  }
+  .step-row {
+    display: flex; gap: 40px; align-items: flex-start;
+    justify-content: center; flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  /* Browser frame */
+  .browser {
+    background: #f5f1e8;
+    border-radius: 16px;
+    box-shadow: var(--shadow-warm-lg);
+    overflow: hidden;
+    border: 1px solid rgba(80,56,18,0.1);
+    width: 960px;
+    flex-shrink: 0;
+  }
+  .browser .chrome {
+    height: 38px; background: #ede6d5;
+    border-bottom: 1px solid rgba(80,56,18,0.1);
+    display: flex; align-items: center; padding: 0 14px; gap: 8px;
+  }
+  .browser .chrome .dots { display: flex; gap: 6px; }
+  .browser .chrome .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .browser .chrome .dot-r { background: #ff5f57; }
+  .browser .chrome .dot-y { background: #febc2e; }
+  .browser .chrome .dot-g { background: #28c840; }
+  .browser .chrome .url {
+    flex: 1; margin: 0 14px; height: 22px;
+    background: var(--paper);
+    border: 1px solid rgba(80,56,18,0.08);
+    border-radius: var(--radius-xs);
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 11px; color: var(--ink-softer);
+    font-family: "SF Mono", Consolas, monospace;
+  }
+  .browser .viewport {
+    height: 780px;
+    background: var(--gradient-mint);
+    position: relative; overflow: hidden;
+  }
+  .browser .viewport::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+
+  /* iPhone */
+  .phone {
+    width: 413px; height: 872px;
+    background: #0a0a0a;
+    border-radius: 56px; padding: 10px;
+    box-shadow: 0 0 0 2px #2a2a2a, 0 36px 80px -8px rgba(11,58,26,0.3), 0 12px 24px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+  }
+  .phone .screen {
+    width: 393px; height: 852px;
+    border-radius: 48px;
+    background: var(--gradient-mint);
+    overflow: hidden; position: relative;
+  }
+  .phone .screen::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+  .phone .island {
+    position: absolute; top: 21px; left: 50%;
+    transform: translateX(-50%);
+    width: 123px; height: 37px;
+    background: #000; border-radius: 100px;
+    z-index: 40;
+  }
+  .phone .status-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 30px 0;
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    z-index: 30; pointer-events: none;
+  }
+
+  /* Blobs */
+  .blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(70px);
+    pointer-events: none; z-index: 0;
+    opacity: 0.5;
+  }
+  .blob-mint { background: rgba(134,219,101,0.35); }
+
+  /* Scrim (desktop + mobile underlay) */
+  .scrim {
+    position: absolute; inset: 0;
+    background: rgba(11,58,26,0.42);
+    backdrop-filter: blur(var(--blur-light));
+    -webkit-backdrop-filter: blur(var(--blur-light));
+    z-index: 20;
+  }
+
+  /* ============ DESKTOP DIALOG ============ */
+  .dialog {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 460px;
+    max-height: 640px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-lg);
+    z-index: 30;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .dialog-header {
+    padding: 18px 22px 14px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--paper-edge);
+    flex-shrink: 0;
+  }
+  .dialog-header .eyebrow {
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--coral-deep);
+    margin-bottom: 2px;
+  }
+  .dialog-header h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 22px; letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  .dialog-header .close-btn {
+    margin-left: auto;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--paper-deep); color: var(--ink-soft);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; border: none; cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .dialog-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px 22px 6px;
+    min-height: 0;
+    scrollbar-width: none;
+  }
+  .dialog-body::-webkit-scrollbar { display: none; }
+
+  .dialog-footer {
+    padding: 14px 22px 16px;
+    display: flex; align-items: center; gap: 10px;
+    border-top: 1px solid var(--paper-edge);
+    background: var(--paper);
+    flex-shrink: 0;
+  }
+  .dialog-footer .spacer { flex: 1; }
+  .dialog-footer .btn {
+    padding: 10px 20px;
+    border-radius: var(--radius-full);
+    border: none; font-family: inherit;
+    font-weight: 800; font-size: 13px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .dialog-footer .btn.secondary {
+    background: var(--paper-deep); color: var(--ink-soft);
+  }
+  .dialog-footer .btn.secondary:hover { background: var(--paper-edge); color: var(--ink); }
+  .dialog-footer .btn.danger {
+    background: var(--gradient-coral); color: var(--paper);
+    box-shadow: var(--shadow-cta-danger);
+  }
+  .dialog-footer .btn.danger:disabled,
+  .dialog-footer .btn.danger.is-disabled {
+    background: var(--coral-soft);
+    color: rgba(196,65,42,0.55);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  .dialog-footer .btn .arrow {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(255,255,255,0.22);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+
+  /* ============ DIALOG BODY CONTENT ============ */
+  .plant-id {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--paper-edge);
+    margin-bottom: 16px;
+  }
+  .plant-id .avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, #a8d9aa, #77b97a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 38px;
+    box-shadow: var(--shadow-medallion);
+    position: relative;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .plant-id .avatar::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,240,200,0.35), transparent 55%);
+    border-radius: 50%;
+  }
+  .plant-id .nickname {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-weight: 800; font-size: 22px;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .plant-id .species {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic; font-weight: 400;
+    font-size: 14px; color: var(--ink-soft);
+    margin-top: 4px;
+    letter-spacing: -0.005em;
+  }
+
+  .warn-copy {
+    font-size: 14px; color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .warn-copy strong {
+    color: var(--ink); font-weight: 700;
+  }
+
+  details.photo-disclosure {
+    background: var(--paper-deep);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    margin-bottom: 8px;
+  }
+  details.photo-disclosure summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 700;
+    color: var(--ink-soft);
+    user-select: none;
+  }
+  details.photo-disclosure summary::-webkit-details-marker { display: none; }
+  details.photo-disclosure summary::before {
+    content: "›";
+    display: inline-block;
+    width: 14px; height: 14px;
+    font-size: 14px; line-height: 14px;
+    color: var(--ink-softer);
+    transition: transform 140ms ease;
+    text-align: center;
+  }
+  details.photo-disclosure[open] summary::before { transform: rotate(90deg); }
+  details.photo-disclosure .dd-body {
+    padding: 10px 0 2px 22px;
+    font-size: 12px; color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  details.photo-disclosure .dd-body a {
+    color: var(--emerald); font-weight: 700; text-decoration: none;
+  }
+
+  /* Typed-confirmation guard */
+  .confirm-type-wrap {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--paper-edge);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .confirm-type-wrap .ct-label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .confirm-type-wrap .ct-input {
+    padding: 10px 14px;
+    background: var(--paper-deep);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic; font-weight: 500;
+    font-size: 17px; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .confirm-type-wrap .ct-input:focus {
+    outline: none; border-color: var(--coral-deep);
+    background: var(--paper);
+  }
+  .confirm-type-wrap .ct-hint {
+    font-size: 11px; color: var(--ink-softer);
+    font-style: italic;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .confirm-type-wrap .ct-hint strong {
+    color: var(--coral-deep);
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-style: normal; font-weight: 800;
+  }
+
+  /* Scene meta (context note for scene B) */
+  .scene-meta {
+    max-width: 1360px; margin: 0 auto 24px; padding: 0 8px;
+    font-size: 12px; color: var(--ink-soft);
+    font-style: italic;
+    line-height: 1.6;
+  }
+  .scene-meta .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: var(--radius-full);
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--coral-deep);
+    font-style: normal;
+    margin-right: 8px;
+    vertical-align: 1px;
+  }
+
+  /* ============ MOBILE SHEET ============ */
+  .m-app-dim {
+    position: absolute; inset: 0;
+    background: var(--gradient-mint);
+    opacity: 0.4;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .m-scrim {
+    position: absolute; inset: 0;
+    background: rgba(11,58,26,0.42);
+    backdrop-filter: blur(var(--blur-light));
+    -webkit-backdrop-filter: blur(var(--blur-light));
+    z-index: 20;
+  }
+  .m-sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: var(--paper);
+    border-radius: 28px 28px 0 0;
+    z-index: 30;
+    display: flex; flex-direction: column;
+    max-height: 78%;
+    box-shadow: 0 -20px 60px -8px rgba(11,58,26,0.35);
+    padding-top: 8px;
+  }
+  .m-sheet .sheet-handle {
+    width: 42px; height: 4px; border-radius: 2px;
+    background: var(--paper-edge);
+    margin: 0 auto 10px;
+  }
+  .m-sheet .sheet-header {
+    padding: 0 20px 12px;
+    display: flex; align-items: flex-start; gap: 10px;
+    border-bottom: 1px solid var(--paper-edge);
+  }
+  .m-sheet .sheet-header .cancel-link {
+    background: none; border: none; padding: 4px 0;
+    font-family: inherit;
+    font-size: 14px; font-weight: 700;
+    color: var(--ink-soft);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .m-sheet .sheet-header .cancel-link:hover { color: var(--ink); }
+  .m-sheet .sheet-header .ht {
+    flex: 1; min-width: 0; text-align: center;
+    padding: 0 6px;
+  }
+  .m-sheet .sheet-header .eyebrow {
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--coral-deep);
+  }
+  .m-sheet .sheet-header h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 20px; letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-top: 2px;
+    color: var(--ink);
+  }
+  .m-sheet .sheet-header .spacer-r {
+    width: 48px; flex-shrink: 0;
+  }
+  .m-sheet .sheet-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 20px 8px;
+    min-height: 0;
+    scrollbar-width: none;
+  }
+  .m-sheet .sheet-body::-webkit-scrollbar { display: none; }
+  .m-sheet .sheet-footer {
+    padding: 12px 18px calc(16px + env(safe-area-inset-bottom));
+    display: flex; align-items: center; gap: 10px;
+    border-top: 1px solid var(--paper-edge);
+    background: var(--paper);
+    flex-shrink: 0;
+  }
+  .m-sheet .sheet-footer .btn {
+    flex: 1;
+    padding: 13px 18px;
+    border-radius: var(--radius-full);
+    border: none; font-family: inherit;
+    font-weight: 800; font-size: 14px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .m-sheet .sheet-footer .btn.danger {
+    background: var(--gradient-coral); color: var(--paper);
+    box-shadow: var(--shadow-cta-danger);
+  }
+  .m-sheet .sheet-footer .btn.danger.is-disabled {
+    background: var(--coral-soft);
+    color: rgba(196,65,42,0.55);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  /* Mobile body refinements */
+  .m-sheet .plant-id { padding-bottom: 14px; margin-bottom: 14px; }
+  .m-sheet .plant-id .avatar { width: 72px; height: 72px; font-size: 34px; }
+  .m-sheet .plant-id .nickname { font-size: 20px; }
+  .m-sheet .plant-id .species { font-size: 13px; }
+  .m-sheet .warn-copy { font-size: 13px; margin-bottom: 12px; }
+  .m-sheet details.photo-disclosure { padding: 10px 12px; }
+  .m-sheet details.photo-disclosure summary { font-size: 12px; }
+  .m-sheet details.photo-disclosure .dd-body { font-size: 12px; }
+  .m-sheet .confirm-type-wrap .ct-input { font-size: 16px; padding: 11px 14px; }
+
+  /* ============ WRAP-UP ============ */
+  .wrap-up {
+    max-width: 1360px;
+    margin: 64px auto 0;
+    padding: 36px 48px 44px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+  }
+  .wrap-up h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 28px; letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .wrap-up h2 em {
+    background: var(--gradient-coral);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .wrap-up p {
+    font-size: 14px; color: var(--ink-soft); line-height: 1.7;
+    margin-bottom: 18px;
+  }
+  .wrap-up .key-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .wrap-up .key-list li {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.55;
+    padding-left: 24px; position: relative;
+  }
+  .wrap-up .key-list li::before {
+    content: ""; position: absolute; left: 6px; top: 7px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--coral-deep);
+    box-shadow: 0 0 0 3px rgba(196,65,42,0.15);
+  }
+  .wrap-up .key-list li strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--ink); font-size: 14px; margin-right: 6px;
+  }
+  .wrap-up .key-list li code {
+    background: var(--paper-deep);
+    padding: 1px 6px;
+    border-radius: var(--radius-xs);
+    font-size: 12px;
+    font-family: "SF Mono", Consolas, monospace;
+    color: var(--ink);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <span class="eyebrow">Mockup 36 · Delete Plant dialog · both viewports</span>
+    <h1>A <em>goodbye</em> that's hard to undo</h1>
+    <p>The smallest of the CRUD dialogs. Summoned from the Delete text link in the Edit Plant dialog (mockup 34). Short, focused confirmation. Destructive CTA is coral-deep filled on paper — distinct from the emerald brand gradient so it reads as "this is permanent" at a glance. A typed-confirmation guard appears on the deletes most likely to be regretted (old plants, heavy care history).</p>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- Scene A — Simple confirmation -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Scene A</span>
+    <h2>Simple confirmation</h2>
+    <span class="spec">· centered dialog · plant avatar + name · warning copy · "Cancel" secondary + "Delete" destructive</span>
+  </div>
+
+  <div class="step-row">
+
+    <!-- Desktop — Scene A -->
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/house/living-room/monty — Delete confirmation open</div>
+      </div>
+      <div class="viewport">
+        <div class="blob blob-mint" style="width: 420px; height: 420px; top: -160px; right: -180px;"></div>
+        <div class="scrim"></div>
+
+        <div class="dialog">
+          <div class="dialog-header">
+            <div>
+              <div class="eyebrow">Delete plant</div>
+              <h2>Delete this plant?</h2>
+            </div>
+            <button class="close-btn" title="Close (Esc)">✕</button>
+          </div>
+
+          <div class="dialog-body">
+            <div class="plant-id">
+              <div class="avatar">🌿</div>
+              <div class="nickname">Monty</div>
+              <div class="species">Monstera deliciosa</div>
+            </div>
+
+            <p class="warn-copy">This removes <strong>Monty</strong> and all its care history. You can't undo this.</p>
+
+            <details class="photo-disclosure">
+              <summary>What happens to photos?</summary>
+              <div class="dd-body">
+                Photos attached to Monty are deleted with the plant. Export them from the <a href="#">Journal</a> beforehand if you want to keep them.
+              </div>
+            </details>
+          </div>
+
+          <div class="dialog-footer">
+            <div class="spacer"></div>
+            <button class="btn secondary">Cancel</button>
+            <button class="btn danger">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile — Scene A -->
+    <div class="phone">
+      <div class="screen">
+        <div class="island"></div>
+        <div class="status-bar"><span>9:41</span></div>
+        <div class="m-app-dim"></div>
+        <div class="m-scrim"></div>
+
+        <div class="m-sheet">
+          <div class="sheet-handle"></div>
+          <div class="sheet-header">
+            <button class="cancel-link">Cancel</button>
+            <div class="ht">
+              <span class="eyebrow">Delete plant</span>
+              <h2>Delete this plant?</h2>
+            </div>
+            <div class="spacer-r"></div>
+          </div>
+          <div class="sheet-body">
+            <div class="plant-id">
+              <div class="avatar">🌿</div>
+              <div class="nickname">Monty</div>
+              <div class="species">Monstera deliciosa</div>
+            </div>
+
+            <p class="warn-copy">This removes <strong>Monty</strong> and all its care history. You can't undo this.</p>
+
+            <details class="photo-disclosure">
+              <summary>What happens to photos?</summary>
+              <div class="dd-body">
+                Photos attached to Monty are deleted with the plant. Export them from the Journal beforehand if you want to keep them.
+              </div>
+            </details>
+          </div>
+          <div class="sheet-footer">
+            <button class="btn danger">Delete Monty</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="scene-meta">
+    <span class="pill">Scene A</span>
+    Default state — dialog opens with Delete button enabled. Secondary "Cancel" + primary destructive "Delete" on desktop footer (right-aligned, matches the shell convention of primary CTA on the right). Mobile: full-width sticky "Delete Monty" CTA, "Cancel" demoted to a text link in the sheet header's top-left. Esc / scrim-tap / sheet-drag-down dismiss without deleting.
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Scene B — Typed-confirmation guard -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Scene B</span>
+    <h2>Typed-confirmation guard</h2>
+    <span class="spec">· same shell · extra input above footer · Delete disabled until exact match</span>
+  </div>
+
+  <div class="step-row">
+
+    <!-- Desktop — Scene B -->
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/house/living-room/monty — Delete confirmation · typed guard</div>
+      </div>
+      <div class="viewport">
+        <div class="blob blob-mint" style="width: 420px; height: 420px; top: -160px; right: -180px;"></div>
+        <div class="scrim"></div>
+
+        <div class="dialog">
+          <div class="dialog-header">
+            <div>
+              <div class="eyebrow">Delete plant · confirm</div>
+              <h2>Delete this plant?</h2>
+            </div>
+            <button class="close-btn" title="Close (Esc)">✕</button>
+          </div>
+
+          <div class="dialog-body">
+            <div class="plant-id">
+              <div class="avatar">🌿</div>
+              <div class="nickname">Monty</div>
+              <div class="species">Monstera deliciosa</div>
+            </div>
+
+            <p class="warn-copy">This removes <strong>Monty</strong> and all its care history. You can't undo this.</p>
+
+            <details class="photo-disclosure">
+              <summary>What happens to photos?</summary>
+              <div class="dd-body">
+                Photos attached to Monty are deleted with the plant. Export them from the Journal beforehand if you want to keep them.
+              </div>
+            </details>
+
+            <div class="confirm-type-wrap">
+              <label class="ct-label">Type the plant's name to confirm</label>
+              <input class="ct-input" type="text" value="Mon" />
+              <div class="ct-hint">Match exactly: <strong>Monty</strong></div>
+            </div>
+          </div>
+
+          <div class="dialog-footer">
+            <div class="spacer"></div>
+            <button class="btn secondary">Cancel</button>
+            <button class="btn danger is-disabled" disabled>Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile — Scene B -->
+    <div class="phone">
+      <div class="screen">
+        <div class="island"></div>
+        <div class="status-bar"><span>9:41</span></div>
+        <div class="m-app-dim"></div>
+        <div class="m-scrim"></div>
+
+        <div class="m-sheet">
+          <div class="sheet-handle"></div>
+          <div class="sheet-header">
+            <button class="cancel-link">Cancel</button>
+            <div class="ht">
+              <span class="eyebrow">Delete · confirm</span>
+              <h2>Delete this plant?</h2>
+            </div>
+            <div class="spacer-r"></div>
+          </div>
+          <div class="sheet-body">
+            <div class="plant-id">
+              <div class="avatar">🌿</div>
+              <div class="nickname">Monty</div>
+              <div class="species">Monstera deliciosa</div>
+            </div>
+
+            <p class="warn-copy">This removes <strong>Monty</strong> and all its care history. You can't undo this.</p>
+
+            <details class="photo-disclosure">
+              <summary>What happens to photos?</summary>
+              <div class="dd-body">
+                Photos attached to Monty are deleted with the plant. Export from Journal first if you want to keep them.
+              </div>
+            </details>
+
+            <div class="confirm-type-wrap">
+              <label class="ct-label">Type the plant's name to confirm</label>
+              <input class="ct-input" type="text" value="Mon" />
+              <div class="ct-hint">Match exactly: <strong>Monty</strong></div>
+            </div>
+          </div>
+          <div class="sheet-footer">
+            <button class="btn danger is-disabled" disabled>Delete Monty</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="scene-meta">
+    <span class="pill">Scene B</span>
+    Shown for plants &gt;90 days old or with 10+ care logs — extra friction guard. Input is the user's nickname, case-sensitive match. While the typed value doesn't match exactly, the Delete CTA renders in the washed-out coral-soft disabled treatment (no shadow, lowered alpha text) and refuses click. On exact match it promotes back to the filled coral-deep + paper variant. Hint line calls out the required string in coral-deep bold for quick visual target.
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Wrap-up -->
+  <!-- ========================================================= -->
+  <div class="wrap-up">
+    <h2>Design <em>notes</em></h2>
+    <p>Delete Plant is intentionally the simplest of the CRUD dialogs. The only variant is whether we add a typed-confirmation guard based on plant history. Everything else — shell, layout, copy — stays identical.</p>
+    <ul class="key-list">
+      <li><strong>Destructive CTA convention.</strong> Filled <code>--coral-deep</code> → paper text via <code>--gradient-coral</code> + <code>--shadow-cta-danger</code>. The emerald brand gradient is reserved for safe/progressive actions (Adopt, Save, Continue); coral signals "you are about to remove something". Cancel demotes to secondary (<code>--paper-deep</code> fill, ink-soft text) so the eye lands on Delete without it feeling like the default.</li>
+      <li><strong>Why the typed-confirmation guard.</strong> High-regret deletes are plants the user has invested in: long history, lots of photos, sentimental nicknames. Gating those behind a name-match forces a 2-second pause — enough to catch "oh wait, wrong Monty". Thresholds (&gt;90 days or 10+ care logs) are illustrative; back-end can tune. Newly-adopted plants skip the guard (Scene A) because the regret cost is low — you probably just typo'd Add Plant.</li>
+      <li><strong>Entry point is Edit Plant.</strong> Mockup 34 (Edit Plant) surfaces Delete as a quiet coral text link at the bottom of its footer — not a button. Clicking it dismisses the Edit dialog and opens THIS dialog on top of the same scrim. Cancel here returns the user to the Edit dialog with their unsaved edits intact.</li>
+      <li><strong>Mobile sheet behaviour.</strong> Bottom sheet at ~78dvh (shorter than Add/Edit — less content). Cancel moves to a text link top-left in the sheet header; Delete takes the full sticky footer. Drag-down-to-dismiss, scrim-tap, or Cancel all return to Edit Plant without deleting. Dismissal does not require the typed confirmation — only the Delete action does.</li>
+      <li><strong>Photos disclosure.</strong> Collapsed by default using native <code>&lt;details&gt;</code>. Answers the most common "wait, what about…" question without bloating the default view. Copy points users at the Journal export path so the hedge-against-regret has a concrete workaround.</li>
+      <li><strong>Open questions.</strong> (a) Threshold for typed guard — age vs. log count vs. both, finalise during implementation. (b) Do we keep a server-side soft-delete / 30-day undo regardless of confirmation strength, or is delete truly irreversible? Spec says "can't undo this" — worth confirming with Rob before wiring the backend. (c) Confirmation input — case-sensitive or case-insensitive? Leaning case-sensitive to match the visible label exactly.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

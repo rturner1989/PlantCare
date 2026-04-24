@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — Sidebar states · desktop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --paper-deep: #f3eee2;
+    --paper-edge: #e8ddc6;
+    --base: #f6fbf4;
+    --mint: #dff2e2;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --sunshine: #ffb83d;
+    --shadow-warm-sm: 0 2px 10px rgba(80,56,18,0.07), 0 0 0 1px rgba(80,56,18,0.025);
+    --shadow-warm-md: 0 18px 40px rgba(80,56,18,0.10), 0 2px 8px rgba(80,56,18,0.04);
+    --shadow-warm-lg: 0 36px 80px -8px rgba(80,56,18,0.18), 0 6px 16px rgba(80,56,18,0.06);
+    --shadow-cta: 0 6px 16px rgba(20,144,47,0.32), inset 0 1px 0 rgba(255,255,255,0.3);
+    --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #eff7e6 55%, #e4efd5 100%);
+    --gradient-paper: linear-gradient(180deg, #fbf8f1 0%, #f6f0e0 100%);
+    --gradient-display: linear-gradient(130deg, #0b3a1a 0%, #14902f 60%, #32c456 100%);
+    --gradient-brand: linear-gradient(135deg, #32c456, #14902f);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #ecece0;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+  .page { max-width: 1440px; margin: 0 auto; }
+  .page-header { text-align: center; margin-bottom: 56px; }
+  .page-header .eyebrow {
+    display: inline-block; padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 56px; letter-spacing: -0.035em;
+    line-height: 1; margin-bottom: 18px;
+  }
+  .page-header h1 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .page-header p {
+    font-size: 16px; color: var(--ink-soft);
+    max-width: 720px; margin: 0 auto; line-height: 1.6;
+  }
+
+  .step-caption {
+    max-width: 1360px; margin: 44px auto 14px; padding: 0 8px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .step-caption .tag {
+    display: inline-block; padding: 4px 12px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .step-caption h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 28px; letter-spacing: -0.02em;
+  }
+  .step-caption .spec {
+    margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600;
+  }
+  .step-row {
+    display: flex; gap: 40px; align-items: flex-start;
+    justify-content: center; flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  /* Browser frames — variable widths to demo breakpoints */
+  .browser {
+    background: #f5f1e8;
+    border-radius: 14px;
+    box-shadow: var(--shadow-warm-lg);
+    overflow: hidden;
+    border: 1px solid rgba(80,56,18,0.1);
+    flex-shrink: 0;
+  }
+  .browser.wide   { width: 1280px; }
+  .browser.medium { width: 960px; }
+  .browser.narrow { width: 720px; }
+  .browser .chrome {
+    height: 34px; background: #ede6d5;
+    border-bottom: 1px solid rgba(80,56,18,0.1);
+    display: flex; align-items: center; padding: 0 12px; gap: 8px;
+  }
+  .browser .chrome .dots { display: flex; gap: 5px; }
+  .browser .chrome .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .browser .chrome .dot-r { background: #ff5f57; }
+  .browser .chrome .dot-y { background: #febc2e; }
+  .browser .chrome .dot-g { background: #28c840; }
+  .browser .chrome .url {
+    flex: 1; margin: 0 12px; height: 20px;
+    background: var(--paper);
+    border: 1px solid rgba(80,56,18,0.08);
+    border-radius: 4px;
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 11px; color: var(--ink-softer);
+    font-family: "SF Mono", Consolas, monospace;
+  }
+  .browser .chrome .width-badge {
+    padding: 2px 8px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .browser .viewport {
+    height: 620px;
+    background: var(--gradient-mint);
+    position: relative; overflow: hidden;
+  }
+  .browser .viewport::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+  .blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none; z-index: 0;
+    opacity: 0.5;
+  }
+  .blob-mint { background: rgba(134,219,101,0.35); }
+
+  /* Logo */
+  .logo {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 15px; letter-spacing: -0.01em;
+    color: var(--ink); text-decoration: none;
+    min-width: 0;
+  }
+  .logo-mark {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--gradient-brand);
+    position: relative;
+    box-shadow: inset 0 0 0 2px var(--paper);
+    flex-shrink: 0;
+  }
+  .logo-mark::after {
+    content: ""; position: absolute; inset: 6px;
+    border-radius: 50%; background: var(--paper);
+  }
+  .logo em { font-family: "Fraunces"; font-style: italic; font-weight: 400; color: var(--emerald); }
+
+  /* Shared shell */
+  .t-shell {
+    width: 100%; height: 100%;
+    position: relative; z-index: 3;
+    display: grid;
+    grid-template-rows: 1fr;
+    min-height: 0;
+  }
+
+  /* Sidebar base styling */
+  .t-sidebar {
+    background: var(--paper);
+    border-right: 1px solid var(--paper-edge);
+    padding: 16px 12px;
+    display: flex; flex-direction: column; gap: 14px;
+    position: relative;
+  }
+  .t-sidebar .sb-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 2px 6px;
+    min-height: 28px;
+  }
+  .t-sidebar .sb-bell {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--paper-deep);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--ink-soft);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .t-sidebar .sb-bell::after {
+    content: ""; position: absolute; top: 2px; right: 2px;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--coral);
+    box-shadow: 0 0 0 1.5px var(--paper);
+  }
+  .t-sidebar .sb-cmd {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 11px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-full);
+    font-size: 11px; color: var(--ink-softer);
+    font-weight: 600;
+  }
+  .t-sidebar .sb-cmd .cmd-icon { color: var(--emerald); font-size: 13px; }
+  .t-sidebar .sb-cmd .cmd-kbd {
+    margin-left: auto;
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 9px; padding: 1px 5px;
+    background: var(--paper); border-radius: 3px;
+    color: var(--ink-soft);
+    border: 1px solid var(--paper-edge);
+  }
+  .t-sidebar .sb-nav-label {
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-softer);
+    padding: 0 10px 4px;
+  }
+  .t-sidebar .sb-items { display: flex; flex-direction: column; gap: 2px; }
+  .t-sidebar .sb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-size: 13px; font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .t-sidebar .sb-item .sb-icon {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; border-radius: 50%;
+    color: var(--ink-softer);
+    flex-shrink: 0;
+  }
+  .t-sidebar .sb-item.active { background: var(--mint); color: var(--forest); font-weight: 700; }
+  .t-sidebar .sb-item.active .sb-icon { background: var(--emerald); color: var(--paper); }
+  .t-sidebar .sb-item .count {
+    margin-left: auto; font-size: 10px; font-weight: 700; color: var(--ink-softer);
+    flex-shrink: 0;
+  }
+  .t-sidebar .sb-spacer { flex: 1; }
+  .t-sidebar .user-card {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 9px;
+    border-radius: 10px;
+    background: var(--paper-deep);
+    font-size: 12px;
+    min-width: 0;
+  }
+  .t-sidebar .user-card .ua {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--gradient-brand);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--paper); font-weight: 700; font-size: 12px;
+    flex-shrink: 0;
+  }
+  .t-sidebar .user-card .un { font-weight: 700; color: var(--ink); line-height: 1.2; }
+  .t-sidebar .user-card .um { font-size: 10px; color: var(--ink-softer); font-weight: 500; }
+
+  /* ---------- Full sidebar (state 1 — ≥1200px) ---------- */
+  .t-shell.full { grid-template-columns: 240px 1fr; }
+  .t-shell.full .t-sidebar { width: 240px; }
+
+  /* ---------- Icon-rail sidebar (state 2 — 768–1200px) ---------- */
+  .t-shell.rail { grid-template-columns: 64px 1fr; }
+  .t-shell.rail .t-sidebar {
+    width: 64px;
+    padding: 16px 8px;
+    align-items: center;
+  }
+  .t-shell.rail .t-sidebar .sb-head {
+    justify-content: center;
+  }
+  .t-shell.rail .t-sidebar .sb-head .sb-bell { display: none; }
+  .t-shell.rail .t-sidebar .sb-cmd {
+    padding: 0; width: 40px; height: 40px;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .t-shell.rail .t-sidebar .sb-cmd span:not(.cmd-icon) { display: none; }
+  .t-shell.rail .t-sidebar .sb-nav-label { display: none; }
+  .t-shell.rail .t-sidebar .sb-items { width: 100%; align-items: center; }
+  .t-shell.rail .t-sidebar .sb-item {
+    width: 44px; height: 44px;
+    padding: 0; justify-content: center;
+    gap: 0; border-radius: 10px;
+    position: relative;
+  }
+  .t-shell.rail .t-sidebar .sb-item .sb-icon {
+    width: 22px; height: 22px;
+    font-size: 14px;
+  }
+  .t-shell.rail .t-sidebar .sb-item .sb-label { display: none; }
+  .t-shell.rail .t-sidebar .sb-item .count {
+    position: absolute; top: 3px; right: 3px;
+    background: var(--coral); color: var(--paper);
+    padding: 0 5px; border-radius: var(--radius-full);
+    font-size: 8px; font-weight: 800;
+    min-width: 14px; text-align: center;
+    margin-left: 0;
+  }
+  .t-shell.rail .t-sidebar .sb-item.active .count { background: var(--emerald); }
+  /* Tooltip on hover (demo static on one item) */
+  .t-shell.rail .t-sidebar .sb-item .sb-tooltip {
+    position: absolute; left: 100%; top: 50%;
+    transform: translateY(-50%) translateX(6px);
+    background: var(--ink); color: var(--paper);
+    padding: 5px 10px; border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 700;
+    white-space: nowrap;
+    box-shadow: var(--shadow-warm-md);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 140ms ease;
+    z-index: 30;
+  }
+  .t-shell.rail .t-sidebar .sb-item.hovering .sb-tooltip { opacity: 1; }
+  .t-shell.rail .t-sidebar .sb-item .sb-tooltip::before {
+    content: "";
+    position: absolute; left: -4px; top: 50%; transform: translateY(-50%) rotate(45deg);
+    width: 8px; height: 8px; background: var(--ink);
+  }
+  .t-shell.rail .t-sidebar .user-card {
+    width: 44px; height: 44px;
+    padding: 0; justify-content: center;
+    border-radius: 50%;
+  }
+  .t-shell.rail .t-sidebar .user-card > div:not(.ua) { display: none; }
+
+  /* ---------- Drawer sidebar (state 3 — <768px on desktop browsers) ---------- */
+  .t-shell.drawer {
+    grid-template-columns: 1fr;
+  }
+  .t-shell.drawer .t-topbar {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 52px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--paper-edge);
+    display: flex; align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    z-index: 20;
+  }
+  .t-shell.drawer .t-topbar .burger {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--paper-deep);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--ink);
+    border: none; cursor: pointer;
+  }
+  .t-shell.drawer .t-topbar .spacer { flex: 1; }
+  .t-shell.drawer .t-topbar .sb-bell {
+    width: 30px; height: 30px;
+  }
+  .t-shell.drawer .t-topbar .ua-sm {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--gradient-brand);
+    color: var(--paper); font-weight: 700; font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .t-shell.drawer .t-main-body {
+    padding-top: 52px;
+    overflow-y: auto; height: 100%;
+    padding-inline: 20px;
+    scrollbar-width: none;
+  }
+  .t-shell.drawer .t-main-body::-webkit-scrollbar { display: none; }
+  .t-shell.drawer .scrim {
+    position: absolute; inset: 0;
+    background: rgba(11,58,26,0.4);
+    backdrop-filter: blur(2px);
+    z-index: 25;
+  }
+  .t-shell.drawer .drawer-panel {
+    position: absolute; top: 0; bottom: 0; left: 0;
+    width: 260px;
+    background: var(--paper);
+    box-shadow: 6px 0 24px rgba(11,58,26,0.25);
+    z-index: 26;
+    padding: 16px 12px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .t-shell.drawer .drawer-panel .sb-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 2px 6px;
+  }
+  .t-shell.drawer .drawer-panel .close-btn {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--paper-deep); color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; border: none; cursor: pointer;
+  }
+  .t-shell.drawer .drawer-panel .sb-items { display: flex; flex-direction: column; gap: 2px; }
+  .t-shell.drawer .drawer-panel .sb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    font-size: 13px; font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .t-shell.drawer .drawer-panel .sb-item.active { background: var(--mint); color: var(--forest); font-weight: 700; }
+  .t-shell.drawer .drawer-panel .sb-item.active .sb-icon { background: var(--emerald); color: var(--paper); }
+  .t-shell.drawer .drawer-panel .sb-item .sb-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--ink-softer);
+  }
+  .t-shell.drawer .drawer-panel .sb-item .count { margin-left: auto; font-size: 10px; font-weight: 700; color: var(--ink-softer); }
+  .t-shell.drawer .drawer-panel .sb-spacer { flex: 1; }
+
+  /* Main area stub — just a visual placeholder to show sidebar context */
+  .t-main-stub {
+    padding: 20px 24px;
+    position: relative;
+    overflow-y: auto;
+    min-width: 0; min-height: 0;
+  }
+  .t-main-stub h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 30px; letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .t-main-stub h1 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .t-main-stub .meta {
+    font-size: 12px; color: var(--ink-soft); font-weight: 600;
+    margin-bottom: 18px;
+  }
+  .t-main-stub .placeholder-card {
+    padding: 18px 22px;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-warm-sm);
+    font-size: 13px; color: var(--ink-soft); line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .t-main-stub .placeholder-card strong { color: var(--ink); }
+
+  /* Breakpoint strip at top of each frame */
+  .bp-strip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 18px;
+    background: var(--ink); color: var(--paper);
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .bp-strip .bp-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--leaf);
+  }
+  .bp-strip .bp-state {
+    margin-left: auto;
+    color: var(--mint);
+  }
+
+  .note {
+    max-width: 1360px; margin: 32px auto;
+    padding: 18px 24px;
+    background: rgba(251,248,241,0.5);
+    border: 1px dashed rgba(80,56,18,0.2);
+    border-radius: var(--radius-md);
+    font-size: 13px; color: var(--ink-soft); line-height: 1.7;
+  }
+  .note strong { color: var(--ink); font-weight: 800; }
+
+  .wrap-up {
+    max-width: 1360px;
+    margin: 56px auto 0;
+    padding: 36px 48px 44px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+  }
+  .wrap-up h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 28px; letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .wrap-up h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .wrap-up p {
+    font-size: 14px; color: var(--ink-soft); line-height: 1.7;
+    margin-bottom: 18px;
+  }
+  .wrap-up .bp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 13px;
+  }
+  .wrap-up .bp-table th {
+    text-align: left;
+    padding: 10px 14px;
+    background: var(--paper-deep);
+    color: var(--ink);
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    border-bottom: 1px solid var(--paper-edge);
+  }
+  .wrap-up .bp-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--paper-edge);
+    vertical-align: top;
+    color: var(--ink-soft);
+  }
+  .wrap-up .bp-table td:first-child {
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 11px; color: var(--ink);
+    font-weight: 700;
+  }
+  .wrap-up .bp-table td strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--ink); font-size: 14px;
+  }
+  .wrap-up .key-list {
+    list-style: none; display: flex; flex-direction: column; gap: 10px;
+  }
+  .wrap-up .key-list li {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.55;
+    padding-left: 24px; position: relative;
+  }
+  .wrap-up .key-list li::before {
+    content: ""; position: absolute; left: 6px; top: 7px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.15);
+  }
+  .wrap-up .key-list li strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--ink); font-size: 14px; margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <span class="eyebrow">Mockup 26 · Sidebar states · desktop responsive</span>
+    <h1>The <em>sidebar</em> at every width</h1>
+    <p>Three states that cover every reasonable desktop / tablet width. Full (≥1200px), icon-rail (768–1200px), drawer (&lt;768px). Mobile phones never see any of these — phones use the dock from mockup 18. Same nav vocabulary throughout (Today · House · Journal · Encyclopedia · Me).</p>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- State 1 — Full -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">State 1 of 3</span>
+    <h2>Full · ≥1200px</h2>
+    <span class="spec">· default for comfortable viewports · 240px column · labels + counts visible</span>
+  </div>
+
+  <div class="step-row">
+    <div class="browser wide">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/today</div>
+        <div class="width-badge">1280 × 620</div>
+      </div>
+      <div class="bp-strip">
+        <span class="bp-dot"></span>
+        Breakpoint: window ≥ 1200px
+        <span class="bp-state">Sidebar: FULL (240px)</span>
+      </div>
+      <div class="viewport">
+        <div class="blob blob-mint" style="width: 380px; height: 380px; top: -120px; right: -120px;"></div>
+
+        <div class="t-shell full">
+          <aside class="t-sidebar">
+            <div class="sb-head">
+              <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+              <div class="sb-bell">🔔</div>
+            </div>
+            <div class="sb-cmd">
+              <span class="cmd-icon">⌕</span>
+              <span>Search…</span>
+              <span class="cmd-kbd">⌘K</span>
+            </div>
+            <div>
+              <div class="sb-nav-label">Tend</div>
+              <div class="sb-items">
+                <div class="sb-item active"><span class="sb-icon">☀</span><span class="sb-label">Today</span><span class="count">3</span></div>
+                <div class="sb-item"><span class="sb-icon">⌂</span><span class="sb-label">House</span><span class="count">12</span></div>
+                <div class="sb-item"><span class="sb-icon">✎</span><span class="sb-label">Journal</span><span class="count">48</span></div>
+                <div class="sb-item"><span class="sb-icon">❋</span><span class="sb-label">Encyclopedia</span></div>
+                <div class="sb-item"><span class="sb-icon">◉</span><span class="sb-label">Me</span></div>
+              </div>
+            </div>
+            <div class="sb-spacer"></div>
+            <div class="user-card">
+              <div class="ua">R</div>
+              <div>
+                <div class="un">Rob</div>
+                <div class="um">12 plants · 5 spaces</div>
+              </div>
+            </div>
+          </aside>
+
+          <div class="t-main-stub">
+            <h1>Today · <em>plant 3</em> of your friends need you</h1>
+            <div class="meta">Wednesday · 24 April 2026 · 3 tasks · 1 overdue</div>
+            <div class="placeholder-card"><strong>Greenhouse strip.</strong> 12 plants — swipe through, hero medallions, mini care-state on each.</div>
+            <div class="placeholder-card"><strong>Rituals.</strong> Today's tasks with swipe-to-complete. Monty (overdue · coral pulse), Basil (due · sunshine), Fernie (in 4h · sage).</div>
+            <div class="placeholder-card"><strong>Weekly calendar.</strong> 7-day strip — dots for scheduled care, weather chips on outdoor days, today-ring.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Full state.</strong> Default for ≥1200px windows. Sidebar holds Logo + bell, command-search pill, nav label, 5 nav items with icon + label + count, user card at the bottom. Labels are always visible so scanning is fastest. No collapse/expand toggle in this state — it's already fully expanded. Main content gets the rest of the window (1040px at 1280 viewport).
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- State 2 — Icon rail -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">State 2 of 3</span>
+    <h2>Icon-rail · 768–1200px</h2>
+    <span class="spec">· auto at medium widths · 64px column · icons only · tooltip on hover · count badge shown</span>
+  </div>
+
+  <div class="step-row">
+    <div class="browser medium">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/today</div>
+        <div class="width-badge">960 × 620</div>
+      </div>
+      <div class="bp-strip">
+        <span class="bp-dot" style="background: var(--sunshine);"></span>
+        Breakpoint: 768px ≤ window &lt; 1200px
+        <span class="bp-state">Sidebar: ICON RAIL (64px)</span>
+      </div>
+      <div class="viewport">
+        <div class="blob blob-mint" style="width: 380px; height: 380px; top: -120px; right: -120px;"></div>
+
+        <div class="t-shell rail">
+          <aside class="t-sidebar">
+            <div class="sb-head">
+              <a class="logo" href="#" style="gap: 0;">
+                <span class="logo-mark"></span>
+              </a>
+            </div>
+            <div class="sb-cmd">
+              <span class="cmd-icon">⌕</span>
+            </div>
+            <div class="sb-items">
+              <div class="sb-item active">
+                <span class="sb-icon">☀</span>
+                <span class="count">3</span>
+              </div>
+              <div class="sb-item hovering">
+                <span class="sb-icon">⌂</span>
+                <span class="count">12</span>
+                <span class="sb-tooltip">House</span>
+              </div>
+              <div class="sb-item">
+                <span class="sb-icon">✎</span>
+                <span class="count">48</span>
+              </div>
+              <div class="sb-item">
+                <span class="sb-icon">❋</span>
+              </div>
+              <div class="sb-item">
+                <span class="sb-icon">◉</span>
+              </div>
+            </div>
+            <div class="sb-spacer"></div>
+            <div class="user-card">
+              <div class="ua">R</div>
+              <div>
+                <div class="un">Rob</div>
+                <div class="um">12 plants</div>
+              </div>
+            </div>
+          </aside>
+
+          <div class="t-main-stub">
+            <h1>Today · <em>plant 3</em> of your friends need you</h1>
+            <div class="meta">Wednesday · 24 April 2026 · 3 tasks · 1 overdue</div>
+            <div class="placeholder-card"><strong>Greenhouse strip.</strong> More horizontal room than the drawer state, less than full. Cards wrap or scroll as needed.</div>
+            <div class="placeholder-card"><strong>Rituals.</strong> Fits comfortably at 896px content width.</div>
+            <div class="placeholder-card"><strong>Weekly calendar.</strong> Full 7-day strip easy.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Icon-rail state.</strong> Auto-kicks in between 768 and 1200px. 64px wide column. Logo shrinks to just the mark, command-search collapses to its icon (keyboard shortcut still works), nav items become icon-only 44px square tiles with active mint pill + count badge overlayed top-right. Hovering a nav item pops a black-ink tooltip to the right ("House" shown hovering in this frame). User card collapses to just the avatar. Nav label ("Tend") hidden. Gains ~176px of main content width over the full state — critical for desktop users on laptops with narrower displays.
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- State 3 — Drawer -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">State 3 of 3</span>
+    <h2>Drawer · &lt;768px desktop</h2>
+    <span class="spec">· burger menu in topbar · scrim on overlay · drag or Escape to close</span>
+  </div>
+
+  <div class="step-row">
+    <div class="browser narrow">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/today</div>
+        <div class="width-badge">720 × 620</div>
+      </div>
+      <div class="bp-strip">
+        <span class="bp-dot" style="background: var(--coral);"></span>
+        Breakpoint: window &lt; 768px
+        <span class="bp-state">Sidebar: DRAWER (overlay on demand)</span>
+      </div>
+      <div class="viewport">
+        <div class="blob blob-mint" style="width: 380px; height: 380px; top: -120px; right: -120px;"></div>
+
+        <div class="t-shell drawer">
+          <!-- Drawer open state -->
+          <header class="t-topbar">
+            <button class="burger">✕</button>
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="spacer"></div>
+            <div class="sb-bell">🔔</div>
+            <div class="ua-sm">R</div>
+          </header>
+
+          <div class="t-main-body">
+            <h1 style="font-family: Fraunces; font-style: italic; font-weight: 400; font-size: 24px; letter-spacing: -0.02em; margin: 8px 0 4px;">Today · <em style="background: var(--gradient-display); -webkit-background-clip: text; background-clip: text; color: transparent;">plant 3</em> need you</h1>
+            <div style="font-size: 12px; color: var(--ink-soft); font-weight: 600; margin-bottom: 14px;">Wednesday · 24 April 2026 · 3 tasks</div>
+            <div style="padding: 14px 18px; background: var(--paper); border-radius: var(--radius-md); box-shadow: var(--shadow-warm-sm); font-size: 12px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 10px;"><strong style="color: var(--ink);">Greenhouse.</strong> Horizontal-scroll row of plant medallions.</div>
+            <div style="padding: 14px 18px; background: var(--paper); border-radius: var(--radius-md); box-shadow: var(--shadow-warm-sm); font-size: 12px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 10px;"><strong style="color: var(--ink);">Rituals.</strong> Full-width rows, swipe-to-complete.</div>
+          </div>
+
+          <div class="scrim"></div>
+
+          <aside class="drawer-panel">
+            <div class="sb-head">
+              <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+              <button class="close-btn" title="Close (Esc)">✕</button>
+            </div>
+            <div class="sb-cmd">
+              <span class="cmd-icon">⌕</span>
+              <span>Search…</span>
+              <span class="cmd-kbd">⌘K</span>
+            </div>
+            <div>
+              <div class="sb-nav-label">Tend</div>
+              <div class="sb-items">
+                <div class="sb-item active"><span class="sb-icon">☀</span>Today<span class="count">3</span></div>
+                <div class="sb-item"><span class="sb-icon">⌂</span>House<span class="count">12</span></div>
+                <div class="sb-item"><span class="sb-icon">✎</span>Journal<span class="count">48</span></div>
+                <div class="sb-item"><span class="sb-icon">❋</span>Encyclopedia</div>
+                <div class="sb-item"><span class="sb-icon">◉</span>Me</div>
+              </div>
+            </div>
+            <div class="sb-spacer"></div>
+            <div class="user-card">
+              <div class="ua">R</div>
+              <div>
+                <div class="un">Rob</div>
+                <div class="um">12 plants</div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Drawer state.</strong> Below 768px on desktop/tablet, sidebar disappears from the layout and lives in a topbar burger-menu drawer. Topbar (52px) holds burger + logo + bell + avatar. Burger taps open the 260px drawer with scrim-dimmed content behind (paper panel slides in from the left). Escape or tap-on-scrim closes it. Nav items carry full labels + counts here — same vocabulary as the Full state, just summoned on demand. This state already exists in the current client (per TICKET-019's md-breakpoint burger work); v2 keeps it but retouches the scrim-dim + label consistency.
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Wrap-up -->
+  <!-- ========================================================= -->
+  <div class="wrap-up">
+    <h2>Sidebar responsive <em>rules</em></h2>
+    <p>Three states cover every desktop viewport. Which state is active is entirely driven by window width — no user toggle between states. Users can toggle the drawer open/closed below 768px via the burger, but they cannot choose rail-at-1400px or full-at-700px. Auto-matching the breakpoint keeps the implementation honest.</p>
+
+    <table class="bp-table">
+      <thead>
+        <tr>
+          <th>Window width</th>
+          <th>Sidebar state</th>
+          <th>Width used</th>
+          <th>Labels</th>
+          <th>How to toggle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>≥ 1200px</td>
+          <td><strong>Full</strong></td>
+          <td>240px fixed</td>
+          <td>Always shown</td>
+          <td>N/A — always expanded</td>
+        </tr>
+        <tr>
+          <td>768 – 1199px</td>
+          <td><strong>Icon rail</strong></td>
+          <td>64px fixed</td>
+          <td>Tooltip on hover</td>
+          <td>N/A — auto-collapsed, not toggleable</td>
+        </tr>
+        <tr>
+          <td>&lt; 768px</td>
+          <td><strong>Drawer</strong></td>
+          <td>0px (hidden) → 260px (open overlay)</td>
+          <td>Always shown when open</td>
+          <td>Burger button · Escape · scrim tap</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ul class="key-list">
+      <li><strong>Auto-state, not manual.</strong> No "pin/unpin" toggle. Users get the right state for their viewport without fiddling. This keeps markup decisions clean — no persisted "sidebar-mode" preference to sync across devices.</li>
+      <li><strong>Vocabulary shared across states.</strong> Nav items render the same data — icon, label, count, active state — just with different chrome around them. Implementation-wise this is one React component <code>Sidebar</code> with a <code>mode</code> prop (<code>"full" | "rail" | "drawer"</code>) picked by a <code>useMediaQuery</code> / <code>useViewportSize</code> hook.</li>
+      <li><strong>Icon rail keeps count badges.</strong> Overdue or due-today counts are critical scan signals; dropping them would make the rail decorative. Badges show as a top-right coral chip on the icon tile (or emerald when the tile is active).</li>
+      <li><strong>Drawer reuses Full layout.</strong> The drawer panel IS the Full sidebar; it's just positioned as a 260px overlay instead of a grid column. One component, two positions — no duplicate markup.</li>
+      <li><strong>Tooltip on hover in Icon rail.</strong> Black ink-coloured pill (labelled "House" etc.) appears to the right of the icon on hover / focus. Keyboard-accessible; reads naturally on screen readers because the underlying button keeps an aria-label that matches the tooltip text.</li>
+      <li><strong>Command-search keyboard shortcut works in all three states.</strong> ⌘K / Ctrl-K opens the search dialog regardless of whether the search field is expanded, collapsed to an icon, or hidden behind the drawer. Shortcut is the stable API.</li>
+      <li><strong>Mobile phones don't see any of these.</strong> Phone viewports (≤480px) use the dock from mockup 18 instead of a sidebar entirely — different interaction model. The drawer state is for narrow laptop / portrait tablet, not phones.</li>
+      <li><strong>Current app is mid-way.</strong> The client already has the drawer state (TICKET-019 md-breakpoint burger). v2 adds the icon-rail state in between, and tightens the drawer's scrim + label consistency.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

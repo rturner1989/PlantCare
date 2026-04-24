@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — Error + offline states</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --paper-deep: #f3eee2;
+    --paper-edge: #e8ddc6;
+    --mint: #dff2e2;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --coral-deep: #c4412a;
+    --sunshine: #ffb83d;
+    --sunshine-deep: #a56d12;
+    --sky: #c7e3f5;
+    --sky-deep: #2c6a94;
+    --shadow-warm-sm: 0 2px 10px rgba(80,56,18,0.07), 0 0 0 1px rgba(80,56,18,0.025);
+    --shadow-warm-md: 0 18px 40px rgba(80,56,18,0.10), 0 2px 8px rgba(80,56,18,0.04);
+    --shadow-warm-lg: 0 36px 80px -8px rgba(80,56,18,0.18), 0 6px 16px rgba(80,56,18,0.06);
+    --shadow-cta: 0 6px 16px rgba(20,144,47,0.32), inset 0 1px 0 rgba(255,255,255,0.3);
+    --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #eff7e6 55%, #e4efd5 100%);
+    --gradient-paper: linear-gradient(180deg, #fbf8f1 0%, #f6f0e0 100%);
+    --gradient-display: linear-gradient(130deg, #0b3a1a 0%, #14902f 60%, #32c456 100%);
+    --gradient-brand: linear-gradient(135deg, #32c456, #14902f);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #ecece0;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+  .page { max-width: 1440px; margin: 0 auto; }
+  .page-header { text-align: center; margin-bottom: 56px; }
+  .page-header .eyebrow {
+    display: inline-block; padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 56px; letter-spacing: -0.035em;
+    line-height: 1; margin-bottom: 18px;
+  }
+  .page-header h1 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .page-header p {
+    font-size: 16px; color: var(--ink-soft);
+    max-width: 720px; margin: 0 auto; line-height: 1.6;
+  }
+  .step-caption {
+    max-width: 1360px; margin: 44px auto 14px; padding: 0 8px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .step-caption .tag {
+    display: inline-block; padding: 4px 12px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .step-caption h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 28px; letter-spacing: -0.02em;
+  }
+  .step-caption .spec {
+    margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600;
+  }
+  .step-row {
+    display: flex; gap: 32px; align-items: flex-start;
+    justify-content: center; flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  /* Browser frame */
+  .browser {
+    background: #f5f1e8;
+    border-radius: 16px;
+    box-shadow: var(--shadow-warm-lg);
+    overflow: hidden;
+    border: 1px solid rgba(80,56,18,0.1);
+    width: 960px;
+    flex-shrink: 0;
+  }
+  .browser .chrome {
+    height: 34px; background: #ede6d5;
+    border-bottom: 1px solid rgba(80,56,18,0.1);
+    display: flex; align-items: center; padding: 0 12px; gap: 8px;
+  }
+  .browser .chrome .dots { display: flex; gap: 5px; }
+  .browser .chrome .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .browser .chrome .dot-r { background: #ff5f57; }
+  .browser .chrome .dot-y { background: #febc2e; }
+  .browser .chrome .dot-g { background: #28c840; }
+  .browser .chrome .url {
+    flex: 1; margin: 0 12px; height: 20px;
+    background: var(--paper);
+    border: 1px solid rgba(80,56,18,0.08);
+    border-radius: 4px;
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 11px; color: var(--ink-softer);
+    font-family: "SF Mono", Consolas, monospace;
+  }
+  .browser .viewport {
+    height: 540px;
+    background: var(--gradient-mint);
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .browser .viewport::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+  .blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(70px);
+    pointer-events: none; z-index: 0;
+    opacity: 0.55;
+  }
+  .blob.mint { background: rgba(134,219,101,0.35); width: 380px; height: 380px; top: -120px; right: -120px; }
+  .blob.coral { background: rgba(255,107,61,0.25); width: 320px; height: 320px; bottom: -100px; left: -80px; }
+  .blob.sun { background: rgba(255,184,61,0.25); width: 280px; height: 280px; bottom: 10%; right: 30%; }
+
+  /* Phone */
+  .phone {
+    width: 340px; height: 680px;
+    background: #0a0a0a;
+    border-radius: 48px; padding: 9px;
+    box-shadow: 0 0 0 2px #2a2a2a, 0 24px 60px -8px rgba(11,58,26,0.25);
+    flex-shrink: 0;
+  }
+  .phone .screen {
+    width: 322px; height: 662px;
+    border-radius: 40px;
+    background: var(--gradient-mint);
+    overflow: hidden; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .phone .screen::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+  .phone .island {
+    position: absolute; top: 16px; left: 50%;
+    transform: translateX(-50%);
+    width: 100px; height: 30px;
+    background: #000; border-radius: 100px;
+    z-index: 40;
+  }
+
+  /* Logo */
+  .logo {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 15px; letter-spacing: -0.01em;
+    color: var(--ink); text-decoration: none;
+  }
+  .logo-mark {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--gradient-brand);
+    position: relative;
+    box-shadow: inset 0 0 0 2px var(--paper);
+  }
+  .logo-mark::after {
+    content: ""; position: absolute; inset: 6px;
+    border-radius: 50%; background: var(--paper);
+  }
+  .logo em { font-family: "Fraunces"; font-style: italic; font-weight: 400; color: var(--emerald); }
+
+  /* ========== FULL-PAGE ERROR (404, 500) ========== */
+  .err-page {
+    position: relative; z-index: 2;
+    width: 100%; max-width: 520px;
+    padding: 0 32px;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 14px;
+    text-align: center;
+  }
+  .err-page .err-mark {
+    width: 140px; height: 140px; border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow:
+      0 24px 48px -8px rgba(80,56,18,0.2),
+      inset 0 0 0 1px var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 52px;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .err-page .err-mark::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,240,200,0.4), transparent 55%);
+    border-radius: 50%;
+  }
+  .err-page .err-mark em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    position: relative; z-index: 1;
+  }
+  .err-page .err-mark.coral { background: linear-gradient(135deg, #ffd8c6, #ff7a4d); color: var(--paper); }
+  .err-page h1 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 38px; letter-spacing: -0.025em;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .err-page h1 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .err-page p {
+    font-size: 14px; color: var(--ink-soft); line-height: 1.6;
+    max-width: 400px;
+  }
+  .err-page .actions {
+    display: flex; gap: 10px; margin-top: 8px;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .err-btn {
+    padding: 10px 20px;
+    border-radius: var(--radius-full);
+    border: none; font-family: inherit;
+    font-size: 13px; font-weight: 800;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .err-btn.primary {
+    background: var(--gradient-brand); color: var(--paper);
+    box-shadow: var(--shadow-cta);
+  }
+  .err-btn.primary .arrow {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(255,255,255,0.22);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+  .err-btn.secondary {
+    background: var(--paper-deep); color: var(--ink);
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .err-btn.ghost {
+    background: transparent; color: var(--ink-soft);
+    text-decoration: underline dotted;
+  }
+
+  /* ========== OFFLINE BANNER (inline, persistent) ========== */
+  .offline-demo {
+    position: relative; z-index: 2;
+    width: 100%; max-width: 640px;
+    padding: 0 28px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .offline-banner {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 18px;
+    background: rgba(253,235,228,0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: var(--radius-md);
+    box-shadow:
+      inset 0 0 0 1px rgba(196,65,42,0.22),
+      0 4px 12px rgba(196,65,42,0.08);
+    font-size: 13px; color: var(--ink);
+    line-height: 1.4;
+  }
+  .offline-banner .ob-chip {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, #ff9474, var(--coral-deep));
+    color: var(--paper);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    box-shadow:
+      0 4px 10px rgba(196,65,42,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+    flex-shrink: 0;
+  }
+  .offline-banner .ob-body { flex: 1; min-width: 0; }
+  .offline-banner .ob-title { font-weight: 800; }
+  .offline-banner .ob-meta {
+    font-family: "Fraunces"; font-style: italic;
+    font-size: 12px; color: var(--ink-soft);
+    margin-top: 1px;
+  }
+  .offline-banner .ob-btn {
+    padding: 6px 12px;
+    background: var(--paper); color: var(--coral-deep);
+    border-radius: var(--radius-full);
+    border: none; font-family: inherit;
+    font-size: 12px; font-weight: 800;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-warm-sm);
+  }
+
+  .stale-placeholder {
+    padding: 16px 20px;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-warm-sm);
+    opacity: 0.9;
+    display: flex; gap: 12px; align-items: center;
+  }
+  .stale-placeholder .sp-av {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, #a8d9aa, #77b97a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .stale-placeholder .sp-body { flex: 1; }
+  .stale-placeholder .sp-nm { font-weight: 800; font-size: 13px; color: var(--ink); }
+  .stale-placeholder .sp-meta {
+    font-size: 11px; color: var(--ink-softer); font-weight: 600;
+    margin-top: 1px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .stale-placeholder .sp-meta::before {
+    content: "";
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ink-softer);
+  }
+
+  /* ========== INLINE ERROR CARD (region-scoped) ========== */
+  .inline-err {
+    padding: 20px 24px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-sm);
+    display: flex; gap: 14px; align-items: center;
+    position: relative; z-index: 2;
+    max-width: 520px;
+  }
+  .inline-err .ie-chip {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, #ffd479, var(--sunshine-deep));
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 6px 14px -2px rgba(165,109,18,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+    flex-shrink: 0;
+  }
+  .inline-err .ie-body { flex: 1; min-width: 0; }
+  .inline-err .ie-title {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 18px; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .inline-err .ie-title em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .inline-err .ie-meta {
+    font-size: 12px; color: var(--ink-soft); margin-top: 4px;
+    line-height: 1.5;
+  }
+  .inline-err .ie-actions {
+    display: flex; gap: 6px; margin-top: 10px;
+  }
+  .inline-err .ie-btn {
+    padding: 6px 12px; border-radius: var(--radius-full);
+    background: var(--paper-deep); color: var(--ink);
+    font-size: 12px; font-weight: 800;
+    border: none; cursor: pointer;
+    font-family: inherit;
+  }
+  .inline-err .ie-btn.primary {
+    background: var(--gradient-brand); color: var(--paper);
+    box-shadow: var(--shadow-cta);
+  }
+
+  .note {
+    max-width: 1360px; margin: 20px auto 32px;
+    padding: 16px 22px;
+    background: rgba(251,248,241,0.5);
+    border: 1px dashed rgba(80,56,18,0.2);
+    border-radius: var(--radius-md);
+    font-size: 13px; color: var(--ink-soft); line-height: 1.7;
+  }
+  .note strong { color: var(--ink); font-weight: 800; }
+
+  .wrap-up {
+    max-width: 1360px;
+    margin: 56px auto 0;
+    padding: 36px 48px 44px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+  }
+  .wrap-up h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 28px; letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .wrap-up h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .wrap-up p { font-size: 14px; color: var(--ink-soft); line-height: 1.7; margin-bottom: 18px; }
+  .wrap-up .key-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .wrap-up .key-list li {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.55;
+    padding-left: 24px; position: relative;
+  }
+  .wrap-up .key-list li::before {
+    content: ""; position: absolute; left: 6px; top: 7px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.15);
+  }
+  .wrap-up .key-list li strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--ink); font-size: 14px; margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <span class="eyebrow">Mockup 32 · Error &amp; offline states</span>
+    <h1>When something <em>breaks</em></h1>
+    <p>Full-page (404 · 500) · inline region error (API down) · offline banner. Warm copy, no apologetic jargon, one primary action to recover, never a technical stack trace in the user's face. Shares the medallion + Fraunces italic vocabulary used elsewhere.</p>
+  </header>
+
+  <!-- 404 -->
+  <div class="step-caption">
+    <span class="tag">Full-page · 404</span>
+    <h2>Not found</h2>
+    <span class="spec">· missing route or deleted resource · Fraunces italic "404" medallion · recover to Today</span>
+  </div>
+
+  <div class="step-row">
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/plants/zylarphia</div>
+      </div>
+      <div class="viewport">
+        <div class="blob mint"></div>
+        <div class="blob sun"></div>
+        <div class="err-page">
+          <div class="err-mark"><em>404</em></div>
+          <h1>This plant isn't <em>in your greenhouse</em></h1>
+          <p>The page you tried to open doesn't exist, or the plant moved on to a different garden. No soil lost — just pick somewhere else to go.</p>
+          <div class="actions">
+            <button class="err-btn primary">☀ Back to Today<span class="arrow">→</span></button>
+            <button class="err-btn secondary">⌂ Open House</button>
+            <button class="err-btn ghost">Report this link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="blob mint" style="width: 220px; height: 220px; top: -70px; right: -60px;"></div>
+        <div class="island"></div>
+        <div class="err-page" style="padding: 0 24px;">
+          <div class="err-mark" style="width: 110px; height: 110px; font-size: 42px;"><em>404</em></div>
+          <h1 style="font-size: 26px;">Not in your <em>greenhouse</em></h1>
+          <p style="font-size: 13px;">Page gone. No soil lost.</p>
+          <div class="actions">
+            <button class="err-btn primary" style="padding: 9px 16px; font-size: 12px;">☀ Back to Today<span class="arrow">→</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>404 · not found.</strong> Fires on deleted plants/spaces the user tries to deep-link to, or typo'd URLs. Medallion shows "<em>404</em>" in Fraunces italic with the gradient-display emerald→leaf (same vocabulary as hero h1s across the app). Headline leans into the plant metaphor. Primary CTA = Today (universal safe harbour). Secondary = House (if the user was browsing plants). Ghost "Report this link" for when a link from outside the app points somewhere gone.
+  </div>
+
+  <!-- 500 -->
+  <div class="step-caption">
+    <span class="tag">Full-page · 500</span>
+    <h2>Server error</h2>
+    <span class="spec">· Rails oops · coral-gradient medallion · retry + home</span>
+  </div>
+
+  <div class="step-row">
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/today</div>
+      </div>
+      <div class="viewport">
+        <div class="blob coral"></div>
+        <div class="err-page">
+          <div class="err-mark coral"><em style="color: var(--paper); -webkit-text-fill-color: var(--paper); background: none;">!</em></div>
+          <h1>Something <em>wobbled</em> on our end</h1>
+          <p>Our server tripped over a root. It's not your fault. We've logged the error — try again in a moment, and if it happens again, drop us a line.</p>
+          <div class="actions">
+            <button class="err-btn primary">↻ Try again<span class="arrow">→</span></button>
+            <button class="err-btn secondary">☀ Back to Today</button>
+            <button class="err-btn ghost">Contact support</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>500 · server error.</strong> Rails errored out. Coral-gradient medallion with a paper "!" signals urgency without shouting. Copy uses "wobbled on our end" not "Internal Server Error 500" — user-friendly, blame-shifted. Logged to Honeybadger/Sentry-equivalent server-side; user doesn't see the trace. Primary "Try again" re-fetches; secondary "Back to Today" is the safe harbour.
+  </div>
+
+  <!-- Offline banner -->
+  <div class="step-caption">
+    <span class="tag">Inline · offline banner</span>
+    <h2>Offline mode</h2>
+    <span class="spec">· top-of-viewport sticky banner · shows cached content below · auto-dismisses on reconnect</span>
+  </div>
+
+  <div class="step-row">
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/today — offline</div>
+      </div>
+      <div class="viewport" style="align-items: flex-start; padding: 32px 40px;">
+        <div class="blob coral" style="top: -80px; right: 20%;"></div>
+        <div class="offline-demo">
+          <div class="offline-banner">
+            <div class="ob-chip">⚡</div>
+            <div class="ob-body">
+              <div class="ob-title">You're offline</div>
+              <div class="ob-meta">Showing cached plants. Actions will sync when you reconnect.</div>
+            </div>
+            <button class="ob-btn">↻ Retry</button>
+          </div>
+
+          <div style="font-family: 'Fraunces'; font-style: italic; font-size: 28px; letter-spacing: -0.02em; color: var(--ink); margin: 8px 0 2px;">Today · <em style="background: var(--gradient-display); -webkit-background-clip: text; background-clip: text; color: transparent;">3 rituals</em></div>
+          <div style="font-size: 12px; color: var(--ink-soft); font-weight: 600; margin-bottom: 6px;">Thursday · last sync 4 min ago</div>
+
+          <div class="stale-placeholder">
+            <div class="sp-av">🌿</div>
+            <div class="sp-body">
+              <div class="sp-nm">Water Monty</div>
+              <div class="sp-meta">cached · will sync when online</div>
+            </div>
+            <button class="ob-btn" style="color: var(--emerald);">💧 Water</button>
+          </div>
+          <div class="stale-placeholder">
+            <div class="sp-av" style="background: linear-gradient(135deg, #d4e8a5, #8ab850);">🌱</div>
+            <div class="sp-body">
+              <div class="sp-nm">Feed Basil</div>
+              <div class="sp-meta">cached · will sync when online</div>
+            </div>
+            <button class="ob-btn" style="color: var(--emerald);">🌱 Feed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="blob coral" style="width: 220px; height: 220px; top: -70px; right: -60px;"></div>
+        <div class="island"></div>
+        <div class="offline-demo" style="padding: 58px 16px; max-width: none; gap: 10px;">
+          <div class="offline-banner" style="padding: 9px 12px; font-size: 11px; gap: 8px;">
+            <div class="ob-chip" style="width: 28px; height: 28px; font-size: 12px;">⚡</div>
+            <div class="ob-body">
+              <div class="ob-title" style="font-size: 12px;">You're offline</div>
+              <div class="ob-meta" style="font-size: 10px;">Cached view · will sync on reconnect</div>
+            </div>
+            <button class="ob-btn" style="padding: 4px 10px; font-size: 10px;">↻</button>
+          </div>
+          <div style="font-family: 'Fraunces'; font-style: italic; font-size: 22px; color: var(--ink); margin: 8px 0 2px;">Today · <em style="background: var(--gradient-display); -webkit-background-clip: text; background-clip: text; color: transparent;">3</em></div>
+          <div style="font-size: 10px; color: var(--ink-soft); font-weight: 600;">Last sync 4m</div>
+          <div class="stale-placeholder" style="padding: 10px 14px;">
+            <div class="sp-av" style="width: 34px; height: 34px; font-size: 15px;">🌿</div>
+            <div class="sp-body">
+              <div class="sp-nm" style="font-size: 12px;">Water Monty</div>
+              <div class="sp-meta" style="font-size: 10px;">cached</div>
+            </div>
+            <button class="ob-btn" style="padding: 4px 10px; font-size: 10px; color: var(--emerald);">💧</button>
+          </div>
+          <div class="stale-placeholder" style="padding: 10px 14px;">
+            <div class="sp-av" style="width: 34px; height: 34px; font-size: 15px; background: linear-gradient(135deg, #d4e8a5, #8ab850);">🌱</div>
+            <div class="sp-body">
+              <div class="sp-nm" style="font-size: 12px;">Feed Basil</div>
+              <div class="sp-meta" style="font-size: 10px;">cached</div>
+            </div>
+            <button class="ob-btn" style="padding: 4px 10px; font-size: 10px; color: var(--emerald);">🌱</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Offline banner.</strong> Slides down from the top-of-viewport the moment <code>navigator.onLine</code> flips or an API call fails with a network error. Coral-tinted glass vessel (matches the urgency family from notifications) + coral-gradient chip. Non-blocking — cached content below stays interactive; optimistic actions queue and replay on reconnect. Individual rows get a "cached · will sync when online" meta line so users don't expect live updates. "↻ Retry" forces a re-check. Auto-dismiss on reconnect (with a brief success toast: "Back online — synced 2 actions").
+  </div>
+
+  <!-- Region-scoped inline error -->
+  <div class="step-caption">
+    <span class="tag">Region-scoped · inline error</span>
+    <h2>A widget failed</h2>
+    <span class="spec">· single API failed, rest of page is fine · paper card with sunshine chip · retry inline</span>
+  </div>
+
+  <div class="step-row">
+    <div class="inline-err">
+      <div class="ie-chip">!</div>
+      <div class="ie-body">
+        <div class="ie-title">Couldn't load <em>your schedule</em></div>
+        <div class="ie-meta">The weekly calendar failed to refresh. The rest of Today is fine — just this widget needs another go.</div>
+        <div class="ie-actions">
+          <button class="ie-btn primary">↻ Retry</button>
+          <button class="ie-btn">Dismiss</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="inline-err">
+      <div class="ie-chip" style="background: linear-gradient(135deg, #ff9474, var(--coral-deep));">⚡</div>
+      <div class="ie-body">
+        <div class="ie-title">Species hydration <em>timed out</em></div>
+        <div class="ie-meta">Perenual didn't respond. We saved a minimal record for now — you can finish the flow, and we'll backfill when the API recovers.</div>
+        <div class="ie-actions">
+          <button class="ie-btn primary">Continue anyway</button>
+          <button class="ie-btn">Try again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Region-scoped inline error.</strong> For single-API failures that shouldn't break the whole page — Perenual timeout, weekly-calendar fetch 500, a single widget erroring. Paper card with a category-coloured medallion chip (sunshine for recoverable, coral for harder errors), Fraunces italic title, plain body explaining which widget + what the user can do. Inline "Retry" + "Dismiss" — same primitive everywhere the pattern applies.
+  </div>
+
+  <!-- Wrap-up -->
+  <div class="wrap-up">
+    <h2>Error states <em>locked</em></h2>
+    <p>Three shells covering every reasonable failure mode. Full-page (404, 500) for routing / server errors. Offline banner for network loss. Inline region error for single-widget failures. All share the circle-motif + Fraunces italic vocabulary — medallion + h1 + Fraunces italic <code>em</code> + action row.</p>
+    <ul class="key-list">
+      <li><strong>Full-page shell.</strong> Centered column: 140px medallion with Fraunces italic glyph (404 number, ! for 500, custom glyph for others) → h1 with gradient <code>em</code> → body paragraph → action row (primary CTA + secondary + ghost). Gradient paper medallion for neutral errors (404), coral-gradient for server errors (500).</li>
+      <li><strong>Copy voice.</strong> Warm, first-person-plural when blame is on us ("our server tripped over a root"). No error codes in the main body. No stack traces ever. Primary CTA uses a <em>destination</em> ("Back to Today") not just "Go home".</li>
+      <li><strong>Offline banner.</strong> Top-of-viewport sticky, coral-tinted glass vessel. Fires on <code>navigator.onLine = false</code> or API network-error. Non-blocking — cached content stays interactive. Rows below get a "cached · will sync when online" meta line. Optimistic actions queue and replay on reconnect. Auto-dismiss on recovery (+ success toast "Back online — synced N actions").</li>
+      <li><strong>Inline region error.</strong> For single-widget failures. Paper card + medallion chip (sunshine for recoverable, coral for harder) + Fraunces italic title. Inline "Retry" / "Dismiss". Use when the rest of the page is fine — don't escalate to full-page error for a broken widget.</li>
+      <li><strong>Toast for transient errors.</strong> Short-lived failures that the user can't fix from the error surface (save-failed, rate-limit) go to the <code>toast.error</code> variant (mockup 31). Don't use inline-error for something that'll fix itself on retry.</li>
+      <li><strong>Upgrade-required.</strong> Phase-2.5 LLM features gated behind payment use the inline-error shell with a sunshine chip + "Upgrade to unlock" primary. Doesn't belong here long-term — a dedicated billing / upgrade mockup would own it.</li>
+      <li><strong>Maintenance / scheduled-downtime.</strong> Full-page shell with a paper medallion + calendar glyph, copy "We're planting new beds" + expected back-at time. Rare enough to not need its own mockup yet.</li>
+      <li><strong>A11y.</strong> Full-page errors are <code>role="main"</code> with a live-region <code>role="status"</code> announcing the headline. Offline banner is <code>role="alert"</code> so screen readers interrupt. Inline-error sections use <code>aria-errormessage</code> / <code>aria-describedby</code> to link to the affected widget where possible.</li>
+      <li><strong>Error boundary wrapping.</strong> Every React region (Today / House / Journal / etc) is wrapped in a top-level <code>ErrorBoundary</code> that renders the inline-error shell if the region throws. Full-page 500 only for app-root errors that escape every boundary.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

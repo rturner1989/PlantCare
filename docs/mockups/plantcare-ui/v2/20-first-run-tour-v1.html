@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — First-run driver.js tour · Today spotlights</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --paper-deep: #f3eee2;
+    --paper-edge: #e8ddc6;
+    --base: #f6fbf4;
+    --mint: #dff2e2;
+    --mint-2: #c7ecca;
+    --lime: #86db65;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --forest-2: #124626;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --coral-deep: #c4412a;
+    --sunshine: #ffb83d;
+    --shadow-warm-sm: 0 2px 10px rgba(80,56,18,0.07), 0 0 0 1px rgba(80,56,18,0.025);
+    --shadow-warm-md: 0 18px 40px rgba(80,56,18,0.10), 0 2px 8px rgba(80,56,18,0.04);
+    --shadow-warm-lg: 0 36px 80px -8px rgba(80,56,18,0.18), 0 6px 16px rgba(80,56,18,0.06);
+    --shadow-cta: 0 6px 16px rgba(20,144,47,0.32), inset 0 1px 0 rgba(255,255,255,0.3);
+    --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #eff7e6 55%, #e4efd5 100%);
+    --gradient-paper: linear-gradient(180deg, #fbf8f1 0%, #f6f0e0 100%);
+    --gradient-display: linear-gradient(130deg, #0b3a1a 0%, #14902f 60%, #32c456 100%);
+    --gradient-brand: linear-gradient(135deg, #32c456, #14902f);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #ecece0;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+  .page { max-width: 1440px; margin: 0 auto; }
+
+  .page-header { text-align: center; margin-bottom: 56px; }
+  .page-header .eyebrow {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 64px; letter-spacing: -0.035em;
+    line-height: 1;
+    margin-bottom: 18px;
+  }
+  .page-header p {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 760px; margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .step-caption {
+    max-width: 1360px; margin: 48px auto 14px;
+    padding: 0 8px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .step-caption .tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .step-caption h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 32px; letter-spacing: -0.02em;
+  }
+  .step-caption .spec {
+    margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600;
+  }
+
+  /* Browser frame (reused from mockup 17 compact) */
+  .browser {
+    max-width: 1360px;
+    margin: 0 auto 32px;
+    background: #f5f1e8;
+    border-radius: 16px;
+    box-shadow: var(--shadow-warm-lg);
+    overflow: hidden;
+    border: 1px solid rgba(80,56,18,0.1);
+  }
+  .browser .chrome {
+    height: 40px; background: #ede6d5;
+    border-bottom: 1px solid rgba(80,56,18,0.1);
+    display: flex; align-items: center; padding: 0 14px; gap: 8px;
+  }
+  .browser .chrome .dots { display: flex; gap: 6px; }
+  .browser .chrome .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .browser .chrome .dot-r { background: #ff5f57; }
+  .browser .chrome .dot-y { background: #febc2e; }
+  .browser .chrome .dot-g { background: #28c840; }
+  .browser .chrome .url {
+    flex: 1; margin: 0 14px; height: 22px;
+    background: var(--paper);
+    border: 1px solid rgba(80,56,18,0.08);
+    border-radius: 5px;
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 11px; color: var(--ink-softer);
+    font-family: "SF Mono", Consolas, monospace;
+  }
+  .browser .viewport {
+    height: 720px;
+    background: var(--gradient-mint);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Simplified Today content behind overlay — just enough visual to show spotlight targets */
+
+  .today-mock {
+    position: absolute; inset: 0;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+  }
+  .today-mock .sidebar {
+    background: var(--paper);
+    border-right: 1px solid var(--paper-edge);
+    padding: 16px 14px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .today-mock .sb-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px;
+  }
+  .today-mock .logo {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 16px;
+    color: var(--ink); text-decoration: none;
+  }
+  .today-mock .logo-mark {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--gradient-brand);
+    position: relative;
+    box-shadow: inset 0 0 0 2px var(--paper);
+  }
+  .today-mock .logo-mark::after {
+    content: ""; position: absolute; inset: 6px;
+    border-radius: 50%; background: var(--paper);
+  }
+  .today-mock .logo em { font-family: "Fraunces"; font-style: italic; color: var(--emerald); }
+  .today-mock .sb-bell {
+    margin-left: auto;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--paper-deep);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+    position: relative;
+  }
+  .today-mock .sb-bell::after {
+    content: ""; position: absolute; top: 3px; right: 3px;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--coral);
+    box-shadow: 0 0 0 1.5px var(--paper);
+  }
+  .today-mock .sb-nav { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+  .today-mock .sb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 13px; font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .today-mock .sb-item.active { background: var(--mint); color: var(--forest); font-weight: 700; }
+  .today-mock .sb-item .ico { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+  .today-mock .main {
+    padding: 22px 28px;
+    overflow: hidden;
+    position: relative;
+  }
+  .today-mock .head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 18px;
+  }
+  .today-mock .head .eyebrow {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--emerald);
+  }
+  .today-mock .head h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 32px; letter-spacing: -0.03em;
+    margin-top: 4px;
+  }
+  .today-mock .head h1 em { color: var(--emerald); }
+  .today-mock .head .rings { display: flex; gap: 10px; }
+  .today-mock .head .ring {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: conic-gradient(var(--leaf) 80%, var(--paper-deep) 0);
+    position: relative;
+  }
+  .today-mock .head .ring.coral { background: conic-gradient(var(--coral) 25%, var(--paper-deep) 0); }
+  .today-mock .head .ring::after {
+    content: ""; position: absolute; inset: 6px;
+    background: var(--paper); border-radius: 50%;
+  }
+  .today-mock .head .ring span {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 17px; z-index: 1;
+  }
+
+  .today-mock .rituals {
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-warm-sm);
+    margin-bottom: 14px;
+  }
+  .today-mock .rituals h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 22px; margin-bottom: 10px;
+  }
+  .today-mock .ritual-row {
+    position: relative;
+    padding: 10px 8px 10px 12px;
+    border-top: 1px solid var(--paper-edge);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .today-mock .ritual-row:first-of-type { border-top: none; }
+  .today-mock .ritual-row::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 4px; background: var(--forest); opacity: 0.75;
+  }
+  .today-mock .ritual-row .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--gradient-paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+  }
+  .today-mock .ritual-row .body { flex: 1; }
+  .today-mock .ritual-row .n { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .today-mock .ritual-row .s { font-size: 11px; color: var(--ink-soft); }
+  .today-mock .ritual-row .tag {
+    padding: 2px 8px;
+    background: rgba(255,107,61,0.14);
+    color: var(--coral-deep);
+    border-radius: var(--radius-full);
+    font-size: 10px; font-weight: 700;
+  }
+
+  .today-mock .section-head {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 17px; margin: 12px 0 8px;
+  }
+  .today-mock .collection {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+    margin-bottom: 14px;
+  }
+  .today-mock .pc {
+    background: var(--paper);
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .today-mock .pc .portrait {
+    width: 56px; height: 56px; margin: 0 auto 6px;
+    border-radius: 50%;
+    background: var(--gradient-paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+  }
+  .today-mock .pc .nm { font-size: 11px; font-weight: 700; color: var(--ink); }
+
+  .today-mock .fab {
+    position: absolute;
+    right: 22px; bottom: 22px;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--gradient-brand);
+    color: var(--paper);
+    box-shadow: 0 10px 24px -4px rgba(20,144,47,0.45), 0 4px 10px rgba(11,58,26,0.2), inset 0 0 0 3px var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700;
+  }
+
+  /* -------- TOUR OVERLAY + SPOTLIGHT -------- */
+
+  .tour-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(11,58,26,0.48);
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  /* Spotlight: radial gradient that "cuts a hole" by being darker at edges,
+     transparent at target position. Achieved by separate dim layer + bright halo at target. */
+  .spotlight-hole {
+    position: absolute;
+    border-radius: 14px;
+    box-shadow: 0 0 0 9999px rgba(11,58,26,0.55);
+    z-index: 55;
+    pointer-events: none;
+    outline: 2px solid rgba(134,219,101,0.5);
+    outline-offset: 2px;
+    animation: pulse-glow 2.4s ease-in-out infinite;
+  }
+  .spotlight-hole.circle { border-radius: 50%; }
+
+  @keyframes pulse-glow {
+    0%, 100% { outline-color: rgba(134,219,101,0.3); }
+    50% { outline-color: rgba(134,219,101,0.7); }
+  }
+
+  /* Tooltip card — attached to spotlight */
+  .tour-tip {
+    position: absolute;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 16px 20px 14px;
+    box-shadow: 0 24px 48px -8px rgba(0,0,0,0.3), 0 8px 20px rgba(11,58,26,0.18);
+    width: 320px;
+    z-index: 60;
+  }
+  .tour-tip h3 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 22px; letter-spacing: -0.02em;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .tour-tip h3 em { color: var(--emerald); }
+  .tour-tip p {
+    font-size: 13px; color: var(--ink-soft);
+    line-height: 1.5; margin-bottom: 14px;
+  }
+  .tour-tip p em {
+    font-family: "Fraunces"; font-style: italic;
+    color: var(--ink);
+  }
+  .tour-tip .tour-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
+  }
+  .tour-tip .progress {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-softer);
+  }
+  .tour-tip .progress .active { color: var(--emerald); }
+  .tour-tip .tour-actions { display: flex; gap: 6px; }
+  .tour-tip .btn-skip {
+    background: transparent;
+    border: none;
+    font-family: inherit; font-weight: 700; font-size: 12px;
+    color: var(--ink-softer);
+    cursor: pointer;
+    padding: 8px 10px;
+  }
+  .tour-tip .btn-next {
+    background: var(--gradient-brand);
+    color: var(--paper);
+    border: none;
+    font-family: inherit; font-weight: 700; font-size: 12px;
+    border-radius: var(--radius-full);
+    padding: 8px 16px;
+    display: inline-flex; align-items: center; gap: 6px;
+    box-shadow: var(--shadow-cta);
+    cursor: pointer;
+  }
+
+  /* Arrow pointing from tooltip to spotlight */
+  .tour-tip::before {
+    content: "";
+    position: absolute;
+    width: 14px; height: 14px;
+    background: var(--paper);
+    transform: rotate(45deg);
+    box-shadow: inherit;
+  }
+  .tour-tip.arrow-top::before { top: -6px; left: 30px; }
+  .tour-tip.arrow-bottom::before { bottom: -6px; right: 30px; }
+  .tour-tip.arrow-left::before { left: -6px; top: 30px; }
+  .tour-tip.arrow-right::before { right: -6px; top: 30px; }
+
+  /* Notes */
+  .note {
+    max-width: 1360px; margin: -16px auto 36px;
+    padding: 18px 24px;
+    background: var(--paper);
+    border-left: 4px solid var(--sunshine);
+    border-radius: 8px;
+    font-size: 13px; color: var(--ink);
+    line-height: 1.55;
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .note strong { color: var(--emerald); }
+
+  .variations {
+    max-width: 1360px; margin: 48px auto 40px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    padding: 32px 40px;
+    box-shadow: var(--shadow-warm-md);
+  }
+  .variations h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 32px; margin-bottom: 12px;
+  }
+  .variations p { color: var(--ink-soft); font-size: 14px; margin-bottom: 22px; }
+  .variations table {
+    width: 100%; border-collapse: collapse; font-size: 12px;
+  }
+  .variations thead th {
+    text-align: left; padding: 12px 10px;
+    background: var(--ink); color: var(--paper);
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .variations thead th:first-child { border-radius: 6px 0 0 0; }
+  .variations thead th:last-child { border-radius: 0 6px 0 0; }
+  .variations tbody td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--paper-edge);
+    vertical-align: top; line-height: 1.45;
+  }
+  .variations tbody td:first-child { font-weight: 800; color: var(--emerald); white-space: nowrap; padding-right: 16px; }
+  .variations tbody tr:last-child td { border-bottom: none; }
+
+  .wrap-up {
+    max-width: 1000px; margin: 0 auto 40px;
+    padding: 32px 40px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+  }
+  .wrap-up h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 32px; text-align: center; margin-bottom: 12px;
+  }
+  .wrap-up .key-list { text-align: left; max-width: 680px; margin: 20px auto 0; }
+  .wrap-up .key-list li {
+    position: relative;
+    padding: 10px 0 10px 30px;
+    list-style: none;
+    border-bottom: 1px dashed var(--paper-edge);
+    font-size: 13px;
+  }
+  .wrap-up .key-list li:last-child { border-bottom: none; }
+  .wrap-up .key-list li::before {
+    content: ""; position: absolute; left: 6px; top: 15px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.15);
+  }
+  .wrap-up .key-list li strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--ink); font-size: 14px; margin-right: 6px;
+  }
+
+  /* Celebration overlay variant */
+  .celebration-card {
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    padding: 32px 36px;
+    box-shadow: 0 30px 60px -8px rgba(11,58,26,0.38), 0 4px 12px -2px rgba(11,58,26,0.4);
+    text-align: center;
+    max-width: 420px;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 70;
+  }
+  .celebration-card .sparkles-wrap {
+    position: relative;
+    width: 120px; height: 120px;
+    margin: 0 auto 14px;
+  }
+  .celebration-card .c-plant {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: var(--shadow-warm-md), inset 0 0 0 1px var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px;
+    position: relative;
+  }
+  .celebration-card .c-plant::before {
+    content: "";
+    position: absolute; inset: -20px;
+    background: radial-gradient(circle, rgba(134,219,101,0.4), transparent 65%);
+    filter: blur(10px);
+    z-index: -1;
+  }
+  .celebration-card .sp {
+    position: absolute; font-size: 14px; opacity: 0.6;
+    color: var(--emerald);
+  }
+  .celebration-card h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 32px; letter-spacing: -0.025em;
+    margin-bottom: 8px;
+  }
+  .celebration-card h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .celebration-card .sub {
+    font-size: 13px; color: var(--ink-soft);
+    margin-bottom: 16px;
+    font-family: "Fraunces"; font-style: italic;
+  }
+  .celebration-card .streak-row {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-bottom: 20px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, rgba(255,107,61,0.15), rgba(255,184,61,0.18));
+    border-radius: var(--radius-md);
+  }
+  .celebration-card .streak-row .ring-mini {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: conic-gradient(var(--coral) 3.3%, var(--paper) 0);
+    position: relative;
+  }
+  .celebration-card .streak-row .ring-mini::after {
+    content: ""; position: absolute; inset: 4px;
+    background: var(--paper-deep); border-radius: 50%;
+  }
+  .celebration-card .streak-row .ring-mini span {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 14px; color: var(--coral-deep); z-index: 1;
+  }
+  .celebration-card .streak-row .streak-text {
+    font-size: 13px; font-weight: 700;
+  }
+  .celebration-card .streak-row .streak-text em {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--coral-deep);
+  }
+  .celebration-card .btn-back {
+    background: var(--gradient-brand);
+    color: var(--paper);
+    border: none;
+    font-family: inherit; font-weight: 700; font-size: 13px;
+    border-radius: var(--radius-full);
+    padding: 12px 24px;
+    box-shadow: var(--shadow-cta);
+    cursor: pointer;
+  }
+
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <span class="eyebrow">Mockup 20 · First-run driver.js tour</span>
+    <h1>Onboarding to <em>muscle memory</em>.</h1>
+    <p>Right after step 7 "Enter your greenhouse", Today loads and driver.js fires a spotlight sequence. Five stops for the Forgetful intent (happy-path below). Variations table + first-care celebration overlay at the end.</p>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- Stop 1 — Greeting -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Stop 1 of 5</span>
+    <h2>Greeting</h2>
+    <span class="spec">· spotlight over head area · "welcome back" framing · progress 1/5</span>
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app</div>
+    </div>
+    <div class="viewport">
+      <!-- Today behind -->
+      <div class="today-mock">
+        <aside class="sidebar">
+          <div class="sb-head">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="sb-bell">🔔</div>
+          </div>
+          <nav class="sb-nav">
+            <div class="sb-item active"><span class="ico">☀</span>Today</div>
+            <div class="sb-item"><span class="ico">⌂</span>House</div>
+            <div class="sb-item"><span class="ico">✎</span>Journal</div>
+            <div class="sb-item"><span class="ico">❋</span>Encyclopedia</div>
+            <div class="sb-item"><span class="ico">◉</span>Me</div>
+          </nav>
+        </aside>
+        <main class="main">
+          <div class="head">
+            <div>
+              <span class="eyebrow">Wednesday · 24 April</span>
+              <h1>Morning, <em>Rob</em>.</h1>
+            </div>
+            <div class="rings">
+              <div class="ring coral"><span>1</span></div>
+              <div class="ring"><span>100</span></div>
+            </div>
+          </div>
+          <div class="rituals">
+            <h2>Today's rituals</h2>
+            <div class="ritual-row">
+              <div class="avatar">🌿</div>
+              <div class="body">
+                <div class="n">Water Monty</div>
+                <div class="s">Due today · 500ml</div>
+              </div>
+              <div class="tag" style="background: var(--mint); color: var(--emerald);">Today</div>
+            </div>
+          </div>
+          <div class="section-head">Your greenhouse</div>
+          <div class="collection">
+            <div class="pc"><div class="portrait">🌿</div><div class="nm">Monty</div></div>
+            <div class="pc"><div class="portrait">🌵</div><div class="nm">Spike</div></div>
+            <div class="pc"><div class="portrait">🪴</div><div class="nm">Basil</div></div>
+          </div>
+          <div class="fab">＋</div>
+        </main>
+      </div>
+
+      <!-- Tour backdrop + spotlight on greeting -->
+      <div class="tour-backdrop"></div>
+      <div class="spotlight-hole" style="top: 32px; left: 264px; width: 420px; height: 80px;"></div>
+      <div class="tour-tip arrow-top" style="top: 136px; left: 264px;">
+        <h3>Here's your <em>greenhouse</em></h3>
+        <p>Today loads here on every visit. We'll greet you, flag what needs you, and stay out of the way otherwise.</p>
+        <div class="tour-footer">
+          <span class="progress"><span class="active">● ○ ○ ○ ○</span> · 1 of 5</span>
+          <div class="tour-actions">
+            <button class="btn-skip">Skip</button>
+            <button class="btn-next">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Stop 2 — Today's rituals -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Stop 2 of 5</span>
+    <h2>Today's rituals</h2>
+    <span class="spec">· spotlight over rituals card · "here's what needs you today" · 2/5</span>
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app</div>
+    </div>
+    <div class="viewport">
+      <div class="today-mock">
+        <aside class="sidebar">
+          <div class="sb-head">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="sb-bell">🔔</div>
+          </div>
+          <nav class="sb-nav">
+            <div class="sb-item active"><span class="ico">☀</span>Today</div>
+            <div class="sb-item"><span class="ico">⌂</span>House</div>
+            <div class="sb-item"><span class="ico">✎</span>Journal</div>
+            <div class="sb-item"><span class="ico">❋</span>Encyclopedia</div>
+            <div class="sb-item"><span class="ico">◉</span>Me</div>
+          </nav>
+        </aside>
+        <main class="main">
+          <div class="head">
+            <div>
+              <span class="eyebrow">Wednesday · 24 April</span>
+              <h1>Morning, <em>Rob</em>.</h1>
+            </div>
+            <div class="rings">
+              <div class="ring coral"><span>1</span></div>
+              <div class="ring"><span>100</span></div>
+            </div>
+          </div>
+          <div class="rituals">
+            <h2>Today's rituals</h2>
+            <div class="ritual-row">
+              <div class="avatar">🌿</div>
+              <div class="body">
+                <div class="n">Water Monty</div>
+                <div class="s">Due today · 500ml</div>
+              </div>
+              <div class="tag" style="background: var(--mint); color: var(--emerald);">Today</div>
+            </div>
+          </div>
+          <div class="section-head">Your greenhouse</div>
+          <div class="collection">
+            <div class="pc"><div class="portrait">🌿</div><div class="nm">Monty</div></div>
+            <div class="pc"><div class="portrait">🌵</div><div class="nm">Spike</div></div>
+            <div class="pc"><div class="portrait">🪴</div><div class="nm">Basil</div></div>
+          </div>
+          <div class="fab">＋</div>
+        </main>
+      </div>
+
+      <div class="tour-backdrop"></div>
+      <div class="spotlight-hole" style="top: 154px; left: 264px; width: 780px; height: 120px;"></div>
+      <div class="tour-tip arrow-bottom" style="bottom: 230px; right: 40px;">
+        <h3>These are <em>today's</em> rituals</h3>
+        <p>What your plants need before tomorrow. Swipe a row right to mark it done — we'll show you next.</p>
+        <div class="tour-footer">
+          <span class="progress"><span class="active">● ● ○ ○ ○</span> · 2 of 5</span>
+          <div class="tour-actions">
+            <button class="btn-skip">Skip</button>
+            <button class="btn-next">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Stop 3 — Swipe hint -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Stop 3 of 5</span>
+    <h2>Swipe to complete</h2>
+    <span class="spec">· narrower spotlight on first row · dashed "try it" arrow · 3/5</span>
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app</div>
+    </div>
+    <div class="viewport">
+      <div class="today-mock">
+        <aside class="sidebar">
+          <div class="sb-head">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="sb-bell">🔔</div>
+          </div>
+          <nav class="sb-nav">
+            <div class="sb-item active"><span class="ico">☀</span>Today</div>
+            <div class="sb-item"><span class="ico">⌂</span>House</div>
+            <div class="sb-item"><span class="ico">✎</span>Journal</div>
+            <div class="sb-item"><span class="ico">❋</span>Encyclopedia</div>
+            <div class="sb-item"><span class="ico">◉</span>Me</div>
+          </nav>
+        </aside>
+        <main class="main">
+          <div class="head">
+            <div>
+              <span class="eyebrow">Wednesday · 24 April</span>
+              <h1>Morning, <em>Rob</em>.</h1>
+            </div>
+            <div class="rings">
+              <div class="ring coral"><span>1</span></div>
+              <div class="ring"><span>100</span></div>
+            </div>
+          </div>
+          <div class="rituals">
+            <h2>Today's rituals</h2>
+            <div class="ritual-row">
+              <div class="avatar">🌿</div>
+              <div class="body">
+                <div class="n">Water Monty</div>
+                <div class="s">Due today · 500ml</div>
+              </div>
+              <div class="tag" style="background: var(--mint); color: var(--emerald);">Today</div>
+            </div>
+          </div>
+          <div class="section-head">Your greenhouse</div>
+          <div class="collection">
+            <div class="pc"><div class="portrait">🌿</div><div class="nm">Monty</div></div>
+            <div class="pc"><div class="portrait">🌵</div><div class="nm">Spike</div></div>
+            <div class="pc"><div class="portrait">🪴</div><div class="nm">Basil</div></div>
+          </div>
+          <div class="fab">＋</div>
+        </main>
+      </div>
+
+      <div class="tour-backdrop"></div>
+      <div class="spotlight-hole" style="top: 198px; left: 276px; width: 760px; height: 60px;"></div>
+
+      <!-- Dashed arrow motif pointing right = swipe direction -->
+      <svg style="position: absolute; top: 196px; left: 500px; width: 220px; height: 60px; z-index: 58; pointer-events: none;" viewBox="0 0 220 60">
+        <path d="M 20 30 L 180 30" stroke="var(--lime)" stroke-width="3" stroke-dasharray="8 6" fill="none" stroke-linecap="round"/>
+        <path d="M 170 18 L 190 30 L 170 42" stroke="var(--lime)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="60" y="18" font-family="Fraunces" font-style="italic" font-size="14" fill="var(--lime)">swipe right →</text>
+      </svg>
+
+      <div class="tour-tip arrow-top" style="top: 290px; left: 276px;">
+        <h3>Swipe to <em>complete</em></h3>
+        <p>A flush reveal uncovers a forest green "Done!" panel — release to commit. <em>It feels good.</em> Tap the row instead to open Monty's detail.</p>
+        <div class="tour-footer">
+          <span class="progress"><span class="active">● ● ● ○ ○</span> · 3 of 5</span>
+          <div class="tour-actions">
+            <button class="btn-skip">Skip</button>
+            <button class="btn-next">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Stop 4 — FAB -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Stop 4 of 5</span>
+    <h2>Add a plant · FAB</h2>
+    <span class="spec">· circular spotlight on FAB · "meet a new plant any time" · 4/5</span>
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app</div>
+    </div>
+    <div class="viewport">
+      <div class="today-mock">
+        <aside class="sidebar">
+          <div class="sb-head">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="sb-bell">🔔</div>
+          </div>
+          <nav class="sb-nav">
+            <div class="sb-item active"><span class="ico">☀</span>Today</div>
+            <div class="sb-item"><span class="ico">⌂</span>House</div>
+            <div class="sb-item"><span class="ico">✎</span>Journal</div>
+            <div class="sb-item"><span class="ico">❋</span>Encyclopedia</div>
+            <div class="sb-item"><span class="ico">◉</span>Me</div>
+          </nav>
+        </aside>
+        <main class="main">
+          <div class="head">
+            <div>
+              <span class="eyebrow">Wednesday · 24 April</span>
+              <h1>Morning, <em>Rob</em>.</h1>
+            </div>
+            <div class="rings">
+              <div class="ring coral"><span>1</span></div>
+              <div class="ring"><span>100</span></div>
+            </div>
+          </div>
+          <div class="rituals">
+            <h2>Today's rituals</h2>
+            <div class="ritual-row">
+              <div class="avatar">🌿</div>
+              <div class="body">
+                <div class="n">Water Monty</div>
+                <div class="s">Due today · 500ml</div>
+              </div>
+              <div class="tag" style="background: var(--mint); color: var(--emerald);">Today</div>
+            </div>
+          </div>
+          <div class="section-head">Your greenhouse</div>
+          <div class="collection">
+            <div class="pc"><div class="portrait">🌿</div><div class="nm">Monty</div></div>
+            <div class="pc"><div class="portrait">🌵</div><div class="nm">Spike</div></div>
+            <div class="pc"><div class="portrait">🪴</div><div class="nm">Basil</div></div>
+          </div>
+          <div class="fab">＋</div>
+        </main>
+      </div>
+
+      <div class="tour-backdrop"></div>
+      <div class="spotlight-hole circle" style="right: 12px; bottom: 12px; width: 76px; height: 76px;"></div>
+      <div class="tour-tip arrow-right" style="right: 130px; bottom: 24px;">
+        <h3>Meet a <em>new plant</em></h3>
+        <p>Tap the + anywhere in the app to add a plant. You can also press <code style="background: var(--paper-deep); padding: 2px 6px; border-radius: 4px; font-family: 'SF Mono', monospace; font-size: 11px;">N</code> on the keyboard.</p>
+        <div class="tour-footer">
+          <span class="progress"><span class="active">● ● ● ● ○</span> · 4 of 5</span>
+          <div class="tour-actions">
+            <button class="btn-skip">Skip</button>
+            <button class="btn-next">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Stop 5 — Organiser bell -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Stop 5 of 5</span>
+    <h2>Organiser · bell</h2>
+    <span class="spec">· spotlight on bell in sidebar · "journal, goals, achievements, weather" · 5/5 · final CTA "Get started"</span>
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app</div>
+    </div>
+    <div class="viewport">
+      <div class="today-mock">
+        <aside class="sidebar">
+          <div class="sb-head">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="sb-bell">🔔</div>
+          </div>
+          <nav class="sb-nav">
+            <div class="sb-item active"><span class="ico">☀</span>Today</div>
+            <div class="sb-item"><span class="ico">⌂</span>House</div>
+            <div class="sb-item"><span class="ico">✎</span>Journal</div>
+            <div class="sb-item"><span class="ico">❋</span>Encyclopedia</div>
+            <div class="sb-item"><span class="ico">◉</span>Me</div>
+          </nav>
+        </aside>
+        <main class="main">
+          <div class="head">
+            <div>
+              <span class="eyebrow">Wednesday · 24 April</span>
+              <h1>Morning, <em>Rob</em>.</h1>
+            </div>
+            <div class="rings">
+              <div class="ring coral"><span>1</span></div>
+              <div class="ring"><span>100</span></div>
+            </div>
+          </div>
+          <div class="rituals">
+            <h2>Today's rituals</h2>
+            <div class="ritual-row">
+              <div class="avatar">🌿</div>
+              <div class="body">
+                <div class="n">Water Monty</div>
+                <div class="s">Due today · 500ml</div>
+              </div>
+              <div class="tag" style="background: var(--mint); color: var(--emerald);">Today</div>
+            </div>
+          </div>
+          <div class="section-head">Your greenhouse</div>
+          <div class="collection">
+            <div class="pc"><div class="portrait">🌿</div><div class="nm">Monty</div></div>
+            <div class="pc"><div class="portrait">🌵</div><div class="nm">Spike</div></div>
+            <div class="pc"><div class="portrait">🪴</div><div class="nm">Basil</div></div>
+          </div>
+          <div class="fab">＋</div>
+        </main>
+      </div>
+
+      <div class="tour-backdrop"></div>
+      <div class="spotlight-hole circle" style="top: 22px; left: 196px; width: 40px; height: 40px;"></div>
+      <div class="tour-tip arrow-left" style="top: 14px; left: 254px;">
+        <h3>Your <em>organiser</em></h3>
+        <p>Journal, goals, achievements, weather. The bell slides it open from the right — like a notification centre, but for your plants.</p>
+        <div class="tour-footer">
+          <span class="progress"><span class="active">● ● ● ● ●</span> · 5 of 5</span>
+          <div class="tour-actions">
+            <button class="btn-next">Let's go →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- First care-log celebration -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Celebration</span>
+    <h2>First care-log completed</h2>
+    <span class="spec">· fires the first time user logs care · streak ticks to Day 1 · one-shot · sets User.first_care_logged_at</span>
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app</div>
+    </div>
+    <div class="viewport">
+      <div class="today-mock">
+        <aside class="sidebar">
+          <div class="sb-head">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <div class="sb-bell">🔔</div>
+          </div>
+          <nav class="sb-nav">
+            <div class="sb-item active"><span class="ico">☀</span>Today</div>
+            <div class="sb-item"><span class="ico">⌂</span>House</div>
+            <div class="sb-item"><span class="ico">✎</span>Journal</div>
+            <div class="sb-item"><span class="ico">❋</span>Encyclopedia</div>
+            <div class="sb-item"><span class="ico">◉</span>Me</div>
+          </nav>
+        </aside>
+        <main class="main">
+          <div class="head">
+            <div>
+              <span class="eyebrow">Wednesday · 24 April</span>
+              <h1>Morning, <em>Rob</em>.</h1>
+            </div>
+            <div class="rings">
+              <div class="ring coral"><span>1</span></div>
+              <div class="ring"><span>100</span></div>
+            </div>
+          </div>
+          <div class="rituals">
+            <h2>Today's rituals</h2>
+            <div class="ritual-row" style="opacity: 0.5;">
+              <div class="avatar">🌿</div>
+              <div class="body">
+                <div class="n" style="text-decoration: line-through;">Water Monty</div>
+                <div class="s">Done · just now</div>
+              </div>
+              <div class="tag" style="background: var(--mint); color: var(--emerald);">Done</div>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <div class="tour-backdrop" style="background: rgba(11,58,26,0.55);"></div>
+
+      <div class="celebration-card">
+        <div class="sparkles-wrap">
+          <span class="sp" style="top: 10%; left: 10%;">✦</span>
+          <span class="sp" style="top: 20%; right: 8%;">✧</span>
+          <span class="sp" style="bottom: 20%; left: 14%;">✦</span>
+          <span class="sp" style="bottom: 10%; right: 14%;">·</span>
+          <div class="c-plant">🌿</div>
+        </div>
+        <h2>Monty's <em>watered</em>.</h2>
+        <p class="sub">And just like that — that's how the rest of it works. The app's yours now.</p>
+        <div class="streak-row">
+          <div class="ring-mini"><span>1</span></div>
+          <div class="streak-text">Streak · <em>Day 1</em></div>
+        </div>
+        <button class="btn-back">Back to Today</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Celebration fires once.</strong> On the user's first successful care-log action — whether swipe-to-complete or radial-wheel Water. Driven by <code>User.first_care_logged_at IS NULL</code>. Sets the timestamp; subsequent care-logs just tick the existing streak without the overlay.
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Variations -->
+  <!-- ========================================================= -->
+  <div class="variations">
+    <h2>Tour variants <em>per intent</em></h2>
+    <p>Tour length and focus shifts based on <code>User.onboarding_intent</code> captured in Step 1 of onboarding. One wizard, four paths — right through the tour.</p>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 160px;">Intent</th>
+          <th>Stops</th>
+          <th>Sequence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>🌵 Forgetful</td>
+          <td>5</td>
+          <td>greeting → rituals → swipe hint → FAB → bell (shown above)</td>
+        </tr>
+        <tr>
+          <td>🌱 Just starting</td>
+          <td>7</td>
+          <td>greeting → jobs rail → rituals → swipe hint → collection strip → calendar → bell</td>
+        </tr>
+        <tr>
+          <td>🤒 Sick plant</td>
+          <td>2</td>
+          <td>Auto-redirected to Doctor flow · 2-stop tour inside Doctor: symptom picker → tailored summary</td>
+        </tr>
+        <tr>
+          <td>📚 Browsing</td>
+          <td>3</td>
+          <td>greeting → Encyclopedia link → greenhouse strip</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Wrap-up -->
+  <!-- ========================================================= -->
+  <div class="wrap-up">
+    <h2>First-run arc <em>in one picture</em></h2>
+    <ul class="key-list">
+      <li><strong>Continuity locked.</strong> Intent answered in onboarding step 1 → tour length + focus shift accordingly. User feels remembered.</li>
+      <li><strong>Tour uses driver.js.</strong> Already in dependencies. Spotlight + tooltip + progress dots. Dismissable any time.</li>
+      <li><strong>First care-log = loop closed.</strong> Celebration card fires the first time they swipe or wheel-water. Streak ticks visibly. App explicitly hands off ("the app's yours now").</li>
+      <li><strong>Tour stored per-user.</strong> <code>User.onboarding_tour_completed_at</code>. Replayable from Me region.</li>
+      <li><strong>Five stops on Forgetful.</strong> Short enough to land. Long enough to cover the core loop (rituals + swipe + FAB + organiser). Other intents adjusted.</li>
+      <li><strong>Spotlight ring pulses.</strong> 2.4s ease-in-out loop on outline colour — the contemplative tempo for tour overlays. Paired vocabulary: the radial wheel's urgent spoke in mockup 22 pulses faster, at 2.2s. Two distinct motion vocabularies — contemplative tour vs urgent action — kept separate on purpose.</li>
+      <li><strong>Tooltip auto-flip.</strong> Classes <code>arrow-top</code> / <code>arrow-bottom</code> / <code>arrow-left</code> / <code>arrow-right</code> set the default arrow side. Production uses driver.js's edge detection to flip the tooltip to the opposite side when it would overflow the viewport — the arrow class follows.</li>
+      <li><strong>Keyboard / gesture parity.</strong> Arrow keys advance tour on desktop. Esc dismisses. Mobile = tap anywhere outside to advance, tap tooltip's Skip to exit.</li>
+      <li><strong>Reduced-motion fallback.</strong> No pulse on <code>prefers-reduced-motion</code>; tooltip transitions become opacity cross-fade instead of slide.</li>
+    </ul>
+    <p style="margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--paper-edge); font-size: 12px; color: var(--ink-soft); line-height: 1.55;"><strong style="font-family: 'Fraunces'; font-style: italic; font-weight: 500; color: var(--emerald);">2026-04-24 polish pass.</strong> Celebration card shadow lifted (alpha 0.28 → 0.38 plus a secondary shadow) so it reads against the dark tour backdrop. Added the 2.4s-vs-2.2s animation vocabulary note and the tooltip auto-flip note above. Copy warmth touches: greeting re-worded to "Here's your greenhouse", rituals lead with <em style="font-family: 'Fraunces'; font-style: italic;">today's</em> in Fraunces italic, swipe hint gains "it feels good", celebration card gains the "And just like that" lead-in.</p>
+  </div>
+
+</div>
+</body>
+</html>
