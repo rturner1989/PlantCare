@@ -18,6 +18,7 @@ const Welcome = lazy(() => import('./pages/Welcome'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 const Today = lazy(() => import('./pages/Today'))
+const House = lazy(() => import('./pages/House'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -95,7 +96,7 @@ export default function App() {
                 <Route element={<ProtectedAppLayout />}>
                   <Route index element={<Today />} />
 
-                  <Route path="house" element={<PlaceholderPage title="House" />} />
+                  <Route path="house" element={<House />} />
                   <Route path="plants/:id" element={<PlaceholderPage title="Plant Detail" />} />
                   <Route path="discover" element={<PlaceholderPage title="Discover" />} />
                   <Route path="me" element={<PlaceholderPage title="Me" />} />
