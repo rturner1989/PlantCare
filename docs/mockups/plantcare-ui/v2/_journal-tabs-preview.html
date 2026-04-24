@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — Journal file-tabs preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --paper-deep: #f3eee2;
+    --paper-edge: #e8ddc6;
+    --paper-deeper: #ebe0c8;
+    --mint: #dff2e2;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --sunshine: #ffb83d;
+    --sunshine-deep: #a56d12;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #ecece0;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+  .page { max-width: 1100px; margin: 0 auto; }
+  .page-header { text-align: center; margin-bottom: 48px; }
+  .page-header .eyebrow {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: 999px;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 48px; letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .page-header p {
+    font-size: 14px; color: var(--ink-soft);
+    max-width: 680px; margin: 0 auto;
+  }
+
+  /* ---- File-tab journal ---- */
+
+  .journal-wrap {
+    max-width: 980px;
+    margin: 0 auto 32px;
+    padding: 0 20px;
+  }
+
+  /* Tab row — left-aligned, clean bottom baseline, active tab merges with panel. */
+  .tab-row {
+    display: flex;
+    align-items: flex-end;
+    padding: 0 0 0 14px;
+    gap: 2px;
+    position: relative;
+    z-index: 2;
+  }
+  .tab-row .tab {
+    position: relative;
+    padding: 11px 20px;
+    background: #efe8d5;
+    color: var(--ink-soft);
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    border: 1px solid var(--paper-edge);
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease;
+    white-space: nowrap;
+  }
+  .tab-row .tab .tab-count {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 7px;
+    background: rgba(11,58,26,0.07);
+    color: var(--ink-softer);
+    border-radius: 999px;
+    font-family: "Plus Jakarta Sans";
+    font-style: normal;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    vertical-align: 1px;
+  }
+  .tab-row .tab:hover {
+    background: #f2ecda;
+    color: var(--ink);
+  }
+  .tab-row .tab.active {
+    background: var(--paper);
+    color: var(--ink);
+    z-index: 10;
+    padding: 13px 22px 12px;
+    margin-bottom: -1px;
+    box-shadow: 0 -4px 12px rgba(80,56,18,0.07), inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+  .tab-row .tab.active::after {
+    /* Paper seam bridging active tab + folder panel */
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 2px;
+    background: var(--paper);
+  }
+  .tab-row .tab.active .tab-count {
+    background: var(--mint);
+    color: var(--emerald);
+  }
+
+  /* Folder content panel */
+  .folder-panel {
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: 0 14px 14px 14px;
+    padding: 32px 36px;
+    box-shadow: 0 22px 48px rgba(80,56,18,0.12), 0 4px 12px rgba(80,56,18,0.05);
+    position: relative;
+    z-index: 1;
+    min-height: 360px;
+  }
+  .folder-panel::after {
+    /* Subtle top-edge highlight — reads as paper */
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.6) 50%, transparent);
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  .folder-panel::before {
+    /* paper-texture + subtle grain */
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' seed='12'/><feColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 0 0.14 0 0 0 0.5 0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 160px 160px;
+    opacity: 0.18; mix-blend-mode: multiply;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  .folder-panel > * { position: relative; z-index: 1; }
+
+  .folder-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px dashed var(--paper-edge);
+  }
+  .folder-head h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 32px; letter-spacing: -0.025em;
+  }
+  .folder-head h2 em {
+    background: linear-gradient(130deg, var(--forest), var(--emerald) 60%, var(--leaf));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .folder-head .meta {
+    margin-left: auto;
+    font-size: 11px; font-weight: 700;
+    color: var(--ink-softer);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  /* Mock entries */
+  .entries { display: flex; flex-direction: column; gap: 14px; }
+  .entry {
+    display: flex; gap: 14px;
+    padding: 12px 14px;
+    background: var(--paper-deep);
+    border-radius: 10px;
+    border: 1px solid var(--paper-edge);
+  }
+  .entry .ea {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #fbf8f1 0%, #f6f0e0 100%);
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+  }
+  .entry .eb { flex: 1; }
+  .entry .em {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 2px;
+  }
+  .entry .em .author { color: var(--emerald); }
+  .entry .em .author.sys { color: var(--sunshine-deep); }
+  .entry .et { font-size: 13px; color: var(--ink); line-height: 1.45; }
+  .entry .et em {
+    font-family: "Fraunces"; font-style: italic;
+    color: var(--coral);
+    font-weight: 500;
+  }
+
+  .notes {
+    max-width: 980px;
+    margin: 20px auto 0;
+    padding: 18px 24px;
+    background: var(--paper);
+    border-left: 3px solid var(--emerald);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(80,56,18,0.06);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .notes strong { color: var(--emerald); }
+
+  .variant-row {
+    max-width: 980px;
+    margin: 48px auto 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .variant-row .v {
+    background: var(--paper);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 2px 10px rgba(80,56,18,0.06);
+  }
+  .variant-row .v h3 {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic;
+    font-size: 17px;
+    margin-bottom: 10px;
+  }
+  .variant-row .v p {
+    font-size: 12px; color: var(--ink-soft);
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <span class="eyebrow">Preview · Journal file-tabs direction</span>
+    <h1>Organiser as a <span style="font-style:italic;background:linear-gradient(130deg,#0b3a1a,#14902f 60%,#32c456);-webkit-background-clip:text;background-clip:text;color:transparent;">filing cabinet</span></h1>
+    <p>Trails of Cold Steel / vintage manila-folder vocabulary. Tabs stagger with slight rotation, active tab sits flat + forward, content panel reads as a document in the folder. Warm paper textures sell the metaphor.</p>
+  </header>
+
+  <div class="journal-wrap">
+
+    <div class="tab-row">
+      <div class="tab active">Entries <span class="tab-count">128</span></div>
+      <div class="tab">Album <span class="tab-count">42</span></div>
+      <div class="tab">By plant <span class="tab-count">5</span></div>
+      <div class="tab">By mood</div>
+      <div class="tab">Milestones <span class="tab-count">7</span></div>
+    </div>
+
+    <div class="folder-panel">
+      <div class="folder-head">
+        <h2>All <em>entries</em></h2>
+        <span class="meta">· 128 entries · 42 photos</span>
+      </div>
+
+      <div class="entries">
+        <div class="entry">
+          <div class="ea">🌿</div>
+          <div class="eb">
+            <div class="em"><span class="author sys">System</span> · today · 9:40</div>
+            <div class="et">Monty moved from <em>content</em> to <em>thirsty</em>.</div>
+          </div>
+        </div>
+        <div class="entry">
+          <div class="ea">📷</div>
+          <div class="eb">
+            <div class="em"><span class="author">You</span> · yesterday · 18:22</div>
+            <div class="et">New photo of Basil — doubled in size since March. Put him by the kitchen window and it paid off.</div>
+          </div>
+        </div>
+        <div class="entry">
+          <div class="ea">🌵</div>
+          <div class="eb">
+            <div class="em"><span class="author sys">Milestone</span> · 3 days ago</div>
+            <div class="et">Spike has been with you for 100 days. First cactus anniversary.</div>
+          </div>
+        </div>
+        <div class="entry">
+          <div class="ea">🎭</div>
+          <div class="eb">
+            <div class="em"><span class="author sys">System</span> · 17 April</div>
+            <div class="et">You watered Monty · 500ml. Went from wilting back to content.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <strong>Design notes.</strong> Tabs use rounded-top rectangles (14px) sitting atop the folder panel. Inactive tabs tilt ±0.6° for organic-stack feel; active tab flat. Tab count pill on right. Folder panel's top-left corner is sharp where the active tab attaches — asymmetric border-radius (<code>0 14px 14px 14px</code>). Paper-texture grain overlay on the panel sells the "document" metaphor. Content inside = journal entries with paper-deep entry cards; author + timestamp meta; mood words italicised via Fraunces + coral. Dashed divider under the folder head reads as a filing-card line.<br><br>
+    On mobile: tabs become horizontal scroll carousel (same rotated aesthetic retained), folder panel full-width below.
+  </div>
+
+  <div class="variant-row">
+    <div class="v">
+      <h3>Hover / inactive</h3>
+      <p>Inactive tab lifts slightly on hover (4px translate), tint shifts to warm paper. Click = snaps forward + rotate back to 0° + tab count pill colours to mint.</p>
+    </div>
+    <div class="v">
+      <h3>By plant tab — nested filters</h3>
+      <p>Clicking "By plant" reveals a secondary row of per-plant tabs <em>inside</em> the folder (Monty · Spike · Basil · etc) — meta-filter on the same folder. Breadcrumb shows "Entries › Monty".</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — Onboarding (Web v2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --base: #f6fbf4;
+    --mint: #dff2e2;
+    --mint-2: #c7ecca;
+    --lime: #86db65;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --forest-2: #124626;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --coral-deep: #c4412a;
+    --sunshine: #ffb83d;
+    --card: #ffffff;
+    --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #dff2e2 50%, #c7ecca 100%);
+    --gradient-forest: linear-gradient(135deg, var(--forest), var(--forest-2));
+    --gradient-brand: linear-gradient(135deg, var(--leaf), var(--emerald));
+    --shadow-sm: 0 2px 8px rgba(11,58,26,0.06);
+    --shadow-md: 0 10px 30px rgba(11,58,26,0.10);
+    --shadow-lg: 0 24px 60px rgba(11,58,26,0.14);
+    --shadow-cta: 0 6px 16px rgba(20,144,47,0.32), inset 0 1px 0 rgba(255,255,255,0.3);
+    --shadow-lime-cta: 0 4px 12px rgba(134,219,101,0.3);
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --radius-full: 100px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #e4eadd;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* ---- Mockup page shell ---- */
+
+  .page {
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .page-header .eyebrow {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--ink);
+    color: var(--card);
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500;
+    font-style: italic;
+    font-size: 56px;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+  .page-header p {
+    font-size: 16px;
+    color: var(--ink-soft);
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+    padding: 0 8px;
+  }
+
+  .step-caption {
+    max-width: 1360px;
+    margin: 0 auto 12px;
+    padding: 0 8px;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .step-caption strong { color: var(--ink); font-weight: 800; }
+  .step-caption .step-num {
+    display: inline-block;
+    padding: 2px 10px;
+    background: var(--ink);
+    color: var(--card);
+    border-radius: var(--radius-full);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    margin-right: 8px;
+    vertical-align: 1px;
+  }
+
+  /* ---- Fake browser chrome ---- */
+
+  .browser {
+    max-width: 1360px;
+    margin: 0 auto 56px;
+    background: #fafaf7;
+    border-radius: 14px;
+    box-shadow: 0 28px 80px rgba(11,58,26,0.2), 0 6px 20px rgba(11,58,26,0.08);
+    overflow: hidden;
+    border: 1px solid rgba(11,58,26,0.1);
+  }
+  .browser .chrome {
+    height: 40px;
+    background: #eaeadf;
+    border-bottom: 1px solid rgba(11,58,26,0.08);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 10px;
+  }
+  .browser .chrome .dots { display: flex; gap: 7px; }
+  .browser .chrome .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .browser .chrome .dot-r { background: #ff5f57; }
+  .browser .chrome .dot-y { background: #febc2e; }
+  .browser .chrome .dot-g { background: #28c840; }
+  .browser .chrome .url {
+    flex: 1;
+    margin: 0 20px;
+    height: 24px;
+    background: #fcfcf7;
+    border: 1px solid rgba(11,58,26,0.08);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-size: 11px;
+    color: var(--ink-softer);
+    font-family: "SF Mono", Consolas, monospace;
+  }
+  .browser .viewport {
+    /* 14" MBP Scaled default ≈ 1512×982 px. Minus browser chrome ≈ 900px. */
+    height: 900px;
+    background: var(--gradient-mint);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ---- Logo mark (reused) ---- */
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--gradient-brand);
+    position: relative;
+    box-shadow: var(--shadow-sm);
+  }
+  .logo-mark::after {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    background: var(--card);
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    opacity: 0.95;
+  }
+  .logo em { font-family: "Fraunces"; font-style: italic; font-weight: 500; color: var(--emerald); margin-left: 2px; }
+
+  /* ---- Onboarding shell ---- */
+
+  .ob-shell {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .ob-topbar {
+    height: 64px;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ob-topbar .skip {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  .ob-progress {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 40px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-softer);
+  }
+  .ob-progress .bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(11,58,26,0.08);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+  .ob-progress .bar .fill {
+    height: 100%;
+    background: var(--gradient-brand);
+    border-radius: var(--radius-full);
+  }
+  .ob-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 40px 40px;
+  }
+  .ob-card {
+    width: 100%;
+    max-width: 780px;
+    background: var(--card);
+    border-radius: var(--radius-md);
+    padding: 56px 64px 48px;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+  }
+  .ob-card.wide { max-width: 960px; }
+  .ob-card h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500;
+    font-size: 44px;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .ob-card h2 em { font-style: italic; color: var(--emerald); }
+  .ob-card .subhead {
+    font-size: 16px;
+    color: var(--ink-soft);
+    max-width: 520px;
+    margin: 0 auto 36px;
+    line-height: 1.55;
+  }
+  .ob-card .form-area { text-align: left; margin-bottom: 28px; }
+  .ob-card .actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 36px;
+  }
+
+  /* ---- CTAs ---- */
+
+  .btn {
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    border: none;
+    padding: 14px 28px;
+    border-radius: var(--radius-full);
+    transition: transform 120ms ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary {
+    background: var(--gradient-brand);
+    color: var(--card);
+    box-shadow: var(--shadow-cta);
+  }
+  .btn-secondary {
+    background: var(--mint);
+    color: var(--emerald);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+  }
+  .btn-lime {
+    background: var(--lime);
+    color: var(--forest);
+    box-shadow: var(--shadow-lime-cta);
+  }
+  .btn-lg { padding: 16px 32px; font-size: 16px; }
+
+  /* ---- Welcome illustration block (shared) ---- */
+
+  .hero-illustration {
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 32px;
+    position: relative;
+  }
+  .pot {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 80px;
+    background: linear-gradient(180deg, #c4854a, #8e5b30);
+    border-radius: 0 0 60px 60px;
+    box-shadow: inset 0 -8px 0 rgba(0,0,0,0.15);
+  }
+  .pot::before {
+    content: "";
+    position: absolute;
+    top: -8px; left: -8px; right: -8px;
+    height: 18px;
+    background: #a06938;
+    border-radius: 4px;
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.15);
+  }
+  .leaves {
+    position: absolute;
+    left: 50%; bottom: 60px; transform: translateX(-50%);
+    width: 180px; height: 180px;
+  }
+  .leaves .leaf {
+    position: absolute;
+    width: 50px; height: 90px;
+    background: var(--leaf);
+    border-radius: 50% 10% 50% 10%;
+    transform-origin: 50% 100%;
+    box-shadow: inset -4px -4px 0 rgba(0,0,0,0.12);
+  }
+  .leaves .leaf:nth-child(1) { left: 50%; bottom: 0; transform: translateX(-50%) rotate(-10deg); background: var(--leaf); }
+  .leaves .leaf:nth-child(2) { left: 25%; bottom: 6px; transform: rotate(-40deg); background: var(--emerald); }
+  .leaves .leaf:nth-child(3) { right: 25%; bottom: 6px; transform: rotate(40deg); background: var(--emerald); }
+  .leaves .leaf:nth-child(4) { left: 15%; bottom: 18px; transform: rotate(-65deg); background: #3fb164; }
+  .leaves .leaf:nth-child(5) { right: 15%; bottom: 18px; transform: rotate(65deg); background: #3fb164; }
+  .leaves .leaf:nth-child(6) { left: 38%; bottom: 40px; transform: rotate(-20deg); background: var(--leaf); height: 80px; }
+  .leaves .leaf:nth-child(7) { right: 38%; bottom: 40px; transform: rotate(20deg); background: var(--leaf); height: 80px; }
+  .sparkle { position: absolute; font-size: 18px; opacity: 0.6; }
+  .sparkle.a { top: 10%; left: 20%; }
+  .sparkle.b { top: 20%; right: 16%; font-size: 14px; }
+  .sparkle.c { top: 42%; left: 8%; font-size: 12px; }
+
+  /* ---- Step 1 — Intent cards ---- */
+
+  .intent-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .intent-card {
+    padding: 28px 24px;
+    background: var(--base);
+    border: 2px solid var(--mint);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: left;
+    transition: all 150ms ease;
+  }
+  .intent-card.selected { border-color: var(--leaf); background: rgba(134,219,101,0.08); }
+  .intent-card:hover { border-color: var(--leaf); transform: translateY(-2px); }
+  .intent-card .emoji { font-size: 32px; line-height: 1; margin-bottom: 14px; display: block; }
+  .intent-card h3 { font-size: 17px; font-weight: 800; color: var(--ink); margin-bottom: 6px; letter-spacing: -0.01em; }
+  .intent-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.45; }
+
+  /* ---- Step 2 — Spaces ---- */
+
+  .spaces-group-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+    margin-top: 24px;
+  }
+  .spaces-group-label:first-child { margin-top: 0; }
+  .spaces-group-label svg { width: 14px; height: 14px; color: var(--emerald); }
+  .spaces-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .space-chip {
+    padding: 14px 16px;
+    background: var(--base);
+    border: 1.5px solid var(--mint);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: left;
+    transition: all 120ms ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .space-chip:hover { border-color: var(--leaf); }
+  .space-chip.selected { background: var(--leaf); border-color: var(--leaf); color: var(--card); }
+  .space-chip .iconbox {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: var(--mint);
+    color: var(--emerald);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .space-chip.selected .iconbox { background: rgba(255,255,255,0.25); color: var(--card); }
+  .space-chip .name { font-size: 14px; font-weight: 700; }
+
+  .space-chip.add-custom {
+    border-style: dashed;
+    background: transparent;
+    justify-content: center;
+    color: var(--ink-soft);
+  }
+  .space-chip.add-custom .plus { font-size: 16px; font-weight: 700; }
+
+  /* ---- Step 3 — Plants multi-add ---- */
+
+  .added-plants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+    min-height: 52px;
+    padding: 12px;
+    background: var(--mint);
+    border-radius: var(--radius-md);
+    border: 1.5px dashed rgba(20,144,47,0.3);
+  }
+  .added-plants.empty { background: transparent; }
+  .added-plants.empty .empty-msg {
+    color: var(--ink-softer);
+    font-size: 13px;
+    font-style: italic;
+    padding: 10px;
+  }
+  .plant-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 6px;
+    background: var(--card);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-sm);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .plant-chip .avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--mint);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .plant-chip .name { color: var(--ink); }
+  .plant-chip .meta { color: var(--ink-soft); font-weight: 500; font-size: 11px; margin-left: 4px; }
+  .plant-chip .remove {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: rgba(11,58,26,0.06);
+    color: var(--ink-soft);
+    font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    margin-left: 4px;
+  }
+
+  .add-plant-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .search-input {
+    flex: 1;
+    padding: 14px 16px;
+    background: var(--base);
+    border: 1.5px solid var(--mint);
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    color: var(--ink);
+  }
+  .search-input::placeholder { color: var(--ink-softer); }
+  .search-input:focus { border-color: var(--leaf); }
+
+  .suggestions {
+    margin-top: 16px;
+    text-align: left;
+  }
+  .suggestion-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 8px;
+  }
+  .suggestion-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .suggestion-card {
+    padding: 12px;
+    background: var(--base);
+    border: 1.5px solid var(--mint);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 120ms ease;
+  }
+  .suggestion-card:hover { border-color: var(--leaf); }
+  .suggestion-card .sp-avatar {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--mint);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .suggestion-card .sp-name { font-size: 13px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+  .suggestion-card .sp-meta { font-size: 11px; color: var(--ink-soft); font-weight: 500; font-style: italic; }
+
+  /* ---- Step 4 — Environment ---- */
+
+  .space-env-card {
+    padding: 20px 24px;
+    background: var(--base);
+    border: 1.5px solid var(--mint);
+    border-radius: var(--radius-md);
+    margin-bottom: 14px;
+    text-align: left;
+  }
+  .space-env-card .head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .space-env-card .head .iconbox {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--mint); color: var(--emerald);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .space-env-card .head .space-name { font-size: 15px; font-weight: 800; color: var(--ink); }
+  .space-env-card .head .plant-count { font-size: 12px; color: var(--ink-soft); font-weight: 600; margin-left: auto; }
+  .env-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .env-row:last-child { margin-bottom: 0; }
+  .env-row label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .segment {
+    display: flex;
+    background: var(--mint);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+    gap: 3px;
+  }
+  .segment-option {
+    flex: 1;
+    padding: 8px 10px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 120ms ease;
+  }
+  .segment-option.active {
+    background: var(--card);
+    color: var(--forest);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* ---- Step 5 — Stakes ---- */
+
+  .stakes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stake-card {
+    padding: 24px 20px;
+    background: var(--base);
+    border: 1.5px solid var(--mint);
+    border-radius: var(--radius-md);
+    text-align: left;
+  }
+  .stake-card.forest {
+    background: var(--gradient-forest);
+    color: var(--card);
+    border: none;
+  }
+  .stake-card .stake-emoji { font-size: 28px; margin-bottom: 12px; display: block; }
+  .stake-card .stake-label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-soft); margin-bottom: 4px;
+  }
+  .stake-card.forest .stake-label { color: var(--lime); }
+  .stake-card .stake-value {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500;
+    font-style: italic;
+    font-size: 36px;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .stake-card.forest .stake-value { color: var(--card); }
+  .stake-card .stake-desc {
+    font-size: 12px; color: var(--ink-soft);
+    line-height: 1.4;
+  }
+  .stake-card.forest .stake-desc { color: rgba(255,255,255,0.8); }
+
+  .mood-strip {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .mood-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    background: rgba(255,255,255,0.15);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--card);
+  }
+  .mood-pill.thriving { background: var(--leaf); }
+  .mood-pill.thirsty { background: var(--sunshine); color: var(--ink); }
+  .mood-pill.wilting { background: var(--coral); }
+
+  /* ---- Step 6 — Journal seed ---- */
+
+  .journal-preview {
+    background: var(--base);
+    border: 1.5px solid var(--mint);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  .journal-entry {
+    display: flex;
+    align-items: start;
+    gap: 12px;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+  }
+  .journal-entry.system {
+    background: var(--mint);
+  }
+  .journal-entry .je-avatar {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--card);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .journal-entry .je-body .je-meta {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--emerald); margin-bottom: 2px;
+  }
+  .journal-entry .je-body .je-text {
+    font-size: 14px; font-weight: 600; color: var(--ink);
+  }
+  .journal-composer {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1.5px dashed rgba(11,58,26,0.2);
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.5);
+  }
+  .journal-composer textarea {
+    width: 100%;
+    min-height: 80px;
+    background: transparent;
+    border: none;
+    resize: none;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+  }
+  .journal-composer textarea::placeholder { color: var(--ink-softer); font-style: italic; }
+
+  /* ---- Step 7 — Welcome home ---- */
+
+  .welcome-home {
+    position: relative;
+    padding: 20px 0 40px;
+  }
+  .welcome-home .hero-illustration { margin-bottom: 16px; }
+  .welcome-home h2 { font-size: 52px; }
+  .welcome-home .sparkles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .welcome-home .sparkles span {
+    position: absolute;
+    font-size: 18px;
+    opacity: 0.5;
+  }
+  .welcome-home .cta-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    margin-top: 32px;
+  }
+
+  /* ---- Variations strip ---- */
+
+  .variations {
+    max-width: 1360px;
+    margin: 0 auto 80px;
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: var(--shadow-md);
+  }
+  .variations h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500;
+    font-style: italic;
+    font-size: 32px;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .variations .lead {
+    color: var(--ink-soft);
+    font-size: 15px;
+    margin-bottom: 32px;
+    max-width: 720px;
+  }
+  .variations table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .variations thead th {
+    text-align: left;
+    padding: 14px 12px;
+    background: var(--ink);
+    color: var(--card);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .variations thead th:first-child { border-radius: 8px 0 0 0; }
+  .variations thead th:last-child { border-radius: 0 8px 0 0; }
+  .variations tbody td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--mint);
+    vertical-align: top;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .variations tbody tr:last-child td { border-bottom: none; }
+  .variations tbody td:first-child {
+    font-weight: 800;
+    color: var(--emerald);
+    white-space: nowrap;
+    padding-right: 24px;
+  }
+  .variations td .skip { display: inline-block; padding: 2px 8px; background: var(--coral); color: var(--card); font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 4px; margin-right: 4px; }
+  .variations td .promo { display: inline-block; padding: 2px 8px; background: var(--leaf); color: var(--card); font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 4px; margin-right: 4px; }
+
+  /* ---- Design system key ---- */
+
+  .key {
+    max-width: 1360px;
+    margin: 0 auto 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .key-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: var(--shadow-sm);
+  }
+  .key-card h3 {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+  }
+  .swatch-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--base);
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .swatch .box { width: 20px; height: 20px; border-radius: 4px; border: 1px solid rgba(11,58,26,0.08); }
+
+  .type-specimen { display: flex; flex-direction: column; gap: 10px; }
+  .type-specimen .display {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500;
+    font-style: italic;
+    font-size: 32px;
+    color: var(--ink);
+    line-height: 1.05;
+  }
+  .type-specimen .sans {
+    font-family: "Plus Jakarta Sans";
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .type-specimen .body {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  /* ---- Notes ---- */
+
+  .note {
+    max-width: 1360px;
+    margin: -40px auto 56px;
+    padding: 18px 24px;
+    background: #fff8e8;
+    border-left: 4px solid var(--sunshine);
+    border-radius: 8px;
+    font-size: 13px;
+    color: #5a4010;
+    line-height: 1.55;
+  }
+  .note strong { color: #3e2a08; }
+
+  /* ---- Viewport scale-down on smaller screens ---- */
+
+  @media (max-width: 1440px) {
+    .browser { transform-origin: top center; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ========================================================= -->
+  <!-- Page header -->
+  <!-- ========================================================= -->
+  <header class="page-header">
+    <span class="eyebrow">Mockup 13 · Onboarding · Web v2</span>
+    <h1>Meet your <em>greenhouse</em></h1>
+    <p>Intent-adaptive onboarding, web-first. Eight steps under one shell. Forgetful, new-parent, sick-plant-saver, and learning variants share structure; copy and emphasis adapt to who the user said they were in Step 1. Desktop anchor targets 1512 × 982 (14" MacBook Pro scaled default). Mobile adaptation lives in a separate file.</p>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- Design system key -->
+  <!-- ========================================================= -->
+  <div class="key">
+    <div class="key-card">
+      <h3>Palette</h3>
+      <div class="swatch-row">
+        <div class="swatch"><span class="box" style="background:#f6fbf4"></span>base</div>
+        <div class="swatch"><span class="box" style="background:#dff2e2"></span>mint</div>
+        <div class="swatch"><span class="box" style="background:#86db65"></span>lime</div>
+        <div class="swatch"><span class="box" style="background:#32c456"></span>leaf</div>
+        <div class="swatch"><span class="box" style="background:#14902f"></span>emerald</div>
+        <div class="swatch"><span class="box" style="background:#0b3a1a"></span>forest</div>
+        <div class="swatch"><span class="box" style="background:#ff6b3d"></span>coral</div>
+        <div class="swatch"><span class="box" style="background:#ffb83d"></span>sunshine</div>
+      </div>
+    </div>
+    <div class="key-card">
+      <h3>Type</h3>
+      <div class="type-specimen">
+        <div class="display">Meet your <em>greenhouse</em></div>
+        <div class="sans">Plus Jakarta Sans — 800</div>
+        <div class="body">Body copy sits here, 14–16px, weight 500–600, ink-soft colour. Generous line-height for reading. Fraunces italic pops for display moments only.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- STEP 0 — Welcome -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="step-num">Step 0</span><strong>Welcome.</strong> Brand moment. Fraunces display. One CTA. Copy is calm and inclusive — no hype.
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app/welcome</div>
+    </div>
+    <div class="viewport">
+      <div class="ob-shell">
+        <div class="ob-topbar">
+          <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+          <a class="skip" href="#">Log in</a>
+        </div>
+        <div class="ob-main">
+          <div class="ob-card">
+            <div class="hero-illustration">
+              <div class="sparkle a">✧</div>
+              <div class="sparkle b">·</div>
+              <div class="sparkle c">✦</div>
+              <div class="leaves">
+                <div class="leaf"></div><div class="leaf"></div><div class="leaf"></div>
+                <div class="leaf"></div><div class="leaf"></div><div class="leaf"></div><div class="leaf"></div>
+              </div>
+              <div class="pot"></div>
+            </div>
+            <h2>Welcome to your <em>greenhouse</em></h2>
+            <p class="subhead">Care for your plants. Watch them thrive. Make some new friends along the way.</p>
+            <div class="actions">
+              <button class="btn btn-primary btn-lg">Begin →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- STEP 1 — Intent -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="step-num">Step 1</span><strong>Intent.</strong> Four cards, single select. Drives the rest of the flow. Stored on <code>User.onboarding_intent</code> for future in-app defaults.
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app/welcome/intent</div>
+    </div>
+    <div class="viewport">
+      <div class="ob-shell">
+        <div class="ob-topbar">
+          <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+          <a class="skip" href="#">Skip</a>
+        </div>
+        <div class="ob-progress">
+          Step 1 of 8
+          <div class="bar"><div class="fill" style="width: 12.5%"></div></div>
+          Intent
+        </div>
+        <div class="ob-main">
+          <div class="ob-card wide">
+            <h2>What brings you <em>here?</em></h2>
+            <p class="subhead">We'll tailor things for you. You can change your mind later.</p>
+            <div class="intent-grid">
+              <div class="intent-card selected">
+                <span class="emoji">🌵</span>
+                <h3>Forgetful</h3>
+                <p>I have plants. I keep forgetting to care for them. Help me remember.</p>
+              </div>
+              <div class="intent-card">
+                <span class="emoji">🌱</span>
+                <h3>Just starting out</h3>
+                <p>New to plants. Show me the ropes.</p>
+              </div>
+              <div class="intent-card">
+                <span class="emoji">🤒</span>
+                <h3>Something's wrong</h3>
+                <p>One of my plants isn't doing well. Help me figure it out.</p>
+              </div>
+              <div class="intent-card">
+                <span class="emoji">📚</span>
+                <h3>Browsing</h3>
+                <p>Curious. Not ready to commit yet. Let me look around.</p>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-ghost">← Back</button>
+              <button class="btn btn-primary">Continue →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- STEP 2 — Spaces -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="step-num">Step 2</span><strong>Spaces.</strong> Indoor + outdoor presets, multi-select, custom allowed. Replaces v1 "Rooms". Backend rename ships as part of the Phase 1 plan.
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app/welcome/spaces</div>
+    </div>
+    <div class="viewport">
+      <div class="ob-shell">
+        <div class="ob-topbar">
+          <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+          <a class="skip" href="#">Skip</a>
+        </div>
+        <div class="ob-progress">
+          Step 2 of 8
+          <div class="bar"><div class="fill" style="width: 25%"></div></div>
+          Spaces
+        </div>
+        <div class="ob-main">
+          <div class="ob-card wide">
+            <h2>Where do your plants <em>live?</em></h2>
+            <p class="subhead">Pick the spaces you grow in. Add your own if we missed one.</p>
+            <div class="form-area">
+              <div class="spaces-group-label">
+                🏠 Indoor
+              </div>
+              <div class="spaces-grid">
+                <button class="space-chip selected"><span class="iconbox">🛋️</span><span class="name">Living Room</span></button>
+                <button class="space-chip selected"><span class="iconbox">🍳</span><span class="name">Kitchen</span></button>
+                <button class="space-chip"><span class="iconbox">🛏️</span><span class="name">Bedroom</span></button>
+                <button class="space-chip"><span class="iconbox">🚿</span><span class="name">Bathroom</span></button>
+                <button class="space-chip"><span class="iconbox">💻</span><span class="name">Office</span></button>
+                <button class="space-chip"><span class="iconbox">🪜</span><span class="name">Hallway</span></button>
+                <button class="space-chip"><span class="iconbox">📚</span><span class="name">Study</span></button>
+                <button class="space-chip"><span class="iconbox">🪴</span><span class="name">Conservatory</span></button>
+              </div>
+
+              <div class="spaces-group-label">
+                🌳 Outdoor
+              </div>
+              <div class="spaces-grid">
+                <button class="space-chip selected"><span class="iconbox">☕</span><span class="name">Patio</span></button>
+                <button class="space-chip"><span class="iconbox">🏙️</span><span class="name">Balcony</span></button>
+                <button class="space-chip"><span class="iconbox">🌱</span><span class="name">Garden bed</span></button>
+                <button class="space-chip"><span class="iconbox">🚪</span><span class="name">Front yard</span></button>
+                <button class="space-chip"><span class="iconbox">🌿</span><span class="name">Greenhouse</span></button>
+                <button class="space-chip add-custom"><span class="plus">+</span><span class="name">Add custom</span></button>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-ghost">← Back</button>
+              <button class="btn btn-primary">Continue →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Note on outdoor in Phase 1.</strong> Outdoor spaces exist from Day 1 but weather-aware care waits for Phase 2. A user who picks Patio today schedules watering manually; when we ship the weather API, rain-awareness kicks in for existing outdoor plants without migration.
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- STEP 3 — Plants (multi-add) -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="step-num">Step 3</span><strong>Plants — multi-add.</strong> Collection-first framing. Added plants appear inline as chips; search + suggestions feed the chip list. "Add another" is the expected action. Forgetful intent shows this; Sick-Plant-Saver swaps in a single-plant variant; Learning can skip entirely.
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app/welcome/plants</div>
+    </div>
+    <div class="viewport">
+      <div class="ob-shell">
+        <div class="ob-topbar">
+          <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+          <a class="skip" href="#">Skip</a>
+        </div>
+        <div class="ob-progress">
+          Step 3 of 8
+          <div class="bar"><div class="fill" style="width: 37.5%"></div></div>
+          Plants
+        </div>
+        <div class="ob-main">
+          <div class="ob-card wide">
+            <h2>Meet your <em>plants</em></h2>
+            <p class="subhead">Add as many as you want — you can always add more later.</p>
+            <div class="form-area">
+              <div class="added-plants">
+                <span class="plant-chip">
+                  <span class="avatar">🎭</span>
+                  <span class="name">Monty</span>
+                  <span class="meta">Monstera · Living Room</span>
+                  <span class="remove">×</span>
+                </span>
+                <span class="plant-chip">
+                  <span class="avatar">🌵</span>
+                  <span class="name">Spike</span>
+                  <span class="meta">Cactus · Kitchen</span>
+                  <span class="remove">×</span>
+                </span>
+                <span class="plant-chip">
+                  <span class="avatar">🪴</span>
+                  <span class="name">Basil</span>
+                  <span class="meta">Basil · Patio</span>
+                  <span class="remove">×</span>
+                </span>
+              </div>
+              <div class="add-plant-row">
+                <input class="search-input" type="search" placeholder="Search for a plant — type a common or scientific name">
+                <button class="btn btn-secondary">+ Add</button>
+              </div>
+              <div class="suggestions">
+                <div class="suggestion-label">Popular houseplants</div>
+                <div class="suggestion-grid">
+                  <div class="suggestion-card">
+                    <span class="sp-avatar">🌿</span>
+                    <div>
+                      <div class="sp-name">Snake Plant</div>
+                      <div class="sp-meta">Sansevieria</div>
+                    </div>
+                  </div>
+                  <div class="suggestion-card">
+                    <span class="sp-avatar">🍃</span>
+                    <div>
+                      <div class="sp-name">Pothos</div>
+                      <div class="sp-meta">Epipremnum</div>
+                    </div>
+                  </div>
+                  <div class="suggestion-card">
+                    <span class="sp-avatar">🌱</span>
+                    <div>
+                      <div class="sp-name">Spider Plant</div>
+                      <div class="sp-meta">Chlorophytum</div>
+                    </div>
+                  </div>
+                  <div class="suggestion-card">
+                    <span class="sp-avatar">☘️</span>
+                    <div>
+                      <div class="sp-name">ZZ Plant</div>
+                      <div class="sp-meta">Zamioculcas</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-ghost">← Back</button>
+              <button class="btn btn-primary">Continue with 3 plants →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- STEP 4 — Environment -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="step-num">Step 4</span><strong>Environment per space.</strong> Light / temperature / humidity set once per space. All plants living there inherit the defaults. Phase 1 uses the indoor-biased controls for both indoor and outdoor; Phase 2 will swap the outdoor cards for season/frost/sun controls.
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app/welcome/environment</div>
+    </div>
+    <div class="viewport">
+      <div class="ob-shell">
+        <div class="ob-topbar">
+          <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+          <a class="skip" href="#">Skip</a>
+        </div>
+        <div class="ob-progress">
+          Step 4 of 8
+          <div class="bar"><div class="fill" style="width: 50%"></div></div>
+          Environment
+        </div>
+        <div class="ob-main">
+          <div class="ob-card wide">
+            <h2>How do your spaces <em>feel?</em></h2>
+            <p class="subhead">We use this to plan watering. Rough is fine — we'll learn as we go.</p>
+            <div class="form-area">
+              <div class="space-env-card">
+                <div class="head">
+                  <span class="iconbox">🛋️</span>
+                  <span class="space-name">Living Room</span>
+                  <span class="plant-count">1 plant · Monty</span>
+                </div>
+                <div class="env-row">
+                  <label>Light</label>
+                  <div class="segment">
+                    <div class="segment-option">Low</div>
+                    <div class="segment-option active">Medium</div>
+                    <div class="segment-option">Bright</div>
+                  </div>
+                </div>
+                <div class="env-row">
+                  <label>Temperature</label>
+                  <div class="segment">
+                    <div class="segment-option">Cool</div>
+                    <div class="segment-option active">Average</div>
+                    <div class="segment-option">Warm</div>
+                  </div>
+                </div>
+                <div class="env-row">
+                  <label>Humidity</label>
+                  <div class="segment">
+                    <div class="segment-option">Dry</div>
+                    <div class="segment-option active">Average</div>
+                    <div class="segment-option">Humid</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-env-card">
+                <div class="head">
+                  <span class="iconbox">🍳</span>
+                  <span class="space-name">Kitchen</span>
+                  <span class="plant-count">1 plant · Spike</span>
+                </div>
+                <div class="env-row">
+                  <label>Light</label>
+                  <div class="segment">
+                    <div class="segment-option">Low</div>
+                    <div class="segment-option">Medium</div>
+                    <div class="segment-option active">Bright</div>
+                  </div>
+                </div>
+                <div class="env-row">
+                  <label>Temperature</label>
+                  <div class="segment">
+                    <div class="segment-option">Cool</div>
+                    <div class="segment-option active">Average</div>
+                    <div class="segment-option">Warm</div>
+                  </div>
+                </div>
+                <div class="env-row">
+                  <label>Humidity</label>
+                  <div class="segment">
+                    <div class="segment-option active">Dry</div>
+                    <div class="segment-option">Average</div>
+                    <div class="segment-option">Humid</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-env-card">
+                <div class="head">
+                  <span class="iconbox">☕</span>
+                  <span class="space-name">Patio</span>
+                  <span class="plant-count">1 plant · Basil · <em>outdoor</em></span>
+                </div>
+                <div class="env-row">
+                  <label>Light</label>
+                  <div class="segment">
+                    <div class="segment-option">Low</div>
+                    <div class="segment-option">Medium</div>
+                    <div class="segment-option active">Bright</div>
+                  </div>
+                </div>
+                <div class="env-row">
+                  <label>Temperature</label>
+                  <div class="segment">
+                    <div class="segment-option">Cool</div>
+                    <div class="segment-option active">Average</div>
+                    <div class="segment-option">Warm</div>
+                  </div>
+                </div>
+                <div class="env-row">
+                  <label>Humidity</label>
+                  <div class="segment">
+                    <div class="segment-option">Dry</div>
+                    <div class="segment-option active">Average</div>
+                    <div class="segment-option">Humid</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-ghost">← Back</button>
+              <button class="btn btn-primary">Continue →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- STEP 5 — Stakes -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="step-num">Step 5</span><strong>Stakes.</strong> Introduces the game loop in 10 seconds. Only Forgetful + New Parent see this step; Sick Plant and Learning skip straight to journal seed or the end. Three cards, one sentence, no scrolling.
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app/welcome/stakes</div>
+    </div>
+    <div class="viewport">
+      <div class="ob-shell">
+        <div class="ob-topbar">
+          <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+          <a class="skip" href="#">Skip</a>
+        </div>
+        <div class="ob-progress">
+          Step 5 of 8
+          <div class="bar"><div class="fill" style="width: 62.5%"></div></div>
+          Stakes
+        </div>
+        <div class="ob-main">
+          <div class="ob-card wide">
+            <h2>Here's how this <em>works</em></h2>
+            <p class="subhead">Care consistently, things stay green. Miss a beat, things start to slip. You can always recover.</p>
+            <div class="stakes-grid">
+              <div class="stake-card">
+                <span class="stake-emoji">🔥</span>
+                <div class="stake-label">Streak</div>
+                <div class="stake-value">Day 1</div>
+                <div class="stake-desc">Any care action keeps your streak alive. One grace day per week.</div>
+              </div>
+              <div class="stake-card forest">
+                <span class="stake-emoji">💚</span>
+                <div class="stake-label">Greenhouse vitality</div>
+                <div class="stake-value">100<span style="font-size: 20px; opacity: 0.5; font-family: 'Plus Jakarta Sans'; font-style: normal;">%</span></div>
+                <div class="stake-desc">Average health across your plants. Feed it care.</div>
+              </div>
+              <div class="stake-card">
+                <span class="stake-emoji">🌾</span>
+                <div class="stake-label">Per-plant mood</div>
+                <div class="stake-value" style="font-size: 24px; padding-top: 8px;">Every plant has one</div>
+                <div class="mood-strip">
+                  <span class="mood-pill thriving">thriving</span>
+                  <span class="mood-pill thirsty">thirsty</span>
+                  <span class="mood-pill wilting">wilting</span>
+                </div>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-ghost">← Back</button>
+              <button class="btn btn-primary">Got it →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- STEP 6 — Journal seed -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="step-num">Step 6</span><strong>Journal seed.</strong> System event already exists for each plant that joined ("Monty joined your greenhouse · Day 1"). Optional composer nudges the user to write their first entry. Writing is opt-in — the step is about showing the feature exists, not gating progress.
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app/welcome/journal</div>
+    </div>
+    <div class="viewport">
+      <div class="ob-shell">
+        <div class="ob-topbar">
+          <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+          <a class="skip" href="#">Skip</a>
+        </div>
+        <div class="ob-progress">
+          Step 6 of 8
+          <div class="bar"><div class="fill" style="width: 75%"></div></div>
+          Journal
+        </div>
+        <div class="ob-main">
+          <div class="ob-card">
+            <h2>The greenhouse journal <em>starts now</em></h2>
+            <p class="subhead">We'll mark moments as they happen. You write the rest — when you want, how you want.</p>
+            <div class="form-area">
+              <div class="journal-preview">
+                <div class="journal-entry system">
+                  <span class="je-avatar">🎭</span>
+                  <div class="je-body">
+                    <div class="je-meta">System · just now</div>
+                    <div class="je-text">Monty joined your greenhouse · Day 1</div>
+                  </div>
+                </div>
+                <div class="journal-entry system" style="margin-top: 8px;">
+                  <span class="je-avatar">🌵</span>
+                  <div class="je-body">
+                    <div class="je-meta">System · just now</div>
+                    <div class="je-text">Spike joined your greenhouse · Day 1</div>
+                  </div>
+                </div>
+                <div class="journal-entry system" style="margin-top: 8px;">
+                  <span class="je-avatar">🪴</span>
+                  <div class="je-body">
+                    <div class="je-meta">System · just now</div>
+                    <div class="je-text">Basil joined your greenhouse · Day 1</div>
+                  </div>
+                </div>
+
+                <div class="journal-composer">
+                  <textarea placeholder="Write the first entry… Who are they? Why these plants? Take a picture now and it lands in here." ></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-ghost">Skip for now</button>
+              <button class="btn btn-primary">Save &amp; continue →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- STEP 7 — Welcome home -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="step-num">Step 7</span><strong>Welcome home.</strong> Payoff moment. Fraunces display, name personalisation, single hero illustration in a thriving state, no voice quote. CTA routes by intent — Forgetful / New Parent → Today; Sick Plant Saver → Diagnose; Learning → Encyclopedia + Today as secondary.
+  </div>
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <div class="url">plantcare.app/welcome/done</div>
+    </div>
+    <div class="viewport">
+      <div class="ob-shell">
+        <div class="ob-topbar">
+          <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+        </div>
+        <div class="ob-main">
+          <div class="ob-card welcome-home">
+            <div class="sparkles">
+              <span style="top: 10%; left: 15%;">✦</span>
+              <span style="top: 18%; right: 12%;">✧</span>
+              <span style="top: 30%; left: 8%;">·</span>
+              <span style="bottom: 28%; right: 20%;">✦</span>
+              <span style="bottom: 20%; left: 18%;">✧</span>
+            </div>
+            <div class="hero-illustration">
+              <div class="leaves">
+                <div class="leaf"></div><div class="leaf"></div><div class="leaf"></div>
+                <div class="leaf"></div><div class="leaf"></div><div class="leaf"></div><div class="leaf"></div>
+              </div>
+              <div class="pot"></div>
+            </div>
+            <h2>You're <em>all set</em>, Rob.</h2>
+            <p class="subhead">Your greenhouse has three residents and they're ready to be known. Come meet them.</p>
+            <div class="cta-stack">
+              <button class="btn btn-primary btn-lg">Enter your greenhouse →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Per-intent variations -->
+  <!-- ========================================================= -->
+  <div class="variations">
+    <h2>How each step <em>adapts</em> per intent</h2>
+    <p class="lead">One wizard, four paths. Copy, emphasis, and the Welcome-Home CTA differ by the answer given in Step 1. Same steps in the same order; per-intent config drives content. User.onboarding_intent persists after onboarding — it shapes in-app defaults later too (widget priority, prompt language, suggested jobs).</p>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 130px;">Step</th>
+          <th>🌵 Forgetful</th>
+          <th>🌱 Just starting</th>
+          <th>🤒 Something's wrong</th>
+          <th>📚 Browsing</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2 · Spaces</td>
+          <td>Fast preset grid.</td>
+          <td>Walk-through copy — "plants need a home; where will yours live?"</td>
+          <td>Fast preset grid.</td>
+          <td>Minimal. Skippable.</td>
+        </tr>
+        <tr>
+          <td>3 · Plants</td>
+          <td>"Add the plants you already have" · multi-add default.</td>
+          <td>"Pick your first plant(s)" · easy-care gallery surfaced.</td>
+          <td><span class="skip">single-add</span>Just one plant — the one you're worried about.</td>
+          <td>"Meet some species" · gallery-first · add optional.</td>
+        </tr>
+        <tr>
+          <td>4 · Environment</td>
+          <td>Batch defaults. Fast.</td>
+          <td>Walk-through each space w/ copy explaining why.</td>
+          <td>Pre-filled defaults · single space focus.</td>
+          <td>Same as Just starting.</td>
+        </tr>
+        <tr>
+          <td>5 · Stakes</td>
+          <td><span class="promo">promoted</span>Streak + vitality as core framing.</td>
+          <td>Soft intro — "here's what we track, no pressure".</td>
+          <td><span class="skip">skipped</span>Not the priority right now.</td>
+          <td><span class="skip">skipped</span>Browse first, stakes later.</td>
+        </tr>
+        <tr>
+          <td>6 · Journal</td>
+          <td>Quick system events + optional compose.</td>
+          <td>Explains what journal is. Quiet invitation.</td>
+          <td>Creates a "recovery thread" entry for the worried plant.</td>
+          <td>Quick create.</td>
+        </tr>
+        <tr>
+          <td>7 · Welcome home</td>
+          <td>CTA: <strong>Enter your greenhouse</strong></td>
+          <td>CTA: <strong>Enter your greenhouse</strong> · sub: "take your time"</td>
+          <td>CTA: <strong>Let's check on that plant</strong> → Diagnose</td>
+          <td>CTA: <strong>Explore the library</strong> · sub: Enter greenhouse</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Closing notes -->
+  <!-- ========================================================= -->
+  <div class="note" style="margin-top: 0;">
+    <strong>What's deliberately not in this mockup.</strong> No templated plant-voice copy on any step — Step 7 keeps the one-off welcome quote from v1 only if it survives its own review later; Step 5 Stakes is entirely visual + user-facing. No mobile adaptation — that's a separate file. No hover-only interactions beyond minor lift on buttons; every affordance works on tap so the design ports to React Native later. Illustration is a placeholder pot + leaves; real plant portraits come later (raster CDN assets per v2 §3.1i).
+  </div>
+
+</div>
+</body>
+</html>

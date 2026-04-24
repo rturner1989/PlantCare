@@ -84,4 +84,40 @@ describe('SegmentedControl', () => {
       expect(screen.getByRole('radiogroup', { name: 'Light' })).toBeInTheDocument()
     })
   })
+
+  describe('disabled options', () => {
+    it('marks a disabled option as disabled on the native radio', () => {
+      render(
+        <SegmentedControl
+          label="View"
+          value="rooms"
+          onChange={() => {}}
+          options={[
+            { value: 'rooms', label: 'Rooms' },
+            { value: 'list', label: 'List' },
+            { value: 'greenhouse', label: 'Greenhouse', disabled: true },
+          ]}
+        />,
+      )
+      expect(screen.getByRole('radio', { name: 'Greenhouse' })).toBeDisabled()
+      expect(screen.getByRole('radio', { name: 'Rooms' })).not.toBeDisabled()
+    })
+
+    it('does not fire onChange when a disabled option is clicked', async () => {
+      const handleChange = vi.fn()
+      render(
+        <SegmentedControl
+          label="View"
+          value="rooms"
+          onChange={handleChange}
+          options={[
+            { value: 'rooms', label: 'Rooms' },
+            { value: 'greenhouse', label: 'Greenhouse', disabled: true },
+          ]}
+        />,
+      )
+      await userEvent.click(screen.getByRole('radio', { name: 'Greenhouse' }))
+      expect(handleChange).not.toHaveBeenCalled()
+    })
+  })
 })

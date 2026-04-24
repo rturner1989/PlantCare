@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — Auth pages · both viewports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --paper-deep: #f3eee2;
+    --paper-edge: #e8ddc6;
+    --mint: #dff2e2;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --coral-deep: #c4412a;
+    --sunshine: #ffb83d;
+    --shadow-warm-sm: 0 2px 10px rgba(80,56,18,0.07), 0 0 0 1px rgba(80,56,18,0.025);
+    --shadow-warm-md: 0 18px 40px rgba(80,56,18,0.10), 0 2px 8px rgba(80,56,18,0.04);
+    --shadow-warm-lg: 0 36px 80px -8px rgba(80,56,18,0.18), 0 6px 16px rgba(80,56,18,0.06);
+    --shadow-cta: 0 6px 16px rgba(20,144,47,0.32), inset 0 1px 0 rgba(255,255,255,0.3);
+    --shadow-medallion: 0 30px 60px -12px rgba(11,58,26,0.28), inset 0 0 0 1px rgba(11,58,26,0.08);
+    --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #eff7e6 55%, #e4efd5 100%);
+    --gradient-paper: linear-gradient(180deg, #fbf8f1 0%, #f6f0e0 100%);
+    --gradient-display: linear-gradient(130deg, #0b3a1a 0%, #14902f 60%, #32c456 100%);
+    --gradient-brand: linear-gradient(135deg, #32c456, #14902f);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #ecece0;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+  .page { max-width: 1440px; margin: 0 auto; }
+  .page-header { text-align: center; margin-bottom: 56px; }
+  .page-header .eyebrow {
+    display: inline-block; padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 64px; letter-spacing: -0.035em;
+    line-height: 1; margin-bottom: 18px;
+  }
+  .page-header h1 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .page-header p {
+    font-size: 17px; color: var(--ink-soft);
+    max-width: 760px; margin: 0 auto; line-height: 1.6;
+  }
+  .step-caption {
+    max-width: 1360px; margin: 48px auto 14px; padding: 0 8px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .step-caption .tag {
+    display: inline-block; padding: 4px 12px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .step-caption h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 32px; letter-spacing: -0.02em;
+  }
+  .step-caption .spec {
+    margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600;
+  }
+  .step-row {
+    display: flex; gap: 40px; align-items: flex-start;
+    justify-content: center; flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  /* Browser frame */
+  .browser {
+    background: #f5f1e8;
+    border-radius: 16px;
+    box-shadow: var(--shadow-warm-lg);
+    overflow: hidden;
+    border: 1px solid rgba(80,56,18,0.1);
+    width: 960px;
+    flex-shrink: 0;
+  }
+  .browser .chrome {
+    height: 38px; background: #ede6d5;
+    border-bottom: 1px solid rgba(80,56,18,0.1);
+    display: flex; align-items: center; padding: 0 14px; gap: 8px;
+  }
+  .browser .chrome .dots { display: flex; gap: 6px; }
+  .browser .chrome .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .browser .chrome .dot-r { background: #ff5f57; }
+  .browser .chrome .dot-y { background: #febc2e; }
+  .browser .chrome .dot-g { background: #28c840; }
+  .browser .chrome .url {
+    flex: 1; margin: 0 14px; height: 22px;
+    background: var(--paper);
+    border: 1px solid rgba(80,56,18,0.08);
+    border-radius: 5px;
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 11px; color: var(--ink-softer);
+    font-family: "SF Mono", Consolas, monospace;
+  }
+  .browser .viewport {
+    height: 780px;
+    background: var(--gradient-mint);
+    position: relative; overflow: hidden;
+  }
+  .browser .viewport::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+
+  /* iPhone */
+  .phone {
+    width: 413px; height: 872px;
+    background: #0a0a0a;
+    border-radius: 56px; padding: 10px;
+    box-shadow: 0 0 0 2px #2a2a2a, 0 36px 80px -8px rgba(11,58,26,0.3), 0 12px 24px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+  }
+  .phone .screen {
+    width: 393px; height: 852px;
+    border-radius: 48px;
+    background: var(--gradient-mint);
+    overflow: hidden; position: relative;
+  }
+  .phone .screen::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+  .phone .island {
+    position: absolute; top: 21px; left: 50%;
+    transform: translateX(-50%);
+    width: 123px; height: 37px;
+    background: #000; border-radius: 100px;
+    z-index: 40;
+  }
+  .phone .status-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 30px 0;
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    z-index: 30; pointer-events: none;
+  }
+
+  /* Blobs */
+  .blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(70px);
+    pointer-events: none; z-index: 0;
+    opacity: 0.5;
+  }
+  .blob-mint { background: rgba(134,219,101,0.35); }
+  .blob-sun { background: rgba(255,184,61,0.25); }
+
+  /* Logo */
+  .logo {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 20px; letter-spacing: -0.01em;
+    color: var(--ink); text-decoration: none;
+  }
+  .logo-mark {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--gradient-brand);
+    position: relative;
+    box-shadow: inset 0 0 0 2px var(--paper);
+  }
+  .logo-mark::after {
+    content: ""; position: absolute; inset: 8px;
+    border-radius: 50%; background: var(--paper);
+  }
+  .logo em { font-family: "Fraunces"; font-style: italic; font-weight: 400; color: var(--emerald); }
+
+  /* Auth shell — 2 columns: marketing left, form right */
+  .auth-shell {
+    width: 100%; height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative; z-index: 3;
+  }
+  .auth-marketing {
+    position: relative;
+    padding: 36px 44px;
+    background: linear-gradient(160deg, #1a5e2a 0%, #0b3a1a 50%, #124626 100%);
+    color: var(--paper);
+    display: flex; flex-direction: column;
+    gap: 24px;
+    overflow: hidden;
+  }
+  .auth-marketing::before {
+    content: "";
+    position: absolute;
+    top: -140px; right: -160px;
+    width: 460px; height: 460px; border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(255,184,61,0.28), transparent 55%);
+    pointer-events: none;
+  }
+  .auth-marketing::after {
+    content: "";
+    position: absolute;
+    bottom: -180px; left: -100px;
+    width: 420px; height: 420px; border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(134,219,101,0.22), transparent 55%);
+    pointer-events: none;
+  }
+  .auth-marketing > * { position: relative; z-index: 1; }
+  .auth-marketing .logo { color: var(--paper); }
+  .auth-marketing .logo em { color: var(--lime, #86db65); }
+  .auth-marketing .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 4px 12px;
+    background: rgba(255,255,255,0.14);
+    border-radius: var(--radius-full);
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+    width: fit-content;
+  }
+  .auth-marketing .eyebrow .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--sunshine);
+  }
+  .auth-marketing h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 54px; letter-spacing: -0.03em;
+    line-height: 1.02;
+    max-width: 360px;
+  }
+  .auth-marketing h1 em {
+    background: linear-gradient(135deg, #ffe5aa, var(--sunshine));
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .auth-marketing .pitch {
+    font-size: 16px; color: rgba(255,255,255,0.78);
+    max-width: 360px; line-height: 1.55;
+  }
+  .auth-marketing .peek {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-top: auto;
+  }
+  .peek-pill {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px 8px 8px;
+    background: rgba(255,255,255,0.12);
+    border-radius: var(--radius-full);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    font-size: 12px; font-weight: 600;
+    color: rgba(255,255,255,0.88);
+    width: fit-content;
+  }
+  .peek-pill .p-av {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--gradient-paper);
+    color: var(--forest);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .peek-pill em {
+    font-family: "Fraunces"; font-style: italic;
+    color: var(--sunshine);
+  }
+  .auth-marketing .support {
+    font-size: 11px; color: rgba(255,255,255,0.45);
+    font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+
+  .auth-form-wrap {
+    padding: 56px 48px;
+    position: relative;
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .auth-form-wrap::-webkit-scrollbar { display: none; }
+  .auth-form-wrap .top-nav {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; color: var(--ink-soft); font-weight: 600;
+    margin-bottom: auto;
+  }
+  .auth-form-wrap .top-nav .back-link {
+    color: var(--emerald);
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .auth-form-wrap .top-nav .back-link:hover { text-decoration: underline; }
+
+  .auth-card {
+    max-width: 380px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .auth-card .card-eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--emerald);
+    margin-bottom: 8px;
+  }
+  .auth-card .card-eyebrow .dot-concentric {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.2);
+  }
+  .auth-card h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 40px; letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .auth-card h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .auth-card .subtitle {
+    font-size: 14px; color: var(--ink-soft); line-height: 1.55;
+    margin-bottom: 22px;
+  }
+
+  .field {
+    display: flex; flex-direction: column; gap: 5px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .field .f-label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .field input {
+    padding: 12px 16px;
+    background: var(--paper);
+    border: 1.5px solid var(--paper-edge);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 14px; color: var(--ink);
+    outline: none;
+    transition: border-color 140ms ease, box-shadow 140ms ease;
+  }
+  .field input::placeholder { color: var(--ink-softer); }
+  .field input:focus {
+    border-color: var(--emerald);
+    box-shadow: 0 0 0 4px rgba(20,144,47,0.12);
+  }
+  .field.with-meta input { padding-right: 76px; }
+  .field .f-meta {
+    position: absolute; right: 12px; top: calc(50% + 6px);
+    transform: translateY(-50%);
+    font-size: 11px; font-weight: 700;
+    color: var(--ink-softer);
+  }
+  .field .f-meta.ok { color: var(--emerald); }
+  .field .f-meta.warn { color: var(--coral-deep); }
+  .field .f-hint {
+    font-size: 11px; color: var(--ink-softer);
+    font-style: italic;
+    font-family: "Fraunces"; font-weight: 400;
+  }
+  .field .f-error {
+    font-size: 11px; color: var(--coral-deep); font-weight: 700;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .checkbox-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 0;
+    margin-bottom: 12px;
+    font-size: 12px; color: var(--ink-soft); font-weight: 600;
+  }
+  .checkbox-row .cb {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: 1.5px solid var(--paper-edge);
+    background: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .checkbox-row .cb.checked {
+    background: var(--emerald);
+    border-color: var(--emerald);
+    color: var(--paper);
+    font-size: 13px; font-weight: 800;
+  }
+  .checkbox-row .cb.checked::after { content: "✓"; }
+  .checkbox-row a { color: var(--emerald); text-decoration: none; font-weight: 700; }
+  .checkbox-row a:hover { text-decoration: underline; }
+
+  .forgot-link {
+    display: block; text-align: right;
+    font-size: 12px; color: var(--emerald);
+    text-decoration: none; font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .forgot-link:hover { text-decoration: underline; }
+
+  .cta {
+    width: 100%;
+    padding: 14px 20px;
+    background: var(--gradient-brand); color: var(--paper);
+    border-radius: var(--radius-full);
+    border: none; font-family: inherit;
+    font-size: 14px; font-weight: 800;
+    cursor: pointer;
+    box-shadow: var(--shadow-cta);
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .cta .arrow {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(255,255,255,0.22);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+
+  .divider {
+    display: flex; align-items: center; gap: 14px;
+    margin: 18px 0;
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-softer);
+  }
+  .divider::before, .divider::after {
+    content: "";
+    flex: 1; height: 1px;
+    background: var(--paper-edge);
+  }
+
+  .social-row { display: flex; flex-direction: column; gap: 8px; }
+  .social-btn {
+    padding: 11px 18px;
+    background: var(--paper);
+    border: 1.5px solid var(--paper-edge);
+    border-radius: var(--radius-full);
+    font-family: inherit;
+    font-size: 13px; font-weight: 700; color: var(--ink);
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .social-btn:hover { border-color: var(--ink-softer); }
+  .social-btn .sb-icon { font-size: 16px; line-height: 1; }
+
+  .switch-line {
+    text-align: center;
+    font-size: 13px; color: var(--ink-soft);
+    font-weight: 600;
+    margin-top: 22px;
+  }
+  .switch-line a {
+    color: var(--emerald); text-decoration: none;
+    font-weight: 800;
+  }
+  .switch-line a:hover { text-decoration: underline; }
+
+  .auth-form-wrap .fine-print {
+    margin-top: auto;
+    padding-top: 20px;
+    font-size: 11px; color: var(--ink-softer); font-weight: 600;
+    text-align: center;
+  }
+  .auth-form-wrap .fine-print a { color: var(--ink-soft); text-decoration: underline dotted; }
+
+  /* Banner (success/error inline) */
+  .inline-banner {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    font-size: 12px; font-weight: 600;
+    margin-bottom: 14px;
+    line-height: 1.45;
+  }
+  .inline-banner.success {
+    background: var(--mint); color: var(--forest);
+    box-shadow: inset 0 0 0 1px rgba(20,144,47,0.2);
+  }
+  .inline-banner .b-icon {
+    width: 26px; height: 26px; border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+  .inline-banner.success .b-icon { background: var(--emerald); color: var(--paper); }
+  .inline-banner.error {
+    background: rgba(255,107,61,0.12); color: var(--coral-deep);
+    box-shadow: inset 0 0 0 1px rgba(196,65,42,0.25);
+  }
+  .inline-banner.error .b-icon { background: var(--coral-deep); color: var(--paper); }
+
+  /* ================= MOBILE ================= */
+
+  .m-auth {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    padding: 68px 22px 32px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    z-index: 5;
+  }
+  .m-auth::-webkit-scrollbar { display: none; }
+  .m-auth .m-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .m-auth .m-top .back-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; color: var(--emerald); font-weight: 700;
+    text-decoration: none;
+  }
+  .m-auth-card {
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+    padding: 28px 24px;
+    margin-top: 12px;
+  }
+  .m-auth-card .card-eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--emerald);
+    margin-bottom: 6px;
+  }
+  .m-auth-card .card-eyebrow .dot-concentric {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 2.5px rgba(20,144,47,0.2);
+  }
+  .m-auth-card h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 30px; letter-spacing: -0.025em;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .m-auth-card h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .m-auth-card .subtitle {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.5;
+    margin-bottom: 18px;
+  }
+  .m-auth .tiny-brand {
+    text-align: center; font-size: 11px; color: var(--ink-softer);
+    font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    margin-top: 14px;
+  }
+  .m-auth .tiny-brand em { font-family: "Fraunces"; font-style: italic; color: var(--emerald); text-transform: none; letter-spacing: 0; }
+
+  /* note + wrap-up */
+  .note {
+    max-width: 1360px; margin: 32px auto;
+    padding: 18px 24px;
+    background: rgba(251,248,241,0.5);
+    border: 1px dashed rgba(80,56,18,0.2);
+    border-radius: var(--radius-md);
+    font-size: 13px; color: var(--ink-soft); line-height: 1.7;
+  }
+  .note strong { color: var(--ink); font-weight: 800; }
+  .wrap-up {
+    max-width: 1360px;
+    margin: 64px auto 0;
+    padding: 36px 48px 44px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+  }
+  .wrap-up h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 28px; letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .wrap-up h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .wrap-up p { font-size: 14px; color: var(--ink-soft); line-height: 1.7; margin-bottom: 18px; }
+  .wrap-up .key-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .wrap-up .key-list li {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.55;
+    padding-left: 24px; position: relative;
+  }
+  .wrap-up .key-list li::before {
+    content: ""; position: absolute; left: 6px; top: 7px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.15);
+  }
+  .wrap-up .key-list li strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--ink); font-size: 14px; margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <span class="eyebrow">Mockup 29 · Auth · both viewports</span>
+    <h1>Sign in without <em>ceremony</em></h1>
+    <p>Login, Register, Password reset — three forms that share one layout. Desktop: split two-panel (forest-gradient marketing panel on the left, paper form on the right). Mobile: paper card centred on the mint gradient. No heroic multi-step — auth should take seconds, not minutes. Minimum fields, clear copy, one primary action.</p>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- Login -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Form 1 of 3</span>
+    <h2>Login</h2>
+    <span class="spec">· email + password · forgot link · social sign-in · switch to register</span>
+  </div>
+
+  <div class="step-row">
+
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/login</div>
+      </div>
+      <div class="viewport">
+        <div class="auth-shell">
+          <aside class="auth-marketing">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+
+            <span class="eyebrow"><span class="dot"></span>Welcome back</span>
+            <h1>Your greenhouse <em>missed you</em></h1>
+            <p class="pitch">Pick up where you left off. Monty's been dramatic. Basil's almost ready to harvest. Rosemary is just vibing.</p>
+
+            <div class="peek">
+              <div class="peek-pill">
+                <span class="p-av">🌿</span>
+                <span><em>Monty</em> needs watering · 3d overdue</span>
+              </div>
+              <div class="peek-pill">
+                <span class="p-av">🎂</span>
+                <span><em>Basil</em> · 30 days with you today</span>
+              </div>
+              <div class="peek-pill">
+                <span class="p-av">🌧</span>
+                <span>Rain Sunday · outdoor schedule shifted</span>
+              </div>
+            </div>
+
+            <div class="support">· 12 plants · 5 spaces · 7-day streak ·</div>
+          </aside>
+
+          <div class="auth-form-wrap">
+            <div class="top-nav">
+              <span>No account yet?</span>
+              <a href="#" class="back-link" style="color: var(--emerald);">Sign up →</a>
+            </div>
+
+            <div class="auth-card">
+              <span class="card-eyebrow"><span class="dot-concentric"></span>Sign in</span>
+              <h2>Welcome <em>back</em></h2>
+              <p class="subtitle">Enter your email and password. Streak stays safe — we won't count you late for today.</p>
+
+              <div class="field">
+                <label class="f-label">Email</label>
+                <input type="email" value="rturner1989@outlook.com"/>
+              </div>
+
+              <div class="field">
+                <label class="f-label">Password</label>
+                <input type="password" value="••••••••••••"/>
+              </div>
+
+              <a href="#" class="forgot-link">Forgot your password?</a>
+
+              <button class="cta">Sign in<span class="arrow">→</span></button>
+
+              <div class="divider">or</div>
+
+              <div class="social-row">
+                <button class="social-btn"><span class="sb-icon"></span>Continue with Google</button>
+                <button class="social-btn"><span class="sb-icon"></span>Continue with Apple</button>
+              </div>
+            </div>
+
+            <div class="fine-print">
+              By signing in you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy</a>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Login -->
+    <div class="phone">
+      <div class="screen">
+        <div class="blob blob-mint" style="width: 280px; height: 280px; top: -100px; right: -100px;"></div>
+        <div class="blob blob-sun" style="width: 220px; height: 220px; bottom: -60px; left: -60px;"></div>
+        <div class="island"></div>
+        <div class="status-bar"><span>9:41</span></div>
+
+        <div class="m-auth">
+          <div class="m-top">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <a href="#" class="back-link">Sign up →</a>
+          </div>
+
+          <div class="m-auth-card">
+            <span class="card-eyebrow"><span class="dot-concentric"></span>Sign in</span>
+            <h2>Welcome <em>back</em></h2>
+            <p class="subtitle">Your greenhouse missed you. Monty's been dramatic.</p>
+
+            <div class="field">
+              <label class="f-label">Email</label>
+              <input type="email" value="rturner1989@outlook.com"/>
+            </div>
+
+            <div class="field">
+              <label class="f-label">Password</label>
+              <input type="password" value="••••••••••••"/>
+            </div>
+
+            <a href="#" class="forgot-link">Forgot your password?</a>
+
+            <button class="cta">Sign in<span class="arrow">→</span></button>
+
+            <div class="divider">or</div>
+
+            <div class="social-row">
+              <button class="social-btn">Continue with Google</button>
+              <button class="social-btn">Continue with Apple</button>
+            </div>
+          </div>
+
+          <div class="tiny-brand">Plant<em>Care</em> · v0.9 indie build</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <strong>Login.</strong> Desktop: 50/50 split. Left panel is a dark-forest gradient (same tokens as Today's Plant Doctor featured card) with sunshine halo top-right + mint halo bottom-left, Fraunces italic "Your greenhouse <em>missed you</em>" lead, short pitch, 3 status peek-pills giving a preview of what's waiting inside (Monty overdue · Basil milestone · Rain forecast). Right panel is the paper form — standard auth fields, forgot-link right-aligned, primary gradient CTA, divider + social sign-in (Google · Apple). Mobile collapses to paper card over the mint gradient; pitch shrinks to one line. No voice quote on auth surfaces (pre-account — user doesn't have plants to voice yet).
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Register -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Form 2 of 3</span>
+    <h2>Register</h2>
+    <span class="spec">· name + email + password · password-strength meter · terms checkbox · CTA → onboarding intent-picker</span>
+  </div>
+
+  <div class="step-row">
+
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/register</div>
+      </div>
+      <div class="viewport">
+        <div class="auth-shell">
+          <aside class="auth-marketing">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+
+            <span class="eyebrow"><span class="dot"></span>Starting out</span>
+            <h1>Make friends with your <em>plants</em></h1>
+            <p class="pitch">A companion, not a schedule optimiser. We track watering. You read the vibes. Together you keep them alive (and dramatic).</p>
+
+            <div class="peek">
+              <div class="peek-pill">
+                <span class="p-av">✎</span>
+                <span><em>Journal</em> every care action, every photo, every milestone</span>
+              </div>
+              <div class="peek-pill">
+                <span class="p-av">🌧</span>
+                <span><em>Weather-aware</em> · outdoor plants skip the rain</span>
+              </div>
+              <div class="peek-pill">
+                <span class="p-av">🔥</span>
+                <span><em>Streaks &amp; rescues</em> · game-loop for the hobbyist</span>
+              </div>
+            </div>
+
+            <div class="support">· 4,812 species in the encyclopedia · indie build ·</div>
+          </aside>
+
+          <div class="auth-form-wrap">
+            <div class="top-nav">
+              <span>Already have an account?</span>
+              <a href="#" class="back-link">Sign in →</a>
+            </div>
+
+            <div class="auth-card">
+              <span class="card-eyebrow"><span class="dot-concentric"></span>Join PlantCare</span>
+              <h2>Adopt your <em>first friend</em></h2>
+              <p class="subtitle">Takes about a minute. Next you'll tell us why you're here — it shapes how PlantCare treats you.</p>
+
+              <div class="field">
+                <label class="f-label">Your name</label>
+                <input type="text" placeholder="Rob" value="Rob"/>
+              </div>
+
+              <div class="field">
+                <label class="f-label">Email</label>
+                <input type="email" placeholder="you@email.com" value="rturner1989@outlook.com"/>
+              </div>
+
+              <div class="field with-meta">
+                <label class="f-label">Password</label>
+                <input type="password" value="••••••••••••••"/>
+                <span class="f-meta ok">Strong</span>
+                <div class="f-hint">12+ characters. Mix of cases, a number, and a symbol gets "strong".</div>
+              </div>
+
+              <div class="checkbox-row">
+                <div class="cb checked"></div>
+                <span>I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a></span>
+              </div>
+
+              <button class="cta">Create account<span class="arrow">→</span></button>
+
+              <div class="divider">or</div>
+
+              <div class="social-row">
+                <button class="social-btn">Continue with Google</button>
+                <button class="social-btn">Continue with Apple</button>
+              </div>
+            </div>
+
+            <div class="fine-print">
+              No spam. No ads. Cancel anytime — your data exports cleanly.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Register -->
+    <div class="phone">
+      <div class="screen">
+        <div class="blob blob-mint" style="width: 280px; height: 280px; top: -100px; right: -100px;"></div>
+        <div class="blob blob-sun" style="width: 220px; height: 220px; bottom: -60px; left: -60px;"></div>
+        <div class="island"></div>
+        <div class="status-bar"><span>9:41</span></div>
+
+        <div class="m-auth">
+          <div class="m-top">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <a href="#" class="back-link">Sign in →</a>
+          </div>
+
+          <div class="m-auth-card">
+            <span class="card-eyebrow"><span class="dot-concentric"></span>Join PlantCare</span>
+            <h2>Adopt your <em>first friend</em></h2>
+            <p class="subtitle">Takes a minute. Next you'll pick why you're here — it shapes how we treat you.</p>
+
+            <div class="field">
+              <label class="f-label">Your name</label>
+              <input type="text" value="Rob"/>
+            </div>
+
+            <div class="field">
+              <label class="f-label">Email</label>
+              <input type="email" value="rturner1989@outlook.com"/>
+            </div>
+
+            <div class="field with-meta">
+              <label class="f-label">Password</label>
+              <input type="password" value="••••••••••••••"/>
+              <span class="f-meta ok">Strong</span>
+              <div class="f-hint">12+ chars, mixed case, number, symbol.</div>
+            </div>
+
+            <div class="checkbox-row">
+              <div class="cb checked"></div>
+              <span>I agree to the <a href="#">Terms</a> &amp; <a href="#">Privacy</a></span>
+            </div>
+
+            <button class="cta">Create account<span class="arrow">→</span></button>
+          </div>
+
+          <div class="tiny-brand">No spam · cancel anytime · your data exports</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <strong>Register.</strong> Marketing panel switches tone to "starting out" — Fraunces italic "Make friends with your <em>plants</em>", 3 peek-pills showing what you're signing up for (Journal · Weather-aware · Streaks). Right panel: name / email / password (with strength meter top-right of the field and a Fraunces italic hint below) / terms checkbox / primary CTA → routes to onboarding Step 1 (intent picker, mockup 19). Mobile omits the marketing panel; value prop sits in the subtitle + the fine-print line below the card. No "confirm password" field — modern UX convention, strength meter does the work.
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Password reset (request + success) -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Form 3 of 3</span>
+    <h2>Password reset</h2>
+    <span class="spec">· request state (email input) · mobile shows post-request success · Rack::Attack throttled per-IP + per-email</span>
+  </div>
+
+  <div class="step-row">
+
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/password-reset</div>
+      </div>
+      <div class="viewport">
+        <div class="auth-shell">
+          <aside class="auth-marketing">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+
+            <span class="eyebrow"><span class="dot"></span>Account recovery</span>
+            <h1>Happens to the <em>best of us</em></h1>
+            <p class="pitch">Drop your email. We'll send you a reset link that expires in an hour. Your plants are safe in the meantime — nothing changes until you finish the reset.</p>
+
+            <div class="peek">
+              <div class="peek-pill">
+                <span class="p-av">🔒</span>
+                <span><em>Hashed</em> storage · we never see your password</span>
+              </div>
+              <div class="peek-pill">
+                <span class="p-av">⏱</span>
+                <span><em>1-hour</em> reset window · expires on use</span>
+              </div>
+              <div class="peek-pill">
+                <span class="p-av">🛡</span>
+                <span><em>Rate-limited</em> · 3 resets per email per hour</span>
+              </div>
+            </div>
+
+            <div class="support">· JWT httpOnly cookie · refresh rotation · bcrypt ·</div>
+          </aside>
+
+          <div class="auth-form-wrap">
+            <div class="top-nav">
+              <a href="#" class="back-link">← Back to sign in</a>
+            </div>
+
+            <div class="auth-card">
+              <span class="card-eyebrow"><span class="dot-concentric"></span>Reset password</span>
+              <h2>Forgot your <em>password</em>?</h2>
+              <p class="subtitle">Enter the email you signed up with. We'll send a reset link — valid for one hour, one-time use.</p>
+
+              <div class="field">
+                <label class="f-label">Email</label>
+                <input type="email" placeholder="you@email.com" value="rturner1989@outlook.com"/>
+              </div>
+
+              <button class="cta">Send reset link<span class="arrow">→</span></button>
+
+              <div class="switch-line">
+                Remembered it? <a href="#">Sign in</a>
+              </div>
+            </div>
+
+            <div class="fine-print">
+              Didn't get the email? Check spam, then <a href="#">contact support</a>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile — post-request success state -->
+    <div class="phone">
+      <div class="screen">
+        <div class="blob blob-mint" style="width: 280px; height: 280px; top: -100px; right: -100px;"></div>
+        <div class="blob blob-sun" style="width: 220px; height: 220px; bottom: -60px; left: -60px;"></div>
+        <div class="island"></div>
+        <div class="status-bar"><span>9:41</span></div>
+
+        <div class="m-auth">
+          <div class="m-top">
+            <a class="logo" href="#"><span class="logo-mark"></span>Plant<em>Care</em></a>
+            <a href="#" class="back-link">← Sign in</a>
+          </div>
+
+          <div class="m-auth-card">
+            <div class="inline-banner success">
+              <span class="b-icon">✓</span>
+              <span>Reset link sent to <strong>rturner1989@outlook.com</strong>. Check your inbox — valid for one hour.</span>
+            </div>
+
+            <span class="card-eyebrow"><span class="dot-concentric"></span>Check your email</span>
+            <h2>On its <em>way</em></h2>
+            <p class="subtitle">We sent a reset link. Tap it on this device to be signed right back in after the reset.</p>
+
+            <button class="cta" style="background: var(--paper-deep); color: var(--ink); box-shadow: var(--shadow-warm-sm);">📧 Open mail app</button>
+
+            <div class="switch-line" style="margin-top: 16px;">
+              Wrong email? <a href="#">Try again</a>
+            </div>
+          </div>
+
+          <div class="tiny-brand">1-hour window · one-time use · can't send again for 20 min</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <strong>Password reset.</strong> Desktop shows the <em>request</em> state (enter your email). Marketing panel re-pitches the security model: hashed storage, 1-hour reset window, Rack::Attack throttle (3 per email per hour · 10 per IP per hour). Right panel is a minimal single-field form. Mobile shows the <em>post-request success</em> state — `.inline-banner.success` confirms the send, primary CTA becomes "Open mail app", eyebrow flips to "Check your email", Fraunces heading "On its <em>way</em>". Same card shell, different body — just like the dialog shell from mockup 27. No hinting about whether the email exists (security: always says "sent" to avoid enumeration).
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Wrap-up -->
+  <!-- ========================================================= -->
+  <div class="wrap-up">
+    <h2>Auth <em>locked</em></h2>
+    <p>Three forms, one shell. Desktop split-panel layout with dark-forest marketing on the left, paper form on the right. Mobile collapses to a centred paper card on the mint gradient. Login + Register + Password reset share the exact same field primitive, CTA primitive, social-button primitive, divider. Post-register routes straight into onboarding Step 1 (intent picker, mockup 19) — auth is the doorway, not the destination.</p>
+    <ul class="key-list">
+      <li><strong>Two-panel desktop layout.</strong> 50/50 grid. Left: forest-gradient marketing with eyebrow · Fraunces italic headline · short pitch · 3 peek-pills · support tagline. Right: paper form with standard fields + CTA + social sign-in. Mobile ships the form only; pitch compresses into the subtitle.</li>
+      <li><strong>Peek-pills on the marketing panel.</strong> Glassmorphic pills over the forest gradient, each showing a concrete hook — "Monty needs watering · 3d overdue" on login (your account has state waiting), "Journal every care action" on register (product value), "Hashed storage · we never see your password" on reset (trust). Never generic.</li>
+      <li><strong>Field primitive.</strong> Label (uppercase letter-spaced 10px) + input (paper bg, 1.5px paper-edge border, rounded-md, focus→emerald border + soft glow) + optional hint (Fraunces italic 11px) + optional meta (right-aligned strength chip). Same primitive across all three forms + Me's edit dialog.</li>
+      <li><strong>Password strength meter.</strong> `f-meta` positioned top-right inside the password input. Three states: "Weak" (coral), "Fair" (sunshine), "Strong" (emerald). No progress bar — single-word chip keeps it calm. Rule from CLAUDE.md: 12+ chars + mix. Required current-password for password <em>changes</em> (handled in Me · danger zone).</li>
+      <li><strong>Rack::Attack throttle surfaced.</strong> Password-reset form's marketing panel names the throttle explicitly — 3 per email per hour, 10 per IP per hour (per PR #31). When user hits the throttle, `RateLimitError` shows as a yellow warning toast (per the `useFormSubmit` convention). Register + Login also Rack-Attack'd when we ship — mention in form copy only if users hit it.</li>
+      <li><strong>Success state = same shell, different body.</strong> Post-password-reset-request shows an inline success banner, eyebrow flips to "Check your email", CTA becomes "Open mail app". Don't redirect to a dedicated success page — keep the same URL so back-button works and users can try again with a different email.</li>
+      <li><strong>Social sign-in (Google + Apple).</strong> Apple mandatory on iOS if Google is offered (App Store rule). Paper-bg outlined buttons, full-width, below a "or" divider. Phase 2 ship — Phase 1 email/password only, but the design slot is here.</li>
+      <li><strong>Security copy is plain-English.</strong> "Hashed · we never see your password" not "bcrypt stretched salted hash". "Valid for one hour · one-time use" not "JWT TTL 3600s, one-time JTI". Users aren't devs. Security confidence comes from clarity, not jargon.</li>
+      <li><strong>Routes into onboarding.</strong> Register CTA → onboarding Step 1 (intent picker). Login CTA → first-run tour if first login, else Today. Reset CTA → signs user in automatically after reset (per current refresh-token flow). Auth is a doorway.</li>
+      <li><strong>No voice samples, no personality badges.</strong> Auth is pre-account; no plants exist yet. Marketing peek-pills on Login reference <em>your</em> plants (the user has an account with state); on Register they reference the product's value (user has no state). Different pitch, same shape.</li>
+      <li><strong>A11y.</strong> Each field has explicit `<label for="...">` bound to input `id`. Focus ring visible on all interactive elements (inputs + buttons + links). Primary CTA has `aria-busy` during submit. Social buttons have `aria-label` matching visual text. Password input uses `type="password"` not styled text — screen readers announce correctly.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

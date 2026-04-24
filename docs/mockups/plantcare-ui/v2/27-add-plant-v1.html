@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — Add Plant · both viewports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --paper-deep: #f3eee2;
+    --paper-edge: #e8ddc6;
+    --mint: #dff2e2;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --coral-deep: #c4412a;
+    --sunshine: #ffb83d;
+    --sunshine-deep: #a56d12;
+    --sky: #c7e3f5;
+    --sky-deep: #2c6a94;
+    --shadow-warm-sm: 0 2px 10px rgba(80,56,18,0.07), 0 0 0 1px rgba(80,56,18,0.025);
+    --shadow-warm-md: 0 18px 40px rgba(80,56,18,0.10), 0 2px 8px rgba(80,56,18,0.04);
+    --shadow-warm-lg: 0 36px 80px -8px rgba(80,56,18,0.18), 0 6px 16px rgba(80,56,18,0.06);
+    --shadow-cta: 0 6px 16px rgba(20,144,47,0.32), inset 0 1px 0 rgba(255,255,255,0.3);
+    --shadow-fab: 0 12px 32px -4px rgba(20,144,47,0.45), 0 4px 10px rgba(11,58,26,0.2), inset 0 1px 0 rgba(255,255,255,0.25);
+    --shadow-medallion: 0 30px 60px -12px rgba(11,58,26,0.28), inset 0 0 0 1px rgba(11,58,26,0.08);
+    --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #eff7e6 55%, #e4efd5 100%);
+    --gradient-paper: linear-gradient(180deg, #fbf8f1 0%, #f6f0e0 100%);
+    --gradient-display: linear-gradient(130deg, #0b3a1a 0%, #14902f 60%, #32c456 100%);
+    --gradient-brand: linear-gradient(135deg, #32c456, #14902f);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --radius-full: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #ecece0;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+  .page { max-width: 1440px; margin: 0 auto; }
+  .page-header { text-align: center; margin-bottom: 56px; }
+  .page-header .eyebrow {
+    display: inline-block; padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 64px; letter-spacing: -0.035em;
+    line-height: 1; margin-bottom: 18px;
+  }
+  .page-header h1 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .page-header p {
+    font-size: 17px; color: var(--ink-soft);
+    max-width: 760px; margin: 0 auto; line-height: 1.6;
+  }
+  .step-caption {
+    max-width: 1360px; margin: 48px auto 14px; padding: 0 8px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .step-caption .tag {
+    display: inline-block; padding: 4px 12px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .step-caption h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 32px; letter-spacing: -0.02em;
+  }
+  .step-caption .spec {
+    margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600;
+  }
+  .step-row {
+    display: flex; gap: 40px; align-items: flex-start;
+    justify-content: center; flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  /* Browser frame */
+  .browser {
+    background: #f5f1e8;
+    border-radius: 16px;
+    box-shadow: var(--shadow-warm-lg);
+    overflow: hidden;
+    border: 1px solid rgba(80,56,18,0.1);
+    width: 960px;
+    flex-shrink: 0;
+  }
+  .browser .chrome {
+    height: 38px; background: #ede6d5;
+    border-bottom: 1px solid rgba(80,56,18,0.1);
+    display: flex; align-items: center; padding: 0 14px; gap: 8px;
+  }
+  .browser .chrome .dots { display: flex; gap: 6px; }
+  .browser .chrome .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .browser .chrome .dot-r { background: #ff5f57; }
+  .browser .chrome .dot-y { background: #febc2e; }
+  .browser .chrome .dot-g { background: #28c840; }
+  .browser .chrome .url {
+    flex: 1; margin: 0 14px; height: 22px;
+    background: var(--paper);
+    border: 1px solid rgba(80,56,18,0.08);
+    border-radius: 5px;
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 11px; color: var(--ink-softer);
+    font-family: "SF Mono", Consolas, monospace;
+  }
+  .browser .viewport {
+    height: 780px;
+    background: var(--gradient-mint);
+    position: relative; overflow: hidden;
+  }
+  .browser .viewport::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+
+  /* iPhone */
+  .phone {
+    width: 413px; height: 872px;
+    background: #0a0a0a;
+    border-radius: 56px; padding: 10px;
+    box-shadow: 0 0 0 2px #2a2a2a, 0 36px 80px -8px rgba(11,58,26,0.3), 0 12px 24px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+  }
+  .phone .screen {
+    width: 393px; height: 852px;
+    border-radius: 48px;
+    background: var(--gradient-mint);
+    overflow: hidden; position: relative;
+  }
+  .phone .screen::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+  .phone .island {
+    position: absolute; top: 21px; left: 50%;
+    transform: translateX(-50%);
+    width: 123px; height: 37px;
+    background: #000; border-radius: 100px;
+    z-index: 40;
+  }
+  .phone .status-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 30px 0;
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    z-index: 30; pointer-events: none;
+  }
+
+  /* Blobs */
+  .blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(70px);
+    pointer-events: none; z-index: 0;
+    opacity: 0.5;
+  }
+  .blob-mint { background: rgba(134,219,101,0.35); }
+
+  /* Scrim + dialog (desktop) */
+  .scrim {
+    position: absolute; inset: 0;
+    background: rgba(11,58,26,0.42);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 20;
+  }
+  .scrim .app-dim {
+    position: absolute; inset: 0;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .dialog {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    max-height: 640px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-lg);
+    z-index: 30;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .dialog-header {
+    padding: 18px 22px 14px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--paper-edge);
+    flex-shrink: 0;
+  }
+  .dialog-header .eyebrow {
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--emerald);
+    margin-bottom: 2px;
+  }
+  .dialog-header h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 24px; letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .dialog-header h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .dialog-header .close-btn {
+    margin-left: auto;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--paper-deep); color: var(--ink-soft);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; border: none; cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* Step progress */
+  .step-progress {
+    padding: 10px 22px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--paper-edge);
+    flex-shrink: 0;
+  }
+  .step-progress .sp-dots {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--ink-softer); font-weight: 700;
+  }
+  .step-progress .sp-dots .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--paper-edge);
+    transition: background 140ms ease;
+  }
+  .step-progress .sp-dots .dot.done { background: var(--leaf); }
+  .step-progress .sp-dots .dot.current { background: var(--emerald); box-shadow: 0 0 0 4px rgba(20,144,47,0.2); }
+  .step-progress .sp-label {
+    margin-left: auto;
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 13px; color: var(--ink-soft);
+  }
+
+  .dialog-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 22px 6px;
+    min-height: 0;
+    scrollbar-width: none;
+  }
+  .dialog-body::-webkit-scrollbar { display: none; }
+
+  .dialog-footer {
+    padding: 14px 22px 16px;
+    display: flex; align-items: center; gap: 10px;
+    border-top: 1px solid var(--paper-edge);
+    background: var(--paper);
+    flex-shrink: 0;
+  }
+  .dialog-footer .back {
+    padding: 8px 14px;
+    background: none; color: var(--ink-soft);
+    border: none; font-family: inherit;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer;
+    border-radius: var(--radius-full);
+  }
+  .dialog-footer .back:hover { background: var(--paper-deep); color: var(--ink); }
+  .dialog-footer .spacer { flex: 1; }
+  .dialog-footer .btn {
+    padding: 10px 20px;
+    border-radius: var(--radius-full);
+    border: none; font-family: inherit;
+    font-weight: 800; font-size: 13px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .dialog-footer .btn.primary {
+    background: var(--gradient-brand); color: var(--paper);
+    box-shadow: var(--shadow-cta);
+  }
+  .dialog-footer .btn.primary .arrow {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(255,255,255,0.22);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+
+  /* Form primitives */
+  .search-input {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-full);
+    margin-bottom: 14px;
+  }
+  .search-input .si-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--paper); color: var(--emerald);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+  }
+  .search-input input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-family: inherit; font-size: 14px; color: var(--ink);
+    min-width: 0;
+  }
+  .search-input input::placeholder { color: var(--ink-softer); }
+  .sub-label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 10px;
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .sub-label .meta {
+    font-family: "Fraunces"; font-style: italic;
+    letter-spacing: -0.005em; text-transform: none;
+    font-size: 11px; color: var(--ink-soft); font-weight: 400;
+  }
+
+  /* Species grid inside dialog */
+  .sp-grid {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .sp-pick {
+    position: relative;
+    background: var(--paper-deep);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    padding: 10px;
+    cursor: pointer;
+    display: flex; flex-direction: column; gap: 6px;
+    min-width: 0;
+    transition: transform 140ms ease;
+  }
+  .sp-pick:hover { transform: translateY(-2px); }
+  .sp-pick.selected {
+    background: var(--mint);
+    border-color: var(--emerald);
+    box-shadow: 0 3px 10px rgba(20,144,47,0.18);
+  }
+  .sp-pick.selected::after {
+    content: "✓";
+    position: absolute; top: 8px; right: 8px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--emerald); color: var(--paper);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800;
+  }
+  .sp-pick .sp-photo {
+    aspect-ratio: 1.2;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #a8d9aa, #77b97a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 42px;
+    overflow: hidden;
+    position: relative;
+  }
+  .sp-pick .sp-photo::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 25% 20%, rgba(255,255,255,0.25), transparent 55%);
+  }
+  .sp-pick .sp-name {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 14px; color: var(--ink);
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  .sp-pick .sp-sci {
+    font-size: 10px; color: var(--ink-softer); font-style: italic;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* Selected species summary (step 2, step 3) */
+  .selected-species {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 14px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-md);
+    margin-bottom: 18px;
+  }
+  .selected-species .ss-photo {
+    width: 60px; height: 60px; border-radius: 12px;
+    background: linear-gradient(135deg, #a8d9aa, #77b97a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .selected-species .ss-photo::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 25% 20%, rgba(255,255,255,0.3), transparent 55%);
+  }
+  .selected-species .ss-name {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 17px; color: var(--ink);
+  }
+  .selected-species .ss-sci {
+    font-size: 11px; color: var(--ink-softer); font-style: italic;
+    margin-top: 2px;
+  }
+  .selected-species .ss-traits {
+    display: flex; gap: 4px; margin-top: 4px;
+  }
+  .ss-trait {
+    padding: 1px 8px 1px 2px;
+    background: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 9px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 3px;
+  }
+  .ss-trait .t-icon {
+    width: 13px; height: 13px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 8px; color: #fff;
+  }
+  .ss-trait.water .t-icon { background: var(--sky-deep); }
+  .ss-trait.water { color: var(--sky-deep); background: rgba(75,180,216,0.15); }
+  .ss-trait.light .t-icon { background: var(--sunshine-deep); }
+  .ss-trait.light { color: var(--sunshine-deep); background: rgba(255,184,61,0.18); }
+
+  /* Space picker */
+  .space-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .space-pick {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .space-pick:hover { background: var(--paper-edge); }
+  .space-pick.selected {
+    background: var(--mint);
+    border-color: var(--emerald);
+  }
+  .space-pick .spc-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--paper); color: var(--emerald);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+  }
+  .space-pick.outdoor .spc-icon { background: rgba(255,184,61,0.18); color: var(--sunshine-deep); box-shadow: none; }
+  .space-pick .spc-body { flex: 1; min-width: 0; }
+  .space-pick .spc-name { font-weight: 700; color: var(--ink); font-size: 13px; }
+  .space-pick .spc-meta { font-size: 10px; color: var(--ink-softer); font-weight: 600; margin-top: 1px; }
+  .space-pick .spc-check {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid var(--paper-edge);
+    flex-shrink: 0;
+  }
+  .space-pick.selected .spc-check {
+    background: var(--emerald);
+    border-color: var(--emerald);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--paper); font-size: 12px; font-weight: 800;
+  }
+  .space-pick.selected .spc-check::after { content: "✓"; }
+  .space-pick.add-new {
+    background: transparent;
+    border: 1.5px dashed var(--paper-edge);
+    color: var(--emerald);
+  }
+  .space-pick.add-new:hover { border-color: var(--emerald); background: rgba(20,144,47,0.04); }
+  .space-pick.add-new .spc-icon {
+    background: transparent; color: var(--emerald);
+    box-shadow: inset 0 0 0 1.5px var(--emerald);
+  }
+
+  /* Env segmented (inherits from Space) */
+  .env-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 14px;
+    align-items: center;
+    padding: 8px 0;
+  }
+  .env-row label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .seg {
+    display: flex;
+    background: var(--paper-deep);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 3px;
+  }
+  .seg-opt {
+    flex: 1;
+    padding: 7px 10px;
+    text-align: center;
+    font-size: 12px; font-weight: 700;
+    color: var(--ink-soft);
+    border-radius: 7px;
+    border: none; background: none; font-family: inherit;
+    cursor: pointer;
+  }
+  .seg-opt.active {
+    background: var(--leaf); color: var(--paper);
+    box-shadow: 0 2px 6px rgba(20,144,47,0.3);
+  }
+  .env-inherit {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 12px; color: var(--ink-softer);
+    margin-top: 4px;
+  }
+
+  /* Nickname input */
+  .text-input-wrap {
+    display: flex; flex-direction: column; gap: 6px;
+    margin-bottom: 16px;
+  }
+  .text-input-label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .text-input {
+    padding: 12px 16px;
+    background: var(--paper-deep);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 18px; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .text-input:focus {
+    outline: none; border-color: var(--emerald);
+    background: var(--paper);
+  }
+  .input-hint {
+    font-size: 11px; color: var(--ink-softer);
+    font-style: italic;
+  }
+
+  /* Photo upload */
+  .photo-upload {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-md);
+    margin-bottom: 18px;
+  }
+  .photo-upload .pu-thumb {
+    width: 80px; height: 80px; border-radius: 12px;
+    background: var(--paper);
+    box-shadow: inset 0 0 0 1.5px dashed var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    color: var(--ink-softer);
+    position: relative;
+  }
+  .photo-upload .pu-thumb::before {
+    content: "";
+    position: absolute; inset: 3px;
+    border-radius: 9px;
+    border: 2px dashed var(--paper-edge);
+  }
+  .photo-upload.has-photo .pu-thumb {
+    background: linear-gradient(135deg, #a8d9aa, #77b97a);
+    box-shadow: none;
+    color: #fff;
+    font-size: 32px;
+  }
+  .photo-upload.has-photo .pu-thumb::before { display: none; }
+  .photo-upload .pu-body { min-width: 0; }
+  .photo-upload .pu-title {
+    font-weight: 700; font-size: 13px; color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .photo-upload .pu-meta {
+    font-size: 11px; color: var(--ink-softer);
+    line-height: 1.4;
+  }
+  .photo-upload .pu-actions { display: flex; gap: 6px; margin-top: 8px; }
+  .photo-upload .pu-btn {
+    padding: 4px 10px;
+    background: var(--paper); color: var(--ink);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 700;
+    border: none; font-family: inherit;
+    box-shadow: var(--shadow-warm-sm);
+    cursor: pointer;
+  }
+  .photo-upload .pu-btn.link {
+    background: transparent; color: var(--ink-softer);
+    box-shadow: none;
+    text-decoration: underline dotted;
+  }
+
+  /* Preview card on final step */
+  .preview-card {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px;
+    background:
+      radial-gradient(circle at 80% 30%, rgba(134,219,101,0.25), transparent 55%),
+      var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+    margin-bottom: 16px;
+  }
+  .preview-medallion {
+    width: 88px; height: 88px; border-radius: 50%;
+    background: linear-gradient(135deg, #a8d9aa, #77b97a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px;
+    box-shadow: var(--shadow-medallion);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .preview-medallion::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,240,200,0.4), transparent 55%);
+    border-radius: 50%;
+  }
+  .preview-body { min-width: 0; flex: 1; }
+  .preview-name {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 28px; letter-spacing: -0.02em;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .preview-name em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .preview-sub {
+    font-family: "Fraunces"; font-style: italic;
+    font-size: 13px; color: var(--ink-soft);
+    margin-top: 4px;
+  }
+  .preview-chips {
+    display: flex; gap: 4px; margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .p-chip {
+    padding: 3px 10px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-full);
+    font-size: 10px; font-weight: 700;
+    color: var(--ink-soft);
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+
+  /* Schedule preview */
+  .schedule-preview {
+    padding: 14px 18px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+  }
+  .schedule-preview h5 {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 10px;
+  }
+  .schedule-preview .spr-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 0;
+    font-size: 13px; color: var(--ink-soft);
+    border-top: 1px solid var(--paper-edge);
+  }
+  .schedule-preview .spr-row:first-of-type { border-top: none; padding-top: 2px; }
+  .schedule-preview .spr-row .spr-icon {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .schedule-preview .spr-row .spr-fact { flex: 1; }
+  .schedule-preview .spr-row .spr-fact strong {
+    color: var(--ink); font-weight: 700; font-size: 13px;
+  }
+  .schedule-preview .spr-row .spr-fact .spr-meta {
+    font-family: "Fraunces"; font-style: italic; font-size: 11px;
+    color: var(--ink-softer); margin-top: 1px;
+  }
+
+  /* =============== MOBILE =============== */
+
+  .m-app-dim {
+    position: absolute; inset: 0;
+    background: var(--gradient-mint);
+    opacity: 0.4;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .m-app-dim::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+  }
+  .m-scrim {
+    position: absolute; inset: 0;
+    background: rgba(11,58,26,0.42);
+    backdrop-filter: blur(2px);
+    z-index: 20;
+  }
+
+  .m-sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: var(--paper);
+    border-radius: 28px 28px 0 0;
+    z-index: 30;
+    display: flex; flex-direction: column;
+    max-height: 82%;
+    box-shadow: 0 -20px 60px -8px rgba(11,58,26,0.35);
+    padding-top: 8px;
+  }
+  .m-sheet .sheet-handle {
+    width: 42px; height: 4px; border-radius: 2px;
+    background: var(--paper-edge);
+    margin: 0 auto 10px;
+  }
+  .m-sheet .sheet-header {
+    padding: 0 20px 12px;
+    display: flex; align-items: flex-start; gap: 10px;
+    border-bottom: 1px solid var(--paper-edge);
+  }
+  .m-sheet .sheet-header .back {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--paper-deep); color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; border: none; cursor: pointer;
+    flex-shrink: 0;
+  }
+  .m-sheet .sheet-header .ht {
+    flex: 1; min-width: 0;
+  }
+  .m-sheet .sheet-header .eyebrow {
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--emerald);
+  }
+  .m-sheet .sheet-header h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 20px; letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-top: 2px;
+  }
+  .m-sheet .sheet-header h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .m-sheet .sheet-header .close {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--paper-deep); color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; border: none; cursor: pointer;
+    flex-shrink: 0;
+  }
+  .m-sheet .m-step-progress {
+    padding: 8px 20px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--paper-edge);
+    flex-shrink: 0;
+  }
+  .m-sheet .m-step-progress .sp-bar {
+    flex: 1; height: 4px; background: var(--paper-edge);
+    border-radius: 2px; overflow: hidden;
+  }
+  .m-sheet .m-step-progress .sp-bar .fill {
+    height: 100%; background: var(--leaf);
+    border-radius: 2px;
+  }
+  .m-sheet .m-step-progress .sp-label {
+    font-size: 10px; color: var(--ink-softer); font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .m-sheet .sheet-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px 8px;
+    min-height: 0;
+    scrollbar-width: none;
+  }
+  .m-sheet .sheet-body::-webkit-scrollbar { display: none; }
+  .m-sheet .sheet-footer {
+    padding: 12px 18px calc(16px + env(safe-area-inset-bottom));
+    display: flex; align-items: center; gap: 10px;
+    border-top: 1px solid var(--paper-edge);
+    background: var(--paper);
+    flex-shrink: 0;
+  }
+  .m-sheet .sheet-footer .btn {
+    padding: 12px 18px;
+    border-radius: var(--radius-full);
+    border: none; font-family: inherit;
+    font-weight: 800; font-size: 13px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .m-sheet .sheet-footer .btn.primary {
+    flex: 1;
+    background: var(--gradient-brand); color: var(--paper);
+    box-shadow: var(--shadow-cta);
+  }
+
+  .m-sp-grid {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .m-sp-grid .sp-pick { padding: 8px; }
+  .m-sp-grid .sp-pick .sp-photo { font-size: 38px; }
+  .m-sp-grid .sp-pick .sp-name { font-size: 13px; }
+  .m-sp-grid .sp-pick .sp-sci { font-size: 9px; }
+  .m-sp-grid .sp-pick.selected::after { width: 18px; height: 18px; font-size: 10px; top: 6px; right: 6px; }
+
+  .m-sheet .search-input { padding: 8px 12px; }
+  .m-sheet .search-input input { font-size: 13px; }
+  .m-sheet .sub-label { font-size: 9px; margin-bottom: 8px; }
+  .m-sheet .selected-species { padding: 10px; gap: 10px; }
+  .m-sheet .selected-species .ss-photo { width: 48px; height: 48px; font-size: 22px; }
+  .m-sheet .selected-species .ss-name { font-size: 15px; }
+  .m-sheet .selected-species .ss-sci { font-size: 10px; }
+  .m-sheet .env-row { grid-template-columns: 70px 1fr; gap: 8px; }
+  .m-sheet .text-input { font-size: 16px; padding: 10px 14px; }
+  .m-sheet .preview-card { padding: 14px; gap: 12px; }
+  .m-sheet .preview-medallion { width: 68px; height: 68px; font-size: 30px; }
+  .m-sheet .preview-name { font-size: 22px; }
+  .m-sheet .preview-sub { font-size: 12px; }
+  .m-sheet .schedule-preview { padding: 12px 14px; }
+
+  .note {
+    max-width: 1360px; margin: 32px auto;
+    padding: 18px 24px;
+    background: rgba(251,248,241,0.5);
+    border: 1px dashed rgba(80,56,18,0.2);
+    border-radius: var(--radius-md);
+    font-size: 13px; color: var(--ink-soft); line-height: 1.7;
+  }
+  .note strong { color: var(--ink); font-weight: 800; }
+
+  .wrap-up {
+    max-width: 1360px;
+    margin: 64px auto 0;
+    padding: 36px 48px 44px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+  }
+  .wrap-up h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 28px; letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .wrap-up h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .wrap-up p {
+    font-size: 14px; color: var(--ink-soft); line-height: 1.7;
+    margin-bottom: 18px;
+  }
+  .wrap-up .key-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .wrap-up .key-list li {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.55;
+    padding-left: 24px; position: relative;
+  }
+  .wrap-up .key-list li::before {
+    content: ""; position: absolute; left: 6px; top: 7px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.15);
+  }
+  .wrap-up .key-list li strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--ink); font-size: 14px; margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <span class="eyebrow">Mockup 27 · Add Plant flow · both viewports</span>
+    <h1>Adopt a new <em>friend</em></h1>
+    <p>Triggered by the universal FAB. Three steps: <strong>Species</strong> (search or pick popular · optional photo), <strong>Space + Environment</strong> (inherits from space · override if needed), <strong>Name &amp; commit</strong> (nickname + preview card + schedule). Desktop shows a 600×640 centered dialog; mobile shows a Vaul-style bottom sheet (~82dvh). Same CRUD vocabulary as every other dialog — share the shell, vary the body.</p>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- Step 1 — Species pick -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Step 1 of 3</span>
+    <h2>Species · pick or search</h2>
+    <span class="spec">· search input · popular species grid · optional photo upload · selected chip confirms</span>
+  </div>
+
+  <div class="step-row">
+
+    <!-- Desktop — step 1 -->
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/today — Add plant dialog open</div>
+      </div>
+      <div class="viewport">
+        <div class="blob blob-mint" style="width: 420px; height: 420px; top: -160px; right: -180px;"></div>
+        <div class="scrim"></div>
+
+        <div class="dialog">
+          <div class="dialog-header">
+            <div>
+              <div class="eyebrow">Add plant · step 1</div>
+              <h2>What are you <em>adopting</em>?</h2>
+            </div>
+            <button class="close-btn" title="Close (Esc)">✕</button>
+          </div>
+
+          <div class="step-progress">
+            <div class="sp-dots">
+              <span class="dot current"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <span class="sp-label">Species</span>
+          </div>
+
+          <div class="dialog-body">
+            <div class="search-input">
+              <span class="si-icon">⌕</span>
+              <input type="search" placeholder="Search by name… e.g. monstera, snake plant"/>
+            </div>
+
+            <div class="sub-label">Popular right now<span class="meta">4,812 species in the encyclopedia</span></div>
+            <div class="sp-grid">
+              <div class="sp-pick selected">
+                <div class="sp-photo">🌿</div>
+                <div class="sp-name">Monstera</div>
+                <div class="sp-sci">M. deliciosa</div>
+              </div>
+              <div class="sp-pick">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #e3c38c, #c48a3a);">🌵</div>
+                <div class="sp-name">Echinocactus</div>
+                <div class="sp-sci">E. grusonii</div>
+              </div>
+              <div class="sp-pick">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #9bc9a0, #4a8a54);">🪴</div>
+                <div class="sp-name">Rosemary</div>
+                <div class="sp-sci">Salvia rosmarinus</div>
+              </div>
+              <div class="sp-pick">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #8fb58f, #4a7a50);">🌱</div>
+                <div class="sp-name">Boston fern</div>
+                <div class="sp-sci">N. exaltata</div>
+              </div>
+              <div class="sp-pick">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #c9e0a0, #7aa04a);">🍃</div>
+                <div class="sp-name">Pothos</div>
+                <div class="sp-sci">E. aureum</div>
+              </div>
+              <div class="sp-pick">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #8bd3a5, #2ea05a);">🌿</div>
+                <div class="sp-name">Snake plant</div>
+                <div class="sp-sci">D. trifasciata</div>
+              </div>
+            </div>
+
+            <div class="sub-label">Photo <span class="meta">optional · yours or Perenual's default</span></div>
+            <div class="photo-upload">
+              <div class="pu-thumb">📷</div>
+              <div class="pu-body">
+                <div class="pu-title">Drop a photo, or take one</div>
+                <div class="pu-meta">Square crops best. We'll use the species default if you skip this.</div>
+                <div class="pu-actions">
+                  <button class="pu-btn">📁 Choose file</button>
+                  <button class="pu-btn">📷 Use camera</button>
+                  <button class="pu-btn link">Skip</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dialog-footer">
+            <button class="back">Cancel</button>
+            <div class="spacer"></div>
+            <button class="btn primary">Continue<span class="arrow">→</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile — step 1 -->
+    <div class="phone">
+      <div class="screen">
+        <div class="island"></div>
+        <div class="status-bar"><span>9:41</span></div>
+        <div class="m-app-dim"></div>
+        <div class="m-scrim"></div>
+
+        <div class="m-sheet">
+          <div class="sheet-handle"></div>
+          <div class="sheet-header">
+            <div class="ht">
+              <span class="eyebrow">Step 1 · species</span>
+              <h2>What are you <em>adopting</em>?</h2>
+            </div>
+            <button class="close">✕</button>
+          </div>
+          <div class="m-step-progress">
+            <span class="sp-label">1 / 3</span>
+            <div class="sp-bar"><div class="fill" style="width: 33%;"></div></div>
+            <span class="sp-label">Species</span>
+          </div>
+          <div class="sheet-body">
+            <div class="search-input">
+              <span class="si-icon">⌕</span>
+              <input type="search" placeholder="Search species…"/>
+            </div>
+
+            <div class="sub-label">Popular<span class="meta">4,812 total</span></div>
+            <div class="m-sp-grid">
+              <div class="sp-pick selected">
+                <div class="sp-photo">🌿</div>
+                <div class="sp-name">Monstera</div>
+                <div class="sp-sci">M. deliciosa</div>
+              </div>
+              <div class="sp-pick">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #e3c38c, #c48a3a);">🌵</div>
+                <div class="sp-name">Echinocactus</div>
+                <div class="sp-sci">E. grusonii</div>
+              </div>
+              <div class="sp-pick">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #9bc9a0, #4a8a54);">🪴</div>
+                <div class="sp-name">Rosemary</div>
+                <div class="sp-sci">Salvia ros.</div>
+              </div>
+              <div class="sp-pick">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #8fb58f, #4a7a50);">🌱</div>
+                <div class="sp-name">Boston fern</div>
+                <div class="sp-sci">N. exaltata</div>
+              </div>
+              <div class="sp-pick">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #c9e0a0, #7aa04a);">🍃</div>
+                <div class="sp-name">Pothos</div>
+                <div class="sp-sci">E. aureum</div>
+              </div>
+              <div class="sp-pick">
+                <div class="sp-photo" style="background: linear-gradient(135deg, #8bd3a5, #2ea05a);">🌿</div>
+                <div class="sp-name">Snake plant</div>
+                <div class="sp-sci">D. trifasciata</div>
+              </div>
+            </div>
+
+            <div class="sub-label" style="margin-top: 14px;">Photo <span class="meta">optional</span></div>
+            <div class="photo-upload">
+              <div class="pu-thumb">📷</div>
+              <div class="pu-body">
+                <div class="pu-title">Add a photo</div>
+                <div class="pu-meta">We'll use the species default if skipped.</div>
+                <div class="pu-actions">
+                  <button class="pu-btn">📷 Camera</button>
+                  <button class="pu-btn link">Skip</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sheet-footer">
+            <button class="btn primary">Continue · Monstera<span class="arrow" style="width:18px;height:18px;background:rgba(255,255,255,0.22);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;">→</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <strong>Step 1 · species.</strong> Search input on top (pg_search + Perenual fallback). Below: 6-card popular species grid (3-col desktop, 2-col mobile) sourced from the nightly-scored popular flag. Selected card gets emerald-bordered mint fill + ✓ badge. Below the grid: optional photo upload — dashed-border thumbnail, "Choose file / Camera / Skip" buttons. Photo is optional at this step; if skipped, species default image is used (can be replaced later from Plant Detail). Progress indicator (3 dots + label on desktop, bar + "1 / 3" counter on mobile) pinned below the header.
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Step 3 — Name & commit -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Step 3 of 3</span>
+    <h2>Name &amp; commit</h2>
+    <span class="spec">· selected summary · nickname input · calculated schedule preview · primary "Adopt" CTA</span>
+  </div>
+
+  <div class="step-row">
+
+    <!-- Desktop — step 3 -->
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/today — Add plant dialog · step 3</div>
+      </div>
+      <div class="viewport">
+        <div class="blob blob-mint" style="width: 420px; height: 420px; top: -160px; right: -180px;"></div>
+        <div class="scrim"></div>
+
+        <div class="dialog">
+          <div class="dialog-header">
+            <div>
+              <div class="eyebrow">Add plant · step 3</div>
+              <h2>Give them a <em>name</em></h2>
+            </div>
+            <button class="close-btn" title="Close (Esc)">✕</button>
+          </div>
+
+          <div class="step-progress">
+            <div class="sp-dots">
+              <span class="dot done"></span>
+              <span class="dot done"></span>
+              <span class="dot current"></span>
+            </div>
+            <span class="sp-label">Name &amp; commit</span>
+          </div>
+
+          <div class="dialog-body">
+            <div class="preview-card">
+              <div class="preview-medallion">🌿</div>
+              <div class="preview-body">
+                <div class="preview-name"><em>Monty</em></div>
+                <div class="preview-sub">Monstera deliciosa · Living Room</div>
+                <div class="preview-chips">
+                  <span class="p-chip">🛋️ Living Room</span>
+                  <span class="p-chip">☀ Medium light</span>
+                  <span class="p-chip">🌡 Average temp</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-input-wrap">
+              <label class="text-input-label">Nickname</label>
+              <input class="text-input" type="text" value="Monty"/>
+              <div class="input-hint">Defaulted from species common name. Change it to anything — Monty, Monstera McMontface, whatever.</div>
+            </div>
+
+            <div class="schedule-preview">
+              <h5>Calculated schedule</h5>
+              <div class="spr-row">
+                <div class="spr-icon">💧</div>
+                <div class="spr-fact">
+                  <strong>Water every 7 days</strong>
+                  <div class="spr-meta">bumped up from species baseline due to medium light in Living Room</div>
+                </div>
+              </div>
+              <div class="spr-row">
+                <div class="spr-icon">🌱</div>
+                <div class="spr-fact">
+                  <strong>Feed every 30 days</strong>
+                  <div class="spr-meta">half-strength liquid fertiliser during growing season</div>
+                </div>
+              </div>
+              <div class="spr-row">
+                <div class="spr-icon">🩺</div>
+                <div class="spr-fact">
+                  <strong>First check-in tomorrow</strong>
+                  <div class="spr-meta">We'll nudge you once to make sure Monty settled in</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dialog-footer">
+            <button class="back">← Back</button>
+            <div class="spacer"></div>
+            <button class="btn primary">Adopt Monty<span class="arrow">→</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile — step 3 -->
+    <div class="phone">
+      <div class="screen">
+        <div class="island"></div>
+        <div class="status-bar"><span>9:41</span></div>
+        <div class="m-app-dim"></div>
+        <div class="m-scrim"></div>
+
+        <div class="m-sheet">
+          <div class="sheet-handle"></div>
+          <div class="sheet-header">
+            <button class="back">←</button>
+            <div class="ht">
+              <span class="eyebrow">Step 3 · name</span>
+              <h2>Give them a <em>name</em></h2>
+            </div>
+            <button class="close">✕</button>
+          </div>
+          <div class="m-step-progress">
+            <span class="sp-label">3 / 3</span>
+            <div class="sp-bar"><div class="fill" style="width: 100%;"></div></div>
+            <span class="sp-label">Final</span>
+          </div>
+          <div class="sheet-body">
+            <div class="preview-card">
+              <div class="preview-medallion">🌿</div>
+              <div class="preview-body">
+                <div class="preview-name"><em>Monty</em></div>
+                <div class="preview-sub">Monstera · Living Room</div>
+                <div class="preview-chips">
+                  <span class="p-chip">🛋️ Living Room</span>
+                  <span class="p-chip">☀ Medium</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-input-wrap">
+              <label class="text-input-label">Nickname</label>
+              <input class="text-input" type="text" value="Monty"/>
+              <div class="input-hint">Change to whatever you want.</div>
+            </div>
+
+            <div class="schedule-preview">
+              <h5>Calculated schedule</h5>
+              <div class="spr-row">
+                <div class="spr-icon">💧</div>
+                <div class="spr-fact">
+                  <strong>Water every 7d</strong>
+                  <div class="spr-meta">medium light bump</div>
+                </div>
+              </div>
+              <div class="spr-row">
+                <div class="spr-icon">🌱</div>
+                <div class="spr-fact">
+                  <strong>Feed every 30d</strong>
+                  <div class="spr-meta">half-strength</div>
+                </div>
+              </div>
+              <div class="spr-row">
+                <div class="spr-icon">🩺</div>
+                <div class="spr-fact">
+                  <strong>Check-in tomorrow</strong>
+                  <div class="spr-meta">We'll nudge you once</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sheet-footer">
+            <button class="btn primary">Adopt Monty<span class="arrow" style="width:18px;height:18px;background:rgba(255,255,255,0.22);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;">→</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <strong>Step 3 · name &amp; commit.</strong> Preview card at the top — large medallion + Fraunces italic name (live-bound to the input below) + species · space line + 3 meta chips. Nickname input defaults to the species common name; user can change to anything. Schedule preview below shows the calculated frequencies with reasoning ("bumped up from species baseline due to medium light in Living Room") — same copy vocabulary as Plant Detail's Schedule panel. Also shows a "First check-in tomorrow" note so the user knows the app will re-engage without feeling pushy. Primary CTA reads "Adopt [Nickname]" — personal, active. Back button returns to step 2 (Space + environment, not shown here — follows the same shell as step 1).
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Wrap-up -->
+  <!-- ========================================================= -->
+  <div class="wrap-up">
+    <h2>Add Plant <em>locked</em></h2>
+    <p>The most-used form in the app. FAB is universal; this flow is what it opens. Keep friction low: 3 steps max, smart defaults, optional photo, one primary CTA per step. Same shell is reused for Edit plant (fields pre-filled, CTA changes to "Save"), Log care (single-step variant), and Delete plant (confirmation variant).</p>
+    <ul class="key-list">
+      <li><strong>Shell.</strong> Centered dialog on desktop (600×640), Vaul bottom sheet on mobile (~82dvh). Header: eyebrow + Fraunces italic title + close (✕). Progress indicator: 3 dots + label (desktop) / bar + "N / 3" counter (mobile). Body scrolls. Footer: Back left, primary CTA right. Scrim-dim behind, scrim-tap or Escape closes with confirm if form dirty.</li>
+      <li><strong>Step 1 · Species.</strong> Search + popular grid + optional photo. Photo is first-class but skippable. Perenual species hydrated on Continue (awaits `/api/v1/species/:id?perenual_id=X` for Perenual-sourced picks to get full care metadata before step 2 calculates schedule).</li>
+      <li><strong>Step 2 · Space + environment.</strong> (not mocked) — pick existing space or "+ Add a space" inline. Environment 3 segments (Light / Temperature / Humidity) auto-filled from the space's defaults; override if this plant needs different. "Inherited from Living Room" hint under each segment.</li>
+      <li><strong>Step 3 · Name &amp; commit.</strong> Preview card (live-bound to nickname input), schedule calc preview with reasoning, primary "Adopt [Nickname]" CTA.</li>
+      <li><strong>Smart defaults everywhere.</strong> Nickname defaults to species common name. Environment inherits from space. First-check-in reminder is auto-scheduled. User ships the form with just 3 taps (species → space → adopt) if they accept defaults.</li>
+      <li><strong>FAB is universal.</strong> ＋ button on Today, House, Journal, Encyclopedia, Me — always opens this dialog. Mobile FAB sits in the middle dock slot. Shortcut: <code>N</code> key on desktop.</li>
+      <li><strong>Perenual rate-limit fallback.</strong> If Perenual details hit 429 or are missing, Species.build_fallback_from_search persists a minimal row with neutral care defaults (watering 7d, feeding 30d, personality chill). User still completes the flow; schedule is later refined when species hydrates.</li>
+      <li><strong>Reuse for other CRUD.</strong> Same shell handles: Edit plant (all fields editable, title "Edit Monty"), Log care (single-step, title "Log watering · Monty"), Delete plant (destructive confirm variant — coral primary CTA "Delete forever"). One dialog primitive + body variants.</li>
+      <li><strong>Relationship to onboarding.</strong> Onboarding Step 3 (mockup 19) is a <em>different</em> shell — full-screen wizard, multi-plant batch-add in one session. This dialog is the single-plant post-onboarding flow summoned from the FAB. They share the underlying primitives — <code>SpeciesPicker</code>, <code>PhotoUpload</code>, <code>SpacePicker</code>, <code>EnvSegment</code>, <code>NicknameInput</code>, <code>SchedulePreview</code> — but NOT the shell. Build the primitives once; Onboarding composes them into its wizard pages, Add Plant composes them into this 3-step dialog.</li>
+      <li><strong>Post-adopt celebration.</strong> On submit, dialog closes with a scale-down + toast: "Monty joined your greenhouse 🌿". Today's rituals refresh. If first plant, triggers first-run tour instead.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

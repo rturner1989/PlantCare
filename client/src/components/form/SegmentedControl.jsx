@@ -8,9 +8,11 @@ import { useId } from 'react'
 const TRACK = 'flex gap-1.5 mt-2 bg-mint p-1 rounded-md'
 const LABEL = 'flex items-center gap-1.5 text-xs font-bold text-ink-soft uppercase tracking-wider'
 const OPTION_BASE =
-  'relative flex-1 flex items-center justify-center py-2 rounded-sm text-xs font-bold cursor-pointer capitalize transition-colors duration-200'
+  'relative flex-1 flex items-center justify-center py-2 rounded-sm text-xs font-bold capitalize transition-colors duration-200'
 const OPTION_ACTIVE = 'text-forest'
 const OPTION_INACTIVE = 'text-ink-soft'
+const OPTION_ENABLED = 'cursor-pointer'
+const OPTION_DISABLED = 'cursor-not-allowed opacity-50'
 const PILL = 'absolute inset-0 bg-card rounded-sm shadow-sm'
 const SPRING = { type: 'spring', stiffness: 400, damping: 30 }
 
@@ -38,13 +40,19 @@ export default function SegmentedControl({ icon, label, value, onChange, options
       <div className={TRACK} role="radiogroup" aria-label={label}>
         {normalized.map((option) => {
           const isActive = option.value === value
+          const isDisabled = Boolean(option.disabled)
           return (
-            <label key={option.value} className={`${OPTION_BASE} ${isActive ? OPTION_ACTIVE : OPTION_INACTIVE}`}>
+            <label
+              key={option.value}
+              className={`${OPTION_BASE} ${isActive ? OPTION_ACTIVE : OPTION_INACTIVE} ${isDisabled ? OPTION_DISABLED : OPTION_ENABLED}`}
+              title={option.hint}
+            >
               <input
                 type="radio"
                 name={groupName}
                 value={option.value}
                 checked={isActive}
+                disabled={isDisabled}
                 onChange={() => onChange(option.value)}
                 className="sr-only"
               />

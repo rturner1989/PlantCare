@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — Plant Doctor · hybrid diagnostic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --paper-deep: #f3eee2;
+    --paper-edge: #e8ddc6;
+    --mint: #dff2e2;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --coral-deep: #c4412a;
+    --sunshine: #ffb83d;
+    --sunshine-deep: #a56d12;
+    --sky: #c7e3f5;
+    --sky-deep: #2c6a94;
+    --shadow-warm-sm: 0 2px 10px rgba(80,56,18,0.07), 0 0 0 1px rgba(80,56,18,0.025);
+    --shadow-warm-md: 0 18px 40px rgba(80,56,18,0.10), 0 2px 8px rgba(80,56,18,0.04);
+    --shadow-warm-lg: 0 36px 80px -8px rgba(80,56,18,0.18), 0 6px 16px rgba(80,56,18,0.06);
+    --shadow-cta: 0 6px 16px rgba(20,144,47,0.32), inset 0 1px 0 rgba(255,255,255,0.3);
+    --shadow-medallion: 0 12px 28px -6px rgba(11,58,26,0.2), inset 0 0 0 1px rgba(11,58,26,0.08);
+    --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #eff7e6 55%, #e4efd5 100%);
+    --gradient-paper: linear-gradient(180deg, #fbf8f1 0%, #f6f0e0 100%);
+    --gradient-display: linear-gradient(130deg, #0b3a1a 0%, #14902f 60%, #32c456 100%);
+    --gradient-brand: linear-gradient(135deg, #32c456, #14902f);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #ecece0;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+  .page { max-width: 1440px; margin: 0 auto; }
+  .page-header { text-align: center; margin-bottom: 56px; }
+  .page-header .eyebrow {
+    display: inline-block; padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 64px; letter-spacing: -0.035em;
+    line-height: 1; margin-bottom: 18px;
+  }
+  .page-header h1 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .page-header p {
+    font-size: 17px; color: var(--ink-soft);
+    max-width: 760px; margin: 0 auto; line-height: 1.6;
+  }
+  .step-caption {
+    max-width: 1360px; margin: 48px auto 14px; padding: 0 8px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .step-caption .tag {
+    display: inline-block; padding: 4px 12px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .step-caption h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 32px; letter-spacing: -0.02em;
+  }
+  .step-caption .spec {
+    margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600;
+  }
+  .step-row {
+    display: flex; gap: 40px; align-items: flex-start;
+    justify-content: center; flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  /* Browser frame */
+  .browser {
+    background: #f5f1e8;
+    border-radius: 16px;
+    box-shadow: var(--shadow-warm-lg);
+    overflow: hidden;
+    border: 1px solid rgba(80,56,18,0.1);
+    width: 960px;
+    flex-shrink: 0;
+  }
+  .browser .chrome {
+    height: 38px; background: #ede6d5;
+    border-bottom: 1px solid rgba(80,56,18,0.1);
+    display: flex; align-items: center; padding: 0 14px; gap: 8px;
+  }
+  .browser .chrome .dots { display: flex; gap: 6px; }
+  .browser .chrome .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .browser .chrome .dot-r { background: #ff5f57; }
+  .browser .chrome .dot-y { background: #febc2e; }
+  .browser .chrome .dot-g { background: #28c840; }
+  .browser .chrome .url {
+    flex: 1; margin: 0 14px; height: 22px;
+    background: var(--paper);
+    border: 1px solid rgba(80,56,18,0.08);
+    border-radius: 5px;
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 11px; color: var(--ink-softer);
+    font-family: "SF Mono", Consolas, monospace;
+  }
+  .browser .viewport {
+    height: 780px;
+    background: var(--gradient-mint);
+    position: relative; overflow: hidden;
+  }
+  .browser .viewport::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+
+  /* iPhone */
+  .phone {
+    width: 413px; height: 872px;
+    background: #0a0a0a;
+    border-radius: 56px; padding: 10px;
+    box-shadow: 0 0 0 2px #2a2a2a, 0 36px 80px -8px rgba(11,58,26,0.3), 0 12px 24px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+  }
+  .phone .screen {
+    width: 393px; height: 852px;
+    border-radius: 48px;
+    background: var(--gradient-mint);
+    overflow: hidden; position: relative;
+  }
+  .phone .screen::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+    pointer-events: none; z-index: 1;
+  }
+  .phone .island {
+    position: absolute; top: 21px; left: 50%;
+    transform: translateX(-50%);
+    width: 123px; height: 37px;
+    background: #000; border-radius: 100px;
+    z-index: 40;
+  }
+  .phone .status-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 30px 0;
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    z-index: 30; pointer-events: none;
+  }
+
+  /* Blobs */
+  .blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(70px);
+    pointer-events: none; z-index: 0;
+    opacity: 0.55;
+  }
+  .blob-mint { background: rgba(134,219,101,0.35); }
+  .blob-sun { background: rgba(255,184,61,0.25); }
+  .blob-coral { background: rgba(255,107,61,0.2); }
+
+  /* Scrim + dialog (desktop) — same shell as Add Plant (mockup 27) */
+  .scrim {
+    position: absolute; inset: 0;
+    background: rgba(11,58,26,0.42);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 20;
+  }
+  .dialog {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 640px;
+    max-height: 700px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-lg);
+    z-index: 30;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .dialog-header {
+    padding: 18px 22px 14px;
+    display: flex; align-items: center; gap: 14px;
+    border-bottom: 1px solid var(--paper-edge);
+    flex-shrink: 0;
+  }
+  .dialog-header .dh-medallion {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, #a8d9aa, #77b97a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-medallion);
+    position: relative;
+    overflow: hidden;
+  }
+  .dialog-header .dh-medallion::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,240,200,0.4), transparent 55%);
+    border-radius: 50%;
+  }
+  .dialog-header .dh-body { flex: 1; min-width: 0; }
+  .dialog-header .eyebrow {
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--coral-deep);
+    margin-bottom: 2px;
+  }
+  .dialog-header h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 24px; letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .dialog-header h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .dialog-header .close-btn {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--paper-deep); color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; border: none; cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .dialog-body {
+    flex: 1; overflow-y: auto;
+    padding: 20px 24px 10px;
+    min-height: 0;
+    scrollbar-width: none;
+  }
+  .dialog-body::-webkit-scrollbar { display: none; }
+
+  .dialog-footer {
+    padding: 14px 22px 16px;
+    display: flex; align-items: center; gap: 10px;
+    border-top: 1px solid var(--paper-edge);
+    background: var(--paper);
+    flex-shrink: 0;
+  }
+  .dialog-footer .back {
+    padding: 8px 14px;
+    background: none; color: var(--ink-soft);
+    border: none; font-family: inherit;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer; border-radius: var(--radius-full);
+  }
+  .dialog-footer .back:hover { background: var(--paper-deep); color: var(--ink); }
+  .dialog-footer .spacer { flex: 1; }
+  .dialog-footer .btn {
+    padding: 10px 20px;
+    border-radius: var(--radius-full);
+    border: none; font-family: inherit;
+    font-weight: 800; font-size: 13px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .dialog-footer .btn.primary {
+    background: var(--gradient-brand); color: var(--paper);
+    box-shadow: var(--shadow-cta);
+  }
+  .dialog-footer .btn.primary[disabled] {
+    background: var(--paper-deep); color: var(--ink-softer);
+    box-shadow: none; cursor: not-allowed;
+  }
+  .dialog-footer .btn .arrow {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(255,255,255,0.22);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+
+  .sub-label {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 10px;
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .sub-label .meta {
+    font-family: "Fraunces"; font-style: italic;
+    font-size: 11px; color: var(--ink-soft); font-weight: 400;
+    text-transform: none; letter-spacing: -0.005em;
+  }
+
+  /* Plant context card — pre-selected plant */
+  .plant-context {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+  }
+  .plant-context .pc-avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, #a8d9aa, #77b97a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 2px var(--coral), 0 0 0 3px rgba(255,107,61,0.15);
+  }
+  .plant-context .pc-avatar::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,240,200,0.3), transparent 55%);
+    border-radius: 50%;
+  }
+  .plant-context .pc-body { flex: 1; min-width: 0; }
+  .plant-context .pc-name {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 16px;
+  }
+  .plant-context .pc-sub {
+    font-size: 11px; color: var(--ink-softer); font-weight: 600;
+    margin-top: 2px;
+  }
+  .plant-context .pc-change {
+    padding: 5px 10px;
+    background: var(--paper);
+    border: none; font-family: inherit;
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 700;
+    color: var(--ink-soft);
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-warm-sm);
+  }
+
+  /* Symptom grid */
+  .symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .symptom-card {
+    padding: 12px 10px 10px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    text-align: center;
+    transition: transform 140ms ease, border-color 140ms ease;
+    position: relative;
+  }
+  .symptom-card:hover { transform: translateY(-1px); }
+  .symptom-card.selected {
+    background: var(--mint);
+    border-color: var(--emerald);
+    box-shadow: 0 3px 8px rgba(20,144,47,0.18);
+  }
+  .symptom-card.selected::after {
+    content: "✓";
+    position: absolute; top: 6px; right: 6px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--emerald); color: var(--paper);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800;
+  }
+  .symptom-card .sc-icon {
+    font-size: 26px;
+    line-height: 1;
+  }
+  .symptom-card .sc-label {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 12px; color: var(--ink);
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+  }
+  .symptom-card.selected .sc-label { font-weight: 500; color: var(--forest); }
+
+  /* Photo-assist prompt */
+  .photo-assist {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255,184,61,0.1);
+    border-radius: var(--radius-md);
+    box-shadow: inset 0 0 0 1px rgba(165,109,18,0.2);
+    margin-bottom: 14px;
+  }
+  .photo-assist .pa-icon {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, #ffd479, var(--sunshine-deep));
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .photo-assist .pa-body { flex: 1; }
+  .photo-assist .pa-title {
+    font-weight: 800; font-size: 13px; color: var(--ink);
+  }
+  .photo-assist .pa-meta {
+    font-family: "Fraunces"; font-style: italic;
+    font-size: 11px; color: var(--ink-soft);
+    margin-top: 1px;
+  }
+  .photo-assist .pa-btn {
+    padding: 6px 12px;
+    background: var(--paper); color: var(--sunshine-deep);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800;
+    border: none; cursor: pointer; font-family: inherit;
+    box-shadow: var(--shadow-warm-sm);
+    flex-shrink: 0;
+  }
+
+  /* ============ RESULTS VIEW ============ */
+
+  .diagnosis-card {
+    padding: 18px 20px;
+    background: linear-gradient(135deg, var(--paper), #f5efdc);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .diagnosis-card::before {
+    content: "";
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,184,61,0.25), transparent 60%);
+    pointer-events: none;
+  }
+  .diagnosis-card > * { position: relative; z-index: 1; }
+  .diagnosis-card .confidence {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px;
+    background: rgba(255,184,61,0.2);
+    color: var(--sunshine-deep);
+    border-radius: var(--radius-full);
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .diagnosis-card .confidence .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--sunshine-deep);
+  }
+  .diagnosis-card h3 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 28px; letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  .diagnosis-card h3 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .diagnosis-card .dx-summary {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.55;
+  }
+
+  /* Article card */
+  .article-card {
+    padding: 16px 18px;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-warm-sm);
+    margin-bottom: 12px;
+    display: flex; align-items: flex-start; gap: 12px;
+    cursor: pointer;
+  }
+  .article-card .ac-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--mint), #bde5c1);
+    color: var(--emerald);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .article-card .ac-body { flex: 1; min-width: 0; }
+  .article-card .ac-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 1px 7px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-full);
+    font-size: 8px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 4px;
+  }
+  .article-card .ac-title {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    font-size: 16px; color: var(--ink);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .article-card .ac-meta {
+    font-size: 11px; color: var(--ink-softer); font-weight: 600;
+  }
+  .article-card .ac-arrow {
+    color: var(--emerald);
+    font-size: 16px; font-weight: 800;
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  /* Actions list — quick fixes */
+  .action-list {
+    padding: 14px 18px;
+    background: var(--mint);
+    border-radius: var(--radius-md);
+    margin-bottom: 14px;
+    box-shadow: inset 0 0 0 1px rgba(20,144,47,0.15);
+  }
+  .action-list h4 {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--emerald);
+    margin-bottom: 8px;
+  }
+  .action-list ul {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .action-list li {
+    font-size: 13px; color: var(--ink); line-height: 1.5;
+    padding-left: 20px;
+    position: relative;
+  }
+  .action-list li::before {
+    content: "";
+    position: absolute; left: 4px; top: 6px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 2px rgba(20,144,47,0.2);
+  }
+  .action-list li strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--forest);
+  }
+
+  /* Ask the bot (Phase 2.5 gated) */
+  .ask-bot {
+    padding: 18px 22px;
+    background: linear-gradient(135deg, #1a5e2a 0%, #0b3a1a 60%, #124626 100%);
+    color: var(--paper);
+    border-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .ask-bot::before {
+    content: "";
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,184,61,0.25), transparent 60%);
+    pointer-events: none;
+  }
+  .ask-bot > * { position: relative; z-index: 1; }
+  .ask-bot .ab-avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, #ffd479, var(--sunshine));
+    color: var(--forest);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(255,184,61,0.35);
+  }
+  .ask-bot .ab-body { flex: 1; min-width: 0; }
+  .ask-bot .ab-title {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 18px; color: var(--paper);
+    line-height: 1.2;
+  }
+  .ask-bot .ab-title em {
+    background: linear-gradient(135deg, #ffe5aa, var(--sunshine));
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .ask-bot .ab-meta {
+    font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 600;
+    margin-top: 2px;
+  }
+  .ask-bot .ab-btn {
+    padding: 8px 14px;
+    background: var(--sunshine); color: var(--forest);
+    border-radius: var(--radius-full);
+    font-size: 12px; font-weight: 800;
+    border: none; cursor: pointer; font-family: inherit;
+    box-shadow: 0 4px 10px rgba(255,184,61,0.4);
+    flex-shrink: 0;
+  }
+  .ask-bot .ab-lock {
+    position: absolute;
+    top: 14px; right: 16px;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px;
+    background: rgba(255,255,255,0.15);
+    border-radius: var(--radius-full);
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--sunshine);
+    z-index: 2;
+  }
+
+  /* ============ MOBILE BOTTOM SHEET ============ */
+
+  .m-app-dim {
+    position: absolute; inset: 0;
+    background: var(--gradient-mint);
+    opacity: 0.4;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .m-app-dim::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.23 0 0 0 0 0.1 0 0 0 0.35 0'/></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.4'/></svg>");
+    background-size: 240px 240px;
+    opacity: 0.16; mix-blend-mode: multiply;
+  }
+  .m-scrim {
+    position: absolute; inset: 0;
+    background: rgba(11,58,26,0.42);
+    backdrop-filter: blur(2px);
+    z-index: 20;
+  }
+  .m-sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: var(--paper);
+    border-radius: 28px 28px 0 0;
+    z-index: 30;
+    display: flex; flex-direction: column;
+    max-height: 86%;
+    box-shadow: 0 -20px 60px -8px rgba(11,58,26,0.35);
+    padding-top: 8px;
+  }
+  .m-sheet .sheet-handle {
+    width: 42px; height: 4px; border-radius: 2px;
+    background: var(--paper-edge);
+    margin: 0 auto 10px;
+  }
+  .m-sheet .sheet-header {
+    padding: 4px 20px 14px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--paper-edge);
+  }
+  .m-sheet .sheet-header .med {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, #a8d9aa, #77b97a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-medallion);
+  }
+  .m-sheet .sheet-header .ht { flex: 1; min-width: 0; }
+  .m-sheet .sheet-header .eyebrow {
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--coral-deep);
+  }
+  .m-sheet .sheet-header h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 20px; letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-top: 2px;
+  }
+  .m-sheet .sheet-header h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .m-sheet .sheet-header .close {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--paper-deep); color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; border: none;
+    flex-shrink: 0;
+  }
+  .m-sheet .sheet-body {
+    flex: 1; overflow-y: auto;
+    padding: 14px 18px 8px;
+    min-height: 0;
+    scrollbar-width: none;
+  }
+  .m-sheet .sheet-body::-webkit-scrollbar { display: none; }
+  .m-sheet .sheet-footer {
+    padding: 12px 18px calc(16px + env(safe-area-inset-bottom));
+    display: flex; align-items: center; gap: 10px;
+    border-top: 1px solid var(--paper-edge);
+    background: var(--paper);
+  }
+  .m-sheet .sheet-footer .btn {
+    padding: 12px 16px;
+    border-radius: var(--radius-full);
+    border: none; font-family: inherit;
+    font-weight: 800; font-size: 13px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .m-sheet .sheet-footer .btn.primary {
+    flex: 1;
+    background: var(--gradient-brand); color: var(--paper);
+    box-shadow: var(--shadow-cta);
+  }
+  .m-sheet .sheet-footer .back {
+    padding: 12px 14px;
+    background: var(--paper-deep); color: var(--ink-soft);
+    border-radius: var(--radius-full); border: none;
+    font-family: inherit; font-size: 13px; font-weight: 700;
+  }
+
+  .m-sheet .symptom-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .m-sheet .symptom-card { padding: 10px 6px; }
+  .m-sheet .symptom-card .sc-icon { font-size: 22px; }
+  .m-sheet .symptom-card .sc-label { font-size: 11px; }
+
+  .note {
+    max-width: 1360px; margin: 32px auto;
+    padding: 18px 24px;
+    background: rgba(251,248,241,0.5);
+    border: 1px dashed rgba(80,56,18,0.2);
+    border-radius: var(--radius-md);
+    font-size: 13px; color: var(--ink-soft); line-height: 1.7;
+  }
+  .note strong { color: var(--ink); font-weight: 800; }
+
+  .wrap-up {
+    max-width: 1360px;
+    margin: 64px auto 0;
+    padding: 36px 48px 44px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+  }
+  .wrap-up h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 28px; letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .wrap-up h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .wrap-up p { font-size: 14px; color: var(--ink-soft); line-height: 1.7; margin-bottom: 18px; }
+  .wrap-up .key-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .wrap-up .key-list li {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.55;
+    padding-left: 24px; position: relative;
+  }
+  .wrap-up .key-list li::before {
+    content: ""; position: absolute; left: 6px; top: 7px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.15);
+  }
+  .wrap-up .key-list li strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--ink); font-size: 14px; margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <span class="eyebrow">Mockup 33 · Plant Doctor · hybrid</span>
+    <h1>Something's <em>wrong</em>?</h1>
+    <p>Hybrid diagnostic. Symptom picker → matched articles + quick-fix checklist (works today, offline-safe) → "Ask the Doctor" AI chat CTA at the bottom (Phase 2.5, gated behind payment). Graceful degradation — ships valuable today, gets smarter when the bot arrives, no UI rework needed.</p>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- Step 1 — Symptom picker -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Step 1 of 2</span>
+    <h2>Symptom picker</h2>
+    <span class="spec">· plant context pre-filled · tap up to 3 symptoms · photo-assist optional · continue to diagnosis</span>
+  </div>
+
+  <div class="step-row">
+
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/plants/monty — Doctor dialog · step 1</div>
+      </div>
+      <div class="viewport">
+        <div class="blob blob-mint" style="width: 420px; height: 420px; top: -160px; right: -180px;"></div>
+        <div class="blob blob-coral" style="width: 260px; height: 260px; bottom: -80px; left: 20%;"></div>
+        <div class="scrim"></div>
+
+        <div class="dialog">
+          <div class="dialog-header">
+            <div class="dh-medallion">🩺</div>
+            <div class="dh-body">
+              <div class="eyebrow">Plant Doctor · step 1</div>
+              <h2>What's <em>wrong</em> with Monty?</h2>
+            </div>
+            <button class="close-btn">✕</button>
+          </div>
+
+          <div class="dialog-body">
+            <div class="plant-context">
+              <div class="pc-avatar">🌿</div>
+              <div class="pc-body">
+                <div class="pc-name">Monty</div>
+                <div class="pc-sub">Monstera deliciosa · Living Room · 47 days with you</div>
+              </div>
+              <button class="pc-change">Change plant</button>
+            </div>
+
+            <div class="sub-label">Tap what you're seeing<span class="meta">pick up to 3 — more specific = better match</span></div>
+            <div class="symptom-grid">
+              <div class="symptom-card selected">
+                <div class="sc-icon">🍂</div>
+                <div class="sc-label">Yellowing leaves</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">🥀</div>
+                <div class="sc-label">Drooping</div>
+              </div>
+              <div class="symptom-card selected">
+                <div class="sc-icon">🪨</div>
+                <div class="sc-label">Crispy edges</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">🌫</div>
+                <div class="sc-label">Mouldy soil</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">🐛</div>
+                <div class="sc-label">Pests visible</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">🕸</div>
+                <div class="sc-label">Webs / sticky</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">🌱</div>
+                <div class="sc-label">Stunted growth</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">💧</div>
+                <div class="sc-label">Soft / mushy stem</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">❓</div>
+                <div class="sc-label">Something else</div>
+              </div>
+            </div>
+
+            <div class="photo-assist">
+              <div class="pa-icon">📷</div>
+              <div class="pa-body">
+                <div class="pa-title">Add a photo (optional)</div>
+                <div class="pa-meta">Phase 2 adds AI recognition — for now the photo attaches to Journal as evidence.</div>
+              </div>
+              <button class="pa-btn">📷 Take photo</button>
+            </div>
+          </div>
+
+          <div class="dialog-footer">
+            <button class="back">Cancel</button>
+            <div class="spacer"></div>
+            <span style="font-size: 11px; color: var(--ink-softer); font-weight: 700; margin-right: 8px;">2 of 3 selected</span>
+            <button class="btn primary">Get diagnosis<span class="arrow">→</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile step 1 -->
+    <div class="phone">
+      <div class="screen">
+        <div class="island"></div>
+        <div class="status-bar"><span>9:41</span></div>
+        <div class="m-app-dim"></div>
+        <div class="m-scrim"></div>
+
+        <div class="m-sheet">
+          <div class="sheet-handle"></div>
+          <div class="sheet-header">
+            <div class="med">🩺</div>
+            <div class="ht">
+              <span class="eyebrow">Doctor · step 1</span>
+              <h2>What's <em>wrong</em> with Monty?</h2>
+            </div>
+            <button class="close">✕</button>
+          </div>
+
+          <div class="sheet-body">
+            <div class="plant-context">
+              <div class="pc-avatar">🌿</div>
+              <div class="pc-body">
+                <div class="pc-name">Monty</div>
+                <div class="pc-sub">Monstera · 47d</div>
+              </div>
+              <button class="pc-change">Change</button>
+            </div>
+
+            <div class="sub-label">Tap symptoms<span class="meta">up to 3</span></div>
+            <div class="symptom-grid">
+              <div class="symptom-card selected">
+                <div class="sc-icon">🍂</div>
+                <div class="sc-label">Yellowing leaves</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">🥀</div>
+                <div class="sc-label">Drooping</div>
+              </div>
+              <div class="symptom-card selected">
+                <div class="sc-icon">🪨</div>
+                <div class="sc-label">Crispy edges</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">🌫</div>
+                <div class="sc-label">Mouldy soil</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">🐛</div>
+                <div class="sc-label">Pests</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">💧</div>
+                <div class="sc-label">Soft stem</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">🌱</div>
+                <div class="sc-label">Stunted</div>
+              </div>
+              <div class="symptom-card">
+                <div class="sc-icon">❓</div>
+                <div class="sc-label">Something else</div>
+              </div>
+            </div>
+
+            <div class="photo-assist">
+              <div class="pa-icon">📷</div>
+              <div class="pa-body">
+                <div class="pa-title">Add a photo</div>
+                <div class="pa-meta">Optional · attaches to Journal</div>
+              </div>
+              <button class="pa-btn">📷</button>
+            </div>
+          </div>
+
+          <div class="sheet-footer">
+            <button class="btn primary">Get diagnosis · 2 picks<span style="width: 18px; height: 18px; background: rgba(255,255,255,0.22); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px;">→</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <strong>Step 1 · symptom picker.</strong> Opens from Plant Detail's radial wheel ("🩺 Doctor" spoke) with the plant pre-filled, or from Encyclopedia / Today with a "Change plant" picker. Symptom grid = 9 canonical plant-problem categories (yellowing leaves, drooping, crispy edges, mouldy soil, pests, webs/sticky, stunted growth, soft stem, something else). Tap up to 3. Selected chips get mint fill + emerald border + ✓ badge. Photo-assist prompt offers optional photo capture — useful as Journal evidence today, pairs with Phase-2 AI plant recognition later. Primary CTA counter shows "N of 3 selected". At least 1 symptom required to continue.
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Step 2 — Results / diagnosis -->
+  <!-- ========================================================= -->
+  <div class="step-caption">
+    <span class="tag">Step 2 of 2</span>
+    <h2>Diagnosis &amp; fixes</h2>
+    <span class="spec">· likely cause · quick-fix checklist · matched articles · "Ask the Doctor" AI CTA (P2.5 gated)</span>
+  </div>
+
+  <div class="step-row">
+
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url">plantcare.app/plants/monty — Doctor dialog · step 2</div>
+      </div>
+      <div class="viewport">
+        <div class="blob blob-mint" style="width: 420px; height: 420px; top: -160px; right: -180px;"></div>
+        <div class="scrim"></div>
+
+        <div class="dialog">
+          <div class="dialog-header">
+            <div class="dh-medallion">🩺</div>
+            <div class="dh-body">
+              <div class="eyebrow">Plant Doctor · step 2</div>
+              <h2>Most likely: <em>underwatering</em></h2>
+            </div>
+            <button class="close-btn">✕</button>
+          </div>
+
+          <div class="dialog-body">
+            <div class="diagnosis-card">
+              <div class="confidence"><span class="dot"></span>High confidence · 2 symptoms matched</div>
+              <h3>Monty is probably <em>thirsty</em>, not sick.</h3>
+              <p class="dx-summary">Yellowing leaves <em>plus</em> crispy edges on a Monstera almost always means underwatering. Your schedule shows it's been 10 days since last water — 3 days overdue for this plant in Medium light.</p>
+            </div>
+
+            <div class="action-list">
+              <h4>Try this first — quick fixes</h4>
+              <ul>
+                <li><strong>Water thoroughly.</strong> Until it drains out the bottom. Monstera roots want a deep drink, not a sip.</li>
+                <li><strong>Trim the crispy tips</strong> with sharp scissors — they won't recover, but the leaf will.</li>
+                <li><strong>Move away from direct heat</strong> — radiator, vent, sunny window. Crisping speeds up there.</li>
+                <li><strong>Check again in 48h.</strong> If new leaves look worse, it's not underwatering — come back and refine symptoms.</li>
+              </ul>
+            </div>
+
+            <div class="sub-label">Read more<span class="meta">3 matched articles · all 5-8 min reads</span></div>
+
+            <div class="article-card">
+              <div class="ac-icon">🍂</div>
+              <div class="ac-body">
+                <div class="ac-tag">Plant Doctor</div>
+                <div class="ac-title">Yellowing leaves — overwater or underwater?</div>
+                <div class="ac-meta">8 min read · matches 3 of your symptoms</div>
+              </div>
+              <div class="ac-arrow">→</div>
+            </div>
+            <div class="article-card">
+              <div class="ac-icon">💧</div>
+              <div class="ac-body">
+                <div class="ac-tag">Care tips</div>
+                <div class="ac-title">Watering Monstera without drowning it</div>
+                <div class="ac-meta">6 min read · species-specific</div>
+              </div>
+              <div class="ac-arrow">→</div>
+            </div>
+            <div class="article-card">
+              <div class="ac-icon">🪨</div>
+              <div class="ac-body">
+                <div class="ac-tag">Plant Doctor</div>
+                <div class="ac-title">Crispy leaf edges — humidity, salt, or scorch?</div>
+                <div class="ac-meta">5 min read</div>
+              </div>
+              <div class="ac-arrow">→</div>
+            </div>
+
+            <div class="ask-bot">
+              <span class="ab-lock">🔒 Phase 2.5 · Upgrade</span>
+              <div class="ab-avatar">🎭</div>
+              <div class="ab-body">
+                <div class="ab-title">Still stuck? <em>Ask Monty</em> directly</div>
+                <div class="ab-meta">Have a chat with the Doctor — your plant's personality, powered by AI</div>
+              </div>
+              <button class="ab-btn">Try it →</button>
+            </div>
+          </div>
+
+          <div class="dialog-footer">
+            <button class="back">← Refine symptoms</button>
+            <div class="spacer"></div>
+            <button class="btn primary">Log to Journal<span class="arrow">→</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile step 2 -->
+    <div class="phone">
+      <div class="screen">
+        <div class="island"></div>
+        <div class="status-bar"><span>9:41</span></div>
+        <div class="m-app-dim"></div>
+        <div class="m-scrim"></div>
+
+        <div class="m-sheet">
+          <div class="sheet-handle"></div>
+          <div class="sheet-header">
+            <button class="close" style="background: var(--paper-deep); margin-right: -4px;">‹</button>
+            <div class="med">🩺</div>
+            <div class="ht">
+              <span class="eyebrow">Doctor · diagnosis</span>
+              <h2>Most likely: <em>underwatering</em></h2>
+            </div>
+            <button class="close">✕</button>
+          </div>
+
+          <div class="sheet-body">
+            <div class="diagnosis-card" style="padding: 14px 16px;">
+              <div class="confidence"><span class="dot"></span>High · 2 symptoms</div>
+              <h3 style="font-size: 22px;">Monty is <em>thirsty</em>, not sick.</h3>
+              <p class="dx-summary" style="font-size: 12px;">Yellowing + crispy edges + 3 days overdue = underwatering.</p>
+            </div>
+
+            <div class="action-list" style="padding: 12px 14px;">
+              <h4>Try first</h4>
+              <ul>
+                <li><strong>Water thoroughly</strong> · until it drains out.</li>
+                <li><strong>Trim crispy tips</strong> with sharp scissors.</li>
+                <li><strong>Move away from heat</strong> · radiator, vent, direct sun.</li>
+                <li><strong>Check in 48h.</strong></li>
+              </ul>
+            </div>
+
+            <div class="sub-label">Read more<span class="meta">3 articles</span></div>
+
+            <div class="article-card" style="padding: 12px 14px; gap: 10px;">
+              <div class="ac-icon" style="width: 36px; height: 36px; font-size: 15px;">🍂</div>
+              <div class="ac-body">
+                <div class="ac-tag">Plant Doctor</div>
+                <div class="ac-title" style="font-size: 14px;">Yellowing leaves — over or under?</div>
+                <div class="ac-meta" style="font-size: 10px;">8 min · matches 3 symptoms</div>
+              </div>
+              <div class="ac-arrow">→</div>
+            </div>
+            <div class="article-card" style="padding: 12px 14px; gap: 10px;">
+              <div class="ac-icon" style="width: 36px; height: 36px; font-size: 15px;">💧</div>
+              <div class="ac-body">
+                <div class="ac-tag">Care tips</div>
+                <div class="ac-title" style="font-size: 14px;">Watering Monstera</div>
+                <div class="ac-meta" style="font-size: 10px;">6 min</div>
+              </div>
+              <div class="ac-arrow">→</div>
+            </div>
+
+            <div class="ask-bot" style="padding: 14px 16px;">
+              <span class="ab-lock">🔒 P2.5</span>
+              <div class="ab-avatar" style="width: 40px; height: 40px; font-size: 18px;">🎭</div>
+              <div class="ab-body">
+                <div class="ab-title" style="font-size: 15px;">Ask <em>Monty</em></div>
+                <div class="ab-meta" style="font-size: 10px;">AI chat · upgrade</div>
+              </div>
+              <button class="ab-btn" style="padding: 6px 12px; font-size: 11px;">Try →</button>
+            </div>
+          </div>
+
+          <div class="sheet-footer">
+            <button class="back">← Back</button>
+            <button class="btn primary">Log to Journal<span style="width: 18px; height: 18px; background: rgba(255,255,255,0.22); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px;">→</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <strong>Step 2 · diagnosis &amp; fixes.</strong> Top card = Most-likely diagnosis in Fraunces italic (gradient em) with a confidence pill ("High · 2 symptoms matched") + summary paragraph mentioning the plant's actual care state (days overdue, light level) — this is what makes it feel <em>diagnosed</em>, not just "here are some articles". Below: <strong>mint action-list</strong> with 3-4 immediate quick-fixes. Then 2-3 <strong>matched articles</strong> ranked by symptom-overlap. At the bottom: <strong>Ask the Doctor</strong> CTA — forest-gradient card with sunshine medallion (🎭 = plant personality emoji), "Try it →" primary. Phase 2.5 lock-pill top-right indicates gated behind upgrade. When payment ships, the CTA opens a chat interface with the plant's personality voiced by Claude. Log-to-Journal primary so users can track what the diagnosis was — feeds the rescue-streak game-loop.
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- Wrap-up -->
+  <!-- ========================================================= -->
+  <div class="wrap-up">
+    <h2>Plant Doctor <em>locked</em> — hybrid</h2>
+    <p>Ships valuable today (symptom picker + article lookup + quick-fix checklist), gets smarter on Phase 2.5 (AI chat unlocks inside the same shell). One surface, one user-learned flow, no rework needed when the bot arrives.</p>
+    <ul class="key-list">
+      <li><strong>Entry points.</strong> Plant Detail radial wheel · Encyclopedia (Plant Doctor tab) · direct search "why are my leaves yellow" redirects here. Any path pre-fills the plant context if available, else shows a plant-picker.</li>
+      <li><strong>Two-step dialog shell.</strong> Same primitive as Add Plant (mockup 27). Desktop 640×700 centered dialog, mobile Vaul bottom sheet ~86dvh. Header has a 🩺 medallion + eyebrow ("Plant Doctor · step N") + Fraunces italic title.</li>
+      <li><strong>Step 1 — symptom picker.</strong> 9 canonical symptom chips (yellowing · drooping · crispy edges · mouldy soil · pests · webs/sticky · stunted · soft stem · something else). Tap up to 3. Selected chips mint-filled with emerald border + ✓ badge. Photo-assist prompt (optional — attaches to Journal, sets up Phase-2 AI recognition).</li>
+      <li><strong>Step 2 — diagnosis + fixes.</strong> Top card: confidence pill + Fraunces italic cause + plant-state-aware summary. Below: mint action-list (3-4 quick fixes). Below: matched articles (ranked by symptom overlap, links to Encyclopedia). Bottom: Ask-the-Doctor CTA (gated).</li>
+      <li><strong>Confidence levels.</strong> High (2+ symptoms clearly match one cause) · Medium (1 symptom, multiple candidates) · Low (ambiguous — recommend reading matched articles + trying a photo or asking the bot). Shown as sunshine-tinted pill.</li>
+      <li><strong>Plant-state-aware diagnosis.</strong> Doctor reads the plant's actual schedule + environment: "your schedule shows it's been 10 days since last water — 3 days overdue for this plant in Medium light". Not a static article lookup — uses user data. This is Phase 1 value, no LLM required.</li>
+      <li><strong>"Ask the Doctor" = Phase 2.5 gated.</strong> Dark-forest gradient card with 🎭 personality-voiced avatar + 🔒 Phase 2.5 lock-pill. When the user upgrades, the CTA opens a chat with Monty (or whichever plant) voiced by Claude via the plant's personality prompt. Fine to ship the dialog without this panel — it's additive.</li>
+      <li><strong>Log to Journal.</strong> Primary CTA commits a "Doctor consultation" journal entry (system event type) logging the symptoms + diagnosis + action plan. Feeds the rescue-streak game-loop + lets users look back at what was tried.</li>
+      <li><strong>Offline-safe.</strong> Symptom matching + article lookup work offline (symptom→article maps cached). Only the AI-chat CTA requires network. Fails gracefully — "you're offline · articles still work".</li>
+      <li><strong>Copy doesn't panic.</strong> "Monty is probably <em>thirsty</em>, not sick" reads calmly. "Try this first" not "Urgent action required". Plant Doctor is reassurance + guidance, not alarm.</li>
+      <li><strong>A11y.</strong> Symptom cards are real buttons with <code>aria-pressed</code> for selected state. Confidence pill has <code>aria-label</code> spelling out "High confidence, 2 of 2 symptoms matched". Article cards are links with descriptive aria-labels.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

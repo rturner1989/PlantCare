@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlantCare — Empty states</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --paper-deep: #f3eee2;
+    --paper-edge: #e8ddc6;
+    --mint: #dff2e2;
+    --leaf: #32c456;
+    --emerald: #14902f;
+    --forest: #0b3a1a;
+    --ink: #0a1d0e;
+    --ink-soft: #4a6a51;
+    --ink-softer: #7a9081;
+    --coral: #ff6b3d;
+    --coral-deep: #c4412a;
+    --sunshine: #ffb83d;
+    --sunshine-deep: #a56d12;
+    --sky: #c7e3f5;
+    --sky-deep: #2c6a94;
+    --shadow-warm-sm: 0 2px 10px rgba(80,56,18,0.07), 0 0 0 1px rgba(80,56,18,0.025);
+    --shadow-warm-md: 0 18px 40px rgba(80,56,18,0.10), 0 2px 8px rgba(80,56,18,0.04);
+    --shadow-warm-lg: 0 36px 80px -8px rgba(80,56,18,0.18), 0 6px 16px rgba(80,56,18,0.06);
+    --shadow-cta: 0 6px 16px rgba(20,144,47,0.32), inset 0 1px 0 rgba(255,255,255,0.3);
+    --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #eff7e6 55%, #e4efd5 100%);
+    --gradient-paper: linear-gradient(180deg, #fbf8f1 0%, #f6f0e0 100%);
+    --gradient-display: linear-gradient(130deg, #0b3a1a 0%, #14902f 60%, #32c456 100%);
+    --gradient-brand: linear-gradient(135deg, #32c456, #14902f);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: #ecece0;
+    color: var(--ink);
+    padding: 64px 32px;
+    min-height: 100vh;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+  .page { max-width: 1440px; margin: 0 auto; }
+  .page-header { text-align: center; margin-bottom: 56px; }
+  .page-header .eyebrow {
+    display: inline-block; padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .page-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 64px; letter-spacing: -0.035em;
+    line-height: 1; margin-bottom: 18px;
+  }
+  .page-header h1 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .page-header p {
+    font-size: 17px; color: var(--ink-soft);
+    max-width: 760px; margin: 0 auto; line-height: 1.6;
+  }
+  .step-caption {
+    max-width: 1360px; margin: 48px auto 14px; padding: 0 8px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .step-caption .tag {
+    display: inline-block; padding: 4px 12px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .step-caption h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 32px; letter-spacing: -0.02em;
+  }
+  .step-caption .spec {
+    margin-left: auto; color: var(--ink-soft); font-size: 13px; font-weight: 600;
+  }
+
+  /* Layout — 2 columns of stacked empty-state cards */
+  .empty-grid {
+    max-width: 1360px;
+    margin: 0 auto 32px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+  }
+
+  /* Empty state card — the primitive */
+  .empty-card {
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    min-height: 380px;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 14px;
+  }
+  .empty-card::before {
+    content: "";
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px; border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(134,219,101,0.18), transparent 60%);
+    pointer-events: none;
+  }
+  .empty-card > * { position: relative; z-index: 1; }
+
+  .empty-card .region-label {
+    position: absolute; top: 14px; left: 16px;
+    padding: 3px 10px;
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius-full);
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    z-index: 2;
+  }
+
+  /* Illustration (big circle) */
+  .es-illus {
+    width: 140px; height: 140px; border-radius: 50%;
+    background: var(--gradient-paper);
+    box-shadow: inset 0 0 0 1px var(--paper-edge), 0 16px 36px rgba(80,56,18,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 62px;
+    margin-bottom: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+  .es-illus::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,240,200,0.4), transparent 55%);
+    border-radius: 50%;
+  }
+  .es-illus.mint { background: linear-gradient(135deg, var(--paper), var(--mint)); }
+  .es-illus.coral { background: linear-gradient(135deg, var(--paper), #ffd8c6); }
+  .es-illus.sunshine { background: linear-gradient(135deg, var(--paper), #ffe5aa); }
+  .es-illus.sky { background: linear-gradient(135deg, var(--paper), var(--sky)); }
+  .es-illus.forest {
+    background: linear-gradient(135deg, #1a5e2a 0%, #0b3a1a 50%, #124626 100%);
+    color: var(--paper);
+  }
+
+  .empty-card h3 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 400; font-style: italic;
+    font-size: 32px; letter-spacing: -0.025em;
+    line-height: 1.05;
+    max-width: 440px;
+  }
+  .empty-card h3 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .empty-card p {
+    font-size: 14px; color: var(--ink-soft);
+    max-width: 380px; line-height: 1.55;
+    font-weight: 500;
+  }
+  .empty-card .es-actions {
+    display: flex; gap: 10px;
+    margin-top: 6px;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .es-btn {
+    padding: 10px 20px;
+    border-radius: var(--radius-full);
+    border: none; font-family: inherit;
+    font-size: 13px; font-weight: 800;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .es-btn.primary {
+    background: var(--gradient-brand); color: var(--paper);
+    box-shadow: var(--shadow-cta);
+  }
+  .es-btn.primary .arrow {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(255,255,255,0.22);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+  .es-btn.secondary {
+    background: var(--paper-deep); color: var(--ink);
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .es-btn.ghost {
+    background: transparent; color: var(--ink-soft);
+    text-decoration: underline dotted;
+  }
+
+  /* Hint strip — below heading, for "filter clear" / "try different" etc */
+  .es-hint {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px;
+    background: var(--paper-deep);
+    border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 700;
+    color: var(--ink-soft);
+    letter-spacing: -0.005em;
+    font-style: italic;
+    font-family: "Fraunces"; font-weight: 400;
+  }
+
+  .note {
+    max-width: 1360px; margin: 24px auto;
+    padding: 18px 24px;
+    background: rgba(251,248,241,0.5);
+    border: 1px dashed rgba(80,56,18,0.2);
+    border-radius: var(--radius-md);
+    font-size: 13px; color: var(--ink-soft); line-height: 1.7;
+  }
+  .note strong { color: var(--ink); font-weight: 800; }
+
+  .wrap-up {
+    max-width: 1360px;
+    margin: 64px auto 0;
+    padding: 36px 48px 44px;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-warm-md);
+  }
+  .wrap-up h2 {
+    font-family: "Fraunces"; font-style: italic; font-weight: 400;
+    font-size: 28px; letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .wrap-up h2 em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .wrap-up p {
+    font-size: 14px; color: var(--ink-soft); line-height: 1.7;
+    margin-bottom: 18px;
+  }
+  .wrap-up .key-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .wrap-up .key-list li {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.55;
+    padding-left: 24px; position: relative;
+  }
+  .wrap-up .key-list li::before {
+    content: ""; position: absolute; left: 6px; top: 7px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(20,144,47,0.15);
+  }
+  .wrap-up .key-list li strong {
+    font-family: "Fraunces"; font-style: italic; font-weight: 500;
+    color: var(--ink); font-size: 14px; margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <span class="eyebrow">Mockup 28 · Empty states · pattern library</span>
+    <h1>The <em>zero</em> state matters most</h1>
+    <p>Empty states are the first thing a user sees on a region they haven't populated yet. They need to sell the region's value, not apologise for emptiness. Warm copy, Fraunces italic heading, one primary action, optional secondary. Same shell on every region — medallion + headline + subtext + action row. Matches the v2 "collection-first, companion-shaped" positioning.</p>
+  </header>
+
+  <div class="step-caption">
+    <span class="tag">Primitive</span>
+    <h2>Empty-state card · 8 variants</h2>
+    <span class="spec">· one shell · per-region copy + illustration · 1 primary + 0-2 secondary actions</span>
+  </div>
+
+  <div class="empty-grid">
+
+    <!-- 1. Today — no plants yet (first-run pre-onboarding) -->
+    <div class="empty-card">
+      <span class="region-label">Today</span>
+      <div class="es-illus mint">☀</div>
+      <h3>Your greenhouse is <em>waiting</em></h3>
+      <p>No plants yet — which means no rituals yet. Adopt your first friend and we'll start tracking together.</p>
+      <div class="es-actions">
+        <button class="es-btn primary">＋ Add your first plant<span class="arrow">→</span></button>
+        <button class="es-btn ghost">Tour the app</button>
+      </div>
+    </div>
+
+    <!-- 2. Today — all caught up (positive empty) -->
+    <div class="empty-card">
+      <span class="region-label">Today · caught up</span>
+      <div class="es-illus forest">🌿</div>
+      <h3>Everyone's <em>thriving</em>. No rituals today.</h3>
+      <p>12 plants, all happy, nothing due. Enjoy the quiet — we'll ping you when someone gets thirsty.</p>
+      <span class="es-hint">Streak: 7 days</span>
+      <div class="es-actions">
+        <button class="es-btn secondary">📷 Add a photo</button>
+        <button class="es-btn ghost">Open Journal</button>
+      </div>
+    </div>
+
+    <!-- 3. House — no plants yet -->
+    <div class="empty-card">
+      <span class="region-label">House</span>
+      <div class="es-illus sunshine">⌂</div>
+      <h3>No spaces, no plants — <em>yet</em></h3>
+      <p>Start with a room: Living Room, Kitchen, Patio. Your plants live in spaces, and spaces shape their care.</p>
+      <div class="es-actions">
+        <button class="es-btn primary">＋ Add your first plant<span class="arrow">→</span></button>
+        <button class="es-btn secondary">＋ Add a space</button>
+      </div>
+    </div>
+
+    <!-- 4. Journal — no entries yet -->
+    <div class="empty-card">
+      <span class="region-label">Journal · timeline</span>
+      <div class="es-illus coral">✎</div>
+      <h3>Your journal <em>begins</em> on day one</h3>
+      <p>Every watering, photo, mood shift, rescue — it all lands here. Adopt a plant to start the story.</p>
+      <div class="es-actions">
+        <button class="es-btn primary">＋ Add your first plant<span class="arrow">→</span></button>
+        <button class="es-btn ghost">Learn about Journal</button>
+      </div>
+    </div>
+
+    <!-- 5. Journal — filter returns nothing -->
+    <div class="empty-card">
+      <span class="region-label">Journal · filtered</span>
+      <div class="es-illus">🔍</div>
+      <h3>No entries match those <em>filters</em></h3>
+      <p>You've filtered by "Milestones · Kitchen · Last 7 days" — nothing happened there in that window. Try broader.</p>
+      <span class="es-hint">Active filters: 3</span>
+      <div class="es-actions">
+        <button class="es-btn primary">Clear filters</button>
+        <button class="es-btn ghost">Widen to 30 days</button>
+      </div>
+    </div>
+
+    <!-- 6. Encyclopedia — search no results -->
+    <div class="empty-card">
+      <span class="region-label">Encyclopedia · search</span>
+      <div class="es-illus sky">❋</div>
+      <h3>We couldn't find <em>"zylarphia"</em></h3>
+      <p>Not in our 4,812-species library, not in Perenual's live index. Double-check the spelling, or browse popular.</p>
+      <div class="es-actions">
+        <button class="es-btn primary">Browse popular</button>
+        <button class="es-btn secondary">Request this species</button>
+      </div>
+    </div>
+
+    <!-- 7. Plant Detail — no care history -->
+    <div class="empty-card">
+      <span class="region-label">Plant Detail · Recent care</span>
+      <div class="es-illus mint">💧</div>
+      <h3>No care <em>yet</em>. Log the first one.</h3>
+      <p>Monty just moved in. Water, feed, photo, note — anything you log becomes part of their story.</p>
+      <div class="es-actions">
+        <button class="es-btn primary">💧 Log first watering</button>
+        <button class="es-btn secondary">📷 Add photo</button>
+      </div>
+    </div>
+
+    <!-- 8. Me — no stats yet (first-run) -->
+    <div class="empty-card">
+      <span class="region-label">Me · stats</span>
+      <div class="es-illus sunshine">🔥</div>
+      <h3>Your <em>streak</em> starts on your first check-in</h3>
+      <p>Rescues, vitality, streak — we track all of it once you start caring for plants. You'll see numbers here soon.</p>
+      <div class="es-actions">
+        <button class="es-btn primary">＋ Add your first plant<span class="arrow">→</span></button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <strong>Pattern.</strong> Every empty state uses the same shell — centered medallion (140px circle with gradient + soft shadow + highlight wash), Fraunces italic headline with gradient <code>em</code> emphasis, subtext (max 380px, 14px ink-soft), one primary action, optional secondary or ghost action. Illustrations are emoji-forward (no custom SVG illustrations — Fraunces + warm gradients carry the personality). Region label in the top-left (ink-ink pill) makes the pattern-library context obvious; in the app itself this label is replaced by the region's normal head.
+  </div>
+
+  <div class="wrap-up">
+    <h2>Empty states <em>locked</em></h2>
+    <p>Empty states are a shared primitive, not 8 bespoke designs. One React component <code>EmptyState</code> (already exists in the client per TICKET-009 pickup) with props: <code>icon</code>, <code>headline</code>, <code>body</code>, <code>primaryAction</code>, <code>secondaryAction</code>, <code>ghostAction</code>, <code>variant</code> (for illustration gradient: mint/coral/sunshine/sky/forest). Each region calls it with its own copy.</p>
+    <ul class="key-list">
+      <li><strong>Copy leans into value, not apology.</strong> "Your greenhouse is <em>waiting</em>" not "You have no plants yet". "Everyone's thriving. No rituals today." not "No tasks". Fraunces italic headline carries warmth; subtext is factual 14px body.</li>
+      <li><strong>Primary action points forward.</strong> "＋ Add your first plant" appears on Today · House · Journal · Me first-run empties — all point to the same FAB flow (mockup 27). Consistency means users don't have to relearn where to add plants.</li>
+      <li><strong>Distinct copy for distinct zeros.</strong> "No plants yet" (first-run) vs "All caught up" (positive empty) vs "No results for <em>query</em>" (search empty) vs "No entries match filters" (filtered empty) — each gets its own headline + actions. Don't collapse into one generic "nothing here" card.</li>
+      <li><strong>Positive empty ≠ apology.</strong> "All caught up" shows a forest-gradient medallion (the only dark-variant), streak chip, soft secondary actions. It's a reward state, not a void. Users should feel <em>good</em> arriving here.</li>
+      <li><strong>Filtered empty has its own shape.</strong> When filters zero out a region (Journal, Encyclopedia), primary action is always "Clear filters" or "Widen" — not "Add a plant". The problem is the filter, not the collection.</li>
+      <li><strong>Search empty links to browsing.</strong> Encyclopedia "couldn't find X" primary is "Browse popular" (fallback engagement), secondary is "Request this species" (captures the unmet need, potentially seeds Perenual-fetch backfill).</li>
+      <li><strong>Illustration gradient by emotional tone.</strong> <code>mint</code> = neutral / encouraging. <code>sunshine</code> = warm / milestone / pending. <code>coral</code> = narrative / storytelling. <code>sky</code> = informational / search / reference. <code>forest</code> = reward / accomplished (dark-variant, use sparingly).</li>
+      <li><strong>Two empties for Today.</strong> First-run ("greenhouse is waiting") and caught-up ("everyone's thriving") are two different empties — don't confuse them. The app knows which: plants.count == 0 → first-run; plants.count &gt; 0 && tasks.empty? → caught-up.</li>
+      <li><strong>No personality badge, no voice sample.</strong> Copy tone carries the warmth. No 🎭 pill, no first-person plant quote. Personality stays inferred, per the v2 rule.</li>
+      <li><strong>Reduced motion friendly.</strong> No animation on the medallion or illustration — these stay static. Focus stays on copy + action.</li>
+      <li><strong>A11y:</strong> Illustration emoji marked <code>aria-hidden</code>, headline is semantic h2 (within region context), primary action has explicit <code>aria-label</code> duplicating button text (for icons-first buttons).</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>
