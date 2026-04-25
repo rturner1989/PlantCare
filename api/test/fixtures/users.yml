@@ -6,6 +6,8 @@
 #  email                   :string           not null
 #  name                    :string           not null
 #  onboarding_completed_at :datetime
+#  onboarding_intent       :string
+#  onboarding_step_reached :integer          default(0), not null
 #  password_digest         :string           not null
 #  timezone                :string           default("UTC")
 #  created_at              :datetime         not null

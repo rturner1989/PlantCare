@@ -46,4 +46,23 @@ class Api::V1::ProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_content
   end
+
+  test 'update onboarding_intent and onboarding_step_reached' do
+    patch api_v1_profile_path, headers: auth_headers(@user),
+      params: { user: { onboarding_intent: 'just_starting', onboarding_step_reached: 4 } }, as: :json
+
+    assert_response :ok
+    @user.reload
+    assert_equal 'just_starting', @user.onboarding_intent
+    assert_equal 4, @user.onboarding_step_reached
+  end
+
+  test 'update with invalid onboarding_intent returns 422' do
+    patch api_v1_profile_path, headers: auth_headers(@user),
+      params: { user: { onboarding_intent: 'garbage' } }, as: :json
+
+    assert_response :unprocessable_content
+    json = response.parsed_body
+    assert_includes json['errors']['onboarding_intent'], 'is not included in the list'
+  end
 end

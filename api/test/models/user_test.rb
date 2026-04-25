@@ -124,4 +124,48 @@ class UserTest < ActiveSupport::TestCase
     user.update!(onboarding_completed_at: Time.current)
     assert_equal true, user.as_json[:onboarded]
   end
+
+  test 'onboarding_intent enum stores the symbol key as its string in the DB' do
+    user = users(:john)
+    User::USER_INTENT_LABELS.each_key do |key|
+      user.update!(onboarding_intent: key.to_s)
+      assert_equal key.to_s, user.reload.onboarding_intent
+    end
+  end
+
+  test 'onboarding_intent allows nil (the "hasn\'t picked yet" state)' do
+    user = users(:john)
+    user.onboarding_intent = nil
+    assert user.valid?
+  end
+
+  test 'onboarding_intent rejects values outside the enum list' do
+    user = users(:john)
+    user.onboarding_intent = 'garbage'
+    assert_not user.valid?
+    assert_includes user.errors[:onboarding_intent], 'is not included in the list'
+  end
+
+  test 'onboarding_step_reached defaults to 0' do
+    assert_equal 0, User.new.onboarding_step_reached
+  end
+
+  test 'onboarding_step_reached rejects negative values' do
+    user = users(:john)
+    user.onboarding_step_reached = -1
+    assert_not user.valid?
+    assert_includes user.errors[:onboarding_step_reached], 'must be greater than or equal to 0'
+  end
+
+  test 'as_json exposes onboarding_intent and onboarding_step_reached' do
+    user = users(:john)
+    user.update!(onboarding_intent: 'forgetful', onboarding_step_reached: 3)
+    json = user.as_json
+    assert_equal 'forgetful', json[:onboarding_intent]
+    assert_equal 3, json[:onboarding_step_reached]
+  end
+
+  test 'USER_INTENT_LABELS exposes the four canonical options' do
+    assert_equal [:forgetful, :just_starting, :sick_plant, :browsing], User::USER_INTENT_LABELS.keys
+  end
 end
