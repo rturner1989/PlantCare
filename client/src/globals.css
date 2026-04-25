@@ -114,6 +114,12 @@
   --shadow-md: 0 10px 30px rgba(11, 58, 26, 0.1);
   --shadow-lg: 0 24px 60px rgba(11, 58, 26, 0.14);
   --shadow-xl: 0 40px 100px -20px rgba(11, 58, 26, 0.3);
+  /* Warm shadows pair with the paper palette — cooler/greener tints
+   * read as off when stacked on warm paper surfaces. Used on auth cards,
+   * onboarding wizard, and any panel that should sit on paper without
+   * fighting the warmth. */
+  --shadow-warm-sm: 0 2px 10px rgba(80, 56, 18, 0.07), 0 0 0 1px rgba(80, 56, 18, 0.025);
+  --shadow-warm-md: 0 18px 40px rgba(80, 56, 18, 0.1), 0 2px 8px rgba(80, 56, 18, 0.04);
 }
 
 :root {
@@ -168,6 +174,17 @@
   --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #dff2e2 50%, #c7ecca 100%);
   --gradient-forest: linear-gradient(135deg, var(--forest), var(--forest-2));
   --gradient-brand: linear-gradient(135deg, var(--leaf), var(--emerald));
+  /* Display-text gradient — Fraunces italic emphasis fragments inside
+   * a heading get this fill via background-clip: text. Forest → emerald
+   * → leaf, sweeping the green axis from deep to bright. */
+  --gradient-display: linear-gradient(130deg, var(--forest) 0%, var(--emerald) 60%, var(--leaf) 100%);
+  /* Forest marketing — three-stop gradient with a slight hue lift compared
+   * to --gradient-forest. Reads warmer in the auth-page marketing column
+   * where it pairs with sunshine + lime radial halos. */
+  --gradient-forest-marketing: linear-gradient(160deg, #1a5e2a 0%, var(--forest) 50%, var(--forest-2) 100%);
+  /* Sunshine — cream → sunshine, used on Fraunces italic emphasis inside
+   * the dark marketing panel. Warm contrast against forest. */
+  --gradient-sunshine: linear-gradient(135deg, #ffe5aa, var(--sunshine));
 
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   color: var(--ink);

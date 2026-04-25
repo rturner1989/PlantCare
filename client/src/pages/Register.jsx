@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import AuthCard from '../components/auth/AuthCard'
+import DisplayEm from '../components/auth/DisplayEm'
 import PasswordStrengthBar from '../components/form/PasswordStrengthBar'
 import TextInput from '../components/form/TextInput'
-import Logo from '../components/Logo'
 import Action from '../components/ui/Action'
-import Card, { CardBody, CardFooter } from '../components/ui/Card'
 import { useAuth } from '../hooks/useAuth'
 import { useFormSubmit } from '../hooks/useFormSubmit'
 
@@ -29,81 +29,73 @@ export default function Register() {
   })
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-6 py-4 sm:py-12">
-      <Logo className="mb-3 sm:mb-8" />
+    <AuthCard
+      preheading="Join PlantCare"
+      heading={
+        <>
+          Adopt your <DisplayEm>first friend</DisplayEm>
+        </>
+      }
+      subtitle="Takes about a minute. Next you'll tell us why you're here — it shapes how PlantCare treats you."
+    >
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-3">
+        <TextInput
+          label="Your name"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          placeholder="Your name"
+          autoComplete="name"
+          error={fieldErrors.name}
+        />
 
-      <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-extrabold italic text-ink mb-4 sm:mb-8 text-center tracking-tight">
-        Join the <em className="text-leaf">jungle</em>
-      </h1>
+        <TextInput
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          placeholder="you@example.com"
+          autoComplete="email"
+          error={fieldErrors.email}
+        />
 
-      <div className="w-full max-w-auth">
-        <form ref={formRef} onSubmit={handleSubmit}>
-          <Card className="shadow-[var(--shadow-md)]">
-            <CardBody className="p-4 sm:p-6 space-y-3 sm:space-y-4">
-              <TextInput
-                label="Name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                placeholder="Your name"
-                autoComplete="name"
-                error={fieldErrors.name}
-              />
+        <div>
+          <TextInput
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={8}
+            placeholder="8+ characters with a letter and a number"
+            autoComplete="new-password"
+            error={fieldErrors.password}
+          />
+          {!fieldErrors.password && <PasswordStrengthBar password={password} />}
+        </div>
 
-              <TextInput
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="you@example.com"
-                autoComplete="email"
-                error={fieldErrors.email}
-              />
+        {/* Confirm field stays revealed once any of: password typed, confirm
+         * typed, or server returned a confirm error. Avoids the field
+         * vanishing mid-error if the user clears password to retry. */}
+        {(password || passwordConfirmation || fieldErrors.passwordConfirmation) && (
+          <TextInput
+            label="Confirm password"
+            type="password"
+            value={passwordConfirmation}
+            onChange={(e) => setPasswordConfirmation(e.target.value)}
+            required
+            placeholder="Confirm your password"
+            autoComplete="new-password"
+            error={fieldErrors.passwordConfirmation}
+          />
+        )}
 
-              <div>
-                <TextInput
-                  label="Password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={8}
-                  placeholder="8+ characters with a letter and a number"
-                  autoComplete="new-password"
-                  error={fieldErrors.password}
-                />
-                {!fieldErrors.password && <PasswordStrengthBar password={password} />}
-              </div>
-
-              <TextInput
-                label="Confirm password"
-                type="password"
-                value={passwordConfirmation}
-                onChange={(e) => setPasswordConfirmation(e.target.value)}
-                required
-                placeholder="Confirm your password"
-                autoComplete="new-password"
-                error={fieldErrors.passwordConfirmation}
-              />
-            </CardBody>
-
-            <CardFooter className="p-4 sm:p-6">
-              <Action type="submit" variant="primary" disabled={submitting} className="w-full">
-                {submitting ? 'Creating account...' : 'Create account'}
-              </Action>
-            </CardFooter>
-          </Card>
-        </form>
-
-        <p className="mt-3 sm:mt-6 text-sm text-ink-soft text-center">
-          {'Already have an account? '}
-          <Action to="/login" variant="unstyled" className="text-leaf font-bold hover:underline">
-            Log in
-          </Action>
-        </p>
-      </div>
-    </div>
+        <Action type="submit" variant="primary" disabled={submitting} className="w-full">
+          {submitting ? 'Creating account...' : 'Create account'}
+        </Action>
+      </form>
+    </AuthCard>
   )
 }

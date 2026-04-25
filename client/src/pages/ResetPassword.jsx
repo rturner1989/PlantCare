@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { apiPatch } from '../api/client'
+import AuthCard from '../components/auth/AuthCard'
+import DisplayEm from '../components/auth/DisplayEm'
 import PasswordStrengthBar from '../components/form/PasswordStrengthBar'
 import TextInput from '../components/form/TextInput'
-import Logo from '../components/Logo'
 import Action from '../components/ui/Action'
-import Card, { CardBody, CardFooter } from '../components/ui/Card'
 import { useToast } from '../context/ToastContext'
 import { useFormSubmit } from '../hooks/useFormSubmit'
 
@@ -49,77 +49,69 @@ export default function ResetPassword() {
 
   if (expired) {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center px-6 py-8 sm:py-12">
-        <Logo className="mb-6 sm:mb-8" />
-        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold italic text-ink mb-6 sm:mb-8 text-center tracking-tight">
-          Link <em className="text-coral-deep">expired</em>
-        </h1>
-        <div className="w-full max-w-auth">
-          <Card className="shadow-[var(--shadow-md)]">
-            <CardBody>
-              <p className="text-sm text-ink-soft leading-snug">
-                This reset link has already been used or has expired. Request a fresh one and we&rsquo;ll send you
-                another.
-              </p>
-            </CardBody>
-            <CardFooter>
-              <Action to="/forgot-password" variant="primary" className="w-full">
-                Request a new link
-              </Action>
-            </CardFooter>
-          </Card>
-        </div>
-      </div>
+      <AuthCard
+        preheading="Link expired"
+        heading={
+          <>
+            Link <DisplayEm>expired</DisplayEm>
+          </>
+        }
+        subtitle="This reset link has already been used or has expired. Request a fresh one and we'll send you another."
+        showSocial={false}
+        showCrossAuth={false}
+      >
+        <Action to="/forgot-password" variant="primary" className="w-full">
+          Request a new link
+        </Action>
+      </AuthCard>
     )
   }
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-6 py-8 sm:py-12">
-      <Logo className="mb-6 sm:mb-8" />
+    <AuthCard
+      preheading="New password"
+      heading={
+        <>
+          Choose a new <DisplayEm>password</DisplayEm>
+        </>
+      }
+      subtitle="Almost there. Pick something memorable but not guessable — 8+ characters, with a letter and a number."
+      showSocial={false}
+      showCrossAuth={false}
+    >
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-3">
+        <div>
+          <TextInput
+            label="New password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={8}
+            placeholder="8+ characters with a letter and a number"
+            autoComplete="new-password"
+            error={fieldErrors.password}
+          />
+          {!fieldErrors.password && <PasswordStrengthBar password={password} />}
+        </div>
 
-      <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold italic text-ink mb-6 sm:mb-8 text-center tracking-tight">
-        Choose a new <em className="text-leaf">password</em>
-      </h1>
+        {(password || passwordConfirmation || fieldErrors.passwordConfirmation) && (
+          <TextInput
+            label="Confirm new password"
+            type="password"
+            value={passwordConfirmation}
+            onChange={(e) => setPasswordConfirmation(e.target.value)}
+            required
+            placeholder="Confirm your new password"
+            autoComplete="new-password"
+            error={fieldErrors.passwordConfirmation}
+          />
+        )}
 
-      <div className="w-full max-w-auth">
-        <form ref={formRef} onSubmit={handleSubmit}>
-          <Card className="shadow-[var(--shadow-md)]">
-            <CardBody className="space-y-4">
-              <div>
-                <TextInput
-                  label="New password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={8}
-                  placeholder="8+ characters with a letter and a number"
-                  autoComplete="new-password"
-                  error={fieldErrors.password}
-                />
-                {!fieldErrors.password && <PasswordStrengthBar password={password} />}
-              </div>
-
-              <TextInput
-                label="Confirm new password"
-                type="password"
-                value={passwordConfirmation}
-                onChange={(e) => setPasswordConfirmation(e.target.value)}
-                required
-                placeholder="Confirm your new password"
-                autoComplete="new-password"
-                error={fieldErrors.passwordConfirmation}
-              />
-            </CardBody>
-
-            <CardFooter>
-              <Action type="submit" variant="primary" disabled={submitting} className="w-full">
-                {submitting ? 'Updating...' : 'Update password'}
-              </Action>
-            </CardFooter>
-          </Card>
-        </form>
-      </div>
-    </div>
+        <Action type="submit" variant="primary" disabled={submitting} className="w-full">
+          {submitting ? 'Updating...' : 'Update password'}
+        </Action>
+      </form>
+    </AuthCard>
   )
 }

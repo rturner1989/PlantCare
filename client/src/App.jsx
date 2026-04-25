@@ -10,6 +10,7 @@ import { AuthProvider } from './context/AuthContext'
 import { ToastProvider, useToast } from './context/ToastContext'
 import { useAuth } from './hooks/useAuth'
 import AppLayout from './layouts/AppLayout'
+import AuthLayout from './layouts/AuthLayout'
 
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Login = lazy(() => import('./pages/Login'))
@@ -80,10 +81,12 @@ export default function App() {
           <BrowserRouter>
             <Suspense fallback={<RouteFallback />}>
               <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password/:token" element={<ResetPassword />} />
+                <Route element={<AuthLayout />}>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password/:token" element={<ResetPassword />} />
+                </Route>
                 <Route
                   path="/welcome/:step?"
                   element={

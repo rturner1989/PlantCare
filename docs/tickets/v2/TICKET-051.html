@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-051 — R15 — Auth visual alignment to mockup 29</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+.badge.kind { background: #4a6fa5; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 80px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.page { background: #2d6a4f; }
+.artifact .kind.layout { background: #4a6fa5; }
+.artifact .kind.copy { background: #6a4a8f; }
+
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 480px; border: none; background: #fff; }
+.mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.plan-link:hover { background: #e6e6de; }
+
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<header class="header">
+  <div class="id">TICKET-051 · v2 plan R15</div>
+  <h1>Auth visual alignment to mockup 29</h1>
+  <div class="badges">
+    <span class="badge status">Open</span>
+    <span class="badge priority-high">High</span>
+    <span class="badge kind">Frontend-only · visual</span>
+  </div>
+</header>
+
+<section>
+  <h2>Summary</h2>
+  <p>Refresh the four shipped auth pages — Login, Register, ForgotPassword, ResetPassword — to match mockup 29. Density, paper-palette tokens, Fraunces italic display headings, warmer copy tone. <strong>No functional changes.</strong> Auth logic, refresh-token flow, validation, throttling, error mapping, redirect-back state — all untouched.</p>
+  <p>Apple / Google sign-in is explicitly out of scope and stays benched. Auth remains email + password only until a dedicated post-launch ticket designs provider key management properly.</p>
+  <p>In one sentence: <strong>visual paint job on the four auth pages so they stop looking like v1 in a v2 app.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+
+  <div class="plan-strip">
+    <div class="plan-step done"><span class="num">B1</span>020 Space</div>
+    <div class="plan-step done"><span class="num">B2</span>021 Intent</div>
+    <div class="plan-step done"><span class="num">F1</span>027 Tokens</div>
+    <div class="plan-step current"><span class="num">R15</span>051 Auth</div>
+    <div class="plan-step"><span class="num">R9</span>045 Onboard</div>
+    <div class="plan-step"><span class="num">R1</span>037 Nav</div>
+    <div class="plan-step"><span class="num">R2</span>038 Today</div>
+    <div class="plan-step"><span class="num">…</span>rest</div>
+  </div>
+
+  <p><strong>What came before:</strong> TICKET-027 (F1 design tokens) merged 2026-04-25 as <code>dd6b1e0</code> — paper palette, weather axis, rebased radius, blur tokens are all live. Auth pages currently consume these tokens through the <code>--color-card</code>/<code>bg-card</code> alias (which now resolves to paper) so they already shifted off pure white at the surface level. The remaining gap is density, typography hierarchy, copy tone, and small-but-numerous polish details.</p>
+
+  <p><strong>What this unlocks:</strong> nothing strictly — auth is a leaf, not a foundation for other regions. But it's deliberately the next ticket because (a) it's a smaller scope than R9 (existing pages, no new behaviour), (b) it gives you a hands-on warm-up applying v2 tokens before R9's heavy wizard rebuild, and (c) it stops the visible mismatch where signed-out users see a v1 surface and signed-in users see in-progress v2.</p>
+
+  <p><strong>Mental model:</strong> closest Rails analogy is "swap the ERB templates for redesigned ones, leave the controllers alone". Functional code = controllers + concerns; ERB = JSX + Tailwind. You're touching the ERB equivalent.</p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <p>Four page repaints + a small layout decision. Functionality stays exactly as it is.</p>
+
+  <div class="artifact-list">
+
+    <div class="artifact">
+      <div><span class="kind page">Page</span><span class="name">client/src/pages/Login.jsx</span></div>
+      <div class="role">Sign-in screen — email + password, "Forgot password?" link, "Create account" link. Repaint to match mockup 29's left-column auth card: card-eyebrow ("Sign in"), Fraunces italic display heading ("Your greenhouse <em>missed you</em>"), warmer subtitle, paper surfaces with paper-edge hairline, primary CTA in emerald gradient. The form fields, useFormSubmit hook, AuthContext.login call, error handling — all stay verbatim.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind page">Page</span><span class="name">client/src/pages/Register.jsx</span></div>
+      <div class="role">Sign-up screen — name + email + password + confirm. Same shell as Login (paper card, eyebrow, Fraunces heading, paper-edge hairline) with the heading and copy tuned for first-time arrival. Password strength bar continues to render through PasswordStrengthBar primitive — no behaviour change there. Existing useFormSubmit + ValidationError mapping stays.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind page">Page</span><span class="name">client/src/pages/ForgotPassword.jsx</span></div>
+      <div class="role">"Send me a reset link" screen. Same paper-card shell. Heading, subtitle, the post-submit success state (mockup shows a quieter empty-state-style confirmation). Existing throttle handling (RateLimitError → yellow toast) stays — only the resting + success visuals change.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind page">Page</span><span class="name">client/src/pages/ResetPassword.jsx</span></div>
+      <div class="role">"Set a new password" screen — token comes from URL param, two password fields, confirms, redirects to login on success. Repaint to the same shell. PasswordStrengthBar stays. Token validation + expired-token error states keep their existing copy + behaviour, just re-typeset.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind layout">Layout</span><span class="name">client/src/layouts/AuthLayout.jsx</span></div>
+      <div class="role">Currently a 0-byte placeholder file. <strong>Decision point during implementation:</strong> if the four auth pages share enough chrome (gradient backdrop, page-level padding, tiny-brand top corner) that extracting it cleans up the repaint diff, fill the file in and wrap each page. If the shared chrome is too thin to justify, leave the file alone (or delete it) and let each page render its own backdrop. Don't extract speculatively — only if the second/third page repaint shows real duplication.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind copy">Copy pass</span><span class="name">across all four pages</span></div>
+      <div class="role">Mockup 29 has specific warmer phrasing — italic Fraunces fragments inside otherwise-sans headings ("Your greenhouse <em>missed you</em>", "Sign in without <em>ceremony</em>"), softer subtitles, no generic form-app voice ("Enter your email below" → something with personality). Lift copy directly from the mockup where reasonable, edit only if a phrase reads off in app context. Keep field labels, error messages, and validation copy untouched (those flow through existing i18n-or-not infrastructure).</div>
+    </div>
+  </div>
+
+  <p style="font-size:13px;color:#666;margin-top:14px"><em>Mockup 29 includes a stylised desktop "browser frame" + marketing column. Don't build that. The shipped app is the form-card portion only — desktop centres the form on the gradient backdrop, mobile fills the viewport. The marketing column is mockup chrome, not a deliverable.</em></p>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+  <ol>
+    <li>The four auth pages render with paper palette surfaces (no white surfaces visible) on both desktop and mobile viewports.</li>
+    <li>Display headings on each auth page use Fraunces italic for the emphasised fragment, Plus Jakarta Sans for the rest, matching mockup 29's mixed-typeface rhythm.</li>
+    <li>Card-eyebrow micro-label ("Sign in", "Create account", "Reset password") sits above the heading on each card per the mockup.</li>
+    <li>Vertical density tightens to post-21 quality — paddings, gaps, and section spacing match the mockup; no more v1's looser rhythm.</li>
+    <li>Subtitle copy is warmer per mockup 29 — no generic "Enter your email below" form-app voice.</li>
+    <li>Primary CTAs use the emerald-gradient lift (shadow-cta) consistent with the rest of the v2 app.</li>
+    <li>Forgot/Reset success and error states are revisited — same content, post-21 visual quality.</li>
+    <li>Functionality is unchanged: login + logout + register + forgot + reset all work exactly as they do today, including refresh-token cookie handling, RateLimitError → yellow toast, ValidationError → field-level errors, token-expired flow on reset, redirect-back via React Router <code>state</code>.</li>
+    <li>Apple / Google sign-in is NOT added. The pages stay email + password only.</li>
+    <li>All existing auth tests (Vitest + Playwright) stay green without modification — if a test fails, it's because a visual selector changed and the test needs a re-aim, not because behaviour broke.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+
+  <div class="criterion"><div class="box"></div><span>Open <code>localhost:5173/login</code> — desktop + mobile both look like mockup 29's form-card region. Compare side-by-side.</span></div>
+  <div class="criterion"><div class="box"></div><span>Open <code>localhost:5173/register</code> — same.</span></div>
+  <div class="criterion"><div class="box"></div><span>Open <code>localhost:5173/forgot-password</code> — same. Submit a fake email, see the post-submit confirmation state matches mockup 29.</span></div>
+  <div class="criterion"><div class="box"></div><span>Open <code>localhost:5173/reset-password/abc123</code> — invalid-token branch renders. Visual matches mockup 29's reset-password card.</span></div>
+  <div class="criterion"><div class="box"></div><span>Sign up a fresh user — full flow lands on <code>/welcome</code> exactly as before.</span></div>
+  <div class="criterion"><div class="box"></div><span>Sign in with valid creds — lands on <code>/</code> exactly as before. Refresh cookie set in DevTools → Application → Cookies.</span></div>
+  <div class="criterion"><div class="box"></div><span>Sign in with bad creds — error toast renders in v2 style; no behaviour change in error mapping.</span></div>
+  <div class="criterion"><div class="box"></div><span>Trigger forgot-password rate limit (11 requests in an hour for the same IP) — yellow warning toast still fires.</span></div>
+  <div class="criterion"><div class="box"></div><span>Tab through each form — focus-visible rings on every input + button + link. Visible, paper-palette-friendly outline (not the browser default).</span></div>
+  <div class="criterion"><div class="box"></div><span>Trigger <code>prefers-reduced-motion</code> in DevTools — no entrance animations on the auth cards (or, if any are added, they're suppressed).</span></div>
+  <div class="criterion"><div class="box"></div><span>Vitest auth suite green: <code>./scripts/run_tests.sh client</code></span></div>
+  <div class="criterion"><div class="box"></div><span>Playwright auth happy-path green (any auth-touching e2e — register, login, password-reset, the welcome and house specs that register a fresh user as setup).</span></div>
+  <div class="criterion"><div class="box"></div><span>No <code>bg-white</code> / <code>border-white</code> on auth-page surfaces (white on dark gradients is fine — that's not a surface).</span></div>
+  <div class="criterion"><div class="box"></div><span>No new <code>rounded-xl</code> / <code>rounded-2xl</code> / <code>rounded-3xl</code> introduced — banned per F1.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/vercel-react-best-practices</code> passes.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/accessibility</code> passes — form labels properly associated, error messages wired via <code>aria-describedby</code>, password-reveal toggle (if present) announces state, no contrast regressions on paper.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/comment-audit</code> + <code>/pre-commit</code> pass.</span></div>
+</section>
+
+<section>
+  <h2>Design references</h2>
+
+  <div class="mockup-preview">
+    <div class="label">
+      <span>Mockup 29 — Auth (desktop browser-frame demo + mobile phone)</span>
+      <a href="../../mockups/plantcare-ui/v2/29-auth-v1.html" target="_blank">Open ↗</a>
+    </div>
+    <iframe src="../../mockups/plantcare-ui/v2/29-auth-v1.html"></iframe>
+  </div>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:20px;margin-bottom:8px">Plan reference</h3>
+  <blockquote>
+    "Auth functionally works but visually predates the v2 design pivot. Density, tokens, copy tone, Fraunces usage all lag the rest of the app. Thin ticket — design parity only." — plan §R15
+  </blockquote>
+  <a class="plan-link" href="../../plans/2026-04-24-plantcare-frontend-v2.md">Plan §R15 — TICKET-051 spec (one worked example, not a script to transcribe)</a>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:20px;margin-bottom:8px">Out of scope</h3>
+  <ul>
+    <li><strong>Marketing column / browser-frame demo from the mockup.</strong> Mockup 29 wraps the form in a stylised left-column hero and a faux browser chrome. That's mockup framing, not a deliverable. Ship only the form-card.</li>
+    <li><strong>Apple / Google sign-in.</strong> Benched per memory <code>project_frontend_progress.md</code>. Future post-launch ticket. Don't add provider buttons even as placeholders.</li>
+    <li><strong>Functional changes.</strong> No new validation, no new rate-limit rules, no new error states, no behaviour tweaks. Diff is JSX + classes only (plus minimal copy edits).</li>
+    <li><strong>Shared layout extraction unless duplication forces it.</strong> AuthLayout is 0 bytes today. Fill it only if R15's repaint reveals real shared chrome worth deduping. If you can repaint cleanly without it, leave the file empty (or delete it and follow up).</li>
+    <li><strong>i18n / locale strings.</strong> Single-language English. See memory <code>project_i18n_strategy.md</code> — i18n deferred until real translation need surfaces.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>React / Tailwind concepts worth looking up</h2>
+
+  <div class="learn">
+    <strong>Visual-only PRs still need to think about diff scope.</strong> The temptation in a "just visual" ticket is to also clean up adjacent things while you're in the file. Resist unless the cleanup is genuinely trivial and improves the same diff. Bigger refactors get spun out as follow-ups so the visual review stays scannable. Rule of thumb: if the cleanup needs its own commit message, it's a follow-up.
+  </div>
+
+  <div class="learn">
+    <strong>Tailwind 4 paper tokens.</strong> Post-F1, <code>bg-paper</code>, <code>bg-paper-deep</code>, <code>bg-paper-edge</code> all generate from <code>--color-paper*</code> in the <code>@theme</code> block. <code>bg-card</code> still works but resolves to paper via the alias. Prefer <code>bg-paper</code> in new auth markup — clearer intent — but don't sweep <code>bg-card</code> elsewhere in this PR.
+  </div>
+
+  <div class="learn">
+    <strong>Fraunces inline italic inside a sans heading.</strong> Mockup 29's headlines mix fonts via an inline <code>&lt;em&gt;</code> styled with <code>font-display</code> + <code>italic</code>. The rest of the heading stays sans. Pattern is the same one used on Step 1 of the welcome wizard — borrow that approach. Don't reach for a new typography primitive; one-off inline span is fine for the four auth screens.
+  </div>
+
+  <div class="learn">
+    <strong>Test selectors break when copy changes.</strong> Playwright auth specs target text like <code>getByRole('button', { name: /Log in/i })</code>. If you re-word the CTA, those selectors stop matching. Either keep the canonical button label ("Log in", "Create account") or update the test selectors in lock-step. Same applies to <code>getByLabel('Email')</code> if a label string drifts.
+  </div>
+
+  <div class="learn">
+    <strong><code>useFormSubmit</code> is the canonical form-submit hook.</strong> Reminder, in case you reach for <code>useState</code> + manual <code>handleSubmit</code> instead. Existing pattern: <code>const { submitting, handleSubmit, formRef } = useFormSubmit({ action, errorMessage })</code>. Visual repaint shouldn't touch this — it's a behaviour change, out of R15 scope.
+  </div>
+</section>
+
+<section>
+  <h2>Rails ↔ React mental map</h2>
+
+  <table class="rails-map">
+    <thead>
+      <tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>ERB template repaint (controllers untouched)</td>
+        <td>JSX + Tailwind class repaint (hooks + AuthContext untouched)</td>
+        <td>Mental model for the whole ticket — visual layer only</td>
+      </tr>
+      <tr>
+        <td><code>devise/sessions/new.html.erb</code></td>
+        <td><code>pages/Login.jsx</code></td>
+        <td>One-to-one mapping</td>
+      </tr>
+      <tr>
+        <td>Shared <code>application.html.erb</code> wrapping every page</td>
+        <td><code>layouts/AuthLayout.jsx</code> (currently empty — extract only if duplication forces it)</td>
+        <td>Don't extract speculatively — Rails would call this YAGNI</td>
+      </tr>
+      <tr>
+        <td>Custom <code>form_with</code> helper styling</td>
+        <td><code>useFormSubmit</code> hook + <code>TextInput</code> primitive — both untouched</td>
+        <td>This ticket is the markup, not the form plumbing</td>
+      </tr>
+      <tr>
+        <td>I18n locale file edits for copy tweaks</td>
+        <td>Inline JSX strings (no react-i18next yet)</td>
+        <td>See memory <code>project_i18n_strategy.md</code> — both backends deferred until real need</td>
+      </tr>
+      <tr>
+        <td><code>flash[:alert]</code> after a failed login</td>
+        <td>Existing <code>ToastContext</code> + <code>useFormSubmit</code> error pipeline</td>
+        <td>Surface stays the same; only the toast's visual primitive (already v2) renders the message</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Related files</h2>
+
+  <ul class="file-list">
+    <li><span>client/src/pages/Login.jsx</span><span class="action">repaint</span></li>
+    <li><span>client/src/pages/Register.jsx</span><span class="action">repaint</span></li>
+    <li><span>client/src/pages/ForgotPassword.jsx</span><span class="action">repaint</span></li>
+    <li><span>client/src/pages/ResetPassword.jsx</span><span class="action">repaint</span></li>
+    <li><span>client/src/layouts/AuthLayout.jsx</span><span class="action">decide — fill or leave empty</span></li>
+    <li><span>client/tests/pages/welcome.spec.js</span><span class="action">re-aim selectors if copy changed</span></li>
+    <li><span>client/tests/pages/house.spec.js</span><span class="action">same — registers a user as setup</span></li>
+    <li><span>client/tests/pages/login.spec.js (if exists) / register.spec.js</span><span class="action">re-aim selectors</span></li>
+    <li><span>client/tests/components/form/PasswordStrengthBar.test.jsx</span><span class="action">untouched (unit-tests primitive, not page)</span></li>
+  </ul>
+
+  <p style="font-size:13px;color:#666;margin-top:12px"><em>This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose.</em></p>
+</section>
+
+<section>
+  <h2>Notes &amp; gotchas</h2>
+
+  <ul>
+    <li><strong>The "no behaviour change" rule.</strong> If you find yourself touching <code>AuthContext</code>, <code>useFormSubmit</code>, <code>ValidationError</code>, <code>RateLimitError</code>, <code>api/client.js</code>, or any test that's not a selector re-aim — stop. That's R15 scope creep. Either revert and add a TODO, or split out as a separate ticket.</li>
+    <li><strong>Refresh cookie + access token state.</strong> Don't tamper. Working today; visual ticket has no business near it.</li>
+    <li><strong>Field labels stay canonical.</strong> "Email", "Password", "Confirm password", "Name". Tests + a11y both rely on stable accessible names. Reword display copy (heading + subtitle) freely; reword field labels only if you also re-aim every test selector that targets them.</li>
+    <li><strong>Don't add a "remember me" toggle.</strong> The refresh-token cookie already provides persistent session. Adding a checkbox that does nothing or rewires the cookie behaviour is out of scope.</li>
+    <li><strong>Don't add provider sign-in buttons.</strong> Apple / Google explicitly benched. Future post-launch ticket. No placeholders, no greyed-out "coming soon" buttons — they invite questions.</li>
+    <li><strong>Reduced-motion.</strong> If you add an entrance animation to the auth card (mockup 29 doesn't show one but a subtle one would feel right), gate it on <code>useReducedMotion()</code> from <code>motion/react</code>. Existing pattern in the welcome wizard — same approach.</li>
+    <li><strong>Mockup desktop = browser-frame demo.</strong> The "marketing column" is presentation only. App ships the form-card, centred on the gradient backdrop, with a tiny brand mark in the corner per the mockup's mobile <code>tiny-brand</code> pattern. Don't try to ship the marketing column.</li>
+    <li><strong>PR title:</strong> use <code>feat(v2): R15 auth visual alignment (TICKET-051)</code> per <code>feedback_pr_title_v2_prefix.md</code>.</li>
+    <li><strong>Branch:</strong> <code>ticket-051-auth-visual</code> (already checked out).</li>
+  </ul>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:20px;margin-bottom:8px">When you're done</h3>
+  <p>Run <code>./scripts/lint.sh</code> + <code>./scripts/run_tests.sh client</code>. Then <code>/review-ticket 051</code>, <code>/comment-audit</code>, <code>/pre-commit</code>. Commit on the feature branch, then <code>/github-make-pr</code>. <code>/dhh-rails-reviewer</code> n/a — frontend-only.</p>
+</section>
+
+</div>
+</body>
+</html>
