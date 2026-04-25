@@ -126,7 +126,7 @@ docs/
 
 ## Skills
 
-- `/pre-commit` — run lint + tests, fix failures, verify work against the active ticket's acceptance criteria, prepare for commit
+- `/pre-commit` — run lint + tests, fix failures, prepare for commit (use `/review-ticket` for full AC review)
 - `/ticket` — generate a Jira-style HTML ticket with requirements, acceptance criteria, and design references
 - `/review-ticket` — review completed work against ticket acceptance criteria and design spec
 - `/github-make-pr` — push current branch and create a GitHub pull request
