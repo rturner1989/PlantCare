@@ -42,4 +42,32 @@ class Api::V1::RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :created
     assert cookies[:refresh_token].present?
   end
+
+  test 'register persists onboarding_intent and onboarding_step_reached when supplied' do
+    post api_v1_registration_path, params: {
+      user: {
+        email: 'intent@example.com', name: 'Intent User',
+        password: 'greenthumb99', password_confirmation: 'greenthumb99',
+        onboarding_intent: 'forgetful', onboarding_step_reached: 2
+      }
+    }, as: :json
+
+    assert_response :created
+    json = response.parsed_body
+    assert_equal 'forgetful', json['user']['onboarding_intent']
+    assert_equal 2, json['user']['onboarding_step_reached']
+  end
+
+  test 'register with invalid onboarding_intent returns 422 with field error' do
+    post api_v1_registration_path, params: {
+      user: {
+        email: 'bad@example.com', name: 'Bad', password: 'greenthumb99', password_confirmation: 'greenthumb99',
+        onboarding_intent: 'garbage'
+      }
+    }, as: :json
+
+    assert_response :unprocessable_entity
+    json = response.parsed_body
+    assert_includes json['errors']['onboarding_intent'], 'is not included in the list'
+  end
 end

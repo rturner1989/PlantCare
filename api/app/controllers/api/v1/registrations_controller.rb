@@ -14,7 +14,8 @@ module Api
       end
 
       private def registration_params
-        params.expect(user: [:email, :name, :password, :password_confirmation])
+        params.expect(user: [:email, :name, :password, :password_confirmation,
+                             :onboarding_intent, :onboarding_step_reached])
       end
     end
   end

@@ -8,6 +8,8 @@
 #  email                   :string           not null
 #  name                    :string           not null
 #  onboarding_completed_at :datetime
+#  onboarding_intent       :string
+#  onboarding_step_reached :integer          default(0), not null
 #  password_digest         :string           not null
 #  timezone                :string           default("UTC")
 #  created_at              :datetime         not null
@@ -19,6 +21,17 @@
 #
 class User < ApplicationRecord
   has_secure_password
+
+  # Onboarding intent — drives the R9 wizard branch (mockup 19) and downstream
+  # behaviour (Today landing variant, notifications defaults, species filter,
+  # streak prominence). Symbol keys are the canonical DB values; the strings
+  # are user-facing labels rendered by the wizard's intent picker.
+  USER_INTENT_LABELS = {
+    forgetful: 'I keep forgetting',
+    just_starting: "I'm just starting",
+    sick_plant: 'My plant is sick',
+    browsing: 'Just browsing'
+  }.freeze
 
   # Common passwords that satisfy the length + letter + digit rules but are
   # still trivially guessable. Stored in a Set for O(1) lookup and compared
@@ -45,8 +58,15 @@ class User < ApplicationRecord
   has_many :refresh_tokens, dependent: :destroy
   has_many :password_reset_tokens, dependent: :destroy
 
+  # validate: { allow_nil: true } turns an invalid assignment into a 422 validation
+  # error instead of the default ArgumentError that would surface as a 500. allow_nil
+  # because nil is the meaningful "user hasn't picked yet" state — only out-of-list
+  # strings (e.g. "garbage") should fail validation.
+  enum :onboarding_intent, USER_INTENT_LABELS.keys.index_with(&:to_s), validate: { allow_nil: true }
+
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :name, presence: true
+  validates :onboarding_step_reached, numericality: { greater_than_or_equal_to: 0, only_integer: true }
   validates :password, length: { minimum: 8 }, if: -> { new_record? || !password.nil? }
   validate :password_composition, if: -> { password.present? }
   validate :password_not_common, if: -> { password.present? }
@@ -76,7 +96,9 @@ class User < ApplicationRecord
       email: email,
       name: name,
       timezone: timezone,
-      onboarded: onboarded?
+      onboarded: onboarded?,
+      onboarding_intent: onboarding_intent,
+      onboarding_step_reached: onboarding_step_reached
     }
   end
 

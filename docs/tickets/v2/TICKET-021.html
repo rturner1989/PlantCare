@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-021 — Onboarding intent + step-reached columns on User</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #f5f5f0;
+  color: #1a1a1a;
+  padding: 40px;
+  line-height: 1.6;
+}
+.ticket {
+  max-width: 960px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 32px 40px;
+}
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+.badge.priority-low { background: #a8dadc; color: #1a1a1a; }
+.badge.kind { background: #4a6fa5; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #666;
+  margin-bottom: 16px;
+}
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+
+.plan-strip {
+  display: flex;
+  gap: 4px;
+  margin: 16px 0 20px;
+  flex-wrap: wrap;
+}
+.plan-step {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 8px;
+  text-align: center;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f0f0ea;
+  color: #888;
+  border: 1px solid transparent;
+}
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+.artifact-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+.artifact {
+  padding: 14px 18px;
+  background: #f8faf8;
+  border-left: 3px solid #2d6a4f;
+  border-radius: 0 8px 8px 0;
+}
+.artifact .name {
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.artifact .role {
+  font-size: 14px;
+  color: #444;
+  margin-top: 4px;
+}
+.artifact .kind {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: #1a1a2e;
+  color: #fff;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.artifact .kind.migration { background: #6a4a8f; }
+.artifact .kind.model { background: #2d6a4f; }
+.artifact .kind.controller { background: #1a1a2e; }
+.artifact .kind.fixtures { background: #888; color: #fff; }
+.artifact .kind.tests { background: #4a6fa5; }
+
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box {
+  width: 18px; height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.criterion span { font-size: 15px; }
+
+blockquote {
+  border-left: 3px solid #2d6a4f;
+  padding: 12px 16px;
+  margin: 12px 0;
+  background: #f8faf8;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  color: #444;
+}
+code {
+  background: #f0f0ea;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'SF Mono', Consolas, monospace;
+}
+
+.learn {
+  background: #fff8e8;
+  border-left: 3px solid #f4a261;
+  padding: 14px 18px;
+  border-radius: 0 8px 8px 0;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #4a3a1a;
+}
+.learn strong { color: #7a5a1a; }
+
+.rails-map {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 8px;
+}
+.rails-map th {
+  text-align: left;
+  padding: 10px 12px;
+  background: #1a1a2e;
+  color: #fff;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+.rails-map td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+
+.plan-link {
+  display: inline-block;
+  padding: 8px 14px;
+  background: #f0f0ea;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #444;
+  text-decoration: none;
+  margin-top: 8px;
+}
+.plan-link:hover { background: #e6e6de; }
+
+.file-list { list-style: none; padding: 0; }
+.file-list li {
+  padding: 10px 14px;
+  background: #f8f8f5;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}
+.file-list .action {
+  font-family: inherit;
+  font-size: 11px;
+  color: #888;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.mockup-preview {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+.mockup-preview iframe {
+  width: 100%;
+  height: 360px;
+  border: none;
+  background: #fff;
+}
+.mockup-preview .label {
+  padding: 10px 14px;
+  background: #f5f5f0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+
+.intent-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 8px;
+}
+.intent-table th {
+  text-align: left;
+  padding: 10px 12px;
+  background: #f0f0ea;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #666;
+  font-weight: 700;
+}
+.intent-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+.intent-table td:first-child code { background: #fff8e8; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<header class="header">
+  <div class="id">TICKET-021 · v2 plan B2</div>
+  <h1>Onboarding intent + step-reached columns on User</h1>
+  <div class="badges">
+    <span class="badge status">Open</span>
+    <span class="badge priority-high">High</span>
+    <span class="badge kind">Backend-only</span>
+  </div>
+</header>
+
+<section>
+  <h2>Summary</h2>
+  <p>Persist <code>User.onboarding_intent</code> (string-backed enum: forgetful / just_starting / sick_plant / browsing) and <code>User.onboarding_step_reached</code> (integer, default 0) on the users table. Permit them on registration + profile updates. Expose both via <code>User#as_json</code>. Backend-only — no client work in this ticket.</p>
+  <p>The wizard UI that picks the intent (mockup 19, step 2) lands in TICKET-045 (R9). This ticket only ships the persistence layer so R9 has somewhere to write.</p>
+  <p>In one sentence: <strong>add two columns to users, an enum, and the four-line plumbing to persist + serialise them — nothing else.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+
+  <div class="plan-strip">
+    <div class="plan-step done"><span class="num">B1</span>020 Space</div>
+    <div class="plan-step current"><span class="num">B2</span>021 Intent</div>
+    <div class="plan-step"><span class="num">B3</span>022 Journal</div>
+    <div class="plan-step"><span class="num">B4-B7</span>023–026</div>
+    <div class="plan-step"><span class="num">F1-F10</span>027–036</div>
+    <div class="plan-step"><span class="num">R1</span>037 Nav</div>
+    <div class="plan-step"><span class="num">R9</span>045 Onboard</div>
+    <div class="plan-step"><span class="num">R10-R15</span>046–051</div>
+  </div>
+
+  <p><strong>What came before:</strong> TICKET-020 (B1) renamed Room → Space across the full stack. That was the one ticket every other v2 ticket transitively depended on. With it merged, B2-B7 backend prereqs can run in parallel.</p>
+
+  <p><strong>What this unlocks:</strong> primarily TICKET-045 (R9 — intent-adaptive Onboarding wizard, mockup 19). Intent also drives downstream behaviour in TICKET-038 (R2 Today landing variants), TICKET-044 (R8 Notifications defaults), TICKET-038 (streak prominence), and species filter defaults. Step-reached lets a refresh mid-wizard resume at the last unfinished step instead of bouncing back to step 1.</p>
+
+  <p><strong>Mental model:</strong> standard "add a column, expose it through the model, permit it through controllers" Rails change. Indistinguishable from any other Rails 8 schema addition you've done a hundred times — just remember the string-backed enum convention and the <code>USER_INTENT_LABELS</code> constant pattern.</p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <p>One PR, four small artifacts. Backend-only.</p>
+
+  <div class="artifact-list">
+
+    <div class="artifact">
+      <div><span class="kind migration">Migration</span><span class="name">api/db/migrate/&lt;ts&gt;_add_onboarding_fields_to_users.rb</span></div>
+      <div class="role">Adds <code>onboarding_intent</code> (string, nullable — null means "user hasn't picked yet") and <code>onboarding_step_reached</code> (integer, default 0, not null — represents furthest step reached, 0 = not started). Reversible. <strong>Don't re-add <code>onboarding_completed_at</code></strong> — that column already exists from <code>20260416082612_add_onboarding_completed_at_to_users.rb</code>.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind model">Model</span><span class="name">api/app/models/user.rb</span></div>
+      <div class="role">Adds <code>enum :onboarding_intent, { forgetful:, just_starting:, sick_plant:, browsing: }, prefix: true</code> (or no prefix — your call) with string-backed storage so the DB stores the symbol name not an integer. Adds a frozen <code>USER_INTENT_LABELS</code> constant mapping each key to a user-facing display label (used by Step 2 of mockup 19). <code>as_json</code> exposes both new fields. Stays consistent with the project's existing Rails enum convention (string-backed + label constant + symbol keys).</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind controller">Controller</span><span class="name">api/app/controllers/api/v1/registrations_controller.rb + profiles_controller.rb</span></div>
+      <div class="role">Both controllers' <code>params.expect(...)</code> permit lists pick up <code>:onboarding_intent</code> and <code>:onboarding_step_reached</code>. Registrations because the wizard can hand them in at create time; profiles because R9 can update mid-wizard. Invalid intent values fall through ActiveRecord's enum validation as <code>:invalid</code> on the field.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind fixtures">Fixtures</span><span class="name">api/test/fixtures/users.yml</span></div>
+      <div class="role">Existing user fixtures stay valid (both new columns are nullable / default 0). Optionally add a fixture user with a non-null intent + non-zero step for tests that need to exercise the resume / variant paths. Don't touch users that already work.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">api/test/models/user_test.rb + api/test/controllers/api/v1/registrations_controller_test.rb + profiles_controller_test.rb</span></div>
+      <div class="role">Model tests cover: enum maps each symbol to its string DB value, invalid values fail validation, defaults work (intent nil + step 0). Controller tests cover: registration accepts intent + step on create, profile update accepts both on PATCH, scope leak still holds. <code>as_json</code> shape test confirms the new keys appear.</div>
+    </div>
+  </div>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:24px;margin-bottom:8px">Intent values (canon — copy these symbol keys verbatim)</h3>
+
+  <table class="intent-table">
+    <thead>
+      <tr><th>Symbol key</th><th>Mockup label</th><th>Drives</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>forgetful</code></td><td>"I keep forgetting"</td><td>Notifications-first landing, prominent streak, longer reminders</td></tr>
+      <tr><td><code>just_starting</code></td><td>"I'm just starting"</td><td>Default landing, full first-run tour, beginner species filter</td></tr>
+      <tr><td><code>sick_plant</code></td><td>"My plant is sick"</td><td>Skip onboarding to Plant Doctor / triage flow (R9 routes here)</td></tr>
+      <tr><td><code>browsing</code></td><td>"Just browsing"</td><td>Encyclopedia-first landing, skip notifications nag, lighter streak</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+  <ol>
+    <li>Users have an <code>onboarding_intent</code> attribute that accepts one of four values (<code>forgetful</code>, <code>just_starting</code>, <code>sick_plant</code>, <code>browsing</code>) or nil.</li>
+    <li>Users have an <code>onboarding_step_reached</code> attribute that defaults to 0 and accepts any non-negative integer.</li>
+    <li>Both fields can be set on registration (POST <code>/api/v1/registration</code>) and updated on profile (PATCH <code>/api/v1/profile</code>).</li>
+    <li>Both fields appear in the JSON returned by <code>User#as_json</code> (so the client can read them after login or refresh).</li>
+    <li>Setting an invalid intent value (anything outside the four symbols) is rejected with a validation error, not silently coerced.</li>
+    <li>Existing users — fixtures and any seed data — remain valid after the migration with <code>intent = nil</code> and <code>step_reached = 0</code>.</li>
+    <li>The four intent symbol keys + their display labels live in a single <code>USER_INTENT_LABELS</code> constant on the model so future readers don't have to hunt for them.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+
+  <div class="criterion"><div class="box"></div><span><code>./scripts/run_tests.sh api</code> green.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>docker compose exec api bin/rails db:migrate:status</code> shows <code>AddOnboardingFieldsToUsers</code> as up.</span></div>
+  <div class="criterion"><div class="box"></div><span>Migration rollback + re-apply succeeds without errors.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>schema.rb</code> reflects both new columns with correct types and defaults; no other unrelated drift.</span></div>
+  <div class="criterion"><div class="box"></div><span>POST <code>/api/v1/registration</code> with <code>{ user: { ..., onboarding_intent: "forgetful", onboarding_step_reached: 2 } }</code> returns 201, persists both values, and the response JSON includes both keys.</span></div>
+  <div class="criterion"><div class="box"></div><span>PATCH <code>/api/v1/profile</code> with the new fields updates them and returns the updated values in JSON.</span></div>
+  <div class="criterion"><div class="box"></div><span>POST <code>/api/v1/registration</code> with <code>onboarding_intent: "garbage"</code> returns 422 with a validation error on the intent field.</span></div>
+  <div class="criterion"><div class="box"></div><span>An existing pre-migration user (e.g. fixture <code>users(:john)</code>) still loads, returns <code>onboarding_intent: nil</code> and <code>onboarding_step_reached: 0</code> in <code>as_json</code>.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/dhh-rails-reviewer</code> finds no blockers.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/accessibility</code> — n/a (backend-only, no UI).</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/vercel-react-best-practices</code> — n/a (backend-only).</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/comment-audit</code> passes.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/pre-commit</code> passes (lint + tests).</span></div>
+</section>
+
+<section>
+  <h2>Design references</h2>
+
+  <p>This ticket is purely the persistence layer behind mockup 19's intent picker. The actual UI that writes these values is TICKET-045 (R9). Mockup is referenced here for the canonical four intent options + their labels — copy verbatim.</p>
+
+  <div class="mockup-preview">
+    <div class="label">
+      <span>Mockup 19 — Onboarding (intent step is step 2 of the wizard)</span>
+      <a href="../../mockups/plantcare-ui/v2/19-onboarding-v1.html" target="_blank">Open ↗</a>
+    </div>
+    <iframe src="../../mockups/plantcare-ui/v2/19-onboarding-v1.html"></iframe>
+  </div>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:20px;margin-bottom:8px">Plan reference</h3>
+
+  <blockquote>
+    "Intent drives downstream app behaviour (landing, tour length, notifications, streak prominence, species filter, schedule intervals, jobs-rail order). Step-reached lets refresh resume at the last unfinished step." — plan §B2
+  </blockquote>
+
+  <a class="plan-link" href="../../plans/2026-04-24-plantcare-frontend-v2.md">Plan §B2 — TICKET-021 spec (one worked example, not a script to transcribe)</a>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:20px;margin-bottom:8px">Out of scope</h3>
+  <ul>
+    <li>The wizard UI that writes these fields — TICKET-045 (R9).</li>
+    <li>Branching the Today landing or Notifications by intent — those land with their respective region tickets (R2, R8).</li>
+    <li>Sick-plant flow detour from Onboarding step 2 to Plant Doctor — owned by R9.</li>
+    <li>Step-reached resume logic on the client — owned by R9.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Rails patterns worth getting right</h2>
+
+  <p>This ticket has zero React work. The "concepts to get right" are all Rails-side:</p>
+
+  <div class="learn">
+    <strong>String-backed enum convention.</strong> Project standard (CLAUDE.md): <code>enum onboarding_intent: { forgetful: 'forgetful', ... }</code> stores the symbol name as a string in a varchar column, not an integer. Pros: readable rows in psql, immune to symbol-key reorder breaking historical data, easy to compare from raw SQL. Cons: 8 bytes per row vs 1 byte. Rob's call long-since made — match it.
+  </div>
+
+  <div class="learn">
+    <strong>Label constant alongside the enum.</strong> The four symbols are domain-meaningful internally; the display strings ("I keep forgetting", "I'm just starting", etc.) are user-facing. Keep them in a single <code>USER_INTENT_LABELS = { forgetful: 'I keep forgetting', ... }.freeze</code> constant on the User model so callers — including the future R9 wizard's serializer — read from one source. Same pattern Rob's already using elsewhere (e.g. <code>GAME_SYSTEM_LABELS</code> per CLAUDE.md global standards).
+  </div>
+
+  <div class="learn">
+    <strong><code>params.expect</code>, not <code>permit</code>.</strong> Rails 8 way per project convention. Both registrations + profiles already use <code>params.expect(user: [...])</code> — just extend the symbol list. Don't introduce <code>params.require(...).permit(...)</code> alongside.
+  </div>
+
+  <div class="learn">
+    <strong>Counter-intuitive enum gotcha.</strong> Once an enum is declared, ActiveRecord auto-generates predicate methods (<code>user.forgetful?</code>) and bang setters (<code>user.forgetful!</code>). This can clash with existing methods or with future ones — the symbol key <code>browsing</code> is fine, but if a future enum uses keys that overlap an existing method on User (e.g. a <code>save</code> intent), <code>save?</code> would shadow ActiveRecord. Not a problem here, but worth knowing while you're naming.
+  </div>
+
+  <div class="learn">
+    <strong>Default migration shape.</strong> <code>add_column :users, :onboarding_step_reached, :integer, default: 0, null: false</code>. Using <code>null: false</code> + a default means existing rows get backfilled to 0 automatically. <code>onboarding_intent</code> is <code>:string</code> with no default, nullable — null is the meaningful "hasn't picked yet" state.
+  </div>
+</section>
+
+<section>
+  <h2>Rails ↔ React mental map</h2>
+
+  <p>Backend-only ticket — short table.</p>
+
+  <table class="rails-map">
+    <thead>
+      <tr><th>Rails (this ticket)</th><th>React equivalent (future tickets that consume this)</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>User.onboarding_intent</code> column + enum</td>
+        <td><code>useAuth().user.onboarding_intent</code></td>
+        <td>R9 reads it after login to pick wizard variant; lands in <code>AuthContext</code>'s user shape automatically via <code>as_json</code></td>
+      </tr>
+      <tr>
+        <td><code>USER_INTENT_LABELS</code> constant on the model</td>
+        <td>R9's intent picker renders <code>Object.entries(intentLabels)</code> into cards</td>
+        <td>Backend stays the source of truth for the label strings — frontend just renders</td>
+      </tr>
+      <tr>
+        <td><code>params.expect(user: [..., :onboarding_intent, :onboarding_step_reached])</code></td>
+        <td>R9 form submit handler picks the same fields client-side</td>
+        <td>No strong-params equivalent on the client; client just doesn't send extras</td>
+      </tr>
+      <tr>
+        <td><code>render json: @user</code> includes new keys via <code>as_json</code></td>
+        <td>R9's wizard state hydrates from <code>useQuery(['profile'])</code></td>
+        <td>Step-reached lets a mid-wizard refresh resume at the last unfinished step</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Related files</h2>
+
+  <ul class="file-list">
+    <li><span>api/db/migrate/&lt;ts&gt;_add_onboarding_fields_to_users.rb</span><span class="action">create</span></li>
+    <li><span>api/db/schema.rb</span><span class="action">regenerate</span></li>
+    <li><span>api/app/models/user.rb</span><span class="action">extend (enum + label constant + as_json)</span></li>
+    <li><span>api/app/controllers/api/v1/registrations_controller.rb</span><span class="action">modify (params.expect)</span></li>
+    <li><span>api/app/controllers/api/v1/profiles_controller.rb</span><span class="action">modify (params.expect)</span></li>
+    <li><span>api/test/fixtures/users.yml</span><span class="action">optional fixture additions</span></li>
+    <li><span>api/test/models/user_test.rb</span><span class="action">extend</span></li>
+    <li><span>api/test/controllers/api/v1/registrations_controller_test.rb</span><span class="action">extend</span></li>
+    <li><span>api/test/controllers/api/v1/profiles_controller_test.rb</span><span class="action">extend</span></li>
+  </ul>
+
+  <p style="font-size:13px;color:#666;margin-top:12px"><em>This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose.</em></p>
+</section>
+
+<section>
+  <h2>Notes &amp; gotchas</h2>
+
+  <ul>
+    <li><strong>Don't re-add <code>onboarding_completed_at</code>.</strong> Already exists from migration <code>20260416082612</code>. Plan §B2 mentions it as a "merge with existing flag" reminder — meaning leave it alone.</li>
+    <li><strong>String-backed enum syntax.</strong> Rails 7+ <code>enum :name, { key: 'key' }</code> form. The hash values are the strings stored in the DB. This is the project convention — don't fall back to integer-backed (<code>enum :name, [:a, :b, :c]</code>) which writes 0/1/2 to the column.</li>
+    <li><strong>Skip <code>prefix:</code> if it conflicts.</strong> If <code>browsing?</code> ever clashes with another User method later, add <code>prefix: true</code> to namespace the predicate methods (<code>onboarding_intent_browsing?</code>). Today there's no conflict — your call.</li>
+    <li><strong>Don't permit step_reached arbitrarily large or negative.</strong> Add a model-level <code>validates :onboarding_step_reached, numericality: { greater_than_or_equal_to: 0, only_integer: true }</code>. Stops a buggy client from writing -1 or 999.</li>
+    <li><strong>Scope tests.</strong> Existing controller tests assert <code>current_user</code> isolation. The two new fields don't change that, but make sure new tests still go through <code>auth_headers(@user)</code> rather than skipping auth.</li>
+    <li><strong>Don't ship Sidekiq jobs or notifications gating yet.</strong> Those branch on intent but live in their own region tickets (R8, R10). This ticket only adds the columns.</li>
+    <li><strong>Branch:</strong> <code>ticket-021-onboarding-intent</code> (already checked out).</li>
+  </ul>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:20px;margin-bottom:8px">When you're done</h3>
+  <p>Run <code>./scripts/lint.sh</code>, <code>./scripts/run_tests.sh api</code>. Then <code>/review-ticket 021</code>, <code>/comment-audit</code>, <code>/pre-commit</code>. Commit on the feature branch, then <code>/github-make-pr</code>. Mention in PR body that <code>/accessibility</code> + <code>/vercel-react-best-practices</code> are n/a (backend-only).</p>
+</section>
+
+</div>
+</body>
+</html>
