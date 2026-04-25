@@ -5,79 +5,79 @@ import { useEffect, useRef, useState } from 'react'
 import { useToast } from '../../context/ToastContext'
 import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
-import { useCreateRoom, useDeleteRoom, useRoomPresets } from '../../hooks/useRooms'
-import { getRoomIcon } from '../../utils/roomIcons'
+import { useCreateSpace, useDeleteSpace, useSpacePresets } from '../../hooks/useSpaces'
+import { getSpaceIcon } from '../../utils/spaceIcons'
 import CheckboxCardInput from '../form/CheckboxCardInput'
 import Action from '../ui/Action'
 import { CardBody, CardFooter } from '../ui/Card'
 
-export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
-  const [selectedRooms, setSelectedRooms] = useState(() => initialRooms.map((r) => r.name))
-  const [customRoom, setCustomRoom] = useState('')
+export default function Step2Spaces({ initialSpaces = [], onBack, onComplete }) {
+  const [selectedSpaces, setSelectedSpaces] = useState(() => initialSpaces.map((s) => s.name))
+  const [customSpace, setCustomSpace] = useState('')
   const [addingCustom, setAddingCustom] = useState(false)
   const toast = useToast()
   const inputRef = useRef(null)
   const shouldReduceMotion = useReducedMotion()
 
-  const { data: presets = [], error: presetsError, isSuccess: presetsLoaded } = useRoomPresets()
-  const createRoom = useCreateRoom()
-  const deleteRoom = useDeleteRoom()
+  const { data: presets = [], error: presetsError, isSuccess: presetsLoaded } = useSpacePresets()
+  const createSpace = useCreateSpace()
+  const deleteSpace = useDeleteSpace()
 
   useEffect(() => {
     if (presetsError) toast.error(presetsError.message)
   }, [presetsError, toast])
 
-  function toggleRoom(roomName) {
-    setSelectedRooms((prev) => (prev.includes(roomName) ? prev.filter((r) => r !== roomName) : [...prev, roomName]))
+  function toggleSpace(spaceName) {
+    setSelectedSpaces((prev) => (prev.includes(spaceName) ? prev.filter((s) => s !== spaceName) : [...prev, spaceName]))
   }
 
-  function addCustomRoom() {
-    const trimmed = customRoom.trim()
-    if (trimmed && !selectedRooms.includes(trimmed)) {
-      setSelectedRooms((prev) => [...prev, trimmed])
+  function addCustomSpace() {
+    const trimmed = customSpace.trim()
+    if (trimmed && !selectedSpaces.includes(trimmed)) {
+      setSelectedSpaces((prev) => [...prev, trimmed])
     }
-    setCustomRoom('')
+    setCustomSpace('')
     setAddingCustom(false)
   }
 
   function cancelAdding() {
-    setCustomRoom('')
+    setCustomSpace('')
     setAddingCustom(false)
   }
 
   const { submitting, handleSubmit, formRef } = useFormSubmit({
     action: async () => {
-      // Deselected rooms are DELETEd from the server; attached plants
+      // Deselected spaces are DELETEd from the server; attached plants
       // cascade-destroy via Rails' dependent: :destroy.
-      const existingByName = new Map(initialRooms.map((r) => [r.name, r]))
-      const selectedNames = new Set(selectedRooms)
-      const toDelete = initialRooms.filter((r) => !selectedNames.has(r.name))
+      const existingByName = new Map(initialSpaces.map((s) => [s.name, s]))
+      const selectedNames = new Set(selectedSpaces)
+      const toDelete = initialSpaces.filter((s) => !selectedNames.has(s.name))
 
       try {
-        const [rooms] = await Promise.all([
+        const [spaces] = await Promise.all([
           Promise.all(
-            selectedRooms.map((roomName) => {
-              if (existingByName.has(roomName)) return existingByName.get(roomName)
-              const preset = presets.find((r) => r.name === roomName)
-              return createRoom.mutateAsync({ name: roomName, icon: preset?.icon || null })
+            selectedSpaces.map((spaceName) => {
+              if (existingByName.has(spaceName)) return existingByName.get(spaceName)
+              const preset = presets.find((s) => s.name === spaceName)
+              return createSpace.mutateAsync({ name: spaceName, icon: preset?.icon || null })
             }),
           ),
-          Promise.all(toDelete.map((room) => deleteRoom.mutateAsync(room.id))),
+          Promise.all(toDelete.map((space) => deleteSpace.mutateAsync(space.id))),
         ])
-        onComplete(rooms)
+        onComplete(spaces)
       } catch (err) {
-        // No field-bound input for the room name here — rethrow as plain Error
+        // No field-bound input for the space name here — rethrow as plain Error
         // so useFormSubmit shows the toast instead of trying to attach fields.
         if (err instanceof ValidationError) throw new Error(err.message)
         throw err
       }
     },
-    errorMessage: 'Could not save rooms',
+    errorMessage: 'Could not save spaces',
   })
 
-  // Gate on presetsLoaded — otherwise a preset-named room from initialRooms
+  // Gate on presetsLoaded — otherwise a preset-named space from initialSpaces
   // flashes as a custom chip for ~250ms while presets are still loading.
-  const customRooms = presetsLoaded ? selectedRooms.filter((r) => !presets.find((p) => p.name === r)) : []
+  const customSpaces = presetsLoaded ? selectedSpaces.filter((s) => !presets.find((p) => p.name === s)) : []
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
@@ -86,35 +86,35 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
           Where do your plants <em className="not-italic text-leaf">live</em>?
         </h1>
         <p className="mt-3 text-sm text-ink-soft font-medium leading-snug">
-          Pick every room that has plants. You can add more later.
+          Pick every space that has plants. You can add more later.
         </p>
 
         <div className="mt-5 flex-1 min-h-0 overflow-y-auto -mx-1 px-1 space-y-2">
-          {presets.map((room) => (
+          {presets.map((space) => (
             <CheckboxCardInput
-              key={room.name}
-              icon={getRoomIcon(room.icon)}
-              selected={selectedRooms.includes(room.name)}
-              onClick={() => toggleRoom(room.name)}
+              key={space.name}
+              icon={getSpaceIcon(space.icon)}
+              selected={selectedSpaces.includes(space.name)}
+              onClick={() => toggleSpace(space.name)}
             >
-              {room.name}
+              {space.name}
             </CheckboxCardInput>
           ))}
 
-          {/* initial={false} so persisted custom rooms don't replay the
+          {/* initial={false} so persisted custom spaces don't replay the
               entrance animation on mount. */}
           <AnimatePresence initial={false}>
-            {customRooms.map((room) => (
+            {customSpaces.map((space) => (
               <motion.div
-                key={room}
+                key={space}
                 initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
                 animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, height: 'auto' }}
                 exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
                 transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: [0.33, 1, 0.68, 1] }}
                 style={{ overflow: 'hidden' }}
               >
-                <CheckboxCardInput selected onClick={() => toggleRoom(room)}>
-                  {room}
+                <CheckboxCardInput selected onClick={() => toggleSpace(space)}>
+                  {space}
                 </CheckboxCardInput>
               </motion.div>
             ))}
@@ -138,28 +138,28 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
                     <input
                       ref={inputRef}
                       type="text"
-                      value={customRoom}
-                      onChange={(e) => setCustomRoom(e.target.value)}
+                      value={customSpace}
+                      onChange={(e) => setCustomSpace(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault()
-                          addCustomRoom()
+                          addCustomSpace()
                         } else if (e.key === 'Escape') {
                           e.preventDefault()
                           cancelAdding()
                         }
                       }}
-                      aria-label="New room name"
+                      aria-label="New space name"
                       className="flex-1 px-4 py-3 rounded-md bg-card border border-dashed border-ink-soft/30 text-ink text-base outline-none focus:border-leaf"
-                      placeholder="Room name"
+                      placeholder="Space name"
                     />
                     <Action
                       variant="unstyled"
-                      onClick={addCustomRoom}
-                      disabled={!customRoom.trim()}
-                      aria-label="Add room"
+                      onClick={addCustomSpace}
+                      disabled={!customSpace.trim()}
+                      aria-label="Add space"
                       className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                        customRoom.trim() ? 'bg-leaf text-card hover:bg-emerald' : 'bg-mint text-ink-soft/50'
+                        customSpace.trim() ? 'bg-leaf text-card hover:bg-emerald' : 'bg-mint text-ink-soft/50'
                       }`}
                     >
                       <FontAwesomeIcon icon={faCheck} className="text-sm" />
@@ -167,7 +167,7 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
                     <Action
                       variant="unstyled"
                       onClick={cancelAdding}
-                      aria-label="Cancel adding room"
+                      aria-label="Cancel adding space"
                       className="shrink-0 w-10 h-10 rounded-full border border-mint text-ink-soft hover:border-coral/60 hover:text-coral-deep flex items-center justify-center transition-colors"
                     >
                       <FontAwesomeIcon icon={faXmark} className="text-sm" />
@@ -189,7 +189,7 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md border-2 border-dashed border-mint text-ink-soft hover:text-leaf hover:border-leaf/50 transition-colors"
                   >
                     <FontAwesomeIcon icon={faPlus} className="text-sm" />
-                    <span className="text-sm font-bold">Add a custom room</span>
+                    <span className="text-sm font-bold">Add a custom space</span>
                   </Action>
                 </motion.div>
               )}
@@ -202,8 +202,8 @@ export default function Step2Rooms({ initialRooms = [], onBack, onComplete }) {
         <Action variant="secondary" onClick={onBack}>
           Back
         </Action>
-        <Action type="submit" variant="primary" disabled={selectedRooms.length === 0 || submitting} className="flex-1">
-          {submitting ? 'Creating rooms...' : 'Continue'}
+        <Action type="submit" variant="primary" disabled={selectedSpaces.length === 0 || submitting} className="flex-1">
+          {submitting ? 'Creating spaces...' : 'Continue'}
         </Action>
       </CardFooter>
     </form>

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-020 — Rename Room → Space (full-stack)</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #f5f5f0;
+  color: #1a1a1a;
+  padding: 40px;
+  line-height: 1.6;
+}
+.ticket {
+  max-width: 960px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 32px 40px;
+}
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+.badge.priority-low { background: #a8dadc; color: #1a1a1a; }
+.badge.kind { background: #4a6fa5; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #666;
+  margin-bottom: 16px;
+}
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+
+.plan-strip {
+  display: flex;
+  gap: 4px;
+  margin: 16px 0 20px;
+  flex-wrap: wrap;
+}
+.plan-step {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 8px;
+  text-align: center;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f0f0ea;
+  color: #888;
+  border: 1px solid transparent;
+}
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+.artifact-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+.artifact {
+  padding: 14px 18px;
+  background: #f8faf8;
+  border-left: 3px solid #2d6a4f;
+  border-radius: 0 8px 8px 0;
+}
+.artifact .name {
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.artifact .role {
+  font-size: 14px;
+  color: #444;
+  margin-top: 4px;
+}
+.artifact .kind {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: #1a1a2e;
+  color: #fff;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.artifact .kind.page { background: #2d6a4f; }
+.artifact .kind.component { background: #1a1a2e; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.hook { background: #4a6fa5; }
+.artifact .kind.util { background: #6a4a8f; }
+.artifact .kind.migration { background: #6a4a8f; }
+.artifact .kind.model { background: #2d6a4f; }
+.artifact .kind.controller { background: #1a1a2e; }
+.artifact .kind.routes { background: #4a6fa5; }
+.artifact .kind.fixtures { background: #888; color: #fff; }
+
+.shape {
+  background: #1a1a2e;
+  color: #d4d4d4;
+  border-radius: 8px;
+  padding: 20px 24px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  margin-top: 12px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box {
+  width: 18px; height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.criterion span { font-size: 15px; }
+
+blockquote {
+  border-left: 3px solid #2d6a4f;
+  padding: 12px 16px;
+  margin: 12px 0;
+  background: #f8faf8;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  color: #444;
+}
+code {
+  background: #f0f0ea;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'SF Mono', Consolas, monospace;
+}
+
+.learn {
+  background: #fff8e8;
+  border-left: 3px solid #f4a261;
+  padding: 14px 18px;
+  border-radius: 0 8px 8px 0;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #4a3a1a;
+}
+.learn strong { color: #7a5a1a; }
+
+.rails-map {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 8px;
+}
+.rails-map th {
+  text-align: left;
+  padding: 10px 12px;
+  background: #1a1a2e;
+  color: #fff;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+.rails-map td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+
+.plan-link {
+  display: inline-block;
+  padding: 8px 14px;
+  background: #f0f0ea;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #444;
+  text-decoration: none;
+  margin-top: 8px;
+}
+.plan-link:hover { background: #e6e6de; }
+
+.file-list { list-style: none; padding: 0; }
+.file-list li {
+  padding: 10px 14px;
+  background: #f8f8f5;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}
+.file-list .action {
+  font-family: inherit;
+  font-size: 11px;
+  color: #888;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<header class="header">
+  <div class="id">TICKET-020 · v2 plan B1</div>
+  <h1>Rename <code style="background:rgba(255,255,255,0.1);color:#fff">Room</code> → <code style="background:rgba(255,255,255,0.1);color:#fff">Space</code> across the full stack</h1>
+  <div class="badges">
+    <span class="badge status">Open</span>
+    <span class="badge priority-high">High</span>
+    <span class="badge kind">Full-stack</span>
+  </div>
+</header>
+
+<section>
+  <h2>Summary</h2>
+  <p>Pre-launch, single-shot rename of the <code>Room</code> domain noun to <code>Space</code>. Everywhere — table name, FK column, model class, controllers, routes, JSON keys, fixtures, tests, hooks, query keys, components, copy. No backwards-compat shim, no dual-emit JSON, no aliasing — only one noun exists when the dust settles.</p>
+  <p>Visual overhaul of the rooms list lives in TICKET-039 (R3 House v2). This ticket only renames; styling carries forward unchanged.</p>
+  <p>In one sentence: <strong>swap one domain word for another in one PR so every later v2 ticket starts on clean ground.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+
+  <div class="plan-strip">
+    <div class="plan-step current"><span class="num">B1</span>020 Space</div>
+    <div class="plan-step"><span class="num">B2</span>021 Intent</div>
+    <div class="plan-step"><span class="num">B3-B7</span>022–026</div>
+    <div class="plan-step"><span class="num">F1-F10</span>027–036</div>
+    <div class="plan-step"><span class="num">R1</span>037 Nav</div>
+    <div class="plan-step"><span class="num">R2</span>038 Today</div>
+    <div class="plan-step"><span class="num">R3</span>039 House</div>
+    <div class="plan-step"><span class="num">R4-R15</span>040–051</div>
+  </div>
+
+  <p><strong>What came before:</strong> v1 plan shipped TICKET-001..017 (auth, rooms, plants, care logs, photos, species, dashboard, profile, Today dashboard, password reset). PR #37 just landed the v2 design pivot — spec + 20 mockups + this plan doc + a paused House scaffold. Implementation has been on ice since 2026-04-22; this ticket restarts it.</p>
+
+  <p><strong>What this unlocks:</strong> nearly every following ticket. The plan's dependency graph has B1 as a fan-out root — TICKET-039 (R3 House) renames <code>RoomCard</code> → <code>SpaceCard</code> visually, TICKET-040 (R4 Plant Detail) joins on <code>plant.space</code>, TICKET-037 (R1 nav) renames the sidebar item "Rooms" → "Spaces". Doing the rename in isolation lets every region ticket land on a single noun without re-running search-and-replace each time.</p>
+
+  <p><strong>Mental model:</strong> this is a Rails <code>rename_table</code> + a global identifier rename. Rob has done plenty of these. Risk lives in (1) making sure tests/fixtures get renamed in lock-step, (2) catching the React side's query keys + URL paths, (3) not missing a copy string in welcome / Step2.</p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <p>One PR, one logical change: rename. Group of artifacts split by tier so the diff stays comprehensible during review.</p>
+
+  <div class="artifact-list">
+
+    <div class="artifact">
+      <div><span class="kind migration">Migration</span><span class="name">api/db/migrate/&lt;ts&gt;_rename_rooms_to_spaces.rb</span></div>
+      <div class="role">Renames the <code>rooms</code> table to <code>spaces</code>, the <code>plants.room_id</code> column to <code>plants.space_id</code>, and any indexes that embed the old name (notably the unique <code>name</code>+<code>user_id</code> compound index). <code>rename_table</code>/<code>rename_column</code> handle FK auto-renames in PG, but verify <code>schema.rb</code> after running.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind model">Model</span><span class="name">api/app/models/space.rb (was room.rb)</span></div>
+      <div class="role">Class <code>Space</code>. Drives <code>User has_many :spaces</code> and <code>Plant belongs_to :space</code>. Counter cache becomes <code>spaces.plants_count</code> via <code>belongs_to :space, counter_cache: true</code>. Validations + scopes carry over verbatim.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind controller">Controller</span><span class="name">api/app/controllers/api/v1/spaces_controller.rb (was rooms_controller.rb)</span></div>
+      <div class="role">Same CRUD surface, different noun. <code>params.expect(space: [:name, :icon, ...])</code>. Scope through <code>current_user.spaces</code>. Nested presets controller moves with it: <code>api/v1/spaces/presets_controller.rb</code>.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind routes">Routes</span><span class="name">api/config/routes.rb</span></div>
+      <div class="role"><code>resources :rooms</code> → <code>resources :spaces</code>. Nested <code>resources :presets</code> stays under spaces. Plant-scoped routes referencing <code>room_id</code> in path helpers (none expected, verify) update accordingly.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind extend">Serializer</span><span class="name">Plant#as_json, Dashboard#as_json, Room/Space#as_json</span></div>
+      <div class="role">JSON keys flip: <code>room</code> → <code>space</code>, <code>room_id</code> → <code>space_id</code>, <code>rooms</code> → <code>spaces</code>. Single-pass change — no dual emit, no <code>room AND space</code>. Frontend is the only consumer.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind fixtures">Fixtures</span><span class="name">api/test/fixtures/rooms.yml + plants.yml + tests</span></div>
+      <div class="role">Rename <code>rooms.yml</code> → <code>spaces.yml</code>. <code>plants.yml</code> swaps its <code>room: living_room</code> reference key for <code>space: living_room</code>. Fixture identifiers (the YAML keys) can stay descriptive — Rails uses them to compute FKs. Test files that load <code>rooms(:living_room)</code> change to <code>spaces(:living_room)</code>.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind hook">Hook</span><span class="name">client/src/hooks/useSpaces.js (was useRooms.js)</span></div>
+      <div class="role">Same shape, renamed identifiers. Query key flat array <code>['spaces']</code> + <code>['spaces', id]</code> per the cache-key convention in CLAUDE.md. API calls hit <code>/api/v1/spaces</code>. <code>useSpaces</code>, <code>useSpace</code>, <code>useCreateSpace</code>, <code>useUpdateSpace</code>, <code>useDeleteSpace</code>.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind component">Component</span><span class="name">client/src/components/SpaceCard.jsx (was RoomCard.jsx)</span></div>
+      <div class="role">File rename + identifier rename only. Visual pass is TICKET-039 (R3) — keep the existing styling exactly. Props: <code>space</code> (was <code>room</code>). Any callers (currently <code>House.jsx</code>) update to pass renamed prop.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind util">Util</span><span class="name">client/src/utils/spaceIcons.js (was roomIcons.js)</span></div>
+      <div class="role">Lookup of icon-key → SVG/emoji for space presets. Identifier rename. Importers update.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind extend">Wizard</span><span class="name">client/src/components/welcome/Step2Spaces.jsx (was Step2Rooms.jsx)</span></div>
+      <div class="role">Onboarding step 2 — picking spaces. File rename + copy update. Step3Species and Step4Environment also touch <code>room</code> in props/labels — sweep them too. Welcome.jsx references step components by name; updates with the rename.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind page">Page</span><span class="name">client/src/pages/House.jsx</span></div>
+      <div class="role">Paused scaffold from PR #37. Rename internal <code>room</code> identifiers → <code>space</code>. Copy stays as-is for now (R3 rewrites it).</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind extend">Errors + copy sweep</span><span class="name">client/src/errors/NotFoundError.js + any user-facing strings</span></div>
+      <div class="role">Anywhere a string says "Room" in the UI, swap to "Space". Anywhere an error message embeds the noun, swap. <code>grep -ri room client/src</code> after the rename should return only incidental matches (mushroom, bedroom-as-icon-key, etc.).</div>
+    </div>
+
+  </div>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:24px;margin-bottom:8px">Suggested commit/diff order</h3>
+  <div class="shape">1. Migration + schema.rb regenerated
+2. Model + controllers + routes (server only)
+3. Serializers (JSON keys)
+4. Fixtures + API tests
+5. Client hook + API client paths
+6. Components + utils + welcome wizard
+7. Final grep sweep + Playwright fixes</div>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+  <ol>
+    <li>The Rails domain noun is <code>Space</code>. The <code>Room</code> class no longer exists in the codebase.</li>
+    <li>The database has a <code>spaces</code> table; <code>plants</code> has a <code>space_id</code> column with a foreign key. <code>schema.rb</code> reflects the renamed state.</li>
+    <li>The API exposes <code>/api/v1/spaces</code> (and any nested presets/plants routes that hung off rooms). <code>/api/v1/rooms</code> 404s — no compat shim.</li>
+    <li>JSON responses use the keys <code>space</code> / <code>spaces</code> / <code>space_id</code>. No payload anywhere still emits a <code>room</code> key.</li>
+    <li>Test fixtures use a <code>spaces.yml</code> file and <code>plants.yml</code> references it via a <code>space:</code> association key. All API tests pass.</li>
+    <li>The React client fetches from <code>/api/v1/spaces</code>. TanStack Query keys are <code>['spaces']</code>, <code>['spaces', id]</code> — flat arrays per the cache-key convention.</li>
+    <li>Components, hooks, utils, and copy use the word "space" (or "Space") anywhere they used "room" (or "Room"). Mockups 17–36 are the canon for visible copy.</li>
+    <li>The <code>RoomCard</code> visual is preserved one-for-one in <code>SpaceCard</code>. No styling changes — that's TICKET-039.</li>
+    <li>A repo-wide <code>grep -ri room api/app api/config api/test client/src client/tests</code> returns only incidental matches (e.g. icon presets named "bedroom" / "bathroom", literal noun appearing in mockup HTML which lives outside source tree).</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+
+  <div class="criterion"><div class="box"></div><span><code>./scripts/run_tests.sh api</code> green.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>./scripts/run_tests.sh client</code> green (Vitest + Playwright).</span></div>
+  <div class="criterion"><div class="box"></div><span><code>docker compose exec api bin/rails db:migrate:status</code> shows <code>RenameRoomsToSpaces</code> as up; rolling back and re-applying succeeds without errors.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>curl localhost:3000/api/v1/spaces</code> with a valid auth token returns the user's spaces list. <code>curl localhost:3000/api/v1/rooms</code> returns 404.</span></div>
+  <div class="criterion"><div class="box"></div><span>The Today / House / Welcome screens render in dev (<code>docker compose up</code> + <code>localhost:5173</code>) without console errors and with "Space"/"Spaces" wherever they used to say "Room"/"Rooms".</span></div>
+  <div class="criterion"><div class="box"></div><span>Creating a space from the welcome wizard, then refreshing the page, persists. Network tab shows the POST hitting <code>/api/v1/spaces</code>.</span></div>
+  <div class="criterion"><div class="box"></div><span>React DevTools → TanStack Query devtools shows the cache key as <code>['spaces']</code> not <code>['rooms']</code>.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>grep -ri 'room' api/app api/config api/test client/src client/tests</code> shows only incidental matches you can defend.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/dhh-rails-reviewer</code> finds no blockers on the backend rename diff.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/vercel-react-best-practices</code> finds no blockers on the client rename diff.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/accessibility</code> — n/a (rename-only, no UI semantics changed). Note that explicitly in the PR body.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/comment-audit</code> passes.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/pre-commit</code> passes (lint + tests).</span></div>
+</section>
+
+<section>
+  <h2>Design references</h2>
+
+  <p>This ticket is terminology-only — no new visuals. Mockups 17–36 are the source for user-facing copy. A few representative screens where "Space" appears:</p>
+
+  <div class="mockup-preview" style="border:1px solid #ddd;border-radius:8px;overflow:hidden;margin:12px 0">
+    <div style="padding:10px 14px;background:#f5f5f0;font-size:12px;font-weight:700;color:#666;display:flex;justify-content:space-between;align-items:center">
+      <span>Mockup 21 — House (Spaces grid + group headers)</span>
+      <a href="../../mockups/plantcare-ui/v2/21-house-v1.html" style="color:#2d6a4f;text-decoration:none;font-weight:700">Open ↗</a>
+    </div>
+    <iframe src="../../mockups/plantcare-ui/v2/21-house-v1.html" style="width:100%;height:360px;border:none;background:#fff"></iframe>
+  </div>
+
+  <div class="mockup-preview" style="border:1px solid #ddd;border-radius:8px;overflow:hidden;margin:12px 0">
+    <div style="padding:10px 14px;background:#f5f5f0;font-size:12px;font-weight:700;color:#666;display:flex;justify-content:space-between;align-items:center">
+      <span>Mockup 26 — Sidebar states ("Spaces" nav item)</span>
+      <a href="../../mockups/plantcare-ui/v2/26-sidebar-states-v1.html" style="color:#2d6a4f;text-decoration:none;font-weight:700">Open ↗</a>
+    </div>
+    <iframe src="../../mockups/plantcare-ui/v2/26-sidebar-states-v1.html" style="width:100%;height:360px;border:none;background:#fff"></iframe>
+  </div>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:20px;margin-bottom:8px">Plan reference</h3>
+
+  <blockquote>
+    "v2 adopts 'Space' as the canonical noun covering indoor + outdoor plant locations. <code>Room</code> is a subset, leaks into copy awkwardly ('Patio' isn't a room). Pre-launch rename avoids migration compat forever." — plan §B1
+  </blockquote>
+
+  <a class="plan-link" href="../../plans/2026-04-24-plantcare-frontend-v2.md">Plan §B1 — TICKET-020 spec (one worked example, not a script to transcribe)</a>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:20px;margin-bottom:8px">Out of scope</h3>
+  <ul>
+    <li>Visual redesign of the rooms grid — TICKET-039 (R3 House v2) owns that.</li>
+    <li>"Outdoor" sub-typing of spaces (the Patio/Garden case the rename anticipates) — TICKET-039 also.</li>
+    <li>Weather pills on space group headers — F4 (TICKET-030) + R3.</li>
+    <li>Adding new fields to spaces (lat/long, sun direction, etc.) — out of scope, future ticket if it comes.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>React concepts worth looking up</h2>
+
+  <div class="learn">
+    <strong>TanStack Query keys are identity, not just naming.</strong> When you change <code>['rooms']</code> to <code>['spaces']</code>, you're not just renaming — you're invalidating the entire client-side cache for that resource on next mount. Any code that called <code>queryClient.invalidateQueries(['rooms'])</code> won't trigger refetches anymore. Grep for <code>'rooms'</code> as a string literal across the client too — it's the kind of thing tests will catch only if they actually exercise the invalidation path.
+  </div>
+
+  <div class="learn">
+    <strong>Cache-key shape (CLAUDE.md, "Cache keys" section).</strong> Client uses flat arrays — one segment per array entry. <code>['spaces']</code>, <code>['spaces', id]</code>. Never nest (<code>['spaces', ['detail', id]]</code> = wrong). Never join into a string (<code>'spaces:detail'</code> = server-side syntax, not client). The shape is identical to the resource's Rails model name (singular noun).
+  </div>
+
+  <div class="learn">
+    <strong>Vite import paths are case-sensitive on Linux/CI.</strong> If you rename <code>RoomCard.jsx</code> → <code>SpaceCard.jsx</code> via the filesystem and any import keeps the old casing on a case-insensitive macOS APFS volume, local dev runs fine and CI explodes. Use <code>git mv</code> so git tracks the rename, and verify all importers update in the same commit.
+  </div>
+
+  <div class="learn">
+    <strong>The "phantom import" trap with renamed hooks.</strong> If you delete <code>useRooms.js</code> but leave any <code>import { useRooms } from '../hooks/useRooms'</code> elsewhere, Vite's build error will name the importer file — useful. But Vitest won't fail until the test loads that path. Run the full vitest suite (not just the renamed hook's test) before committing.
+  </div>
+
+  <div class="learn">
+    <strong>Rails analogy — fixtures.</strong> A Rails fixture file's name has to match the table name (<code>rooms.yml</code> → <code>rooms</code> table). After the rename, the fixture file <em>must</em> be <code>spaces.yml</code>; Rails auto-loads <code>spaces(:living_room)</code> based on the filename, not the YAML key. The internal YAML keys (<code>living_room: …</code>) are just identifiers for cross-fixture references — they don't have to change unless you want them to.
+  </div>
+</section>
+
+<section>
+  <h2>Rails ↔ React mental map</h2>
+
+  <table class="rails-map">
+    <thead>
+      <tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>rename_table :rooms, :spaces</code></td>
+        <td>Rename <code>useRooms.js</code> → <code>useSpaces.js</code> + change query key</td>
+        <td>The migration is the schema rename; the hook is the client's view of the same table</td>
+      </tr>
+      <tr>
+        <td><code>belongs_to :space</code> on Plant</td>
+        <td><code>plant.space</code> / <code>plant.space_id</code> in JSON consumed by usePlants</td>
+        <td>Backend FK rename surfaces directly in the client payload</td>
+      </tr>
+      <tr>
+        <td><code>resources :spaces</code> in routes.rb</td>
+        <td><code>apiGet('/api/v1/spaces')</code> in api/client.js</td>
+        <td>Path strings on the client mirror Rails route nouns one-for-one</td>
+      </tr>
+      <tr>
+        <td><code>render json: @space</code></td>
+        <td><code>useQuery({ queryKey: ['spaces', id] })</code> consumes it</td>
+        <td>Rename the JSON key in <code>as_json</code> → client query key follows</td>
+      </tr>
+      <tr>
+        <td><code>spaces(:living_room)</code> fixture access</td>
+        <td>(no client equivalent — handled by mocked API or Playwright seed)</td>
+        <td>Fixture filename matters; YAML keys are just labels</td>
+      </tr>
+      <tr>
+        <td><code>queryClient.invalidateQueries(['spaces'])</code> — TanStack Query</td>
+        <td><code>turbo_stream</code> after a Rails update</td>
+        <td>The invalidation is the trigger; refetch happens automatically</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Related files</h2>
+
+  <ul class="file-list">
+    <li><span>api/db/migrate/&lt;ts&gt;_rename_rooms_to_spaces.rb</span><span class="action">create</span></li>
+    <li><span>api/db/schema.rb</span><span class="action">regenerate</span></li>
+    <li><span>api/app/models/room.rb → space.rb</span><span class="action">rename</span></li>
+    <li><span>api/app/models/plant.rb</span><span class="action">modify (belongs_to + counter_cache)</span></li>
+    <li><span>api/app/models/user.rb</span><span class="action">modify (has_many)</span></li>
+    <li><span>api/app/controllers/api/v1/rooms_controller.rb → spaces_controller.rb</span><span class="action">rename</span></li>
+    <li><span>api/app/controllers/api/v1/rooms/presets_controller.rb → spaces/presets_controller.rb</span><span class="action">rename</span></li>
+    <li><span>api/app/controllers/api/v1/plants_controller.rb</span><span class="action">modify (params + scoping)</span></li>
+    <li><span>api/app/controllers/api/v1/dashboard_controller.rb</span><span class="action">modify (json key)</span></li>
+    <li><span>api/config/routes.rb</span><span class="action">modify</span></li>
+    <li><span>api/test/fixtures/rooms.yml → spaces.yml</span><span class="action">rename</span></li>
+    <li><span>api/test/fixtures/plants.yml</span><span class="action">modify (association key)</span></li>
+    <li><span>api/test/models/room_test.rb → space_test.rb</span><span class="action">rename + update</span></li>
+    <li><span>api/test/controllers/api/v1/rooms_controller_test.rb → spaces_controller_test.rb</span><span class="action">rename + update</span></li>
+    <li><span>api/test/controllers/api/v1/rooms/presets_controller_test.rb → spaces/presets_controller_test.rb</span><span class="action">rename + update</span></li>
+    <li><span>api/test/controllers/api/v1/plants_controller_test.rb</span><span class="action">modify</span></li>
+    <li><span>api/test/controllers/api/v1/dashboard_controller_test.rb</span><span class="action">modify</span></li>
+    <li><span>api/test/models/plant_test.rb</span><span class="action">modify</span></li>
+    <li><span>client/src/hooks/useRooms.js → useSpaces.js</span><span class="action">rename + update keys</span></li>
+    <li><span>client/src/hooks/usePlants.js</span><span class="action">modify (room_id → space_id)</span></li>
+    <li><span>client/src/components/RoomCard.jsx → SpaceCard.jsx</span><span class="action">rename + identifiers only</span></li>
+    <li><span>client/src/components/HeroCard.jsx</span><span class="action">modify (room → space references)</span></li>
+    <li><span>client/src/components/welcome/Step2Rooms.jsx → Step2Spaces.jsx</span><span class="action">rename + copy</span></li>
+    <li><span>client/src/components/welcome/Step3Species.jsx, Step4Environment.jsx</span><span class="action">modify (room → space)</span></li>
+    <li><span>client/src/pages/Welcome.jsx</span><span class="action">modify (step component imports + copy)</span></li>
+    <li><span>client/src/pages/House.jsx</span><span class="action">modify (identifiers; copy stays for R3)</span></li>
+    <li><span>client/src/utils/roomIcons.js → spaceIcons.js</span><span class="action">rename</span></li>
+    <li><span>client/src/errors/NotFoundError.js</span><span class="action">modify (any room copy)</span></li>
+    <li><span>client/src/globals.css</span><span class="action">modify if any room-keyed class names exist</span></li>
+    <li><span>client/tests/hooks/useRooms.test.jsx → useSpaces.test.jsx</span><span class="action">rename + update</span></li>
+    <li><span>client/tests/components/RoomCard.test.jsx → SpaceCard.test.jsx</span><span class="action">rename + update</span></li>
+    <li><span>client/tests/utils/roomIcons.test.js → spaceIcons.test.js</span><span class="action">rename</span></li>
+    <li><span>client/tests/pages/welcome.spec.js, house.spec.js</span><span class="action">modify (selectors / text)</span></li>
+    <li><span>client/tests/context/AuthContext.test.jsx</span><span class="action">modify (any test data)</span></li>
+  </ul>
+
+  <p style="font-size:13px;color:#666;margin-top:12px"><em>This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose. Run a final <code>grep -ri room</code> to catch anything missed above.</em></p>
+</section>
+
+<section>
+  <h2>Notes &amp; gotchas</h2>
+
+  <ul>
+    <li><strong>Don't dual-emit JSON.</strong> No <code>{ room: ..., space: ... }</code> "for compat". Pre-launch single-shot — the client and server change in lockstep.</li>
+    <li><strong>Counter cache.</strong> <code>plants_count</code> on the rooms table moves with the table — the column name is <code>plants_count</code>, not <code>rooms_plants_count</code>, so no rename needed there. But verify <code>schema.rb</code> after migrate.</li>
+    <li><strong>Don't touch <code>db/migrate</code> historical migrations.</strong> Old <code>create_rooms</code> + <code>add_plants_count_to_rooms</code> + <code>add_unique_index_to_rooms_name_user_id</code> stay as-is. The new migration on top brings the schema to its final state.</li>
+    <li><strong>Welcome wizard step rename ripples.</strong> <code>Step2Rooms</code> is referenced from <code>Welcome.jsx</code> and probably the route table for the wizard. Rename the file, the import, the component identifier, and any test selectors that target <code>data-testid="step2-rooms"</code> or text like "Add a room".</li>
+    <li><strong>Icon presets that include "bedroom" / "bathroom" stay.</strong> Those are values inside <code>roomIcons</code>, not the module name. After the rename to <code>spaceIcons</code>, the keys can stay — they're still valid space presets.</li>
+    <li><strong>Playwright tests assert visible text.</strong> Anywhere a <code>.spec.js</code> does <code>page.getByText('Rooms')</code>, update it. Same for any <code>aria-label</code> assertions.</li>
+    <li><strong>Don't bother adding a 410-Gone redirect from <code>/api/v1/rooms</code></strong>. Pre-launch, no consumers — let it 404.</li>
+    <li><strong>Counter cache sanity-check after migrate.</strong> Run <code>Plant.connection.execute("SELECT space_id, COUNT(*) FROM plants GROUP BY space_id")</code> and compare to <code>spaces.plants_count</code>. Matching = migration good. (Not a long-term concern; just paranoia for the rename PR.)</li>
+    <li><strong>Branch:</strong> <code>ticket-020-space-rename</code> (already checked out).</li>
+  </ul>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:20px;margin-bottom:8px">When you're done</h3>
+  <p>Run <code>./scripts/lint.sh</code>, <code>./scripts/run_tests.sh api</code>, <code>./scripts/run_tests.sh client</code>. Then <code>/comment-audit</code> + <code>/pre-commit</code> + <code>/review-ticket</code>. Commit on the feature branch, then open a PR. Mention in the PR body that <code>/accessibility</code> is n/a for this ticket (rename-only, no UI semantics).</p>
+</section>
+
+</div>
+</body>
+</html>

@@ -35,7 +35,7 @@ export default function HeroCard({ plant, onWater }) {
         </p>
 
         <p className="mt-4 flex items-center gap-1.5 text-[13px] font-semibold text-white/80">
-          {plant.room?.name && <span>{plant.room.name}</span>}
+          {plant.space?.name && <span>{plant.space.name}</span>}
           <span aria-hidden="true">·</span>
           <span className="flex items-center gap-1 text-coral">
             <FontAwesomeIcon icon={faClock} className="text-[11px]" aria-hidden="true" />

@@ -4,30 +4,30 @@ require 'test_helper'
 
 class PlantTest < ActiveSupport::TestCase
   setup do
-    @room = rooms(:living_room)
+    @space = spaces(:living_room)
     @species = species(:monstera)
   end
 
   test 'valid plant' do
-    plant = @room.plants.new(nickname: 'Test Plant', species: @species)
+    plant = @space.plants.new(nickname: 'Test Plant', species: @species)
     assert plant.valid?
   end
 
   test 'requires nickname' do
-    plant = @room.plants.new(nickname: '', species: @species)
+    plant = @space.plants.new(nickname: '', species: @species)
     assert_not plant.valid?
     assert_includes plant.errors[:nickname], "can't be blank"
   end
 
   test 'calculates schedule on create when species is set' do
-    plant = @room.plants.create!(nickname: 'New Plant', species: @species)
+    plant = @space.plants.create!(nickname: 'New Plant', species: @species)
 
     assert plant.calculated_watering_days.present?
     assert plant.calculated_feeding_days.present?
   end
 
   test 'schedule uses species base frequency for average conditions' do
-    plant = @room.plants.create!(
+    plant = @space.plants.create!(
       nickname: 'Average Plant',
       species: @species,
       light_level: 'medium',
@@ -40,7 +40,7 @@ class PlantTest < ActiveSupport::TestCase
   end
 
   test 'bright and warm reduces watering interval' do
-    plant = @room.plants.create!(
+    plant = @space.plants.create!(
       nickname: 'Sunny Plant',
       species: @species,
       light_level: 'bright',
@@ -52,7 +52,7 @@ class PlantTest < ActiveSupport::TestCase
   end
 
   test 'low light and cool increases watering interval' do
-    plant = @room.plants.create!(
+    plant = @space.plants.create!(
       nickname: 'Shady Plant',
       species: @species,
       light_level: 'low',
@@ -64,7 +64,7 @@ class PlantTest < ActiveSupport::TestCase
   end
 
   test 'recalculates schedule when environment changes' do
-    plant = @room.plants.create!(nickname: 'Test Plant', species: @species, light_level: 'medium')
+    plant = @space.plants.create!(nickname: 'Test Plant', species: @species, light_level: 'medium')
     original_days = plant.calculated_watering_days
 
     plant.update!(light_level: 'bright', temperature_level: 'warm')
@@ -73,7 +73,7 @@ class PlantTest < ActiveSupport::TestCase
   end
 
   test 'does not recalculate when unrelated fields change' do
-    plant = @room.plants.create!(nickname: 'Test Plant', species: @species)
+    plant = @space.plants.create!(nickname: 'Test Plant', species: @species)
     original_days = plant.calculated_watering_days
 
     plant.update!(nickname: 'Renamed Plant')
@@ -92,7 +92,7 @@ class PlantTest < ActiveSupport::TestCase
   end
 
   test 'water_status returns due_soon within 2 days' do
-    plant = @room.plants.create!(
+    plant = @space.plants.create!(
       nickname: 'Soon Plant',
       species: @species,
       calculated_watering_days: 7,
@@ -103,7 +103,7 @@ class PlantTest < ActiveSupport::TestCase
   end
 
   test 'water_status returns unknown without watering data' do
-    plant = @room.plants.new(nickname: 'New Plant')
+    plant = @space.plants.new(nickname: 'New Plant')
     assert_equal :unknown, plant.water_status
   end
 
@@ -118,13 +118,13 @@ class PlantTest < ActiveSupport::TestCase
   end
 
   test 'species is optional' do
-    plant = @room.plants.new(nickname: 'Mystery Plant')
+    plant = @space.plants.new(nickname: 'Mystery Plant')
     assert plant.valid?
   end
 
   test 'never calculates less than 1 day' do
     fast_species = Species.create!(common_name: 'Fast Fern', watering_frequency_days: 2, personality: 'needy')
-    plant = @room.plants.create!(
+    plant = @space.plants.create!(
       nickname: 'Fast Plant',
       species: fast_species,
       light_level: 'bright',

@@ -4,7 +4,7 @@
 #
 #   ApplicationController (cookies, authenticatable concern — no auth enforced)
 #     ├── Api::V1::BaseController (before_action :authenticate! — all protected resources)
-#     │   ├── RoomsController
+#     │   ├── SpacesController
 #     │   ├── PlantsController
 #     │   ├── SpeciesController
 #     │   ├── DashboardController

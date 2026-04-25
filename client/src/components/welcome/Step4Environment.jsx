@@ -12,7 +12,7 @@ const FIELD_META = [
   { key: 'humidity_level', label: 'Humidity', icon: faDroplet, optionsKey: 'humidity' },
 ]
 
-export default function Step4Environment({ species, nickname, roomId, onBack, onComplete }) {
+export default function Step4Environment({ species, nickname, spaceId, onBack, onComplete }) {
   const [environment, setEnvironment] = useState(() => ({
     light_level: species.suggested_light_level,
     temperature_level: species.suggested_temperature_level,
@@ -28,7 +28,7 @@ export default function Step4Environment({ species, nickname, roomId, onBack, on
     action: async () => {
       await createPlant.mutateAsync({
         species_id: species.id,
-        room_id: roomId,
+        space_id: spaceId,
         nickname: nickname || species.common_name,
         ...environment,
       })

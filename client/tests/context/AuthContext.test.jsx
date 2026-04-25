@@ -249,7 +249,7 @@ describe('AuthContext', () => {
     })
 
     it('clears the query cache on logout so cached data cannot leak to the next user', async () => {
-      queryClient.setQueryData(['rooms'], [{ id: 1, name: 'Kitchen' }])
+      queryClient.setQueryData(['spaces'], [{ id: 1, name: 'Kitchen' }])
       const { result } = renderHook(() => useAuth(), { wrapper })
       await waitFor(() => expect(result.current.loading).toBe(false))
       await loginAsTestUser(result)
@@ -259,7 +259,7 @@ describe('AuthContext', () => {
         await result.current.logout()
       })
 
-      expect(queryClient.getQueryData(['rooms'])).toBeUndefined()
+      expect(queryClient.getQueryData(['spaces'])).toBeUndefined()
     })
 
     it('still clears client state even when the logout API call fails', async () => {

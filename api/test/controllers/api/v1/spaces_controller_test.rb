@@ -2,14 +2,14 @@
 
 require 'test_helper'
 
-class Api::V1::RoomsControllerTest < ActionDispatch::IntegrationTest
+class Api::V1::SpacesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:john)
-    @room = rooms(:living_room)
+    @space = spaces(:living_room)
   end
 
-  test 'index returns user rooms' do
-    get api_v1_rooms_path,
+  test 'index returns user spaces' do
+    get api_v1_spaces_path,
       headers: auth_headers(@user),
       as: :json
 
@@ -18,10 +18,10 @@ class Api::V1::RoomsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, json.length
   end
 
-  test 'index excludes other users rooms' do
+  test 'index excludes other users spaces' do
     other = users(:jane)
 
-    get api_v1_rooms_path,
+    get api_v1_spaces_path,
       headers: auth_headers(other),
       as: :json
 
@@ -31,13 +31,13 @@ class Api::V1::RoomsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'index requires authentication' do
-    get api_v1_rooms_path, as: :json
+    get api_v1_spaces_path, as: :json
 
     assert_response :unauthorized
   end
 
-  test 'show returns room' do
-    get api_v1_room_path(@room),
+  test 'show returns space' do
+    get api_v1_space_path(@space),
       headers: auth_headers(@user),
       as: :json
 
@@ -47,9 +47,9 @@ class Api::V1::RoomsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'create with valid params' do
-    post api_v1_rooms_path,
+    post api_v1_spaces_path,
       headers: auth_headers(@user),
-      params: { room: { name: 'Office', icon: 'desk' } },
+      params: { space: { name: 'Office', icon: 'desk' } },
       as: :json
 
     assert_response :created
@@ -59,27 +59,27 @@ class Api::V1::RoomsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'create with invalid params' do
-    post api_v1_rooms_path,
+    post api_v1_spaces_path,
       headers: auth_headers(@user),
-      params: { room: { name: '' } },
+      params: { space: { name: '' } },
       as: :json
 
     assert_response :unprocessable_entity
   end
 
-  test 'update room' do
-    patch api_v1_room_path(@room),
+  test 'update space' do
+    patch api_v1_space_path(@space),
       headers: auth_headers(@user),
-      params: { room: { name: 'Updated Room' } },
+      params: { space: { name: 'Updated Space' } },
       as: :json
 
     assert_response :ok
-    assert_equal 'Updated Room', @room.reload.name
+    assert_equal 'Updated Space', @space.reload.name
   end
 
-  test 'destroy room' do
-    assert_difference('Room.count', -1) do
-      delete api_v1_room_path(@room),
+  test 'destroy space' do
+    assert_difference('Space.count', -1) do
+      delete api_v1_space_path(@space),
         headers: auth_headers(@user),
         as: :json
     end
@@ -87,11 +87,11 @@ class Api::V1::RoomsControllerTest < ActionDispatch::IntegrationTest
     assert_response :no_content
   end
 
-  test 'cannot access other users room' do
+  test 'cannot access other users space' do
     users(:jane)
-    other_room = rooms(:janes_kitchen)
+    other_space = spaces(:janes_kitchen)
 
-    get api_v1_room_path(other_room),
+    get api_v1_space_path(other_space),
       headers: auth_headers(@user),
       as: :json
 

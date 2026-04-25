@@ -4,7 +4,7 @@ module Api
   module V1
     class DashboardController < BaseController
       def show
-        plants = current_user.plants.includes(:species, :room)
+        plants = current_user.plants.includes(:species, :space)
 
         render json: {
           plants_needing_water: plants.select { |p| p.water_status.in?([:overdue, :due_today]) },
@@ -12,7 +12,7 @@ module Api
           upcoming_care: plants.select { |p| p.water_status == :due_soon || p.feed_status == :due_soon },
           stats: {
             total_plants: plants.size,
-            total_rooms: current_user.rooms.count
+            total_spaces: current_user.spaces.count
           }
         }
       end

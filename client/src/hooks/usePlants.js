@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiDelete, apiGet, apiPatch, apiPost } from '../api/client'
 
-export function usePlants(roomId) {
+export function usePlants(spaceId) {
   return useQuery({
-    queryKey: roomId ? ['plants', { roomId }] : ['plants'],
-    queryFn: () => apiGet(`/api/v1/plants${roomId ? `?room_id=${roomId}` : ''}`),
+    queryKey: spaceId ? ['plants', { spaceId }] : ['plants'],
+    queryFn: () => apiGet(`/api/v1/plants${spaceId ? `?space_id=${spaceId}` : ''}`),
   })
 }
 
@@ -22,7 +22,7 @@ export function useCreatePlant() {
     mutationFn: (data) => apiPost('/api/v1/plants', { plant: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['plants'] })
-      queryClient.invalidateQueries({ queryKey: ['rooms'] })
+      queryClient.invalidateQueries({ queryKey: ['spaces'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
@@ -46,7 +46,7 @@ export function useDeletePlant() {
     mutationFn: (id) => apiDelete(`/api/v1/plants/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['plants'] })
-      queryClient.invalidateQueries({ queryKey: ['rooms'] })
+      queryClient.invalidateQueries({ queryKey: ['spaces'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })

@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiDelete, apiGet, apiPost } from '../../src/api/client'
-import { useCreateRoom, useDeleteRoom, useRoomPresets, useRooms } from '../../src/hooks/useRooms'
+import { useCreateSpace, useDeleteSpace, useSpacePresets, useSpaces } from '../../src/hooks/useSpaces'
 
 // vi.mock is hoisted above the import, so `apiGet` etc. resolve to these
 // mocks when the hook module imports them.
@@ -25,23 +25,23 @@ function makeWrapper() {
   }
 }
 
-describe('useRooms hooks', () => {
+describe('useSpaces hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  describe('useRooms()', () => {
-    it('fetches /api/v1/rooms by default', async () => {
+  describe('useSpaces()', () => {
+    it('fetches /api/v1/spaces by default', async () => {
       apiGet.mockResolvedValue([{ id: 1, name: 'Kitchen' }])
-      const { result } = renderHook(() => useRooms(), { wrapper: makeWrapper() })
+      const { result } = renderHook(() => useSpaces(), { wrapper: makeWrapper() })
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true))
-      expect(apiGet).toHaveBeenCalledWith('/api/v1/rooms')
+      expect(apiGet).toHaveBeenCalledWith('/api/v1/spaces')
       expect(result.current.data).toEqual([{ id: 1, name: 'Kitchen' }])
     })
 
     it('skips the fetch when enabled is false', async () => {
-      const { result } = renderHook(() => useRooms({ enabled: false }), { wrapper: makeWrapper() })
+      const { result } = renderHook(() => useSpaces({ enabled: false }), { wrapper: makeWrapper() })
 
       // With enabled:false, TanStack keeps the observer idle — fetchStatus
       // stays 'idle' and the queryFn never runs.
@@ -50,54 +50,54 @@ describe('useRooms hooks', () => {
     })
   })
 
-  describe('useRoomPresets()', () => {
-    it('fetches /api/v1/rooms/presets', async () => {
+  describe('useSpacePresets()', () => {
+    it('fetches /api/v1/spaces/presets', async () => {
       apiGet.mockResolvedValue([{ name: 'Kitchen', icon: 'kitchen' }])
-      const { result } = renderHook(() => useRoomPresets(), { wrapper: makeWrapper() })
+      const { result } = renderHook(() => useSpacePresets(), { wrapper: makeWrapper() })
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true))
-      expect(apiGet).toHaveBeenCalledWith('/api/v1/rooms/presets')
+      expect(apiGet).toHaveBeenCalledWith('/api/v1/spaces/presets')
     })
   })
 
   // These lock the cache-key contract between the list query and the
-  // mutations. If someone renames useRooms' queryKey but forgets to update
+  // mutations. If someone renames useSpaces' queryKey but forgets to update
   // invalidateQueries, these fail — otherwise the drift is silent.
   describe('cache invalidation contract', () => {
-    it('useCreateRoom refreshes useRooms after a successful create', async () => {
-      apiGet.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 1, name: 'New Room' }])
-      apiPost.mockResolvedValue({ id: 1, name: 'New Room' })
+    it('useCreateSpace refreshes useSpaces after a successful create', async () => {
+      apiGet.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 1, name: 'New Space' }])
+      apiPost.mockResolvedValue({ id: 1, name: 'New Space' })
 
-      const { result } = renderHook(() => ({ rooms: useRooms(), create: useCreateRoom() }), {
+      const { result } = renderHook(() => ({ spaces: useSpaces(), create: useCreateSpace() }), {
         wrapper: makeWrapper(),
       })
 
-      await waitFor(() => expect(result.current.rooms.data).toEqual([]))
+      await waitFor(() => expect(result.current.spaces.data).toEqual([]))
 
       await act(async () => {
-        await result.current.create.mutateAsync({ name: 'New Room', icon: null })
+        await result.current.create.mutateAsync({ name: 'New Space', icon: null })
       })
 
-      expect(apiPost).toHaveBeenCalledWith('/api/v1/rooms', { room: { name: 'New Room', icon: null } })
-      await waitFor(() => expect(result.current.rooms.data).toEqual([{ id: 1, name: 'New Room' }]))
+      expect(apiPost).toHaveBeenCalledWith('/api/v1/spaces', { space: { name: 'New Space', icon: null } })
+      await waitFor(() => expect(result.current.spaces.data).toEqual([{ id: 1, name: 'New Space' }]))
     })
 
-    it('useDeleteRoom refreshes useRooms after a successful delete', async () => {
+    it('useDeleteSpace refreshes useSpaces after a successful delete', async () => {
       apiGet.mockResolvedValueOnce([{ id: 1, name: 'Kitchen' }]).mockResolvedValueOnce([])
       apiDelete.mockResolvedValue(null)
 
-      const { result } = renderHook(() => ({ rooms: useRooms(), deleteRoom: useDeleteRoom() }), {
+      const { result } = renderHook(() => ({ spaces: useSpaces(), deleteSpace: useDeleteSpace() }), {
         wrapper: makeWrapper(),
       })
 
-      await waitFor(() => expect(result.current.rooms.data).toEqual([{ id: 1, name: 'Kitchen' }]))
+      await waitFor(() => expect(result.current.spaces.data).toEqual([{ id: 1, name: 'Kitchen' }]))
 
       await act(async () => {
-        await result.current.deleteRoom.mutateAsync(1)
+        await result.current.deleteSpace.mutateAsync(1)
       })
 
-      expect(apiDelete).toHaveBeenCalledWith('/api/v1/rooms/1')
-      await waitFor(() => expect(result.current.rooms.data).toEqual([]))
+      expect(apiDelete).toHaveBeenCalledWith('/api/v1/spaces/1')
+      await waitFor(() => expect(result.current.spaces.data).toEqual([]))
     })
   })
 })

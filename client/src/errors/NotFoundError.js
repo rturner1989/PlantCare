@@ -1,7 +1,7 @@
 /**
  * NotFoundError — thrown when the server responds with HTTP 404.
  *
- * Usually means the resource the request targeted (a plant, a room, a photo)
+ * Usually means the resource the request targeted (a plant, a space, a photo)
  * either never existed, has been deleted, or belongs to another user (our
  * controllers scope through current_user and return 404 on foreign records).
  */

@@ -15,21 +15,21 @@
 #  temperature_level        :string           default("average"), not null
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
-#  room_id                  :bigint           not null
+#  space_id                 :bigint           not null
 #  species_id               :bigint
 #
 # Indexes
 #
-#  index_plants_on_room_id     (room_id)
+#  index_plants_on_space_id    (space_id)
 #  index_plants_on_species_id  (species_id)
 #
 # Foreign Keys
 #
-#  fk_rails_...  (room_id => rooms.id)
+#  fk_rails_...  (space_id => spaces.id)
 #  fk_rails_...  (species_id => species.id)
 #
 sir_plantalot:
-  room: living_room
+  space: living_room
   species: monstera
   nickname: Sir Plantalot
   light_level: medium
@@ -41,7 +41,7 @@ sir_plantalot:
   last_fed_at: <%= 20.days.ago %>
 
 spike:
-  room: bedroom
+  space: bedroom
   species: cactus
   nickname: Spike
   light_level: bright
@@ -51,7 +51,7 @@ spike:
   last_watered_at: <%= 10.days.ago %>
 
 wilty:
-  room: living_room
+  space: living_room
   species: snake_plant
   nickname: Wilty
   light_level: low

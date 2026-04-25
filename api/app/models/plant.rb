@@ -17,17 +17,17 @@
 #  temperature_level        :string           default("average"), not null
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
-#  room_id                  :bigint           not null
+#  space_id                 :bigint           not null
 #  species_id               :bigint
 #
 # Indexes
 #
-#  index_plants_on_room_id     (room_id)
+#  index_plants_on_space_id    (space_id)
 #  index_plants_on_species_id  (species_id)
 #
 # Foreign Keys
 #
-#  fk_rails_...  (room_id => rooms.id)
+#  fk_rails_...  (space_id => spaces.id)
 #  fk_rails_...  (species_id => species.id)
 #
 class Plant < ApplicationRecord
@@ -51,7 +51,7 @@ class Plant < ApplicationRecord
     'humid' => 0.15
   }.freeze
 
-  belongs_to :room, counter_cache: true
+  belongs_to :space, counter_cache: true
   belongs_to :species, optional: true
   has_many :care_logs, dependent: :destroy
   has_many :plant_photos, dependent: :destroy
@@ -60,6 +60,8 @@ class Plant < ApplicationRecord
   validates :light_level, inclusion: { in: LIGHT_MODIFIERS.keys }
   validates :temperature_level, inclusion: { in: TEMPERATURE_MODIFIERS.keys }
   validates :humidity_level, inclusion: { in: HUMIDITY_MODIFIERS.keys }
+
+  scope :in_space, ->(space_id) { where(space_id: space_id) if space_id.present? }
 
   def self.level_options
     {
@@ -121,7 +123,7 @@ class Plant < ApplicationRecord
       id: id,
       nickname: nickname,
       notes: notes,
-      room: room.as_json,
+      space: space.as_json,
       species: species&.as_json,
       light_level: light_level,
       temperature_level: temperature_level,
