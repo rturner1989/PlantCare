@@ -126,11 +126,12 @@ docs/
 
 ## Skills
 
-- `/pre-commit` — run lint + tests, fix failures, prepare for commit
+- `/pre-commit` — run lint + tests, fix failures, prepare for commit (use `/review-ticket` for full AC review)
 - `/ticket` — generate a Jira-style HTML ticket with requirements, acceptance criteria, and design references
 - `/review-ticket` — review completed work against ticket acceptance criteria and design spec
 - `/github-make-pr` — push current branch and create a GitHub pull request
 - `/github-babysit-pr` — watch current PR for CI failures and auto-fix them
+- `/github-post-merge` — after a PR has been merged, sync main, delete the local feature branch, and update Claude's memory with merge details
 - `/comment-audit` — audit comments in the working tree against the WHY-only rule and strip the ones that don't pull their weight
 
 ## Code Style

@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 Prepare the codebase for commit by ensuring lint, tests, and accessibility pass. Fix any failures before allowing the user to commit.
 
+For a full review of work against the active ticket's acceptance criteria, design spec, and code quality, use `/review-ticket` separately — typically once per ticket before opening the PR, not per-commit.
+
 Steps:
 
 1. **Run lint** — execute `./scripts/lint.sh`. This auto-fixes most issues (RuboCop -A, Biome lint:fix).
