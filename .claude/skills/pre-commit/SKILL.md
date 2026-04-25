@@ -1,10 +1,10 @@
 ---
 name: pre-commit
-description: Run lint and tests before committing, fixing any issues found
+description: Run lint, tests, accessibility checks, and verify work against the active ticket's acceptance criteria before committing
 disable-model-invocation: true
 ---
 
-Prepare the codebase for commit by ensuring lint, tests, and accessibility pass. Fix any failures before allowing the user to commit.
+Prepare the codebase for commit by ensuring lint, tests, and accessibility pass, and the work delivered satisfies the active ticket's acceptance criteria. Fix any failures before allowing the user to commit.
 
 Steps:
 
@@ -40,15 +40,26 @@ Steps:
 
    Report findings as a short list. If issues are found, fix them inline before committing — they shouldn't ship to PR stage.
 
-6. **Final verification** — run `./scripts/lint.sh` AND `./scripts/run_tests.sh` one more time to confirm everything is clean.
+6. **Acceptance-criteria check against the active ticket.** Identify the active ticket from the branch name (pattern: `ticket-NNN-...`). Look for a matching HTML ticket at `docs/tickets/v2/TICKET-NNN.html` (fall back to `docs/tickets/v1/` for older numbers). If no ticket file exists, note that and skip — branches like `chore/*` or `fix/*` legitimately have no ticket.
 
-7. **Show status** — run `git status` and `git diff --stat` so the user can review all changes (including any fixes you made).
+   When a ticket file is found:
+   - Read the **Requirements** + **Acceptance criteria** sections.
+   - For each item, judge whether the staged + working-directory changes satisfy it. Three categories:
+     - **Verifiable now** — file exists, identifier renamed, route reachable, test passes, grep returns clean. Run the actual check.
+     - **Verifiable in CI / human review** — design fidelity, copy tone, "feels right". Note these as "deferred to PR review".
+     - **N/A for this ticket scope** — explicitly skipped per the ticket body (e.g. `/accessibility` n/a on rename-only). Match against the ticket's own scope-out section before flagging.
+   - Report a short pass/fail per AC line. If any verifiable item is unmet, surface it BEFORE asking the user to commit — don't ship a commit that misses scope.
+   - If the ticket lists review-skill gates (e.g. `/dhh-rails-reviewer`, `/accessibility`, `/vercel-react-best-practices`), check whether they've been run this session and remind the user to run any that haven't.
 
-8. **Ask for commit details** — ask the user:
+7. **Final verification** — run `./scripts/lint.sh` AND `./scripts/run_tests.sh` one more time to confirm everything is clean.
+
+8. **Show status** — run `git status` and `git diff --stat` so the user can review all changes (including any fixes you made).
+
+9. **Ask for commit details** — ask the user:
    - Which files to stage (default: all modified files)
    - The commit message
 
-9. **Commit** — stage the files and create the commit. Do NOT push.
+10. **Commit** — stage the files and create the commit. Do NOT push.
 
 Important:
 - Never use `--no-verify` or bypass hooks
