@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-027 — F1 — Design token refactor</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #f5f5f0;
+  color: #1a1a1a;
+  padding: 40px;
+  line-height: 1.6;
+}
+.ticket {
+  max-width: 960px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 32px 40px;
+}
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+.badge.priority-low { background: #a8dadc; color: #1a1a1a; }
+.badge.kind { background: #4a6fa5; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #666;
+  margin-bottom: 16px;
+}
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+
+.plan-strip {
+  display: flex;
+  gap: 4px;
+  margin: 16px 0 20px;
+  flex-wrap: wrap;
+}
+.plan-step {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 8px;
+  text-align: center;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f0f0ea;
+  color: #888;
+  border: 1px solid transparent;
+}
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact {
+  padding: 14px 18px;
+  background: #f8faf8;
+  border-left: 3px solid #2d6a4f;
+  border-radius: 0 8px 8px 0;
+}
+.artifact .name {
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px; font-weight: 700; color: #1a1a2e;
+}
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind {
+  display: inline-block; font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 2px 8px; border-radius: 100px;
+  background: #1a1a2e; color: #fff;
+  margin-right: 8px; vertical-align: middle;
+}
+.artifact .kind.style { background: #6a4a8f; }
+.artifact .kind.audit { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.docs { background: #888; color: #fff; }
+
+.shape {
+  background: #1a1a2e; color: #d4d4d4;
+  border-radius: 8px; padding: 20px 24px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px; line-height: 1.7;
+  margin-top: 12px; overflow-x: auto; white-space: pre;
+}
+
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box {
+  width: 18px; height: 18px;
+  border: 2px solid #ccc; border-radius: 4px;
+  flex-shrink: 0; margin-top: 3px;
+}
+.criterion span { font-size: 15px; }
+
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 360px; border: none; background: #fff; }
+.mockup-preview .label {
+  padding: 10px 14px; background: #f5f5f0;
+  font-size: 12px; font-weight: 700; color: #666;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+
+blockquote {
+  border-left: 3px solid #2d6a4f;
+  padding: 12px 16px; margin: 12px 0;
+  background: #f8faf8; border-radius: 0 8px 8px 0;
+  font-size: 14px; color: #444;
+}
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+
+.learn {
+  background: #fff8e8;
+  border-left: 3px solid #f4a261;
+  padding: 14px 18px;
+  border-radius: 0 8px 8px 0;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #4a3a1a;
+}
+.learn strong { color: #7a5a1a; }
+
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th {
+  text-align: left; padding: 10px 12px;
+  background: #1a1a2e; color: #fff;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;
+}
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+
+.plan-link {
+  display: inline-block; padding: 8px 14px;
+  background: #f0f0ea; border-radius: 6px;
+  font-size: 13px; color: #444; text-decoration: none;
+  margin-top: 8px;
+}
+.plan-link:hover { background: #e6e6de; }
+
+.file-list { list-style: none; padding: 0; }
+.file-list li {
+  padding: 10px 14px; background: #f8f8f5;
+  border-radius: 6px; margin-bottom: 4px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px; display: flex; justify-content: space-between;
+}
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+
+.token-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.token-table th {
+  text-align: left; padding: 8px 12px;
+  background: #f0f0ea; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.08em; color: #666; font-weight: 700;
+}
+.token-table td { padding: 8px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.token-table td:first-child { font-family: 'SF Mono', Consolas, monospace; font-weight: 700; }
+.token-table td:nth-child(2) { font-family: 'SF Mono', Consolas, monospace; }
+.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 6px; border: 1px solid rgba(0,0,0,0.06); }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<header class="header">
+  <div class="id">TICKET-027 · v2 plan F1</div>
+  <h1>Design token refactor — align <code style="background:rgba(255,255,255,0.1);color:#fff">globals.css</code> with v2 mockup canon</h1>
+  <div class="badges">
+    <span class="badge status">Open</span>
+    <span class="badge priority-high">High</span>
+    <span class="badge kind">Frontend-only</span>
+  </div>
+</header>
+
+<section>
+  <h2>Summary</h2>
+  <p>Rewrite the <code>@theme</code> block + <code>:root</code> variables in <code>client/src/globals.css</code> to match the canonical v2 token sheet from spec §5, verified against the <code>:root</code> blocks in mockups 17–36 (mockup 21 is the cleanest reference). White is banned on surfaces — paper palette replaces it. Weather axis lands. Radius scale is rebased smaller. Blur scale becomes a real token set instead of inline pixels.</p>
+  <p>Plus a small audit pass on existing components for hardcoded radii / blur values that should now reference tokens.</p>
+  <p>In one sentence: <strong>swap one set of design tokens for another so every downstream v2 ticket reads from the right palette without a token-drift fight.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+
+  <div class="plan-strip">
+    <div class="plan-step done"><span class="num">B1</span>020 Space</div>
+    <div class="plan-step done"><span class="num">B2</span>021 Intent</div>
+    <div class="plan-step current"><span class="num">F1</span>027 Tokens</div>
+    <div class="plan-step"><span class="num">F2-F10</span>028–036</div>
+    <div class="plan-step"><span class="num">R15</span>051 Auth</div>
+    <div class="plan-step"><span class="num">R9</span>045 Onboard</div>
+    <div class="plan-step"><span class="num">R1</span>037 Nav</div>
+    <div class="plan-step"><span class="num">R2-R14</span>038–050</div>
+  </div>
+
+  <p><strong>What came before:</strong> TICKET-020 (B1) renamed Room → Space across the full stack. TICKET-021 (B2) added the onboarding intent + step-reached columns to back the R9 wizard. Both were backend. This is the first frontend-only ticket of the v2 stream.</p>
+
+  <p><strong>What this unlocks:</strong> the rest of the foundation primitives (F2 Segment, F3 RadialWheel, F4 WeatherPill, F5 FileTabs, F6 SummarySlab, F7 FilterToolbar, F8 Organiser, F9 CareRing, F10 Dialog) all read from these tokens. So does the entire region work — TICKET-051 (R15 auth visual alignment, our chosen next region after F1), then TICKET-045 (R9 onboarding rework), then everything else. If F1 lands wrong, every downstream ticket inherits the drift.</p>
+
+  <p><strong>Mental model:</strong> this is the Tailwind 4 equivalent of editing <code>application.css</code> + a Sass <code>_tokens.scss</code> partial — except in v4 there's no Sass and no JS config. Tokens live as CSS custom properties inside an <code>@theme</code> block; Tailwind reads them at build time and emits utilities (e.g. <code>bg-paper</code>, <code>rounded-md</code>) directly from the variable names. Change the variable, every consumer follows.</p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <p>Two artifacts — a CSS rewrite plus a small migration sweep on existing components.</p>
+
+  <div class="artifact-list">
+
+    <div class="artifact">
+      <div><span class="kind style">Style</span><span class="name">client/src/globals.css</span></div>
+      <div class="role">Tailwind v4 <code>@theme</code> block + <code>:root</code> variables rewritten to match v2 canon. Adds the paper palette, weather axis, ink-softer + mint-2 supplements; rebases radius and blur scales to v2 numbers; documents retired tokens with a WHY comment so future readers don't re-introduce <code>--radius-xl</code>. Existing semantic tokens (shadows, gradients, named utility classes like <code>hero-glow-urgent</code>) carry forward unchanged.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind audit">Audit pass</span><span class="name">client/src/components/**/*.{jsx,css}</span></div>
+      <div class="role">Quick sweep for hardcoded <code>[Npx]</code> Tailwind arbitrary-value radii and inline <code>blur(Npx)</code> calls. Migrate trivial cases to token references (<code>rounded-md</code> → reads from <code>--radius-md</code>; <code>backdrop-blur-[12px]</code> → <code>backdrop-blur-medium</code> via a custom utility, OR keep arbitrary but reference the token via <code>blur(var(--blur-medium))</code>). Don't touch consumers that depend on still-valid scale values; only fix outright hardcodes.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind docs">Docs</span><span class="name">CLAUDE.md (Code Style → Border radius section)</span></div>
+      <div class="role">Tiny update: existing <code>feedback_border_radius.md</code> says <code>rounded-md</code> = 12px. F1 makes it 14px. Update the project memory and CLAUDE.md callout so the convention stays in sync. The Tailwind class name doesn't change — only the underlying token value. <strong>Note:</strong> CLAUDE.md edits are out-of-scope per memory file but a one-line correction here is worth it to avoid drift.</div>
+    </div>
+  </div>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:24px;margin-bottom:8px">Canonical token set (copy verbatim from mockup 21 / spec §5)</h3>
+
+  <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#666;margin-top:16px;margin-bottom:6px">Paper palette (NEW — replaces base + card)</h4>
+  <table class="token-table">
+    <thead><tr><th>Token</th><th>Hex</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>--paper</td><td><span class="swatch" style="background:#fbf8f1"></span>#fbf8f1</td><td>App background, primary surface — replaces white</td></tr>
+      <tr><td>--paper-deep</td><td><span class="swatch" style="background:#f3eee2"></span>#f3eee2</td><td>Segment wrapper bg, inset surfaces</td></tr>
+      <tr><td>--paper-edge</td><td><span class="swatch" style="background:#e8ddc6"></span>#e8ddc6</td><td>Hairline borders, separators on paper</td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#666;margin-top:16px;margin-bottom:6px">Weather axis (NEW)</h4>
+  <table class="token-table">
+    <thead><tr><th>Token</th><th>Hex</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>--sky</td><td><span class="swatch" style="background:#c7e3f5"></span>#c7e3f5</td><td>Pleasant-weather pill bg</td></tr>
+      <tr><td>--sky-deep</td><td><span class="swatch" style="background:#2c6a94"></span>#2c6a94</td><td>Sky text-on-light</td></tr>
+      <tr><td>--frost</td><td><span class="swatch" style="background:#dfe7f5"></span>#dfe7f5</td><td>Cold-weather pill bg</td></tr>
+      <tr><td>--frost-deep</td><td><span class="swatch" style="background:#3a4a74"></span>#3a4a74</td><td>Frost text-on-light</td></tr>
+      <tr><td>--heat</td><td>—</td><td>Reserved for Phase 2 weather features. No canonical hex yet — leave a comment, don't invent one.</td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#666;margin-top:16px;margin-bottom:6px">Green-axis supplements (NEW)</h4>
+  <table class="token-table">
+    <thead><tr><th>Token</th><th>Hex</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>--mint-2</td><td><span class="swatch" style="background:#c7ecca"></span>#c7ecca</td><td>Slightly deeper mint for layered chips/pills</td></tr>
+      <tr><td>--ink-softer</td><td><span class="swatch" style="background:#7a9081"></span>#7a9081</td><td>Tertiary text — between ink-soft and outright muted</td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#666;margin-top:16px;margin-bottom:6px">Radius (REBASED — note md changes 12 → 14)</h4>
+  <table class="token-table">
+    <thead><tr><th>Token</th><th>Px</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>--radius-xs</td><td>4px</td><td>Segment-option inner</td></tr>
+      <tr><td>--radius-sm</td><td>8px</td><td>Chips, small buttons</td></tr>
+      <tr><td>--radius-md</td><td>14px</td><td>Default surfaces (Tailwind <code>rounded-md</code>)</td></tr>
+      <tr><td>--radius-lg</td><td>20px</td><td>Large panels</td></tr>
+      <tr><td>--radius-full</td><td>999px</td><td>Pills, circles</td></tr>
+      <tr><td>--radius-xl/2xl/3xl</td><td>RETIRED</td><td>Banned per spec §5. Comment them out with a note so a future copy-paste doesn't reintroduce them.</td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#666;margin-top:16px;margin-bottom:6px">Blur (NEW — was inline px)</h4>
+  <table class="token-table">
+    <thead><tr><th>Token</th><th>Px</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>--blur-heavy</td><td>24px</td><td>Desktop floating organiser</td></tr>
+      <tr><td>--blur-primary</td><td>20px</td><td>Popovers, drawers</td></tr>
+      <tr><td>--blur-medium</td><td>12px</td><td>Secondary overlays</td></tr>
+      <tr><td>--blur-light</td><td>2px</td><td>Scrim (semi-transparent overlay behind a modal)</td></tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:13px;color:#666;margin-top:14px">Existing tokens that <strong>stay unchanged</strong>: green axis (mint, leaf, emerald, forest, forest-2, ink, ink-soft, lime), accents (coral, coral-deep, sunshine, sunshine-deep), font-sans / font-display, all <code>--shadow-*</code>, all <code>--gradient-*</code>, <code>--shadow-cta</code>, <code>--shadow-lime-cta</code>, <code>--shadow-fab</code>, <code>--shadow-dock</code>. The <code>hero-image-fade</code> + <code>hero-glow-urgent</code> named utilities at the bottom of <code>globals.css</code> stay too — they're consumers of the tokens, not tokens themselves.</p>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+  <ol>
+    <li>The <code>@theme</code> block defines the paper palette (<code>--color-paper</code>, <code>--color-paper-deep</code>, <code>--color-paper-edge</code>) and the weather axis (<code>--color-sky</code> + <code>--color-sky-deep</code>, <code>--color-frost</code> + <code>--color-frost-deep</code>) with the canonical hex values.</li>
+    <li>Green-axis additions (<code>--color-mint-2</code>, <code>--color-ink-softer</code>) are present.</li>
+    <li>Radius scale is rebased: xs:4 / sm:8 / md:14 / lg:20 / full:999. The retired <code>--radius-xl/2xl/3xl</code> tokens are removed (or kept commented with a "DO NOT REINTRODUCE — banned per v2 spec §5" note).</li>
+    <li>Blur tokens (<code>--blur-heavy/primary/medium/light</code>) exist on <code>:root</code> and any <code>backdrop-filter</code> consumer in the codebase reads from them rather than hardcoding pixels.</li>
+    <li>Hardcoded Tailwind arbitrary radii (<code>rounded-[Npx]</code>) in component files are migrated to a token-backed class where the value matches a canonical token. Where the value is intentionally off-canon (e.g. bottom-sheet 28px lip), leave with a one-line WHY comment.</li>
+    <li>The <code>--heat</code> reserved token has a comment placeholder so the next person to add Phase 2 weather doesn't have to re-research the slot.</li>
+    <li>No visual regression on currently-shipped screens — Login, Register, Forgot Password, Welcome wizard, Today, House, plus any modal/dialog (CareConfirmDialog).</li>
+    <li>WCAG AA contrast on the new paper palette holds — text-ink on paper, text-ink-soft on paper, text-forest on paper, text-coral-deep on paper, text-sunshine-deep on paper.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+
+  <div class="criterion"><div class="box"></div><span><code>./scripts/run_tests.sh client</code> green (Vitest + Playwright). Visual smoke via Playwright should be unchanged from before.</span></div>
+  <div class="criterion"><div class="box"></div><span>Open <code>localhost:5173/login</code> — page renders, no obvious palette break, no console errors.</span></div>
+  <div class="criterion"><div class="box"></div><span>Open <code>localhost:5173/welcome</code> — wizard card renders with paper-coloured background; spaces grid + species search both visually intact.</span></div>
+  <div class="criterion"><div class="box"></div><span>Open <code>localhost:5173/</code> (Today) and <code>localhost:5173/house</code> — both render without broken card backgrounds.</span></div>
+  <div class="criterion"><div class="box"></div><span>DevTools → Computed styles on a card surface shows <code>border-radius: 14px</code> for <code>rounded-md</code> (was 12px).</span></div>
+  <div class="criterion"><div class="box"></div><span><code>grep -rE 'rounded-(xl|2xl|3xl)' client/src</code> returns zero matches (or only matches you've explicitly chosen to keep with a WHY comment).</span></div>
+  <div class="criterion"><div class="box"></div><span><code>grep -rE 'backdrop-blur-\[' client/src</code> returns zero matches — all blurs route through token classes.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/vercel-react-best-practices</code> passes.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/accessibility</code> passes — explicit contrast check on the new paper palette + ink/ink-soft/forest/coral-deep/sunshine-deep text combinations (WCAG AA, 4.5:1 normal text, 3:1 large/UI).</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/comment-audit</code> passes.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/pre-commit</code> passes (lint + tests).</span></div>
+</section>
+
+<section>
+  <h2>Design references</h2>
+
+  <p>Every v2 mockup's <code>:root</code> block is the source of truth, but mockup 21 (House) is the cleanest reference — it uses the full palette including weather pills, paper layers, and most radius sizes. Open it and ⌥-click <code>:root</code> in DevTools to inspect any value.</p>
+
+  <div class="mockup-preview">
+    <div class="label">
+      <span>Mockup 21 — House (canonical token reference)</span>
+      <a href="../../mockups/plantcare-ui/v2/21-house-v1.html" target="_blank">Open ↗</a>
+    </div>
+    <iframe src="../../mockups/plantcare-ui/v2/21-house-v1.html"></iframe>
+  </div>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:20px;margin-bottom:8px">Spec excerpt — §5 Design tokens + primitive baseline</h3>
+
+  <blockquote>
+    "Warm paper base (<code>--paper #fbf8f1</code>, <code>--paper-deep #f3eee2</code>, <code>--paper-edge #e8ddc6</code>); green axis […]; accents (<code>--coral</code> urgent, <code>--sunshine</code> milestone/outdoor); weather axis (<code>--sky</code>, <code>--frost</code>, <code>--heat</code>). White is banned on surfaces — use paper." — spec §5
+  </blockquote>
+
+  <blockquote>
+    "Note: CLAUDE.md references <code>rounded-md</code> as 12px — that's the Tailwind class mapping. The design-token value <code>--radius-md: 14px</code> is the mockup canon. <code>--radius-xl</code> is banned (too soft). Bottom-sheet top-lip 28px and 24px stay hardcoded for now (candidate <code>--radius-sheet</code> if it proliferates)." — spec §5
+  </blockquote>
+
+  <a class="plan-link" href="../../plans/2026-04-24-plantcare-frontend-v2.md">Plan §F1 — TICKET-027 spec (one worked example, not a script to transcribe)</a>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:20px;margin-bottom:8px">Out of scope</h3>
+  <ul>
+    <li>Sweeping <code>bg-card</code> consumers to <code>bg-paper</code> across every component. The plan does NOT mandate retiring <code>bg-card</code> in F1 — keep it as an alias pointing at paper if needed, or migrate per consumer as their region ticket lands. Out-of-scope sweep means no diff churn that doesn't pull its weight.</li>
+    <li>Implementing the Segment primitive's new look (paper-deep wrapper, paper-active option). That's TICKET-028 (F2).</li>
+    <li>WeatherPill component itself — TICKET-030 (F4) consumes the new <code>--sky/--frost</code> tokens. F1 just makes them available.</li>
+    <li>Typography scale changes (10/11/12/13/14/17/22/32/48/64/88px) — already partially in place; F1 only confirms the font-family tokens. Type scale formalisation can land per-region as needed.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>React / Tailwind concepts worth looking up</h2>
+
+  <div class="learn">
+    <strong>Tailwind v4's <code>@theme</code> block.</strong> v4 dropped <code>tailwind.config.js</code> in favour of CSS-native theming. Custom properties under <code>@theme { --color-* / --radius-* / --font-* / --shadow-* }</code> are <em>both</em> CSS variables AND Tailwind utility generators. Define <code>--color-paper: #fbf8f1</code> and you get <code>bg-paper</code>, <code>text-paper</code>, <code>border-paper</code> for free. The naming prefix is the contract — <code>--color-*</code> generates colour utilities, <code>--radius-*</code> generates rounded utilities, etc. CRA-era Tailwind users will find this surprisingly clean.
+  </div>
+
+  <div class="learn">
+    <strong>CSS variables are inherited at runtime — they're not compile-time constants.</strong> Changing <code>--color-paper</code> in DevTools live-updates every consumer. Different from Sass variables. Useful for testing visual regression: temporarily swap a token in DevTools to confirm a component reads from it (vs hardcoding the hex).
+  </div>
+
+  <div class="learn">
+    <strong>Two parallel declarations: <code>@theme</code> for Tailwind + <code>:root</code> for raw CSS.</strong> The current <code>globals.css</code> declares the same colours twice — once in <code>@theme</code> (so Tailwind generates utilities) and once in <code>:root</code> (so plain CSS, e.g. inside named <code>@utility</code> blocks like <code>hero-glow-urgent</code>, can read them). Keep this pattern. Adding a new token means two lines, not one.
+  </div>
+
+  <div class="learn">
+    <strong>Tailwind arbitrary values are an escape hatch, not a habit.</strong> <code>rounded-[14px]</code> works but bypasses the token. <code>rounded-md</code> reads from <code>--radius-md</code>. The audit step looks for arbitrary-value radii / blurs precisely because they're places the token system was ignored. Migrate when trivial; leave with a WHY comment when intentional.
+  </div>
+
+  <div class="learn">
+    <strong>Why CSS-variable design tokens beat JS theme objects.</strong> No re-render cost on theme change (it's CSS), no runtime JS dependency, dark-mode is a media-query <code>:root</code> override away, prefers-reduced-motion / forced-colors hooks for free. PlantCare doesn't use dark mode today but the architecture is in place if/when.
+  </div>
+</section>
+
+<section>
+  <h2>Rails ↔ React mental map</h2>
+
+  <table class="rails-map">
+    <thead>
+      <tr><th>Rails</th><th>React / Tailwind v4 equivalent in this ticket</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>app/assets/stylesheets/_tokens.scss</code> + <code>application.css</code></td>
+        <td><code>client/src/globals.css</code> @theme + :root blocks</td>
+        <td>One file holds both; Tailwind reads it at build time</td>
+      </tr>
+      <tr>
+        <td>Sass <code>$color-primary: #...</code></td>
+        <td>CSS <code>--color-paper: #...</code> inside <code>@theme</code></td>
+        <td>Runtime variable, not a compile-time constant — live-editable in DevTools</td>
+      </tr>
+      <tr>
+        <td><code>config/initializers/colors.rb</code> (if you had one)</td>
+        <td>The <code>@theme</code> block IS the central registry; no JS config file needed in v4</td>
+        <td>tailwind.config.js is gone in v4</td>
+      </tr>
+      <tr>
+        <td><code>helper :pluralize</code> (auto-loaded once, used everywhere)</td>
+        <td>Token generates utility class once (<code>bg-paper</code>), used in every JSX file</td>
+        <td>The "define-once / use-anywhere" pattern survives intact</td>
+      </tr>
+      <tr>
+        <td>Sprockets <code>asset_path('logo.svg')</code></td>
+        <td>Vite import (<code>import logo from './logo.svg'</code>) — out of scope here</td>
+        <td>Mentioned only because most globals.css "asset path" instincts don't apply</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Related files</h2>
+
+  <ul class="file-list">
+    <li><span>client/src/globals.css</span><span class="action">rewrite tokens</span></li>
+    <li><span>client/src/components/ui/Avatar.jsx</span><span class="action">audit (rounded-xl on tile preset)</span></li>
+    <li><span>client/src/components/SpaceCard.jsx</span><span class="action">audit (rounded-xl on outer)</span></li>
+    <li><span>client/src/components/**/*.jsx</span><span class="action">grep + spot-fix</span></li>
+    <li><span>CLAUDE.md (Code Style → Default border radius)</span><span class="action">one-line correction</span></li>
+    <li><span>~/.claude/projects/.../memory/feedback_border_radius.md</span><span class="action">update if rounded-md callout names 12px</span></li>
+  </ul>
+
+  <p style="font-size:13px;color:#666;margin-top:12px"><em>This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose.</em></p>
+</section>
+
+<section>
+  <h2>Notes &amp; gotchas</h2>
+
+  <ul>
+    <li><strong>Don't retire <code>--color-card</code> or <code>--color-base</code> blindly.</strong> Existing components read <code>bg-card</code> + <code>bg-base</code> in many places. Fastest non-regressive path: keep the variable names, point them at paper-equivalents (<code>--color-card: var(--color-paper)</code>), and let downstream tickets migrate consumers to <code>bg-paper</code> as their region work touches the file. Pure rename = wide diff = scope creep.</li>
+    <li><strong>Tailwind <code>rounded-md</code> picks up its size from <code>--radius-md</code>.</strong> Changing the token from 12px to 14px updates every <code>rounded-md</code> consumer automatically. No diff in component files needed for the value bump itself — that's the point of tokens.</li>
+    <li><strong>Bottom-sheet 28px / 24px lip stays hardcoded.</strong> Per spec §5, these are off-canon. Don't invent a <code>--radius-sheet</code> just for two consumers; if the value proliferates beyond Vaul drawers, F-tier follow-up can promote it.</li>
+    <li><strong><code>--heat</code> is reserved.</strong> Add it to the paper palette section as a commented-out placeholder with a one-liner explaining: "Phase 2 weather features will set this. No canonical hex yet — don't invent one." Avoids the "I see <code>--sky</code> + <code>--frost</code> but no heat, am I missing something?" question.</li>
+    <li><strong>WCAG check the paper palette specifically.</strong> The previous palette was on white (<code>#ffffff</code>); paper (<code>#fbf8f1</code>) is darker and warmer. Coral on paper, sunshine on paper, ink-soft on paper — re-verify each combination passes 4.5:1. <code>coral-deep</code> on paper ≈ 4.7:1 (close to threshold, eyeball it). The <code>/accessibility</code> pass is the gate.</li>
+    <li><strong>Don't add <code>--radius-sheet</code> or <code>--blur-scrim</code> speculatively.</strong> Tokens earn their slot when 2+ consumers need them. Spec §5 names what's canonical; everything else stays hardcoded until the second use case appears.</li>
+    <li><strong>PR title:</strong> use the new convention — <code>feat(v2): F1 design tokens (TICKET-027)</code>. See memory <code>feedback_pr_title_v2_prefix.md</code>.</li>
+    <li><strong>Branch:</strong> <code>ticket-027-design-tokens</code> (already checked out).</li>
+  </ul>
+
+  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.1em;color:#666;margin-top:20px;margin-bottom:8px">When you're done</h3>
+  <p>Run <code>./scripts/lint.sh</code> + <code>./scripts/run_tests.sh client</code>. Then <code>/review-ticket 027</code>, <code>/comment-audit</code>, <code>/pre-commit</code>. Commit on the feature branch, then <code>/github-make-pr</code> with title <code>feat(v2): F1 design tokens (TICKET-027)</code>. <code>/dhh-rails-reviewer</code> n/a — frontend-only.</p>
+</section>
+
+</div>
+</body>
+</html>

@@ -26,7 +26,7 @@ export default function SpaceCard({ space, attentionCount = 0, onClick }) {
     <Action
       variant="unstyled"
       onClick={onClick}
-      className={`p-4 rounded-xl bg-card border text-left min-h-[130px] flex flex-col justify-between transition-colors hover:border-leaf/50 ${
+      className={`p-4 rounded-md bg-card border text-left min-h-[130px] flex flex-col justify-between transition-colors hover:border-leaf/50 ${
         hasAttention ? 'border-coral/30' : 'border-mint'
       }`}
     >

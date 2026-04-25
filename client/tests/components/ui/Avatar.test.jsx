@@ -29,9 +29,9 @@ describe('Avatar', () => {
   })
 
   describe('shape + sizing', () => {
-    it('uses rounded-xl by default (tile shape)', () => {
+    it('uses rounded-md by default (tile shape)', () => {
       const { container } = render(<Avatar fallback={<span>F</span>} />)
-      expect(container.firstChild).toHaveClass('rounded-xl')
+      expect(container.firstChild).toHaveClass('rounded-md')
     })
 
     it('switches to rounded-full when shape="circle"', () => {

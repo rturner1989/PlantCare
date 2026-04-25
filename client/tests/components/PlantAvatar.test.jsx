@@ -48,18 +48,18 @@ describe('PlantAvatar', () => {
   })
 
   describe('appearance', () => {
-    it('uses the mint background and tile radius (rounded-xl) by default', () => {
+    it('uses the mint background and tile radius (rounded-md) by default', () => {
       const { container } = render(<PlantAvatar species={species('chill')} />)
       const el = container.firstChild
       expect(el).toHaveClass('bg-mint')
-      expect(el).toHaveClass('rounded-xl')
+      expect(el).toHaveClass('rounded-md')
     })
 
     it('switches to rounded-full when shape="circle"', () => {
       const { container } = render(<PlantAvatar species={species('chill')} shape="circle" />)
       const el = container.firstChild
       expect(el).toHaveClass('rounded-full')
-      expect(el).not.toHaveClass('rounded-xl')
+      expect(el).not.toHaveClass('rounded-md')
     })
 
     it('forwards className and extra props to the root', () => {

@@ -27,7 +27,7 @@ const SIZE_CLASSES = {
 }
 
 const SHAPE_CLASSES = {
-  tile: 'rounded-xl',
+  tile: 'rounded-md',
   circle: 'rounded-full',
 }
 
