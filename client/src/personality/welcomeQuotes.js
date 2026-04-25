@@ -15,7 +15,7 @@ const PERSONALITY_QUOTES = {
     'Found my spot. No notes.',
     'Happy to be here. Take your time.',
     "All good. We're vibing.",
-    'Room feels right.',
+    'Space feels right.',
   ],
   needy: [
     'Are we best friends yet?',

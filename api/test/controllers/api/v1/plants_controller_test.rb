@@ -6,7 +6,7 @@ class Api::V1::PlantsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:john)
     @plant = plants(:sir_plantalot)
-    @room = rooms(:living_room)
+    @space = spaces(:living_room)
     @species = species(:monstera)
   end
 
@@ -18,11 +18,11 @@ class Api::V1::PlantsControllerTest < ActionDispatch::IntegrationTest
     assert(json.any? { |p| p['nickname'] == 'Sir Plantalot' })
   end
 
-  test 'index filters by room' do
-    get api_v1_plants_path(room_id: @room.id), headers: auth_headers(@user), as: :json
+  test 'index filters by space' do
+    get api_v1_plants_path(space_id: @space.id), headers: auth_headers(@user), as: :json
 
     json = response.parsed_body
-    assert(json.all? { |p| p['room']['id'] == @room.id })
+    assert(json.all? { |p| p['space']['id'] == @space.id })
   end
 
   test 'index excludes other users plants' do
@@ -54,7 +54,7 @@ class Api::V1::PlantsControllerTest < ActionDispatch::IntegrationTest
     post api_v1_plants_path, headers: auth_headers(@user),
       params: {
         plant: {
-          room_id: @room.id,
+          space_id: @space.id,
           species_id: @species.id,
           nickname: 'New Plant',
           light_level: 'bright',
@@ -73,7 +73,7 @@ class Api::V1::PlantsControllerTest < ActionDispatch::IntegrationTest
     post api_v1_plants_path, headers: auth_headers(@user),
       params: {
         plant: {
-          room_id: @room.id,
+          space_id: @space.id,
           nickname: 'Mystery Plant'
         }
       }, as: :json
@@ -88,7 +88,7 @@ class Api::V1::PlantsControllerTest < ActionDispatch::IntegrationTest
     post api_v1_plants_path, headers: auth_headers(@user),
       params: {
         plant: {
-          room_id: @room.id,
+          space_id: @space.id,
           species_id: @species.id,
           nickname: 'Fresh Plant'
         }
@@ -99,9 +99,9 @@ class Api::V1::PlantsControllerTest < ActionDispatch::IntegrationTest
     assert json['last_watered_at'].present?
   end
 
-  test 'create with invalid room returns not found' do
+  test 'create with invalid space returns not found' do
     post api_v1_plants_path, headers: auth_headers(@user),
-      params: { plant: { room_id: 999_999, nickname: 'Lost Plant' } }, as: :json
+      params: { plant: { space_id: 999_999, nickname: 'Lost Plant' } }, as: :json
 
     assert_response :not_found
   end

@@ -30,11 +30,11 @@ function SpeciesRow({ species }) {
 }
 
 export default function Step3Species({
-  availableRooms = [],
+  availableSpaces = [],
   createdPlants = [],
   initialSpecies = null,
   initialNickname = '',
-  initialRoomId = null,
+  initialSpaceId = null,
   onBack,
   onComplete,
 }) {
@@ -42,9 +42,9 @@ export default function Step3Species({
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(initialSpecies)
   const [nickname, setNickname] = useState(initialNickname)
-  const [roomId, setRoomId] = useState(() => {
-    if (initialRoomId) return initialRoomId
-    if (availableRooms.length === 1) return availableRooms[0].id
+  const [spaceId, setSpaceId] = useState(() => {
+    if (initialSpaceId) return initialSpaceId
+    if (availableSpaces.length === 1) return availableSpaces[0].id
     return null
   })
   const [continuing, setContinuing] = useState(false)
@@ -110,7 +110,7 @@ export default function Step3Species({
         })
         species = await apiGet(`/api/v1/species/${species.perenual_id}?${params}`)
       }
-      onComplete(species, nickname, roomId)
+      onComplete(species, nickname, spaceId)
     } catch (err) {
       toast.error(err.message || "Couldn't load that species — please pick another")
     } finally {
@@ -118,8 +118,8 @@ export default function Step3Species({
     }
   }
 
-  const needsRoomChoice = availableRooms.length > 1
-  const canContinue = selected && (!!roomId || availableRooms.length === 0)
+  const needsSpaceChoice = availableSpaces.length > 1
+  const canContinue = selected && (!!spaceId || availableSpaces.length === 0)
 
   return (
     <>
@@ -237,20 +237,20 @@ export default function Step3Species({
                   </div>
                 </div>
 
-                {needsRoomChoice && (
+                {needsSpaceChoice && (
                   <label className="block mt-4">
-                    <span className="text-xs font-bold text-ink-soft uppercase tracking-wider">Which room?</span>
+                    <span className="text-xs font-bold text-ink-soft uppercase tracking-wider">Which space?</span>
                     <select
-                      value={roomId ?? ''}
-                      onChange={(e) => setRoomId(Number(e.target.value))}
+                      value={spaceId ?? ''}
+                      onChange={(e) => setSpaceId(Number(e.target.value))}
                       className="mt-1 w-full px-4 py-3 rounded-md bg-mint/50 border border-mint text-ink text-base font-semibold focus:outline-none focus:ring-4 focus:ring-leaf/20 focus:border-leaf"
                     >
                       <option value="" disabled>
-                        Pick a room...
+                        Pick a space...
                       </option>
-                      {availableRooms.map((room) => (
-                        <option key={room.id} value={room.id}>
-                          {room.name}
+                      {availableSpaces.map((space) => (
+                        <option key={space.id} value={space.id}>
+                          {space.name}
                         </option>
                       ))}
                     </select>

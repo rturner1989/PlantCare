@@ -19,7 +19,7 @@ class Api::V1::DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
     json = response.parsed_body
     assert_equal 3, json['stats']['total_plants']
-    assert_equal 2, json['stats']['total_rooms']
+    assert_equal 2, json['stats']['total_spaces']
   end
 
   test 'returns overdue plants in plants_needing_water' do
@@ -53,6 +53,6 @@ class Api::V1::DashboardControllerTest < ActionDispatch::IntegrationTest
 
     json = response.parsed_body
     assert_equal 0, json['stats']['total_plants']
-    assert_equal 1, json['stats']['total_rooms']
+    assert_equal 1, json['stats']['total_spaces']
   end
 end

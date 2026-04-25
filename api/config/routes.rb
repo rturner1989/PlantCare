@@ -19,10 +19,10 @@ Rails.application.routes.draw do
 
       resources :password_resets, only: [:create, :update]
 
-      namespace :rooms do
+      namespace :spaces do
         resources :presets, only: :index
       end
-      resources :rooms, only: [:index, :show, :create, :update, :destroy]
+      resources :spaces, only: [:index, :show, :create, :update, :destroy]
       resources :plants, only: [:index, :show, :create, :update, :destroy] do
         scope module: :plants do
           resources :care_logs, only: [:index, :create]

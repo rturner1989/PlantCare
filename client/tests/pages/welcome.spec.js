@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 // Each test registers a fresh user with a unique email so parallel
 // workers don't clash on the unique-email constraint. Tests hit the real
 // dev backend — no mocking — because the onboarding flow's value is
-// entirely in the server round-trips (room creates, species search,
+// entirely in the server round-trips (space creates, species search,
 // plant create, onboarding completion).
 async function registerFreshUser(page) {
   const email = `test-${crypto.randomUUID()}@example.com`
@@ -30,14 +30,14 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByText('Step 1 of 5')).toBeVisible()
     await page.getByRole('button', { name: /begin/i }).click()
 
-    // Step 2 — rooms
-    await expect(page).toHaveURL(/\/welcome\/rooms$/)
+    // Step 2 — spaces
+    await expect(page).toHaveURL(/\/welcome\/spaces$/)
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
     await page.getByRole('checkbox', { name: /Living Room/i }).click()
     await page.getByRole('checkbox', { name: /Bedroom/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
-    // Step 3 — species + room + nickname
+    // Step 3 — species + space + nickname
     await expect(page).toHaveURL(/\/welcome\/species$/)
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
     await page.getByLabel('Search species', { exact: true }).fill('monstera')
@@ -46,7 +46,7 @@ test.describe('Onboarding wizard', () => {
       .first()
       .click()
     await page.getByLabel(/What should we call them/).fill('Monty')
-    await page.getByLabel('Which room?').selectOption({ label: 'Living Room' })
+    await page.getByLabel('Which space?').selectOption({ label: 'Living Room' })
     await page.getByRole('button', { name: 'Continue' }).click()
 
     // Step 4 — environment (defaults fine, just continue)
@@ -69,7 +69,7 @@ test.describe('Onboarding wizard', () => {
     await page.getByRole('checkbox', { name: /Living Room/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
-    // Step 3: pick Monstera, name it Monty (single room → no picker).
+    // Step 3: pick Monstera, name it Monty (single space → no picker).
     await page.getByLabel('Search species', { exact: true }).fill('monstera')
     await page
       .getByRole('option', { name: /Monstera/i })
@@ -88,12 +88,12 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByLabel('Search species', { exact: true })).toHaveCount(0)
   })
 
-  test('back from Step 3 restores previously-selected rooms on Step 2', async ({ page }) => {
+  test('back from Step 3 restores previously-selected spaces on Step 2', async ({ page }) => {
     await registerFreshUser(page)
 
     await page.getByRole('button', { name: /begin/i }).click()
 
-    // Step 2: tick two preset rooms.
+    // Step 2: tick two preset spaces.
     await page.getByRole('checkbox', { name: /Living Room/i }).click()
     await page.getByRole('checkbox', { name: /Bedroom/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
@@ -102,7 +102,7 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
     await page.getByRole('button', { name: 'Back' }).click()
 
-    // Both rooms still ticked.
+    // Both spaces still ticked.
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
     await expect(page.getByRole('checkbox', { name: /Living Room/i })).toHaveAttribute('aria-checked', 'true')
     await expect(page.getByRole('checkbox', { name: /Bedroom/i })).toHaveAttribute('aria-checked', 'true')
@@ -129,7 +129,7 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByRole('button', { name: /Add another/i })).toHaveCount(0)
   })
 
-  test('refreshing on /welcome/species lands on Step 3 with rooms intact', async ({ page }) => {
+  test('refreshing on /welcome/species lands on Step 3 with spaces intact', async ({ page }) => {
     await registerFreshUser(page)
 
     await page.getByRole('button', { name: /begin/i }).click()
@@ -144,7 +144,7 @@ test.describe('Onboarding wizard', () => {
     await expect(page).toHaveURL(/\/welcome\/species$/)
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
 
-    // Back to Step 2 confirms the room really is server-persisted (not just
+    // Back to Step 2 confirms the space really is server-persisted (not just
     // held in client state that the reload would have cleared).
     await page.getByRole('button', { name: 'Back' }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
@@ -177,7 +177,7 @@ test.describe('Onboarding wizard', () => {
   test('un-onboarded user is routed to /welcome after logging back in', async ({ page, context }) => {
     const { email, password } = await registerFreshUser(page)
 
-    // Partial progress — create a room then bail without finishing.
+    // Partial progress — create a space then bail without finishing.
     await page.getByRole('button', { name: /begin/i }).click()
     await page.getByRole('checkbox', { name: /Living Room/i }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
@@ -196,7 +196,7 @@ test.describe('Onboarding wizard', () => {
     await expect(page).toHaveURL('/welcome')
   })
 
-  test('deselecting a previously-saved room deletes it from the server', async ({ page }) => {
+  test('deselecting a previously-saved space deletes it from the server', async ({ page }) => {
     await registerFreshUser(page)
 
     await page.getByRole('button', { name: /begin/i }).click()
@@ -217,7 +217,7 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
 
     // Hard refresh forces the resume query to re-read from the server.
-    // If the DELETE hadn't fired, the room would still be there and we'd
+    // If the DELETE hadn't fired, the space would still be there and we'd
     // see Bedroom ticked on Step 2 again.
     await page.reload()
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
@@ -242,18 +242,18 @@ test.describe('Onboarding wizard', () => {
     // case-insensitive uniqueness validation rejects it on submit.
     await page.getByRole('button', { name: 'Back' }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
-    // Progressive-disclosure: reveal the input via the "+ Add a custom room"
+    // Progressive-disclosure: reveal the input via the "+ Add a custom space"
     // button, then type + Add.
-    await page.getByRole('button', { name: /Add a custom room/i }).click()
-    await page.getByLabel('New room name').fill('living room')
-    await page.getByRole('button', { name: 'Add room' }).click()
+    await page.getByRole('button', { name: /Add a custom space/i }).click()
+    await page.getByLabel('New space name').fill('living room')
+    await page.getByRole('button', { name: 'Add space' }).click()
     await page.getByRole('button', { name: 'Continue' }).click()
 
     await expect(page.getByText(/has already been taken/i)).toBeVisible()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
   })
 
-  test('browser back from Step 3 returns to Step 2 with rooms intact', async ({ page }) => {
+  test('browser back from Step 3 returns to Step 2 with spaces intact', async ({ page }) => {
     await registerFreshUser(page)
 
     await page.getByRole('button', { name: /begin/i }).click()
@@ -267,7 +267,7 @@ test.describe('Onboarding wizard', () => {
     // state lived entirely in useState with no URL representation.
     await page.goBack()
 
-    await expect(page).toHaveURL(/\/welcome\/rooms$/)
+    await expect(page).toHaveURL(/\/welcome\/spaces$/)
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
     await expect(page.getByRole('checkbox', { name: /Living Room/i })).toHaveAttribute('aria-checked', 'true')
     await expect(page.getByRole('checkbox', { name: /Bedroom/i })).toHaveAttribute('aria-checked', 'true')
@@ -278,19 +278,19 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByText('Step 3 of 5')).toBeVisible()
   })
 
-  test('add-custom-room: button reveals input, adds a chip, collapses back', async ({ page }) => {
+  test('add-custom-space: button reveals input, adds a chip, collapses back', async ({ page }) => {
     await registerFreshUser(page)
     await page.getByRole('button', { name: /begin/i }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
 
     // Resting state: just the trigger button, no input on screen.
-    const trigger = page.getByRole('button', { name: /Add a custom room/i })
+    const trigger = page.getByRole('button', { name: /Add a custom space/i })
     await expect(trigger).toBeVisible()
-    await expect(page.getByLabel('New room name')).toHaveCount(0)
+    await expect(page.getByLabel('New space name')).toHaveCount(0)
 
     // Reveal.
     await trigger.click()
-    const input = page.getByLabel('New room name')
+    const input = page.getByLabel('New space name')
     await expect(input).toBeVisible()
     await expect(input).toBeFocused()
 
@@ -299,15 +299,15 @@ test.describe('Onboarding wizard', () => {
     await input.press('Enter')
 
     // Input panel collapses, trigger returns, chip appears as a checked CheckboxCardInput.
-    await expect(page.getByRole('button', { name: /Add a custom room/i })).toBeVisible()
-    await expect(page.getByLabel('New room name')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /Add a custom space/i })).toBeVisible()
+    await expect(page.getByLabel('New space name')).toHaveCount(0)
     await expect(page.getByRole('checkbox', { name: 'Greenhouse' })).toHaveAttribute('aria-checked', 'true')
 
     // Reveal → Escape cancels without adding.
-    await page.getByRole('button', { name: /Add a custom room/i }).click()
-    await page.getByLabel('New room name').fill('Shed')
-    await page.getByLabel('New room name').press('Escape')
-    await expect(page.getByLabel('New room name')).toHaveCount(0)
+    await page.getByRole('button', { name: /Add a custom space/i }).click()
+    await page.getByLabel('New space name').fill('Shed')
+    await page.getByLabel('New space name').press('Escape')
+    await expect(page.getByLabel('New space name')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Shed' })).toHaveCount(0)
   })
 
@@ -388,7 +388,7 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByRole('button', { name: /Enter your jungle/i })).toBeVisible()
   })
 
-  test('add-custom-room: scroll position is preserved across the reveal/cancel toggle', async ({ page }) => {
+  test('add-custom-space: scroll position is preserved across the reveal/cancel toggle', async ({ page }) => {
     // Short viewport forces CardBody to scroll — matches the desktop
     // condition the user hit (scrolled to bottom of Step 2 to reach the
     // trigger, clicked it, jumped to top).
@@ -398,8 +398,8 @@ test.describe('Onboarding wizard', () => {
     await page.getByRole('button', { name: /begin/i }).click()
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
 
-    // Only the rooms list scrolls now — title/subtitle are pinned to
-    // the top of CardBody, matching Step 3's layout. Target the rooms
+    // Only the spaces list scrolls now — title/subtitle are pinned to
+    // the top of CardBody, matching Step 3's layout. Target the spaces
     // container by class (`mt-5` is unique to it) rather than picking
     // from all overflow-y-auto elements on the page.
     const scrollContainer = page.locator('div.mt-5.overflow-y-auto')
@@ -410,13 +410,13 @@ test.describe('Onboarding wizard', () => {
     expect(bottomScroll).toBeGreaterThan(0)
 
     // Reveal the input. Scroll should stay put — no height collapse.
-    await page.getByRole('button', { name: /Add a custom room/i }).click()
+    await page.getByRole('button', { name: /Add a custom space/i }).click()
     await page.waitForTimeout(250) // let the opacity transition settle
     const afterReveal = await scrollContainer.evaluate((el) => el.scrollTop)
     expect(afterReveal).toBe(bottomScroll)
 
     // Cancel. Same — no scroll reset on collapse.
-    await page.getByRole('button', { name: 'Cancel adding room' }).click()
+    await page.getByRole('button', { name: 'Cancel adding space' }).click()
     await page.waitForTimeout(250)
     const afterCancel = await scrollContainer.evaluate((el) => el.scrollTop)
     expect(afterCancel).toBe(bottomScroll)

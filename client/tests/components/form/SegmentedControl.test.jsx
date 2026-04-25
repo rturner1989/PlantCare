@@ -90,17 +90,17 @@ describe('SegmentedControl', () => {
       render(
         <SegmentedControl
           label="View"
-          value="rooms"
+          value="spaces"
           onChange={() => {}}
           options={[
-            { value: 'rooms', label: 'Rooms' },
+            { value: 'spaces', label: 'Spaces' },
             { value: 'list', label: 'List' },
             { value: 'greenhouse', label: 'Greenhouse', disabled: true },
           ]}
         />,
       )
       expect(screen.getByRole('radio', { name: 'Greenhouse' })).toBeDisabled()
-      expect(screen.getByRole('radio', { name: 'Rooms' })).not.toBeDisabled()
+      expect(screen.getByRole('radio', { name: 'Spaces' })).not.toBeDisabled()
     })
 
     it('does not fire onChange when a disabled option is clicked', async () => {
@@ -108,10 +108,10 @@ describe('SegmentedControl', () => {
       render(
         <SegmentedControl
           label="View"
-          value="rooms"
+          value="spaces"
           onChange={handleChange}
           options={[
-            { value: 'rooms', label: 'Rooms' },
+            { value: 'spaces', label: 'Spaces' },
             { value: 'greenhouse', label: 'Greenhouse', disabled: true },
           ]}
         />,

@@ -5,16 +5,16 @@ import { useNavigate } from 'react-router-dom'
 import SegmentedControl from '../components/form/SegmentedControl'
 import TextInput from '../components/form/TextInput'
 import PlantAvatar from '../components/PlantAvatar'
-import RoomCard from '../components/RoomCard'
+import SpaceCard from '../components/SpaceCard'
 import Action from '../components/ui/Action'
 import EmptyState from '../components/ui/EmptyState'
 import Spinner from '../components/ui/Spinner'
 import { usePlants } from '../hooks/usePlants'
-import { useRooms } from '../hooks/useRooms'
+import { useSpaces } from '../hooks/useSpaces'
 import { pluralize } from '../utils/pluralize'
 
 const VIEW_OPTIONS = [
-  { value: 'rooms', label: 'Rooms' },
+  { value: 'spaces', label: 'Spaces' },
   { value: 'list', label: 'List' },
   { value: 'greenhouse', label: 'Greenhouse', disabled: true, hint: 'Coming in Phase 3' },
 ]
@@ -32,63 +32,63 @@ function isFeedDue(plant) {
 }
 
 export default function House() {
-  const [viewMode, setViewMode] = useState('rooms')
+  const [viewMode, setViewMode] = useState('spaces')
   const [searchQuery, setSearchQuery] = useState('')
-  const [filteredRoomId, setFilteredRoomId] = useState(null)
-  const { data: rooms, isLoading: roomsLoading, error: roomsError, refetch: refetchRooms } = useRooms()
+  const [filteredSpaceId, setFilteredSpaceId] = useState(null)
+  const { data: spaces, isLoading: spacesLoading, error: spacesError, refetch: refetchSpaces } = useSpaces()
   const { data: plants, isLoading: plantsLoading, error: plantsError, refetch: refetchPlants } = usePlants()
   const navigate = useNavigate()
 
-  const isLoading = roomsLoading || plantsLoading
-  const error = roomsError || plantsError
+  const isLoading = spacesLoading || plantsLoading
+  const error = spacesError || plantsError
 
-  const roomAttention = useMemo(() => {
+  const spaceAttention = useMemo(() => {
     if (!plants) return {}
     const counts = {}
     for (const plant of plants) {
       if (needsCare(plant)) {
-        const roomId = plant.room?.id
-        if (roomId != null) counts[roomId] = (counts[roomId] || 0) + 1
+        const spaceId = plant.space?.id
+        if (spaceId != null) counts[spaceId] = (counts[spaceId] || 0) + 1
       }
     }
     return counts
   }, [plants])
 
-  const filteredRoom = useMemo(() => {
-    if (!filteredRoomId || !rooms) return null
-    return rooms.find((room) => room.id === filteredRoomId) ?? null
-  }, [filteredRoomId, rooms])
+  const filteredSpace = useMemo(() => {
+    if (!filteredSpaceId || !spaces) return null
+    return spaces.find((space) => space.id === filteredSpaceId) ?? null
+  }, [filteredSpaceId, spaces])
 
   const filteredPlants = useMemo(() => {
     if (!plants) return []
     const query = searchQuery.trim().toLowerCase()
 
     return plants.filter((plant) => {
-      if (filteredRoomId && plant.room?.id !== filteredRoomId) return false
+      if (filteredSpaceId && plant.space?.id !== filteredSpaceId) return false
       if (!query) return true
 
       return plant.nickname?.toLowerCase().includes(query) || plant.species?.common_name?.toLowerCase().includes(query)
     })
-  }, [plants, searchQuery, filteredRoomId])
+  }, [plants, searchQuery, filteredSpaceId])
 
   const totalPlants = plants?.length ?? 0
-  const totalRooms = rooms?.length ?? 0
-  const overdueCount = Object.values(roomAttention).reduce((sum, n) => sum + n, 0)
+  const totalSpaces = spaces?.length ?? 0
+  const overdueCount = Object.values(spaceAttention).reduce((sum, n) => sum + n, 0)
 
-  function handleRoomTap(roomId) {
-    setFilteredRoomId(roomId)
+  function handleSpaceTap(spaceId) {
+    setFilteredSpaceId(spaceId)
     setSearchQuery('')
     setViewMode('list')
   }
 
-  function clearRoomFilter() {
-    setFilteredRoomId(null)
+  function clearSpaceFilter() {
+    setFilteredSpaceId(null)
   }
 
   function handleViewChange(nextMode) {
     setViewMode(nextMode)
-    if (nextMode === 'rooms') {
-      setFilteredRoomId(null)
+    if (nextMode === 'spaces') {
+      setFilteredSpaceId(null)
       setSearchQuery('')
     }
   }
@@ -100,9 +100,9 @@ export default function House() {
         <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-ink lg:font-display lg:text-5xl lg:italic lg:font-medium">
           House
         </h1>
-        {totalRooms > 0 && (
+        {totalSpaces > 0 && (
           <p className="mt-2 text-sm text-ink-soft">
-            {pluralize(totalRooms, 'room')}, {pluralize(totalPlants, 'plant')}
+            {pluralize(totalSpaces, 'space')}, {pluralize(totalPlants, 'plant')}
             {overdueCount > 0 && (
               <>
                 {' · '}
@@ -137,12 +137,12 @@ export default function House() {
             <div className="flex-1 flex items-center justify-center">
               <EmptyState
                 title="We couldn't load your house"
-                description="Something went wrong fetching your rooms and plants."
+                description="Something went wrong fetching your spaces and plants."
                 action={
                   <Action
                     variant="secondary"
                     onClick={() => {
-                      refetchRooms()
+                      refetchSpaces()
                       refetchPlants()
                     }}
                   >
@@ -153,8 +153,8 @@ export default function House() {
             </div>
           )}
 
-          {!isLoading && !error && viewMode === 'rooms' && (
-            <RoomsView rooms={rooms} roomAttention={roomAttention} onRoomTap={handleRoomTap} />
+          {!isLoading && !error && viewMode === 'spaces' && (
+            <SpacesView spaces={spaces} spaceAttention={spaceAttention} onSpaceTap={handleSpaceTap} />
           )}
 
           {!isLoading && !error && viewMode === 'list' && (
@@ -163,8 +163,8 @@ export default function House() {
               totalPlants={totalPlants}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
-              filteredRoom={filteredRoom}
-              onClearRoomFilter={clearRoomFilter}
+              filteredSpace={filteredSpace}
+              onClearSpaceFilter={clearSpaceFilter}
               onPlantTap={(plantId) => navigate(`/plants/${plantId}`)}
             />
           )}
@@ -174,17 +174,17 @@ export default function House() {
   )
 }
 
-function RoomsView({ rooms, roomAttention, onRoomTap }) {
-  if (!rooms || rooms.length === 0) {
+function SpacesView({ spaces, spaceAttention, onSpaceTap }) {
+  if (!spaces || spaces.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <EmptyState
           icon={<span>🏡</span>}
-          title="No rooms yet"
-          description="Rooms keep your plants grouped by where they live. Add one to get started."
+          title="No spaces yet"
+          description="Spaces keep your plants grouped by where they live. Add one to get started."
           action={
             <Action to="/welcome" variant="primary">
-              Set up rooms
+              Set up spaces
             </Action>
           }
         />
@@ -194,20 +194,20 @@ function RoomsView({ rooms, roomAttention, onRoomTap }) {
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-      {rooms.map((room) => (
-        <RoomCard
-          key={room.id}
-          room={room}
-          attentionCount={roomAttention[room.id] || 0}
-          onClick={() => onRoomTap(room.id)}
+      {spaces.map((space) => (
+        <SpaceCard
+          key={space.id}
+          space={space}
+          attentionCount={spaceAttention[space.id] || 0}
+          onClick={() => onSpaceTap(space.id)}
         />
       ))}
     </div>
   )
 }
 
-function ListView({ plants, totalPlants, searchQuery, onSearchChange, filteredRoom, onClearRoomFilter, onPlantTap }) {
-  if (totalPlants === 0 && !filteredRoom) {
+function ListView({ plants, totalPlants, searchQuery, onSearchChange, filteredSpace, onClearSpaceFilter, onPlantTap }) {
+  if (totalPlants === 0 && !filteredSpace) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <EmptyState
@@ -226,16 +226,16 @@ function ListView({ plants, totalPlants, searchQuery, onSearchChange, filteredRo
 
   return (
     <div className="flex flex-col gap-3">
-      {filteredRoom && (
+      {filteredSpace && (
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-soft">
           <span>Filtered by</span>
           <Action
             variant="unstyled"
-            onClick={onClearRoomFilter}
+            onClick={onClearSpaceFilter}
             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mint text-emerald normal-case tracking-normal text-[12px]"
-            aria-label={`Clear ${filteredRoom.name} filter`}
+            aria-label={`Clear ${filteredSpace.name} filter`}
           >
-            {filteredRoom.name}
+            {filteredSpace.name}
             <FontAwesomeIcon icon={faXmark} aria-hidden="true" />
           </Action>
         </div>
@@ -253,7 +253,7 @@ function ListView({ plants, totalPlants, searchQuery, onSearchChange, filteredRo
         <div className="flex-1 flex items-center justify-center py-8">
           <EmptyState
             title="Nothing matches"
-            description={searchQuery ? `No plants match "${searchQuery}".` : 'This room has no plants yet.'}
+            description={searchQuery ? `No plants match "${searchQuery}".` : 'This space has no plants yet.'}
           />
         </div>
       ) : (
@@ -284,7 +284,7 @@ function PlantTile({ plant, onTap }) {
         <p className="text-[15px] font-extrabold text-ink truncate">{plant.nickname}</p>
         <p className="text-[13px] text-ink-soft truncate">
           {plant.species?.common_name ?? 'Unknown species'}
-          {plant.room?.name && ` · ${plant.room.name}`}
+          {plant.space?.name && ` · ${plant.space.name}`}
         </p>
       </div>
       {(waterDue || feedDue) && (

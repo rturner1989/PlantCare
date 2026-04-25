@@ -40,8 +40,8 @@ class User < ApplicationRecord
   ].freeze
   private_constant :COMMON_PASSWORDS
 
-  has_many :rooms, dependent: :destroy
-  has_many :plants, through: :rooms
+  has_many :spaces, dependent: :destroy
+  has_many :plants, through: :spaces
   has_many :refresh_tokens, dependent: :destroy
   has_many :password_reset_tokens, dependent: :destroy
 

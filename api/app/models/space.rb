@@ -2,7 +2,7 @@
 
 # == Schema Information
 #
-# Table name: rooms
+# Table name: spaces
 #
 #  id           :bigint           not null, primary key
 #  icon         :string
@@ -14,14 +14,14 @@
 #
 # Indexes
 #
-#  index_rooms_on_user_id                 (user_id)
-#  index_rooms_on_user_id_and_lower_name  (user_id, lower((name)::text)) UNIQUE
+#  index_spaces_on_user_id                 (user_id)
+#  index_spaces_on_user_id_and_lower_name  (user_id, lower((name)::text)) UNIQUE
 #
 # Foreign Keys
 #
 #  fk_rails_...  (user_id => users.id)
 #
-class Room < ApplicationRecord
+class Space < ApplicationRecord
   ICONS = %w[couch kitchen bed bath desk].freeze
 
   PRESETS = [

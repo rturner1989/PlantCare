@@ -1,26 +1,26 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { pluralize } from '../utils/pluralize'
-import { getRoomIcon } from '../utils/roomIcons'
+import { getSpaceIcon } from '../utils/spaceIcons'
 import Action from './ui/Action'
 import Badge from './ui/Badge'
 
 /**
- * RoomCard — tile in the House grid.
+ * SpaceCard — tile in the House grid.
  *
- * Shows the room icon, name, plant count, and an attention badge
+ * Shows the space icon, name, plant count, and an attention badge
  * ("N thirsty") when `attentionCount > 0`. The whole tile is clickable
  * via Action so keyboard focus, focus ring, and button semantics come
- * for free; the caller wires `onClick` to route to the room's detail
+ * for free; the caller wires `onClick` to route to the space's detail
  * page (or filter the list view, etc.).
  *
- *   <RoomCard room={room} attentionCount={2} onClick={() => navigate(`/rooms/${room.id}`)} />
+ *   <SpaceCard space={space} attentionCount={2} onClick={() => navigate(`/spaces/${space.id}`)} />
  *
- * A missing/unknown `room.icon` renders no icon tile — safer than a
+ * A missing/unknown `space.icon` renders no icon tile — safer than a
  * broken glyph when the backend adds a new slug ahead of the client.
  */
-export default function RoomCard({ room, attentionCount = 0, onClick }) {
+export default function SpaceCard({ space, attentionCount = 0, onClick }) {
   const hasAttention = attentionCount > 0
-  const icon = getRoomIcon(room.icon)
+  const icon = getSpaceIcon(space.icon)
 
   return (
     <Action
@@ -46,8 +46,8 @@ export default function RoomCard({ room, attentionCount = 0, onClick }) {
       </div>
 
       <div>
-        <p className="text-[15px] font-extrabold text-ink">{room.name}</p>
-        <p className="text-[11px] font-semibold text-ink-soft">{pluralize(room.plants_count, 'plant')}</p>
+        <p className="text-[15px] font-extrabold text-ink">{space.name}</p>
+        <p className="text-[11px] font-semibold text-ink-soft">{pluralize(space.plants_count, 'plant')}</p>
       </div>
     </Action>
   )

@@ -4,11 +4,10 @@ module Api
   module V1
     class PlantsController < BaseController
       before_action :set_plant, only: [:show, :update, :destroy]
-      before_action :set_room, only: [:create]
+      before_action :set_space, only: [:create]
 
       def index
-        plants = current_user.plants.includes(:species, :room)
-        plants = plants.where(room_id: params[:room_id]) if params[:room_id].present?
+        plants = current_user.plants.includes(:species, :space).in_space(params[:space_id])
 
         render json: plants
       end
@@ -18,7 +17,7 @@ module Api
       end
 
       def create
-        plant = @room.plants.new(plant_params)
+        plant = @space.plants.new(plant_params)
 
         if plant.save
           render json: plant, status: :created
@@ -40,13 +39,13 @@ module Api
         head :no_content
       end
 
-      private def set_room
-        @room = current_user.rooms.find_by(id: params.dig(:plant, :room_id))
-        render json: { error: 'Room not found' }, status: :not_found unless @room
+      private def set_space
+        @space = current_user.spaces.find_by(id: params.dig(:plant, :space_id))
+        render json: { error: 'Space not found' }, status: :not_found unless @space
       end
 
       private def set_plant
-        @plant = current_user.plants.includes(:species, :room).find_by(id: params[:id])
+        @plant = current_user.plants.includes(:species, :space).find_by(id: params[:id])
         render json: { error: 'Not found' }, status: :not_found unless @plant
       end
 

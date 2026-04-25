@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-async function registerAndOnboard(page, { rooms = ['Living Room', 'Kitchen'] } = {}) {
+async function registerAndOnboard(page, { spaces = ['Living Room', 'Kitchen'] } = {}) {
   const email = `test-${crypto.randomUUID()}@example.com`
   const password = 'greenthumb99'
   await page.goto('/register')
@@ -11,8 +11,8 @@ async function registerAndOnboard(page, { rooms = ['Living Room', 'Kitchen'] } =
   await page.getByRole('button', { name: /Create account/i }).click()
   await page.waitForURL('/welcome')
   await page.getByRole('button', { name: /begin/i }).click()
-  for (const room of rooms) {
-    await page.getByRole('checkbox', { name: new RegExp(room, 'i') }).click()
+  for (const space of spaces) {
+    await page.getByRole('checkbox', { name: new RegExp(space, 'i') }).click()
   }
   await page.getByRole('button', { name: 'Continue' }).click()
   await page.getByRole('button', { name: /Skip for now/i }).click()
@@ -21,21 +21,21 @@ async function registerAndOnboard(page, { rooms = ['Living Room', 'Kitchen'] } =
 }
 
 test.describe('House screen', () => {
-  test('defaults to Rooms grid and toggles through List + disabled Greenhouse', async ({ page }) => {
+  test('defaults to Spaces grid and toggles through List + disabled Greenhouse', async ({ page }) => {
     await registerAndOnboard(page)
     await page.goto('/house')
 
     await expect(page.getByRole('heading', { level: 1, name: 'House' })).toBeVisible()
 
     const viewGroup = page.getByRole('radiogroup', { name: 'View as' })
-    const roomsRadio = viewGroup.getByRole('radio', { name: 'Rooms' })
+    const spacesRadio = viewGroup.getByRole('radio', { name: 'Spaces' })
     const listRadio = viewGroup.getByRole('radio', { name: 'List' })
     const greenhouseRadio = viewGroup.getByRole('radio', { name: 'Greenhouse' })
 
-    await expect(roomsRadio).toBeChecked()
+    await expect(spacesRadio).toBeChecked()
     await expect(greenhouseRadio).toBeDisabled()
 
-    // Rooms grid shows the seeded rooms.
+    // Spaces grid shows the seeded spaces.
     await expect(page.getByRole('button', { name: /Living Room/ })).toBeVisible()
     await expect(page.getByRole('button', { name: /Kitchen/ })).toBeVisible()
 
@@ -46,7 +46,7 @@ test.describe('House screen', () => {
     await expect(page.getByRole('heading', { name: /Your jungle starts here/ })).toBeVisible()
   })
 
-  test('tapping a room card jumps to List filtered to that room', async ({ page }) => {
+  test('tapping a space card jumps to List filtered to that space', async ({ page }) => {
     await registerAndOnboard(page)
     await page.goto('/house')
 

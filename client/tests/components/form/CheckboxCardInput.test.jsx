@@ -24,7 +24,7 @@ describe('CheckboxCardInput', () => {
     })
 
     it('does not render an icon tile when the icon prop is omitted', () => {
-      const { container } = render(<CheckboxCardInput>Custom Room</CheckboxCardInput>)
+      const { container } = render(<CheckboxCardInput>Custom Space</CheckboxCardInput>)
       expect(container.querySelectorAll('svg')).toHaveLength(1)
     })
   })
@@ -79,8 +79,8 @@ describe('CheckboxCardInput', () => {
     })
 
     it('forwards arbitrary props via ...kwargs', () => {
-      render(<CheckboxCardInput data-testid="room-card">Bath</CheckboxCardInput>)
-      expect(screen.getByTestId('room-card')).toBeInTheDocument()
+      render(<CheckboxCardInput data-testid="space-card">Bath</CheckboxCardInput>)
+      expect(screen.getByTestId('space-card')).toBeInTheDocument()
     })
   })
 })
