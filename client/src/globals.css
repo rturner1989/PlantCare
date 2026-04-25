@@ -16,9 +16,40 @@
 @import "@fontsource/fraunces/800.css";
 @import "@fontsource/fraunces/800-italic.css";
 
+/* ---------------------------------------------------------------------- *
+ * Design tokens — v2 canonical set per docs/specs/2026-04-23-plantcare-design-v2.md
+ * §5 and verified against the :root blocks of mockups 17–36 (mockup 21 is
+ * the cleanest reference). Single source of truth for colour, radius, blur,
+ * font, and shadow.
+ *
+ * Token naming contract under @theme:
+ *   --color-*  → Tailwind colour utilities (bg-*, text-*, border-*, etc.)
+ *   --radius-* → Tailwind rounded-* utilities
+ *   --blur-*   → Tailwind backdrop-blur-* utilities (custom names below)
+ *   --font-*   → Tailwind font-family utilities (font-sans, font-display)
+ *   --shadow-* → Tailwind shadow-* utilities
+ *
+ * White is banned on surfaces — use paper. `--color-card` and `--color-base`
+ * are kept as aliases pointing at paper so existing `bg-card` / `bg-base`
+ * consumers visually flip to v2 paper without a codebase-wide rename. R-tier
+ * region tickets will migrate to `bg-paper` directly as they touch each region.
+ * ---------------------------------------------------------------------- */
+
 @theme {
-  --color-base: #f6fbf4;
+  /* Paper palette — primary surface system. White is banned. */
+  --color-paper: #fbf8f1;
+  --color-paper-deep: #f3eee2;
+  --color-paper-edge: #e8ddc6;
+
+  /* Aliases — keep `bg-card` / `bg-base` working at consumer sites until
+   * downstream R-tickets migrate each region to `bg-paper` directly. Both
+   * resolve to paper now, not white. */
+  --color-card: var(--color-paper);
+  --color-base: var(--color-paper);
+
+  /* Green axis */
   --color-mint: #dff2e2;
+  --color-mint-2: #c7ecca;
   --color-lime: #86db65;
   --color-leaf: #32c456;
   --color-emerald: #14902f;
@@ -26,30 +57,59 @@
   --color-forest-2: #124626;
   --color-ink: #0a1d0e;
   --color-ink-soft: #4a6a51;
+  --color-ink-softer: #7a9081;
+
+  /* Accents */
   --color-coral: #ff6b3d;
-  /* Brand coral (#ff6b3d) on white is only 2.8:1 — below WCAG AA 4.5:1 for
-   * normal text and 3:1 for large text. `coral-deep` (#c4412a) lands at
-   * ~5:1, so use it anywhere coral meets the text/icon threshold. Keep
-   * `coral` for fills/borders where the 3:1 UI-component threshold applies. */
+  /* Brand coral (#ff6b3d) on paper is ~2.7:1 — below WCAG AA 4.5:1 for
+   * normal text and 3:1 for large text. `coral-deep` (#c4412a) lands
+   * around 4.7:1 on paper, so use it anywhere coral meets the text/icon
+   * threshold. Keep `coral` for fills/borders where the 3:1 UI-component
+   * threshold applies. */
   --color-coral-deep: #c4412a;
   --color-sunshine: #ffb83d;
-  /* Sunshine (#FFB83D) on white is ~1.9:1 — fails WCAG AA for text.
+  /* Sunshine (#FFB83D) on paper is ~1.8:1 — fails WCAG AA for text.
    * sunshine-deep is the text-safe variant; use on light surfaces. */
   --color-sunshine-deep: #a56d12;
-  --color-card: #ffffff;
 
+  /* Weather axis — drives WeatherPill (F4) + Today landing weather hint.
+   * `*-deep` siblings are the text-on-light-pill variants. */
+  --color-sky: #c7e3f5;
+  --color-sky-deep: #2c6a94;
+  --color-frost: #dfe7f5;
+  --color-frost-deep: #3a4a74;
+  /* `--color-heat` reserved for Phase 2 weather features (skip-rain,
+   * heatwave alerts). No canonical hex yet — don't invent one; the
+   * ticket that lands heat tokens will pick it from the v2 palette. */
+
+  /* Typography */
   --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
   --font-display: "Fraunces", Georgia, serif;
 
-  --radius-xs: 5px;
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 22px;
-  --radius-2xl: 28px;
-  --radius-3xl: 37px;
-  --radius-full: 100px;
+  /* Radius — v2 canon from spec §5. Banned tokens documented below;
+   * do not re-introduce without a spec amendment. */
+  --radius-xs: 4px; /* segment-option inner */
+  --radius-sm: 8px; /* chips, small buttons */
+  --radius-md: 14px; /* default surfaces (Tailwind rounded-md). NOT 12px — was rebased in F1. */
+  --radius-lg: 20px; /* large panels */
+  --radius-full: 999px; /* pills, circles */
+  /* RETIRED — DO NOT REINTRODUCE. Banned per spec §5 (too soft for the
+   * v2 paper aesthetic). Use radius-lg (20px) for any surface that
+   * previously used xl/2xl. Bottom-sheet 24/28px lips stay hardcoded
+   * inline at the dialog site until they earn a `--radius-sheet` token. */
+  /* --radius-xl: 22px; */
+  /* --radius-2xl: 28px; */
+  /* --radius-3xl: 37px; */
 
+  /* Blur — Tailwind v4 generates `blur-*` AND `backdrop-blur-*` utilities
+   * from this namespace. Every consumer reads from a token, never a
+   * hardcoded px value. */
+  --blur-light: 2px; /* scrim (semi-transparent overlay behind a modal) */
+  --blur-medium: 12px; /* secondary overlays */
+  --blur-primary: 20px; /* popovers, drawers */
+  --blur-heavy: 24px; /* desktop floating organiser */
+
+  /* Shadows */
   --shadow-sm: 0 2px 8px rgba(11, 58, 26, 0.06);
   --shadow-md: 0 10px 30px rgba(11, 58, 26, 0.1);
   --shadow-lg: 0 24px 60px rgba(11, 58, 26, 0.14);
@@ -57,8 +117,22 @@
 }
 
 :root {
-  --base: #f6fbf4;
+  /* Mirror of @theme tokens for raw-CSS access (named @utility blocks +
+   * inline `var(--…)` references). Two declarations because Tailwind v4
+   * generates utilities from @theme but raw CSS reads from :root. */
+
+  /* Paper palette */
+  --paper: #fbf8f1;
+  --paper-deep: #f3eee2;
+  --paper-edge: #e8ddc6;
+
+  /* Aliases — match @theme. */
+  --card: var(--paper);
+  --base: var(--paper);
+
+  /* Green axis */
   --mint: #dff2e2;
+  --mint-2: #c7ecca;
   --lime: #86db65;
   --leaf: #32c456;
   --emerald: #14902f;
@@ -66,11 +140,22 @@
   --forest-2: #124626;
   --ink: #0a1d0e;
   --ink-soft: #4a6a51;
+  --ink-softer: #7a9081;
+
+  /* Accents */
   --coral: #ff6b3d;
   --coral-deep: #c4412a;
   --sunshine: #ffb83d;
   --sunshine-deep: #a56d12;
-  --card: #ffffff;
+
+  /* Weather axis */
+  --sky: #c7e3f5;
+  --sky-deep: #2c6a94;
+  --frost: #dfe7f5;
+  --frost-deep: #3a4a74;
+
+  /* Composite shadows — kept as :root vars because they read other tokens
+   * and are consumed via inline style / arbitrary class. */
   --shadow-fab: 0 0 0 4px var(--card), 0 10px 24px rgba(20, 144, 47, 0.4), 0 4px 10px rgba(11, 58, 26, 0.22);
   --shadow-dock: 0 12px 32px rgba(11, 58, 26, 0.14), 0 4px 12px rgba(11, 58, 26, 0.08);
   /* Primary CTA lift — emerald-tinted drop + a 1px white inset highlight
@@ -78,6 +163,8 @@
    * raise seen in the onboarding mockup. */
   --shadow-cta: 0 6px 16px rgba(20, 144, 47, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   --shadow-lime-cta: 0 4px 12px rgba(134, 219, 101, 0.3);
+
+  /* Gradients */
   --gradient-mint: linear-gradient(180deg, #f6fbf4 0%, #dff2e2 50%, #c7ecca 100%);
   --gradient-forest: linear-gradient(135deg, var(--forest), var(--forest-2));
   --gradient-brand: linear-gradient(135deg, var(--leaf), var(--emerald));
@@ -307,7 +394,10 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 /* Mobile: dialog docks to the bottom as a sheet. Bottom pad matches the
- * dock's pb-3 so the two chrome elements share breathing room. */
+ * dock's pb-3 so the two chrome elements share breathing room. Spec §5
+ * specifies a 28px top-lip for bottom-sheet drawers, but that's owned by
+ * the F10 Dialog shell ticket — F1 leaves the existing radius-md value
+ * in place to avoid mid-stream visual churn. */
 @media (max-width: 1023px) {
   .dialog-content {
     padding: 0;
