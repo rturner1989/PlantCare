@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-028 — F2 Canonical Segment primitive</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+  .ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+  .header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+  .header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+  .header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+  .badges { display: flex; gap: 8px; }
+  .badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+  .badge.status { background: #2d6a4f; color: #fff; }
+  .badge.priority-high { background: #e63946; color: #fff; }
+  section { padding: 28px 40px; border-top: 1px solid #eee; }
+  section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+  section > p { font-size: 15px; margin-bottom: 12px; }
+  ol, ul { padding-left: 20px; }
+  li { margin-bottom: 10px; font-size: 15px; }
+
+  .plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+  .plan-step { flex: 1; min-width: 80px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+  .plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+  .plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+  .plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+  .artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+  .artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+  .artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+  .artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+  .artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+  .artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+
+  .criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+  .criterion span { font-size: 15px; }
+
+  blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+  code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+
+  .learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+  .learn strong { color: #7a5a1a; }
+
+  .file-list { list-style: none; padding: 0; }
+  .file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+  .file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+  <div class="header">
+    <div class="id">TICKET-028 · v2 · F2</div>
+    <h1>Canonical Segment primitive — paper-deep track + warm-shadow active</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Re-skin <code>SegmentedControl.jsx</code> to match the v2 mockup recipe — paper-deep track, 3px padding/gap, paper-active option carrying <code>shadow-warm-sm</code>. Logic stays identical; this is purely the visual contract every consumer (House view toggle, Plant Detail tabs, Onboarding L/M/H, Log Care care-type) reads against.</p>
+    <p>In one sentence: <strong>retune the Segment look to match mockup recipe so every region's segment reads identically.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">020</span>Space rename</div>
+      <div class="plan-step done"><span class="num">021</span>Onboarding intent</div>
+      <div class="plan-step done"><span class="num">027</span>F1 tokens</div>
+      <div class="plan-step done"><span class="num">050</span>R14 toast</div>
+      <div class="plan-step done"><span class="num">051</span>R15 auth</div>
+      <div class="plan-step current"><span class="num">028</span>F2 Segment</div>
+      <div class="plan-step"><span class="num">032</span>F6 Slab</div>
+      <div class="plan-step"><span class="num">045</span>R9 onboarding</div>
+      <div class="plan-step">037–049 rest</div>
+    </div>
+
+    <p><strong>What came before.</strong> TICKET-027 (F1) shipped the v2 design tokens — paper palette, warm shadows, radius rebase. The current Segment uses pre-v2 mint/card classes that drift from the F1 set.</p>
+    <p><strong>What this unlocks.</strong> R9 Onboarding Step 4 (per-space L/T/H) needs Segment. R3 House view toggle (Spaces / List / Greenhouse) needs Segment. R4 Plant Detail top tabs (Care / Species / Journal) needs Segment. Drift here multiplies across regions.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind extend">extend</span>
+        <span class="name">client/src/components/form/SegmentedControl.jsx</span>
+        <div class="role">Visual reskin only. Track gets <code>bg-paper-deep p-[3px] gap-[3px]</code>. Active option pill becomes <code>bg-paper rounded-xs shadow-[var(--shadow-warm-sm)]</code>. Active text bumps to <code>font-bold text-forest</code>; inactive stays <code>text-ink-soft font-medium</code>. The motion sliding pill (Framer layoutId) and native radio semantics are untouched — keyboard arrow nav and form behaviour remain exactly as before.</div>
+      </div>
+    </div>
+    <p style="margin-top: 16px; font-size: 14px; color: #666;"><em>Out of scope:</em> Compound API, label-less variants, icon-only segments, vertical orientation. If those are needed later, they're separate tickets.</p>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li>Track surface uses <code>bg-paper-deep</code> with <code>3px</code> padding and gap, <code>rounded-md</code>.</li>
+      <li>Active option renders on a <code>bg-paper</code> pill with <code>shadow-warm-sm</code> + <code>rounded-xs</code>; the pill animates between positions when selection changes (existing Framer layoutId pattern).</li>
+      <li>Active option label is <code>text-forest font-bold</code>; inactive labels are <code>text-ink-soft font-medium</code>.</li>
+      <li>Disabled options keep their <code>opacity-50 cursor-not-allowed</code> treatment and stay non-clickable.</li>
+      <li>Existing keyboard navigation (left/right arrow walks through options via native radios) keeps working.</li>
+      <li>Existing ARIA contract (<code>role="radiogroup"</code> + radio inputs labelled by their visible text) is preserved.</li>
+      <li>Reduced-motion users get an instant pill swap, no spring animation.</li>
+      <li>Lint and tests pass.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Existing Segment consumers (Step 4 onboarding L/T/H pickers) render with the new paper-deep track + paper-active pill — no consumer code change required.</span></div>
+    <div class="criterion"><div class="box"></div><span>Clicking an inactive option animates the pill from the old position to the new one; reduced-motion users see an instant swap.</span></div>
+    <div class="criterion"><div class="box"></div><span>Tab-focusing a Segment and pressing left/right arrow walks selection between options.</span></div>
+    <div class="criterion"><div class="box"></div><span>DevTools accessibility tree: Segment is a <code>radiogroup</code> with one <code>radio</code> per option, the checked one matches the current value.</span></div>
+    <div class="criterion"><div class="box"></div><span>Disabled option (e.g. House Greenhouse) is visibly dimmed and ignores clicks.</span></div>
+    <div class="criterion"><div class="box"></div><span>Lint passes (<code>./scripts/lint.sh</code>).</span></div>
+    <div class="criterion"><div class="box"></div><span>Tests pass (<code>./scripts/run_tests.sh client</code>).</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+    <p>Mockups <strong>17, 19, 21, 22, 35</strong> all carry the canonical Segment recipe. The shape is identical across them — only the option labels change per region.</p>
+    <blockquote>
+      <strong>Spec §5 (design decisions):</strong> Segment = paper-deep track, paper-active-with-shadow-warm-sm. Used wherever a small set of options needs a single-pick toggle. FileTabs is its sibling for nested-folder UI; Segment is the default everywhere else.
+    </blockquote>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+    <div class="learn">
+      <strong>Framer Motion <code>layoutId</code> for shared element transitions.</strong> The active-option pill uses a shared <code>layoutId</code> so the pill smoothly animates from the previously-active option to the newly-active one when selection changes. Each Segment instance generates its own <code>layoutId</code> via <code>useId()</code> — without that, two Segments on the same page (Step 4 stacks three) would all share one pill and animate weirdly between unrelated controls.
+    </div>
+    <div class="learn">
+      <strong>Native radios in a <code>radiogroup</code> beat custom buttons.</strong> The component looks like a button toggle, but each option is a hidden native <code>&lt;input type="radio"&gt;</code> with a styled <code>&lt;label&gt;</code>. That gives you keyboard arrow navigation, form submission semantics, and screen-reader announcements for free — no custom keyboard handler needed. Custom button impls would need <code>aria-pressed</code> + <code>onKeyDown</code> roll-your-own keyboard nav. This is the cheaper, more correct primitive.
+    </div>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li><span>client/src/components/form/SegmentedControl.jsx</span><span class="action">extend</span></li>
+      <li><span>client/tests/components/form/SegmentedControl.test.jsx</span><span class="action">verify pass</span></li>
+    </ul>
+    <p style="margin-top: 12px; font-size: 13px; color: #666;"><em>This is a shape hint, not a spec. Follow your nose if a cleaner split appears.</em></p>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li><strong>Don't change the API.</strong> Existing call sites (Step 4 onboarding, future House/Plant Detail) keep working unchanged. Props stay <code>{ label, value, onChange, options, icon, className }</code>.</li>
+      <li><strong>Don't migrate to button-based ARIA.</strong> The radio-based impl is more semantic and cheaper to maintain than <code>aria-pressed</code> button toggles. Plan mentions <code>aria-pressed</code>; the radio-group implementation is the better answer.</li>
+      <li><strong>Pill <code>rounded-sm</code> → <code>rounded-xs</code>.</strong> The mockup pill is tighter than the track. <code>--radius-xs</code> (4px) lands the right inner-corner against the 14px track.</li>
+      <li><strong>Closing checklist:</strong> run <code>./scripts/lint.sh && ./scripts/run_tests.sh client</code>, commit on <code>ticket-028-segment-primitive</code>, then open a PR titled <code>chore(v2): F2 segment primitive (TICKET-028)</code>.</li>
+    </ul>
+  </section>
+</div>
+</body>
+</html>
