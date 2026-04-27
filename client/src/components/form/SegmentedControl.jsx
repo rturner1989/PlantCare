@@ -5,15 +5,15 @@ import { useId } from 'react'
 // Hidden radios inside labels — native arrow-key navigation + form semantics
 // for free. The active pill slides between positions via a shared layoutId.
 
-const TRACK = 'flex gap-1.5 mt-2 bg-mint p-1 rounded-md'
+const TRACK = 'flex gap-[3px] mt-2 bg-paper-deep p-[3px] rounded-md'
 const LABEL = 'flex items-center gap-1.5 text-xs font-bold text-ink-soft uppercase tracking-wider'
 const OPTION_BASE =
-  'relative flex-1 flex items-center justify-center py-2 rounded-sm text-xs font-bold capitalize transition-colors duration-200'
-const OPTION_ACTIVE = 'text-forest'
-const OPTION_INACTIVE = 'text-ink-soft'
+  'relative flex-1 flex items-center justify-center py-2 rounded-[11px] text-xs capitalize transition-colors duration-200'
+const OPTION_ACTIVE = 'text-forest font-bold'
+const OPTION_INACTIVE = 'text-ink-soft font-medium'
 const OPTION_ENABLED = 'cursor-pointer'
 const OPTION_DISABLED = 'cursor-not-allowed opacity-50'
-const PILL = 'absolute inset-0 bg-card rounded-sm shadow-sm'
+const PILL = 'absolute inset-0 bg-paper rounded-[11px] shadow-[var(--shadow-warm-sm)]'
 const SPRING = { type: 'spring', stiffness: 400, damping: 30 }
 
 function normalizeOption(option) {
