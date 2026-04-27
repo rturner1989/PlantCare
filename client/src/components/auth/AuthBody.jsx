@@ -14,7 +14,7 @@ export default function AuthBody({
   className = '',
 }) {
   return (
-    <main className="flex flex-col px-6 py-8 sm:py-12 lg:px-12 lg:py-16 min-h-dvh lg:min-h-0 lg:overflow-y-auto">
+    <main className="flex flex-col flex-1 px-6 py-8 sm:py-12 lg:px-12 lg:py-16 min-h-dvh lg:min-h-0 lg:overflow-y-auto">
       <Logo className="lg:hidden mb-10 self-start" />
 
       <div className="flex-1 flex items-center justify-center">
