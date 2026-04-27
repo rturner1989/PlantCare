@@ -15,9 +15,9 @@ import AuthLayout from './layouts/AuthLayout'
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Login = lazy(() => import('./pages/auth/Login'))
 const Register = lazy(() => import('./pages/auth/Register'))
-const Welcome = lazy(() => import('./pages/Welcome'))
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'))
+const Welcome = lazy(() => import('./pages/Welcome'))
 const Today = lazy(() => import('./pages/Today'))
 const House = lazy(() => import('./pages/House'))
 
@@ -87,6 +87,7 @@ export default function App() {
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/reset-password/:token" element={<ResetPassword />} />
                 </Route>
+
                 <Route
                   path="/welcome/:step?"
                   element={
