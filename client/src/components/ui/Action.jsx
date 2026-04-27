@@ -1,12 +1,16 @@
 import { Link } from 'react-router-dom'
 
-const BASE_ROUND = 'inline-flex items-center justify-center rounded-full transition-transform'
+// primary + secondary use rounded-md per Rob's app-wide preference (see
+// memory feedback_border_radius.md). fab stays rounded-full because it's
+// semantically a circle, not a rectangle with rounded corners.
+const BASE_BUTTON = 'inline-flex items-center justify-center rounded-md transition-transform'
+const BASE_FAB = 'inline-flex items-center justify-center rounded-full transition-transform'
 const SIZE_MD = 'gap-2 px-6 py-3 text-sm font-extrabold active:scale-[0.98]'
 
 const VARIANT_CLASSES = {
-  primary: `${BASE_ROUND} ${SIZE_MD} text-white bg-[image:var(--gradient-brand)] shadow-[var(--shadow-cta)]`,
-  secondary: `${BASE_ROUND} ${SIZE_MD} bg-mint text-emerald`,
-  fab: `${BASE_ROUND} w-[54px] h-[54px] text-white bg-[image:var(--gradient-brand)] shadow-[var(--shadow-fab)] active:scale-95`,
+  primary: `${BASE_BUTTON} ${SIZE_MD} text-white bg-[image:var(--gradient-brand)] shadow-[var(--shadow-cta)]`,
+  secondary: `${BASE_BUTTON} ${SIZE_MD} bg-mint text-emerald`,
+  fab: `${BASE_FAB} w-[54px] h-[54px] text-white bg-[image:var(--gradient-brand)] shadow-[var(--shadow-fab)] active:scale-95`,
   'cta-card':
     'block w-full p-4 rounded-lg text-white text-left bg-[image:var(--gradient-forest)] transition-transform active:scale-[0.99]',
   ghost: 'inline-flex items-center gap-1 text-ink-soft font-semibold hover:text-ink transition-colors',

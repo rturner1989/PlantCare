@@ -1,0 +1,48 @@
+import Logo from '../Logo'
+import Action from '../ui/Action'
+import Heading from '../ui/Heading'
+import AuthProviders from './body/AuthProviders'
+import AuthSwitch from './body/AuthSwitch'
+
+export default function AuthBody({
+  preheading,
+  heading,
+  subtitle,
+  children,
+  showProviders = true,
+  showSwitch = true,
+  className = '',
+}) {
+  return (
+    <main className="flex flex-col flex-1 px-6 py-8 sm:py-12 lg:px-12 lg:py-16 min-h-dvh lg:min-h-0 lg:overflow-y-auto">
+      <Logo className="lg:hidden mb-10 self-start" />
+
+      <div className="flex-1 flex items-center justify-center">
+        <div className={`w-full max-w-auth ${className}`}>
+          <div className="bg-paper rounded-lg shadow-warm-md p-7 sm:p-8 lg:bg-transparent lg:rounded-none lg:shadow-none lg:p-0">
+            {heading && (
+              <Heading variant="display" className="text-ink mb-5" preheading={preheading} subtitle={subtitle}>
+                {heading}
+              </Heading>
+            )}
+            {children}
+            {showProviders && <AuthProviders />}
+            {showSwitch && <AuthSwitch />}
+          </div>
+        </div>
+      </div>
+
+      <p className="hidden lg:block mt-auto text-[11px] text-ink-softer text-center pt-8">
+        By signing in you agree to our{' '}
+        <Action to="#" variant="unstyled" className="underline hover:text-emerald">
+          Terms
+        </Action>{' '}
+        &amp;{' '}
+        <Action to="#" variant="unstyled" className="underline hover:text-emerald">
+          Privacy
+        </Action>
+        .
+      </p>
+    </main>
+  )
+}

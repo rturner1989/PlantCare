@@ -198,7 +198,15 @@ Every cache in the app — server-side `Rails.cache`, client-side TanStack Query
 - **Be explicit with variable names.** No single-letter or ultra-short abbreviations (`s`, `x`, `fn`, `cfg`, `tmp`) — even in tiny helper functions. Use `schemeRecipe` not `s`, `handleSubmit` not `fn`, `roomCount` not `rc`. A reader should understand what a variable holds without scrolling up to the declaration.
 - **One-letter names are OK only for loop iterators** in short loops (`for (const [i, plant] of plants.entries())`). Even then, prefer the domain name (`plant`) over `item` or `el`.
 - **Destructuring names follow the same rule.** `const { scheme, variant } = props` beats `const { s, v } = props`.
+- **Tiny scope is not an exemption.** Short helper functions and lookup-result locals are exactly where lazy naming hides. `const variantStyles = VARIANTS[variant]` beats `const v = VARIANTS[variant]`. `const intentLabel = LABELS[intent]` beats `const l = LABELS[intent]`. Reader-time beats author-time.
 - **`...kwargs` is the project convention for rest parameters**, not `...rest`. See `feedback_kwargs_naming.md` if you need the reasoning.
+
+### CSS — no inline `style` for decorative CSS
+
+- **Reusable / decorative CSS goes in a Tailwind v4 `@utility` block** in `client/src/globals.css`, not in JSX `style={{...}}`. Match the existing pattern (`hero-glow-urgent`, `hero-image-fade`, `toast-progress`, `marketing-halo-sunshine`).
+- **`style={{...}}` is the escape hatch for genuinely dynamic values** that come from props/state and can't be enumerated — Framer Motion targets, computed transforms, per-instance CSS custom properties (`style={{ '--toast-duration': duration }}`). Don't use it for static gradients, shadows, decorative backgrounds, or named visual treatments.
+- **Naming convention:** kebab-case, scoped prefix where it helps (`marketing-halo-*`, `hero-image-*`, `toast-progress`).
+- If multiple consumers need the same gradient/shadow but different sizes or positions, the `@utility` owns the visual treatment only — size and position stay as Tailwind utilities at the call site.
 
 ### Components
 
@@ -216,6 +224,44 @@ Three buckets, chosen by the component's purpose — not its reusability:
 Components that are genuinely general-purpose (Action is used as both "form submit button" and "nav FAB") stay in `ui/`, not `form/`. When in doubt, ask: "would this make sense in an app that doesn't have forms?" Yes → `ui/`. No → `form/`.
 
 **Two-axis prop convention for primitives:** `variant` for the style/preset choice, `scheme` for the colour/palette choice. Keep the names consistent across components so a `variant="solid"` or `scheme="coral"` behaves predictably wherever you see it.
+
+**Slot patterns — props vs compound vs children.** When a component exposes places where consumers fill in content, pick the pattern by slot shape. Rails analog given for translation:
+
+| Slot shape | Pattern | Rails analog |
+|---|---|---|
+| Single, always paired with parent | Prop on parent (`<Heading subtitle="...">`) | `renders_one :subtitle` |
+| Multiple instances, variable count | Compound children (`<AuthMarketing><PeekPill>...</PeekPill></AuthMarketing>`) | `renders_many :pills` |
+| Default body / form / freeform | `children` prop | `content` |
+| Standalone with no inherent pairing | Independent primitive, not slotted | n/a |
+
+Why this split:
+- **Prop for single-paired slots** prevents drift. Caller can't insert between heading + subtitle or reorder them. The parent's template enforces position.
+- **Compound for multi-occurrence** keeps JSX inline natural. No `peekPills={[{id, emoji, content}, ...]}` array-of-objects + key boilerplate.
+- **Don't mix both** for the same slot. Two ways to do the same thing = bad API.
+
+**Sub-components live under their parent's folder.** When you extract a piece of a feature into its own file, group it in a subfolder named after the parent's role — not next to the parent at the top level of its module folder.
+
+```
+components/auth/
+├── AuthBody.jsx
+├── AuthMarketing.jsx
+├── body/                  ← bits owned by AuthBody
+│   ├── AuthCrossAuth.jsx
+│   ├── AuthSubtitle.jsx
+│   ├── DisplayEm.jsx
+│   └── SocialRow.jsx
+└── marketing/             ← bits owned by AuthMarketing
+    ├── PeekPill.jsx
+    └── SunshineEm.jsx
+```
+
+Rules:
+- **One sub-piece used only inside one parent** — keep inline as a function in the parent's file. No new file.
+- **Multiple sub-pieces, or a sub-piece that earns its own file** — extract to `parent/Sub.jsx`.
+- **Genuinely shared across multiple parents** — bubble up to the module root or `ui/` (e.g. `Heading` + `Preheading` cross both AuthBody and AuthMarketing → live in `components/ui/`).
+- File names keep their convention prefix (`AuthCrossAuth.jsx`, not `CrossAuth.jsx`) so React DevTools and grep stay precise. The folder is the namespace; the file/component name is the human-readable label.
+
+Mirrors `components/onboarding/` (the wizard step components live in their own subfolder). The pattern formalises the same idea inside any feature module.
 
 ### Client directory layout
 

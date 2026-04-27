@@ -89,7 +89,7 @@ describe('Action', () => {
   describe('styling', () => {
     it('applies variant classes by default', () => {
       render(<Action variant="primary">Hello</Action>)
-      expect(screen.getByRole('button')).toHaveClass('rounded-full')
+      expect(screen.getByRole('button')).toHaveClass('rounded-md')
     })
 
     it('merges user-provided className with variant classes', () => {

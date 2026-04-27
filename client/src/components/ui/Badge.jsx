@@ -1,4 +1,13 @@
-const BASE = 'inline-flex items-center justify-center gap-1 rounded-full font-extrabold text-[10px] px-2 py-0.5'
+const SIZES = {
+  sm: {
+    wrapper: 'text-[10px] px-2 py-0.5 gap-1 font-extrabold',
+    icon: '',
+  },
+  md: {
+    wrapper: 'text-xs pl-2 pr-3.5 py-2 gap-2.5 font-semibold',
+    icon: 'w-7 h-7 rounded-full inline-flex items-center justify-center text-sm flex-shrink-0',
+  },
+}
 
 const SCHEMES = {
   neutral: {
@@ -7,6 +16,8 @@ const SCHEMES = {
     outlineBorder: 'border-mint',
     quietText: 'text-ink',
     solidText: 'text-ink',
+    iconBg: 'bg-mint',
+    iconText: 'text-ink',
   },
   forest: {
     softBg: 'bg-forest/10',
@@ -14,6 +25,8 @@ const SCHEMES = {
     outlineBorder: 'border-forest/30',
     quietText: 'text-ink',
     solidText: 'text-lime',
+    iconBg: 'bg-forest',
+    iconText: 'text-lime',
   },
   leaf: {
     softBg: 'bg-leaf/10',
@@ -21,6 +34,8 @@ const SCHEMES = {
     outlineBorder: 'border-leaf',
     quietText: 'text-forest',
     solidText: 'text-card',
+    iconBg: 'bg-leaf',
+    iconText: 'text-card',
   },
   emerald: {
     softBg: 'bg-emerald/10',
@@ -28,6 +43,8 @@ const SCHEMES = {
     outlineBorder: 'border-emerald',
     quietText: 'text-emerald',
     solidText: 'text-card',
+    iconBg: 'bg-emerald',
+    iconText: 'text-card',
   },
   sunshine: {
     softBg: 'bg-sunshine/15',
@@ -35,6 +52,8 @@ const SCHEMES = {
     outlineBorder: 'border-sunshine',
     quietText: 'text-ink',
     solidText: 'text-ink',
+    iconBg: 'bg-sunshine',
+    iconText: 'text-ink',
   },
   coral: {
     softBg: 'bg-coral/10',
@@ -42,29 +61,61 @@ const SCHEMES = {
     outlineBorder: 'border-coral',
     quietText: 'text-coral-deep',
     solidText: 'text-card',
+    iconBg: 'bg-coral',
+    iconText: 'text-card',
+  },
+  // Glassmorphic — translucent paper over dark backdrops (auth marketing
+  // peek pills, future hero overlays).
+  glass: {
+    softBg: 'bg-paper/12 backdrop-blur-light',
+    solidBg: 'bg-paper/15 backdrop-blur-light',
+    outlineBorder: 'border-paper/30',
+    quietText: 'text-paper/88',
+    solidText: 'text-paper',
+    iconBg: 'bg-paper',
+    iconText: 'text-forest',
   },
 }
 
-function schemeClasses(variant, scheme) {
-  const schemeRecipe = SCHEMES[scheme] ?? SCHEMES.neutral
+function schemeClasses(variant, schemeRecipe) {
   switch (variant) {
     case 'solid':
       return `${schemeRecipe.solidBg} ${schemeRecipe.solidText}`
     case 'outline':
       return `border ${schemeRecipe.outlineBorder} ${schemeRecipe.quietText}`
-    default: // 'soft' and any unknown variant
+    default:
       return `${schemeRecipe.softBg} ${schemeRecipe.quietText}`
   }
 }
 
-export default function Badge({ scheme = 'neutral', variant = 'soft', className = '', children, ...kwargs }) {
+export default function Badge({
+  scheme = 'neutral',
+  variant = 'soft',
+  size = 'sm',
+  icon,
+  as: Tag = 'span',
+  className = '',
+  children,
+  ...kwargs
+}) {
   if (children == null || children === false || children === '') return null
 
-  const classes = [BASE, schemeClasses(variant, scheme), className].filter(Boolean).join(' ')
+  const sizeRecipe = SIZES[size] ?? SIZES.sm
+  const schemeRecipe = SCHEMES[scheme] ?? SCHEMES.neutral
+
+  const wrapperClasses = [
+    'inline-flex items-center w-fit rounded-full',
+    sizeRecipe.wrapper,
+    schemeClasses(variant, schemeRecipe),
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
-    <span className={classes} {...kwargs}>
+    <Tag className={wrapperClasses} {...kwargs}>
+      {icon && <span className={`${sizeRecipe.icon} ${schemeRecipe.iconBg} ${schemeRecipe.iconText}`}>{icon}</span>}
       {children}
-    </span>
+    </Tag>
   )
 }
