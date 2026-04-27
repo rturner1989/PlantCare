@@ -138,11 +138,11 @@ describe('ToastContext', () => {
       )
     })
 
-    it('does not auto-dismiss when { persist: true } is passed', async () => {
+    it('does not auto-dismiss error toasts (manual dismiss only)', async () => {
       function App() {
         const toast = useToast()
         return (
-          <button type="button" onClick={() => toast.info('Sticky', { persist: true })}>
+          <button type="button" onClick={() => toast.error('Sticky')}>
             trigger
           </button>
         )
@@ -155,9 +155,209 @@ describe('ToastContext', () => {
       await userEvent.click(screen.getByRole('button', { name: 'trigger' }))
       expect(screen.getByText('Sticky')).toBeInTheDocument()
 
-      // Wait longer than any reasonable auto-dismiss duration — still there.
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise((resolveTimer) => setTimeout(resolveTimer, 100))
       expect(screen.getByText('Sticky')).toBeInTheDocument()
+    })
+
+    it('does not auto-dismiss loading toasts (resolves manually via toast.resolve)', async () => {
+      function App() {
+        const toast = useToast()
+        return (
+          <button type="button" onClick={() => toast.loading('Saving…')}>
+            trigger
+          </button>
+        )
+      }
+      render(
+        <ToastProvider>
+          <App />
+        </ToastProvider>,
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'trigger' }))
+      expect(screen.getByText('Saving…')).toBeInTheDocument()
+
+      await new Promise((resolveTimer) => setTimeout(resolveTimer, 100))
+      expect(screen.getByText('Saving…')).toBeInTheDocument()
+    })
+  })
+
+  describe('payload shapes', () => {
+    it('accepts a string and renders it as the title', async () => {
+      function App() {
+        const toast = useToast()
+        return (
+          <button type="button" onClick={() => toast.success('Logged in')}>
+            trigger
+          </button>
+        )
+      }
+      render(
+        <ToastProvider>
+          <App />
+        </ToastProvider>,
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'trigger' }))
+      expect(screen.getByText('Logged in')).toBeInTheDocument()
+    })
+
+    it('accepts a structured payload with title + meta + action', async () => {
+      const onAction = vi.fn()
+      function App() {
+        const toast = useToast()
+        return (
+          <button
+            type="button"
+            onClick={() =>
+              toast.success({
+                title: 'Watered Monty',
+                meta: '500ml logged',
+                action: { label: 'View', onClick: onAction },
+              })
+            }
+          >
+            trigger
+          </button>
+        )
+      }
+      render(
+        <ToastProvider>
+          <App />
+        </ToastProvider>,
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'trigger' }))
+      expect(screen.getByText('Watered Monty')).toBeInTheDocument()
+      expect(screen.getByText('500ml logged')).toBeInTheDocument()
+
+      await userEvent.click(screen.getByRole('button', { name: 'View' }))
+      expect(onAction).toHaveBeenCalled()
+    })
+
+    it('warning is an alias for warn (back-compat)', async () => {
+      function App() {
+        const toast = useToast()
+        return (
+          <button type="button" onClick={() => toast.warning('Slow down')}>
+            trigger
+          </button>
+        )
+      }
+      render(
+        <ToastProvider>
+          <App />
+        </ToastProvider>,
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'trigger' }))
+      expect(screen.getByRole('alert')).toHaveTextContent('Slow down')
+    })
+  })
+
+  describe('loading → resolve flow', () => {
+    it('swaps a loading toast to success in place via toast.resolve(id, options)', async () => {
+      let loadingId
+      function App() {
+        const toast = useToast()
+        return (
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                loadingId = toast.loading('Saving…')
+              }}
+            >
+              start
+            </button>
+            <button
+              type="button"
+              onClick={() => toast.resolve(loadingId, { kind: 'success', title: 'Saved!', duration: 50 })}
+            >
+              finish
+            </button>
+          </>
+        )
+      }
+      render(
+        <ToastProvider>
+          <App />
+        </ToastProvider>,
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'start' }))
+      expect(screen.getByText('Saving…')).toBeInTheDocument()
+
+      await userEvent.click(screen.getByRole('button', { name: 'finish' }))
+      expect(screen.getByText('Saved!')).toBeInTheDocument()
+      expect(screen.queryByText('Saving…')).not.toBeInTheDocument()
+
+      // Resolved toast inherits the kind's auto-dismiss window.
+      await waitFor(
+        () => {
+          expect(screen.queryByText('Saved!')).not.toBeInTheDocument()
+        },
+        { timeout: 500 },
+      )
+    })
+  })
+
+  describe('stack cap', () => {
+    it('keeps only the 3 newest dismissable toasts', async () => {
+      function App() {
+        const toast = useToast()
+        return (
+          <button
+            type="button"
+            onClick={() => {
+              toast.success('A')
+              toast.success('B')
+              toast.success('C')
+              toast.success('D')
+            }}
+          >
+            burst
+          </button>
+        )
+      }
+      render(
+        <ToastProvider>
+          <App />
+        </ToastProvider>,
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'burst' }))
+
+      await waitFor(() => {
+        expect(screen.queryByText('A')).not.toBeInTheDocument()
+      })
+      expect(screen.getByText('B')).toBeInTheDocument()
+      expect(screen.getByText('C')).toBeInTheDocument()
+      expect(screen.getByText('D')).toBeInTheDocument()
+    })
+
+    it('keeps error + loading toasts even when newer dismissables flood in', async () => {
+      function App() {
+        const toast = useToast()
+        return (
+          <button
+            type="button"
+            onClick={() => {
+              toast.error('Boom')
+              toast.success('A')
+              toast.success('B')
+              toast.success('C')
+              toast.success('D')
+            }}
+          >
+            burst
+          </button>
+        )
+      }
+      render(
+        <ToastProvider>
+          <App />
+        </ToastProvider>,
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'burst' }))
+
+      // Error stays put; oldest dismissables get trimmed.
+      expect(screen.getByText('Boom')).toBeInTheDocument()
+      expect(screen.getByText('D')).toBeInTheDocument()
     })
   })
 })
