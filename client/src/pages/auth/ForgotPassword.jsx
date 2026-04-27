@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { apiPost } from '../api/client'
-import AuthCard from '../components/auth/AuthCard'
-import DisplayEm from '../components/auth/DisplayEm'
-import TextInput from '../components/form/TextInput'
-import Action from '../components/ui/Action'
-import { useFormSubmit } from '../hooks/useFormSubmit'
+import { apiPost } from '../../api/client'
+import AuthBody from '../../components/auth/AuthBody'
+import TextInput from '../../components/form/TextInput'
+import Action from '../../components/ui/Action'
+import Emphasis from '../../components/ui/Emphasis'
+import { useFormSubmit } from '../../hooks/useFormSubmit'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
@@ -18,11 +18,11 @@ export default function ForgotPassword() {
 
   if (sent) {
     return (
-      <AuthCard
+      <AuthBody
         preheading="Check your email"
         heading={
           <>
-            On its <DisplayEm>way</DisplayEm>
+            On its <Emphasis>way</Emphasis>
           </>
         }
         subtitle={
@@ -31,26 +31,26 @@ export default function ForgotPassword() {
             hour, one-time use.
           </>
         }
-        showSocial={false}
-        showCrossAuth={false}
+        showProviders={false}
+        showSwitch={false}
       >
         <Action to="/login" variant="secondary" className="w-full">
           Back to login
         </Action>
-      </AuthCard>
+      </AuthBody>
     )
   }
 
   return (
-    <AuthCard
+    <AuthBody
       preheading="Reset password"
       heading={
         <>
-          Forgot your <DisplayEm>password</DisplayEm>?
+          Forgot your <Emphasis>password</Emphasis>?
         </>
       }
       subtitle="Enter the email you signed up with. We'll send a reset link — valid for one hour, one-time use."
-      showSocial={false}
+      showProviders={false}
     >
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-3">
         <TextInput
@@ -67,6 +67,6 @@ export default function ForgotPassword() {
           {submitting ? 'Sending...' : 'Send reset link'}
         </Action>
       </form>
-    </AuthCard>
+    </AuthBody>
   )
 }

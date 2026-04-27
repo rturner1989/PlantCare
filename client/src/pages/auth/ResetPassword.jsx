@@ -1,13 +1,13 @@
 import { useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { apiPatch } from '../api/client'
-import AuthCard from '../components/auth/AuthCard'
-import DisplayEm from '../components/auth/DisplayEm'
-import PasswordStrengthBar from '../components/form/PasswordStrengthBar'
-import TextInput from '../components/form/TextInput'
-import Action from '../components/ui/Action'
-import { useToast } from '../context/ToastContext'
-import { useFormSubmit } from '../hooks/useFormSubmit'
+import { apiPatch } from '../../api/client'
+import AuthBody from '../../components/auth/AuthBody'
+import PasswordStrengthBar from '../../components/form/PasswordStrengthBar'
+import TextInput from '../../components/form/TextInput'
+import Action from '../../components/ui/Action'
+import Emphasis from '../../components/ui/Emphasis'
+import { useToast } from '../../context/ToastContext'
+import { useFormSubmit } from '../../hooks/useFormSubmit'
 
 export default function ResetPassword() {
   const { token } = useParams()
@@ -49,35 +49,35 @@ export default function ResetPassword() {
 
   if (expired) {
     return (
-      <AuthCard
+      <AuthBody
         preheading="Link expired"
         heading={
           <>
-            Link <DisplayEm>expired</DisplayEm>
+            Link <Emphasis>expired</Emphasis>
           </>
         }
         subtitle="This reset link has already been used or has expired. Request a fresh one and we'll send you another."
-        showSocial={false}
-        showCrossAuth={false}
+        showProviders={false}
+        showSwitch={false}
       >
         <Action to="/forgot-password" variant="primary" className="w-full">
           Request a new link
         </Action>
-      </AuthCard>
+      </AuthBody>
     )
   }
 
   return (
-    <AuthCard
+    <AuthBody
       preheading="New password"
       heading={
         <>
-          Choose a new <DisplayEm>password</DisplayEm>
+          Choose a new <Emphasis>password</Emphasis>
         </>
       }
       subtitle="Almost there. Pick something memorable but not guessable — 8+ characters, with a letter and a number."
-      showSocial={false}
-      showCrossAuth={false}
+      showProviders={false}
+      showSwitch={false}
     >
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-3">
         <div>
@@ -112,6 +112,6 @@ export default function ResetPassword() {
           {submitting ? 'Updating...' : 'Update password'}
         </Action>
       </form>
-    </AuthCard>
+    </AuthBody>
   )
 }

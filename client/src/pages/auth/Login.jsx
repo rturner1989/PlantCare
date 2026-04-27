@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import AuthCard from '../components/auth/AuthCard'
-import DisplayEm from '../components/auth/DisplayEm'
-import TextInput from '../components/form/TextInput'
-import Action from '../components/ui/Action'
-import { useAuth } from '../hooks/useAuth'
-import { useFormSubmit } from '../hooks/useFormSubmit'
+import AuthBody from '../../components/auth/AuthBody'
+import TextInput from '../../components/form/TextInput'
+import Action from '../../components/ui/Action'
+import Emphasis from '../../components/ui/Emphasis'
+import { useAuth } from '../../hooks/useAuth'
+import { useFormSubmit } from '../../hooks/useFormSubmit'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -26,11 +26,12 @@ export default function Login() {
   })
 
   return (
-    <AuthCard
+    <AuthBody
+      showProviders={false}
       preheading="Sign in"
       heading={
         <>
-          Welcome <DisplayEm>back</DisplayEm>
+          Welcome <Emphasis>back</Emphasis>
         </>
       }
       subtitle="Enter your email and password. Streak stays safe — we won't count you late for today."
@@ -67,6 +68,6 @@ export default function Login() {
           {submitting ? 'Logging in...' : 'Log in'}
         </Action>
       </form>
-    </AuthCard>
+    </AuthBody>
   )
 }

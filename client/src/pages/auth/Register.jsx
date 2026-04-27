@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import AuthCard from '../components/auth/AuthCard'
-import DisplayEm from '../components/auth/DisplayEm'
-import PasswordStrengthBar from '../components/form/PasswordStrengthBar'
-import TextInput from '../components/form/TextInput'
-import Action from '../components/ui/Action'
-import { useAuth } from '../hooks/useAuth'
-import { useFormSubmit } from '../hooks/useFormSubmit'
+import AuthBody from '../../components/auth/AuthBody'
+import PasswordStrengthBar from '../../components/form/PasswordStrengthBar'
+import TextInput from '../../components/form/TextInput'
+import Action from '../../components/ui/Action'
+import Emphasis from '../../components/ui/Emphasis'
+import { useAuth } from '../../hooks/useAuth'
+import { useFormSubmit } from '../../hooks/useFormSubmit'
 
 export default function Register() {
   const [name, setName] = useState('')
@@ -29,11 +29,12 @@ export default function Register() {
   })
 
   return (
-    <AuthCard
+    <AuthBody
+      showProviders={false}
       preheading="Join PlantCare"
       heading={
         <>
-          Adopt your <DisplayEm>first friend</DisplayEm>
+          Adopt your <Emphasis>first friend</Emphasis>
         </>
       }
       subtitle="Takes about a minute. Next you'll tell us why you're here — it shapes how PlantCare treats you."
@@ -96,6 +97,6 @@ export default function Register() {
           {submitting ? 'Creating account...' : 'Create account'}
         </Action>
       </form>
-    </AuthCard>
+    </AuthBody>
   )
 }
