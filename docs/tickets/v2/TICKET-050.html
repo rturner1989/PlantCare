@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-050 — Toast redesign (R14 slice)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #f5f5f0;
+    color: #1a1a1a;
+    padding: 40px;
+    line-height: 1.6;
+  }
+  .ticket {
+    max-width: 960px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+  .header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+  .header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+  .badges { display: flex; gap: 8px; }
+  .badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+  .badge.status { background: #2d6a4f; color: #fff; }
+  .badge.priority-high { background: #e63946; color: #fff; }
+  section { padding: 28px 40px; border-top: 1px solid #eee; }
+  section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+  section > p { font-size: 15px; margin-bottom: 12px; }
+  ol, ul { padding-left: 20px; }
+  li { margin-bottom: 10px; font-size: 15px; }
+
+  .plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+  .plan-step { flex: 1; min-width: 80px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+  .plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+  .plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+  .plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+  .artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+  .artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+  .artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+  .artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+  .artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+  .artifact .kind.component { background: #1a1a2e; }
+  .artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+  .artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+  .artifact .kind.style { background: #6a4a8f; }
+
+  .shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+
+  .criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+  .criterion span { font-size: 15px; }
+
+  .mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+  .mockup-preview iframe { width: 100%; height: 540px; border: none; background: #fff; }
+  .mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+  .mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+
+  blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+  code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+
+  .learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+  .learn strong { color: #7a5a1a; }
+
+  .rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+  .rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+  .rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+  .rails-map tr:last-child td { border-bottom: none; }
+  .rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+
+  .file-list { list-style: none; padding: 0; }
+  .file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+  .file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+  <div class="header">
+    <div class="id">TICKET-050 · v2 · R14 slice</div>
+    <h1>Toast redesign — glass vessel + bold chip + structured payload</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Replace the current TailwindUI-stock toast with the locked v2 design (mockup 31): a translucent glass vessel + bold gradient chip + structured title/meta/action payload. Adds two new kinds (<code>undo</code>, <code>loading</code>) and a resolve flow so loading toasts can transition into success/error in place. Existing call sites (<code>toast.success('msg')</code>) keep working — single-string remains valid.</p>
+    <p>In one sentence: <strong>repaint the toast to v2, give it title/meta/action slots, and let loading toasts swap in a result instead of stacking a second toast.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">020</span>Space rename</div>
+      <div class="plan-step done"><span class="num">021</span>Onboarding intent</div>
+      <div class="plan-step done"><span class="num">027</span>F1 tokens</div>
+      <div class="plan-step done"><span class="num">051</span>R15 auth</div>
+      <div class="plan-step current"><span class="num">050</span>Toast (R14 slice)</div>
+      <div class="plan-step"><span class="num">045</span>R9 onboarding</div>
+      <div class="plan-step"><span class="num">037</span>R1 nav</div>
+      <div class="plan-step"><span class="num">038</span>R2 Today</div>
+      <div class="plan-step">22–49 rest</div>
+    </div>
+
+    <p><strong>What came before.</strong> TICKET-027 (F1) shipped the v2 design tokens — paper palette, weather axis, warm shadows, blur tokens. TICKET-051 (R15) used them to repaint auth and exposed the gradient + glass vocabulary that the toast vessel depends on. The current toast component still uses pre-v2 styling (mint accents, top-right position, single-line message).</p>
+
+    <p><strong>What this unlocks.</strong> TICKET-045 (R9 onboarding wizard, next) emits multiple toasts — welcome on signup, validation errors, "Couldn't save" recoveries, "Hydrating species…" loading states. Landing R9 against the new shape avoids a retrofit. Future tickets that fire toasts from anywhere in the app (TICKET-038 Today actions, TICKET-047 Add Plant, TICKET-048 Edit/Log/Delete, TICKET-049 Plant Doctor) all benefit.</p>
+
+    <p><strong>Mental model:</strong> Rails has <code>flash[:notice]</code> as a single one-shot string-keyed message bag. We're upgrading our equivalent from "one string per type" to a structured payload (title + meta + action) and adding a "promise/resolve" pair so async ops can show a spinner toast then swap to success/error in place.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span>
+        <span class="name">client/src/components/ui/Toast.jsx</span>
+        <div class="role">Visual rebuild. Glass vessel (paper/72 + backdrop-blur + inset white highlight + warm shadow) wrapping a 36px gradient chip, title (with category-coloured <code>&lt;em&gt;</code> pickup), meta line, and optional action button. Loading variant swaps the chip for a paper-deep spinner ring. Six kinds: success / undo / error / warn / info / loading. Position moves from top-right to bottom-right (desktop) / bottom-inset-above-dock (mobile).</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span>
+        <span class="name">client/src/context/ToastContext.jsx</span>
+        <div class="role">Payload shape grows from <code>{ kind, message, duration, persist }</code> to <code>{ kind, title, meta, action, duration }</code>. Convenience methods (<code>toast.success</code>, etc.) accept either a single string (becomes the title) or a full options object. Adds <code>toast.undo</code> + <code>toast.loading</code>. Adds <code>toast.resolve(id, options)</code> for swapping a loading toast into its result. Stack capped at 3 visible — older non-error/non-loading toasts get FIFO-trimmed when a 4th arrives.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind extend">extend</span>
+        <span class="name">client/src/globals.css</span>
+        <div class="role">Five gradient tokens for the chip fills (<code>--gradient-toast-success</code>, <code>-error</code>, <code>-warn</code>, <code>-info</code>, <code>-undo</code>) and one shadow token (<code>--shadow-toast</code>) matching the notifications-drawer recipe. Replaces the existing <code>toast-progress</code> utility with the new chip-spin animation utility for the loading variant.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind extend">extend</span>
+        <span class="name">client/src/hooks/useFormSubmit.js</span>
+        <div class="role">Updates the auto-toast pattern (currently <code>toast.error(message)</code>) to pass <code>{ title, meta }</code> when the form has a useful sub-line — e.g. RateLimitError keeps "Slow down a second" as title and the cooldown hint as meta. Behaviour-equivalent for callers that pass a single string today.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind extend">extend</span>
+        <span class="name">client/tests/context/ToastContext.test.jsx + components/ui/Toast.test.jsx</span>
+        <div class="role">Update existing assertions for the new payload shape. Add tests: loading→resolve cycle keeps the same DOM node (no remount flash), stack trim drops oldest dismissable, error/loading exempt from auto-dismiss + trim, single-string call sites still work.</div>
+      </div>
+    </div>
+
+    <p style="margin-top: 16px; font-size: 14px; color: #666;"><em>Out of scope (deferred to follow-up tickets):</em> notifications drawer (TICKET-044 / R8), empty-state library (rest of R14), per-page error boundary improvements, Plant Doctor toast surfaces.</p>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li><strong>Glass vessel.</strong> Toast renders as a translucent paper card with backdrop-blur and an inset white highlight — the same recipe as the notifications drawer, scaled down. Sits cleanly on top of the mint-gradient app background without colour shift.</li>
+      <li><strong>Bold chip per kind.</strong> A 36px circle filled with a gradient unique to the kind (success emerald→leaf, error coral→coral-deep, warn sunshine→sunshine-deep, info sky→sky-deep, undo mint→leaf, loading paper-deep with spinner ring). Chip carries the icon/emoji; vessel is colour-neutral.</li>
+      <li><strong>Structured payload.</strong> Toasts have a bold title, optional Fraunces-italic meta line, and optional action button. Title can include a category-coloured <code>&lt;em&gt;</code> highlight (e.g. <em>Monty</em> watered).</li>
+      <li><strong>Six kinds.</strong> success / undo / error / warn / info / loading — callable as <code>toast.success(...)</code>, <code>toast.undo(...)</code>, etc.</li>
+      <li><strong>Loading→resolve flow.</strong> <code>toast.loading()</code> returns an id. Calling <code>toast.resolve(id, { kind: 'success', title: '…', meta: '…' })</code> swaps the chip + body in place, applies the resolved kind's auto-dismiss window, and never remounts the toast (no flash).</li>
+      <li><strong>Auto-dismiss windows.</strong> success 4s · warn 7s · info 5s · undo 6s · error manual · loading until resolved or dismissed. Reduced-motion users get the same windows minus the progress animation.</li>
+      <li><strong>Stack cap.</strong> Up to 3 toasts visible. When a 4th arrives, the oldest dismissable toast (not error, not loading) gets trimmed FIFO. Errors and loading toasts are sticky.</li>
+      <li><strong>Position.</strong> Bottom-right on desktop. Bottom-inset-above-dock on mobile (uses <code>safe-area-inset-bottom</code> + dock height to clear the dock).</li>
+      <li><strong>A11y.</strong> success/info/loading/undo render with <code>role="status"</code> + <code>aria-live="polite"</code>; error/warn render with <code>role="alert"</code> + <code>aria-live="assertive"</code>. Action and close buttons have aria-labels matching their visible text. Reduced-motion users get an opacity-only enter (no scale).</li>
+      <li><strong>Back-compat.</strong> Existing single-string call sites — <code>toast.success('Logged in')</code>, <code>toast.error('Network error')</code> — keep working unchanged. The string becomes the title; meta/action default to absent.</li>
+      <li><strong>Lint and tests pass.</strong></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Logging in fires a success toast in the bottom-right with the new glass vessel + emerald chip. Auto-dismisses after 4s.</span></div>
+    <div class="criterion"><div class="box"></div><span>Triggering a 422 on Register surfaces an error toast with no auto-dismiss timer. Manual close (✕) works.</span></div>
+    <div class="criterion"><div class="box"></div><span>From the React console: <code>useToast().loading({ title: 'Saving…' })</code> shows a spinner-chip toast that doesn't auto-dismiss. Calling <code>resolve(id, { kind: 'success', title: 'Saved' })</code> with the returned id swaps the chip + title in place — no re-enter animation.</span></div>
+    <div class="criterion"><div class="box"></div><span>Firing 5 toasts back-to-back (all dismissable) shows only the 3 newest at any time; older ones disappear FIFO.</span></div>
+    <div class="criterion"><div class="box"></div><span>Pinning an error toast then firing 5 more dismissable toasts keeps the error visible — only dismissables get trimmed.</span></div>
+    <div class="criterion"><div class="box"></div><span>On mobile (DevTools 390×844), toasts appear above the dock — not behind it, not flush against the bottom edge.</span></div>
+    <div class="criterion"><div class="box"></div><span>Title with <code>&lt;em&gt;</code> markup renders the em in the kind's category colour (success emerald, error coral-deep, etc.).</span></div>
+    <div class="criterion"><div class="box"></div><span>Existing call sites — Login success, password-reset rate-limit warning, registration validation error — keep working without code changes.</span></div>
+    <div class="criterion"><div class="box"></div><span>Screen reader (VoiceOver / built-in DevTools accessibility tree) announces error toasts as alerts and success toasts as status messages.</span></div>
+    <div class="criterion"><div class="box"></div><span>Lint passes (<code>./scripts/lint.sh</code>).</span></div>
+    <div class="criterion"><div class="box"></div><span>Tests pass (<code>./scripts/run_tests.sh client</code>).</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+
+    <div class="mockup-preview">
+      <div class="label">
+        <span>Mockup 31 — Toast (locked, direction C)</span>
+        <a href="../../mockups/plantcare-ui/v2/31-toast-v1.html" target="_blank">Open ↗</a>
+      </div>
+      <iframe src="../../mockups/plantcare-ui/v2/31-toast-v1.html" title="Mockup 31"></iframe>
+    </div>
+
+    <p style="margin-top: 12px;"><strong>What's in scope from the mockup:</strong> the glass vessel, the bold chip, the title-with-em + meta + action structure, the six kinds, the position over real app content. The "in context" stage at the bottom of the mockup shows the target end-state.</p>
+
+    <p style="margin-top: 8px;"><strong>What's out of scope (despite appearing in the mockup or related mockups):</strong> the notifications drawer (mockup 30 → TICKET-044), per-page empty states (rest of R14), error boundary chrome, Plant Doctor flag-it-up flows.</p>
+
+    <blockquote style="margin-top: 16px;">
+      <strong>Spec §3.1 (Portals with care):</strong> Dialog, Toast, LandscapeLock use <code>position: fixed</code> + z-index stacking. Design these primitives with a portable API — props-in, render-out — and swap internals per platform. <em>Implication for this ticket:</em> keep the public API (the <code>toast.x(...)</code> hook surface) free of DOM specifics so the same callers work if/when an RN port lands.
+    </blockquote>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+
+    <div class="learn">
+      <strong>AnimatePresence with stable keys.</strong> The toast container uses Framer Motion's <code>&lt;AnimatePresence&gt;</code> to animate enter/exit when items appear or leave a list. Each toast needs a stable, unique <code>key</code> (the id we allocate) so React + Framer can match incoming and outgoing children. The trick for the <em>resolve</em> flow: keep the same key when a loading toast becomes a success — that way the component instance is preserved (no exit + enter animation, no DOM remount). Different key = remount + re-animate.
+    </div>
+
+    <div class="learn">
+      <strong>Functional state updates for queues.</strong> Pushing to / trimming a list of toasts from inside a callback means the latest state matters, not the closed-over state. Use <code>setToasts(current =&gt; [...])</code> (the function form) rather than <code>setToasts([...toasts, new])</code>. Otherwise back-to-back fires will all read the same stale snapshot and overwrite each other. Equivalent of using <code>ActiveRecord::Base.transaction</code> + <code>reload!</code> instead of trusting a copy you grabbed before the write.
+    </div>
+
+    <div class="learn">
+      <strong>Refs vs state for id allocation.</strong> Each toast needs a unique id. <code>useState</code> would re-render every time you allocate one. <code>useRef</code> holds the counter without triggering renders. Same idea as a Rails class-level <code>@@counter</code> — keeps state across method calls without participating in the page's render cycle.
+    </div>
+
+    <div class="learn">
+      <strong>setTimeout cleanup in context providers.</strong> Auto-dismiss schedules a <code>setTimeout</code>. If the user manually dismisses or the toast gets trimmed first, the timer needs cancelling — otherwise it fires later and tries to remove a non-existent id (harmless, but wasteful, and can mask bugs). Track timers in a ref-keyed map and <code>clearTimeout</code> on every removal path, including unmount.
+    </div>
+
+    <div class="learn">
+      <strong>Tailwind v4 <code>@utility</code> blocks for non-utility CSS.</strong> The chip's spin animation, the gradient-text trick on the title <code>em</code>, and the warm-shadow recipe don't fit cleanly as Tailwind utilities. Add them as named <code>@utility</code> classes in <code>globals.css</code> (matching the <code>hero-glow-urgent</code> / <code>marketing-halo-sunshine</code> precedent) instead of inline <code>style={{}}</code> attributes. Inline-style is reserved for genuinely dynamic values (per-instance CSS custom properties like the auto-dismiss duration).
+    </div>
+
+    <div class="learn">
+      <strong>Polymorphic call signatures.</strong> The convenience methods take either a string or an options object: <code>toast.success('Saved')</code> and <code>toast.success({ title: 'Saved', meta: '500ml logged' })</code> both work. Detect with <code>typeof first === 'string'</code> and normalise to the options shape. This is the JS analogue of Rails' <code>flash[:notice] = 'string'</code> vs <code>flash.now[:notice] = '…'</code> — same call site, slightly different payload, library handles both.
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <table class="rails-map">
+      <thead>
+        <tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>flash[:notice] = 'Saved'</code></td>
+          <td><code>toast.success('Saved')</code></td>
+          <td>One-shot success message. Same vibe, plus we get richer payloads.</td>
+        </tr>
+        <tr>
+          <td><code>flash.now[:alert] = msg</code></td>
+          <td><code>toast.error({ title, meta })</code></td>
+          <td>No auto-dismiss = manual close, like flash.now stays only for the current render.</td>
+        </tr>
+        <tr>
+          <td><code>helper_method :toast_class_for(kind)</code></td>
+          <td>The <code>KIND_STYLES</code> lookup table in <code>Toast.jsx</code></td>
+          <td>Both centralise per-kind styling so consumers don't repeat themselves.</td>
+        </tr>
+        <tr>
+          <td><code>turbo_stream.replace 'toast_42', partial: 'success'</code></td>
+          <td><code>toast.resolve(id, { kind: 'success', … })</code></td>
+          <td>Replace-in-place. Both keep the same DOM element so any nearby animations don't re-fire.</td>
+        </tr>
+        <tr>
+          <td>An ApplicationHelper rendered into <code>application.html.erb</code></td>
+          <td><code>ToastProvider</code> mounted at the App root (already done)</td>
+          <td>Renders the toast container at the top level so any descendant can fire one.</td>
+        </tr>
+        <tr>
+          <td><code>after_destroy_commit { broadcast_remove }</code> for transient UI</td>
+          <td>Auto-dismiss <code>setTimeout</code> + cleanup on unmount</td>
+          <td>Time-bounded UI cleanup, framework-side.</td>
+        </tr>
+        <tr>
+          <td><code>config.action_mailer.delivery_method = :test</code></td>
+          <td>Vitest renders <code>ToastProvider</code> in tests; assertions read the rendered DOM</td>
+          <td>Both replace the live transport with an in-memory one for assertions.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li><span>client/src/components/ui/Toast.jsx</span><span class="action">rewrite</span></li>
+      <li><span>client/src/context/ToastContext.jsx</span><span class="action">rewrite</span></li>
+      <li><span>client/src/globals.css</span><span class="action">extend</span></li>
+      <li><span>client/src/hooks/useFormSubmit.js</span><span class="action">extend</span></li>
+      <li><span>client/tests/context/ToastContext.test.jsx</span><span class="action">extend</span></li>
+      <li><span>client/tests/components/ui/Toast.test.jsx</span><span class="action">extend</span></li>
+      <li><span>client/src/pages/auth/{Login,Register,ForgotPassword,ResetPassword}.jsx</span><span class="action">spot check</span></li>
+    </ul>
+    <p style="margin-top: 12px; font-size: 13px; color: #666;"><em>This is a shape hint, not a spec. If you find a cleaner split during implementation — say, lifting the chip into its own primitive at <code>components/ui/ToastChip.jsx</code> if it gets reused by the notifications drawer later — follow your nose.</em></p>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li><strong>Don't touch the notifications drawer.</strong> The drawer is TICKET-044 (R8). Mockup 30 + the "in context" stage of mockup 31 hint at it, but it has its own design surface, its own mark-as-read flow, and its own state lifecycle. This ticket only ships the floating toast.</li>
+      <li><strong>Don't bake content sourcing into the toast.</strong> Some Plant Doctor / Tips messages may want richer markup later (links, inline icons). For now the title/meta/action shape is the contract — extending it is a future ticket's call.</li>
+      <li><strong>Watch the back-compat surface.</strong> Every existing call site — including in tests — passes a string today. The polymorphic signature has to keep that working. If a test was depending on the old <code>{ message }</code> shape internally, normalise it; don't rewrite the call sites.</li>
+      <li><strong>Reduced-motion users still get the visual.</strong> No motion ≠ no toast. They get an instant fade-in/fade-out (no scale, no progress bar) but the same dismiss windows.</li>
+      <li><strong>Mobile dock clearance.</strong> The dock is fixed at the bottom on mobile. Toasts position above it via <code>bottom: calc(env(safe-area-inset-bottom) + dock-height + gap)</code>. If you change the dock height in TICKET-037 (R1 nav), this expression has to follow — track it via a CSS custom property if it starts drifting.</li>
+      <li><strong>Closing checklist.</strong> When you're done: run <code>./scripts/lint.sh && ./scripts/run_tests.sh client</code>, commit on <code>ticket-050-toast-redesign</code>, then open a PR titled <code>feat(v2): toast redesign (TICKET-050)</code>.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>

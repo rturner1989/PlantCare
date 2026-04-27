@@ -14,11 +14,10 @@ export default function AuthBody({
   className = '',
 }) {
   return (
-    <main className="flex flex-col flex-1 px-6 py-8 sm:py-12 lg:px-12 lg:py-16 min-h-dvh lg:min-h-0 lg:overflow-y-auto">
-      <Logo className="lg:hidden mb-10 self-start" />
-
+    <main className="flex flex-col flex-1 px-6 pt-[calc(env(safe-area-inset-top)+3rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)] sm:pt-12 sm:pb-12 lg:px-12 lg:pt-16 lg:pb-16 min-h-dvh lg:min-h-0 lg:overflow-y-auto">
       <div className="flex-1 flex items-center justify-center">
-        <div className={`w-full max-w-auth ${className}`}>
+        <div className={`w-full max-w-auth mx-auto ${className}`}>
+          <Logo className="lg:hidden mb-10 mx-auto" />
           <div className="bg-paper rounded-lg shadow-warm-md p-7 sm:p-8 lg:bg-transparent lg:rounded-none lg:shadow-none lg:p-0">
             {heading && (
               <Heading variant="display" className="text-ink mb-5" preheading={preheading} subtitle={subtitle}>

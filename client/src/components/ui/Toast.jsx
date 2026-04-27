@@ -1,84 +1,128 @@
-import {
-  faCheck,
-  faCircleExclamation,
-  faCircleInfo,
-  faTriangleExclamation,
-  faXmark,
-} from '@fortawesome/free-solid-svg-icons'
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import Action from './Action'
 
-// Consumers use useToast() from ToastContext — Toast is rendered by
-// ToastContainer below. Error toasts use role="alert" + aria-live="assertive"
-// so screen readers interrupt; other kinds use polite status.
-const BASE =
-  'relative overflow-hidden flex items-start gap-3 pl-5 pr-4 py-4 bg-card rounded-xs shadow-[var(--shadow-md)] w-full sm:w-auto sm:min-w-[280px] sm:max-w-[360px] before:content-[""] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1.5'
-
 const KIND_STYLES = {
   success: {
-    accent: 'before:bg-emerald',
-    progress: 'bg-emerald',
-    iconBg: 'bg-emerald/15',
-    icon: faCheck,
-    iconColor: 'text-emerald',
+    chipBg: 'bg-[image:var(--gradient-toast-success)]',
+    chipText: 'text-paper',
+    glyph: '✓',
+    emColor: 'var(--emerald)',
     role: 'status',
     ariaLive: 'polite',
   },
   error: {
-    accent: 'before:bg-coral',
-    progress: 'bg-coral',
-    iconBg: 'bg-coral/15',
-    icon: faCircleExclamation,
-    iconColor: 'text-coral-deep',
+    chipBg: 'bg-[image:var(--gradient-toast-error)]',
+    chipText: 'text-paper',
+    glyph: '!',
+    emColor: 'var(--coral-deep)',
     role: 'alert',
     ariaLive: 'assertive',
   },
-  warning: {
-    accent: 'before:bg-sunshine',
-    progress: 'bg-sunshine',
-    iconBg: 'bg-sunshine/15',
-    icon: faTriangleExclamation,
-    iconColor: 'text-sunshine',
+  warn: {
+    chipBg: 'bg-[image:var(--gradient-toast-warn)]',
+    chipText: 'text-paper',
+    glyph: '⏱',
+    emColor: 'var(--sunshine-deep)',
+    role: 'alert',
+    ariaLive: 'assertive',
+  },
+  info: {
+    chipBg: 'bg-[image:var(--gradient-toast-info)]',
+    chipText: 'text-paper',
+    glyph: 'i',
+    emColor: 'var(--sky-deep)',
     role: 'status',
     ariaLive: 'polite',
   },
-  info: {
-    accent: 'before:bg-forest',
-    progress: 'bg-forest',
-    iconBg: 'bg-forest/15',
-    icon: faCircleInfo,
-    iconColor: 'text-forest',
+  undo: {
+    chipBg: 'bg-[image:var(--gradient-toast-undo)]',
+    chipText: 'text-forest',
+    glyph: '↩',
+    emColor: 'var(--forest)',
+    role: 'status',
+    ariaLive: 'polite',
+  },
+  loading: {
+    chipBg: 'bg-paper-deep',
+    chipText: 'text-ink-soft',
+    glyph: null,
+    emColor: 'var(--emerald)',
     role: 'status',
     ariaLive: 'polite',
   },
 }
 
-function Toast({ id, kind, message, duration, onDismiss }) {
-  const styles = KIND_STYLES[kind] ?? KIND_STYLES.info
-  const showProgress = duration > 0
+const CHIP_SHADOW =
+  'shadow-[0_6px_14px_-4px_rgba(11,58,26,0.3),inset_0_1px_0_rgba(255,255,255,0.3),inset_0_0_0_1px_rgba(11,58,26,0.08)]'
+
+function Chip({ kind, styles }) {
+  if (kind === 'loading') {
+    return (
+      <div className={`relative w-9 h-9 rounded-full flex-shrink-0 ${styles.chipBg}`} aria-hidden="true">
+        <div className="absolute inset-[7px] rounded-full border-[2.5px] border-ink/15 border-t-emerald toast-chip-spin" />
+      </div>
+    )
+  }
 
   return (
-    <div role={styles.role} aria-live={styles.ariaLive} className={`${BASE} ${styles.accent}`}>
-      <div className={`w-8 h-8 rounded-full ${styles.iconBg} flex items-center justify-center shrink-0`}>
-        <FontAwesomeIcon icon={styles.icon} className={`${styles.iconColor} w-4 h-4`} />
-      </div>
-      <div className="flex-1 text-sm font-semibold text-ink pt-1.5">{message}</div>
-      <Action
-        variant="unstyled"
-        onClick={() => onDismiss(id)}
-        aria-label="Dismiss"
-        className="text-ink-soft hover:text-ink transition-colors p-0 pt-1.5"
-      >
-        <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
-      </Action>
+    <div
+      className={`toast-chip-highlight w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-base font-extrabold ${CHIP_SHADOW} ${styles.chipBg} ${styles.chipText}`}
+      aria-hidden="true"
+    >
+      <span className="relative z-10">{styles.glyph}</span>
+    </div>
+  )
+}
 
-      {showProgress && (
-        <div
-          aria-hidden="true"
-          className={`absolute bottom-0 left-0 w-full h-1 ${styles.progress} toast-progress`}
-          style={{ '--toast-duration': `${duration}ms` }}
-        />
+function Toast({ id, kind, title, meta, action, onDismiss, styles }) {
+  const dismissable = kind !== 'loading'
+  const isUndo = kind === 'undo'
+
+  return (
+    <div
+      role={styles.role}
+      aria-live={styles.ariaLive}
+      className="toast-vessel flex items-center gap-3 pl-2.5 pr-3.5 py-2.5 rounded-md w-full sm:w-[360px] text-[13px] text-ink"
+      style={{ '--toast-em-color': styles.emColor }}
+    >
+      <Chip kind={kind} styles={styles} />
+
+      <div className="flex-1 min-w-0 pr-1">
+        <div className="font-extrabold leading-tight">{title}</div>
+        {meta && <div className="font-display italic text-[12px] text-ink-soft mt-0.5">{meta}</div>}
+      </div>
+
+      {action &&
+        (isUndo ? (
+          <Action
+            variant="unstyled"
+            onClick={action.onClick}
+            className="px-3 py-1.5 rounded-full text-[12px] font-extrabold flex-shrink-0 bg-mint hover:bg-mint-2 text-forest transition-colors"
+          >
+            {action.label}
+          </Action>
+        ) : (
+          <Action
+            variant="unstyled"
+            onClick={action.onClick}
+            className="px-3 py-1.5 rounded-full text-[12px] font-extrabold flex-shrink-0 bg-ink/5 hover:bg-ink/10 transition-colors"
+            style={{ color: styles.emColor }}
+          >
+            {action.label}
+          </Action>
+        ))}
+
+      {dismissable && (
+        <Action
+          variant="unstyled"
+          onClick={() => onDismiss(id)}
+          aria-label="Dismiss"
+          className="w-6 h-6 rounded-full bg-ink/5 hover:bg-ink/10 text-ink-softer hover:text-ink flex items-center justify-center text-[11px] flex-shrink-0 transition-colors p-0"
+        >
+          <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
+        </Action>
       )}
     </div>
   )
@@ -95,26 +139,31 @@ export default function ToastContainer({ toasts, onDismiss }) {
         transition: { duration: 0.15 },
       }
     : {
-        initial: { opacity: 0, scale: 0.92 },
-        animate: { opacity: 1, scale: 1 },
-        exit: { opacity: 0, scale: 1.08 },
-        transition: { duration: 0.25, ease: 'easeOut' },
+        initial: { opacity: 0, x: 60 },
+        animate: { opacity: 1, x: 0, y: 0 },
+        exit: { opacity: 0, y: 24 },
+        transition: { duration: 0.28, ease: 'easeOut' },
       }
 
   return (
-    <div className="fixed top-[max(1rem,calc(env(safe-area-inset-top)+0.5rem))] right-4 left-4 sm:left-auto z-50 flex flex-col gap-3 sm:items-end pointer-events-none">
+    <div className="fixed left-4 right-4 sm:left-auto z-50 flex flex-col gap-2.5 sm:items-end pointer-events-none top-[max(1rem,calc(env(safe-area-inset-top)+0.5rem))] sm:top-auto sm:bottom-[max(1rem,calc(env(safe-area-inset-bottom)+1rem))]">
       <AnimatePresence>
-        {toasts.map((toastItem) => (
-          <motion.div key={toastItem.id} layout className="pointer-events-auto" {...motionProps}>
-            <Toast
-              id={toastItem.id}
-              kind={toastItem.kind}
-              message={toastItem.message}
-              duration={toastItem.duration}
-              onDismiss={onDismiss}
-            />
-          </motion.div>
-        ))}
+        {toasts.map((toastItem) => {
+          const styles = KIND_STYLES[toastItem.kind] ?? KIND_STYLES.info
+          return (
+            <motion.div key={toastItem.id} layout className="pointer-events-auto w-full sm:w-[360px]" {...motionProps}>
+              <Toast
+                id={toastItem.id}
+                kind={toastItem.kind}
+                title={toastItem.title}
+                meta={toastItem.meta}
+                action={toastItem.action}
+                onDismiss={onDismiss}
+                styles={styles}
+              />
+            </motion.div>
+          )
+        })}
       </AnimatePresence>
     </div>
   )
