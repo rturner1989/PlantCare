@@ -27,47 +27,51 @@ class PlantTest < ActiveSupport::TestCase
   end
 
   test 'schedule uses species base frequency for average conditions' do
-    plant = @space.plants.create!(
-      nickname: 'Average Plant',
-      species: @species,
-      light_level: 'medium',
-      temperature_level: 'average',
-      humidity_level: 'average'
-    )
+    @space.update!(light_level: 'medium', temperature_level: 'average', humidity_level: 'average')
+    plant = @space.plants.create!(nickname: 'Average Plant', species: @species)
 
     assert_equal @species.watering_frequency_days, plant.calculated_watering_days
     assert_equal @species.feeding_frequency_days, plant.calculated_feeding_days
   end
 
-  test 'bright and warm reduces watering interval' do
-    plant = @space.plants.create!(
-      nickname: 'Sunny Plant',
-      species: @species,
-      light_level: 'bright',
-      temperature_level: 'warm',
-      humidity_level: 'average'
-    )
+  test 'bright and warm space reduces watering interval' do
+    @space.update!(light_level: 'bright', temperature_level: 'warm', humidity_level: 'average')
+    plant = @space.plants.create!(nickname: 'Sunny Plant', species: @species)
 
     assert plant.calculated_watering_days < @species.watering_frequency_days
   end
 
-  test 'low light and cool increases watering interval' do
-    plant = @space.plants.create!(
-      nickname: 'Shady Plant',
-      species: @species,
-      light_level: 'low',
-      temperature_level: 'cool',
-      humidity_level: 'average'
-    )
+  test 'low light and cool space increases watering interval' do
+    @space.update!(light_level: 'low', temperature_level: 'cool', humidity_level: 'average')
+    plant = @space.plants.create!(nickname: 'Shady Plant', species: @species)
 
     assert plant.calculated_watering_days > @species.watering_frequency_days
   end
 
-  test 'recalculates schedule when environment changes' do
-    plant = @space.plants.create!(nickname: 'Test Plant', species: @species, light_level: 'medium')
+  test 'recalculates schedule when its space env changes' do
+    @space.update!(light_level: 'medium', temperature_level: 'average', humidity_level: 'average')
+    plant = @space.plants.create!(nickname: 'Test Plant', species: @species)
     original_days = plant.calculated_watering_days
 
-    plant.update!(light_level: 'bright', temperature_level: 'warm')
+    @space.update!(light_level: 'bright', temperature_level: 'warm')
+
+    assert_not_equal original_days, plant.reload.calculated_watering_days
+  end
+
+  test 'recalculates schedule when plant moves to a different space' do
+    @space.update!(light_level: 'medium', temperature_level: 'average', humidity_level: 'average')
+    other_space = current_user.spaces.create!(
+      name: 'Sunroom',
+      category: 'indoor',
+      light_level: 'bright',
+      temperature_level: 'warm',
+      humidity_level: 'dry'
+    )
+
+    plant = @space.plants.create!(nickname: 'Mover', species: @species)
+    original_days = plant.calculated_watering_days
+
+    plant.update!(space: other_space)
 
     assert_not_equal original_days, plant.calculated_watering_days
   end
@@ -124,14 +128,13 @@ class PlantTest < ActiveSupport::TestCase
 
   test 'never calculates less than 1 day' do
     fast_species = Species.create!(common_name: 'Fast Fern', watering_frequency_days: 2, personality: 'needy')
-    plant = @space.plants.create!(
-      nickname: 'Fast Plant',
-      species: fast_species,
-      light_level: 'bright',
-      temperature_level: 'warm',
-      humidity_level: 'dry'
-    )
+    @space.update!(light_level: 'bright', temperature_level: 'warm', humidity_level: 'dry')
+    plant = @space.plants.create!(nickname: 'Fast Plant', species: fast_species)
 
     assert plant.calculated_watering_days >= 1
+  end
+
+  private def current_user
+    @space.user
   end
 end

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import Card, { CardBody, CardFooter, CardHeader } from '../../../src/components/ui/Card'
+import Card from '../../../src/components/ui/Card'
 
 describe('Card', () => {
   it('renders children inside a bordered container', () => {
@@ -41,49 +41,49 @@ describe('Card', () => {
   })
 })
 
-describe('CardHeader', () => {
+describe('Card.Header', () => {
   it('renders children with a bottom border divider by default', () => {
-    const { container } = render(<CardHeader>Title</CardHeader>)
+    const { container } = render(<Card.Header>Title</Card.Header>)
     expect(screen.getByText('Title')).toBeInTheDocument()
     expect(container.firstChild).toHaveClass('border-b')
     expect(container.firstChild).toHaveClass('border-mint')
   })
 
   it('drops the divider when divider={false}', () => {
-    const { container } = render(<CardHeader divider={false}>Title</CardHeader>)
+    const { container } = render(<Card.Header divider={false}>Title</Card.Header>)
     expect(container.firstChild).not.toHaveClass('border-b')
     expect(container.firstChild).not.toHaveClass('border-mint')
   })
 
   it('merges a user-provided className', () => {
-    const { container } = render(<CardHeader className="text-center">Title</CardHeader>)
+    const { container } = render(<Card.Header className="text-center">Title</Card.Header>)
     expect(container.firstChild).toHaveClass('text-center')
   })
 })
 
-describe('CardBody', () => {
-  it('renders children with body padding', () => {
-    const { container } = render(<CardBody>Content</CardBody>)
+describe('Card.Body', () => {
+  it('renders children as the scrollable region', () => {
+    const { container } = render(<Card.Body>Content</Card.Body>)
     expect(screen.getByText('Content')).toBeInTheDocument()
-    expect(container.firstChild).toHaveClass('p-6')
+    expect(container.firstChild).toHaveClass('overflow-y-auto')
   })
 
   it('merges a user-provided className (e.g. space-y-4 for field stacks)', () => {
-    const { container } = render(<CardBody className="space-y-4">Content</CardBody>)
+    const { container } = render(<Card.Body className="space-y-4">Content</Card.Body>)
     expect(container.firstChild).toHaveClass('space-y-4')
   })
 })
 
-describe('CardFooter', () => {
+describe('Card.Footer', () => {
   it('renders children with a top border divider by default', () => {
-    const { container } = render(<CardFooter>Actions</CardFooter>)
+    const { container } = render(<Card.Footer>Actions</Card.Footer>)
     expect(screen.getByText('Actions')).toBeInTheDocument()
     expect(container.firstChild).toHaveClass('border-t')
     expect(container.firstChild).toHaveClass('border-mint')
   })
 
   it('drops the divider when divider={false}', () => {
-    const { container } = render(<CardFooter divider={false}>Actions</CardFooter>)
+    const { container } = render(<Card.Footer divider={false}>Actions</Card.Footer>)
     expect(container.firstChild).not.toHaveClass('border-t')
     expect(container.firstChild).not.toHaveClass('border-mint')
   })
@@ -93,9 +93,9 @@ describe('Card compound usage', () => {
   it('renders Header + Body + Footer together in order', () => {
     render(
       <Card>
-        <CardHeader>Log in</CardHeader>
-        <CardBody>Form fields</CardBody>
-        <CardFooter>Submit button</CardFooter>
+        <Card.Header>Log in</Card.Header>
+        <Card.Body>Form fields</Card.Body>
+        <Card.Footer>Submit button</Card.Footer>
       </Card>,
     )
     expect(screen.getByText('Log in')).toBeInTheDocument()
@@ -106,7 +106,7 @@ describe('Card compound usage', () => {
   it('works with only Body (no header or footer)', () => {
     render(
       <Card>
-        <CardBody>Just content</CardBody>
+        <Card.Body>Just content</Card.Body>
       </Card>,
     )
     expect(screen.getByText('Just content')).toBeInTheDocument()

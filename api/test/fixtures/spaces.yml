@@ -2,18 +2,24 @@
 #
 # Table name: spaces
 #
-#  id           :bigint           not null, primary key
-#  icon         :string
-#  name         :string           not null
-#  plants_count :integer          default(0), not null
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  user_id      :bigint           not null
+#  id                :bigint           not null, primary key
+#  archived_at       :datetime
+#  category          :string           default("indoor"), not null
+#  humidity_level    :string           default("average"), not null
+#  icon              :string
+#  light_level       :string           default("medium"), not null
+#  name              :string           not null
+#  plants_count      :integer          default(0), not null
+#  temperature_level :string           default("average"), not null
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  user_id           :bigint           not null
 #
 # Indexes
 #
-#  index_spaces_on_user_id                 (user_id)
-#  index_spaces_on_user_id_and_lower_name  (user_id, lower((name)::text)) UNIQUE
+#  index_spaces_on_user_id                  (user_id)
+#  index_spaces_on_user_id_and_archived_at  (user_id,archived_at)
+#  index_spaces_on_user_id_and_lower_name   (user_id, lower((name)::text)) UNIQUE
 #
 # Foreign Keys
 #
@@ -23,13 +29,16 @@ living_room:
   user: john
   name: Living Room
   icon: couch
+  category: indoor
 
 bedroom:
   user: john
   name: Bedroom
   icon: bed
+  category: indoor
 
 janes_kitchen:
   user: jane
   name: Kitchen
   icon: kitchen
+  category: indoor

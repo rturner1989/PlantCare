@@ -106,6 +106,8 @@ docker compose up                   # Start everything
 
 **Phase 3** — weather-adjusted care, home automation (soil probes), LLM-generated personality messages, **dollhouse view** (interactive 3D isometric house with Three.js, plant speech bubbles per room)
 
+**Auto-layout / best-space-for-plant suggestions** (post-R9 follow-up) — per-space environment (`Space.light_level` / `temperature_level` / `humidity_level`, owned per-space since R9) gives a clean species-vs-space comparison: score each space against the species' suggested levels, default-pick the best fit when adding a plant, surface "consider moving to {space}" hints in Plant Doctor, eventually offer a one-shot "auto-layout" pass that proposes optimal plant→space assignments. Hold until R9 baseline ships.
+
 The dollhouse view is the standout product feature — keep data model decisions compatible with it.
 
 ## Project Documentation
@@ -193,6 +195,26 @@ Every cache in the app — server-side `Rails.cache`, client-side TanStack Query
 - **One key per consumer.** If two controllers return popular species, both read `species:popular:v1`. The writer doesn't own the namespace — the resource does.
 - **Bump, don't chain.** Schema change → `:v2`, old entries expire naturally. Never `species:popular:v1:new`.
 
+### Mutation cache pattern (TanStack Query)
+
+`invalidateQueries` is the **default**. `setQueriesData` is a **targeted optimization** for specific scenarios — never reach for it without one of the criteria below.
+
+**Use `invalidateQueries` when:**
+
+- The mutation has cascading server effects on *other* queries (counter caches, computed fields, related records). The response only carries the directly-mutated record, so the cache for the cascade has to be refetched anyway. Most of our mutations land here.
+- An active subscriber will be on screen when the mutation finishes (typical for "edit in place" flows). The refetch fires through the subscriber and the screen updates live.
+- The mutation response is `204 No Content` (delete). There's nothing to patch with — invalidate is mandatory.
+
+**Upgrade to `setQueriesData` (often combined with selective invalidate) when ALL of these hold:**
+
+- The mutation response IS the canonical record for the cache shape (server returns the full updated row, not a partial).
+- The flow is **submit → unmount → remount** so there's no active subscriber to drive a refetch in time. The next reader gets stale cache before refetch completes — this is the race that justifies the upgrade.
+- Any cascading effects on *other* queries can be covered by selective `invalidateQueries` calls layered on top of the patch.
+
+**Worked example — TICKET-045 Step 4:** `useUpdateSpace` patches every cached `['spaces', *]` list with the mutation response (canonical Space row), then `invalidateQueries(['plants'])` because the server reschedules every plant in the space and those records aren't in the response. On Back nav from Step 5, Step 4 remounts and `useState`'s initializer reads the just-patched cache instead of stale values waiting on a refetch.
+
+**Don't apply this pattern speculatively.** Audit shows most of our hooks (plant CRUD, care logs, photos, archive/unarchive, profile) correctly use plain invalidate because they either have wide cascades or stay subscribed during the mutation. Upgrade only when you can name the specific race or perf cost.
+
 ### Naming
 
 - **Be explicit with variable names.** No single-letter or ultra-short abbreviations (`s`, `x`, `fn`, `cfg`, `tmp`) — even in tiny helper functions. Use `schemeRecipe` not `s`, `handleSubmit` not `fn`, `roomCount` not `rc`. A reader should understand what a variable holds without scrolling up to the declaration.
@@ -262,6 +284,70 @@ Rules:
 - File names keep their convention prefix (`AuthCrossAuth.jsx`, not `CrossAuth.jsx`) so React DevTools and grep stay precise. The folder is the namespace; the file/component name is the human-readable label.
 
 Mirrors `components/onboarding/` (the wizard step components live in their own subfolder). The pattern formalises the same idea inside any feature module.
+
+**Card primitive (`Card.Header` / `Card.Body` / `Card.Footer`) slots have no default padding.** Padding is a concern of the *outer container* (the `<form>`, `<Dialog>`'s Card, `WizardCard`'s SHELL), and spacing between slots comes from `gap-*` on that flex parent. Subcomponents are pure layout slots — no `p-6` baked into Header/Body/Footer. `Card.Body` keeps `flex-1 min-h-0 overflow-y-auto` because the scroll behaviour is the slot's job, but everything else (padding, gap) lives on whoever wraps it. The two consumers today: onboarding step `<form>` (`p-6 gap-4` on the form) and `<Dialog>` (`p-6 gap-4` baked into the Dialog's MotionCard className).
+
+### Forms
+
+**Use the `TextInput` primitive, never hand-rolled `<input>`.** TextInput owns the label association, hint/error slots, focus ring, `aria-invalid` wiring, and the iOS no-zoom 16px font-size — all of which are easy to forget when copy-pasting markup. Pass `error` as a string when you want the input to render the invalid state and the message; pass falsy to render the optional `hint` instead.
+
+**Error state for multi-field forms is `{ field, message }`, not a plain string.** Border highlight, `aria-invalid`, and `aria-describedby` should only fire on the field that actually failed. Single-error-string state applies the red border to whichever input you wired it to, even when the failure was elsewhere — caught in TICKET-045 when the "pick a space" error painted the nickname input red.
+
+```jsx
+const [error, setError] = useState(null) // { field: 'nickname' | 'space', message }
+
+<TextInput
+  label="Nickname"
+  error={error?.field === 'nickname' ? error.message : null}
+  ...
+/>
+```
+
+**No primitive for the field type you need? Build the primitive.** When you reach for a control that doesn't have a primitive yet (`<select>`, `<textarea>`, etc.), build the primitive in `components/form/` rather than hand-rolling the markup at the consumer. The "two-or-more" extraction rule still applies — if you're the *first* consumer, ship a thin component that encodes the same label/error/focus-ring shape as `TextInput` (so future consumers find it and the visual stays unified). Don't invent new error-styling or focus-ring rules per consumer.
+
+**Focus rings use `focus:ring-inset`.** A 4px outer ring gets clipped by `overflow-hidden` containers (Dialog, scrollable Card.Body). The inset variant lives inside the input border and is always visible. Auth surfaces have plenty of room either way, so the inset version is universally safe.
+
+### Onboarding wizard structure
+
+The `/welcome` flow has a specific shape that every step follows. Match it; don't invent a new layout per step.
+
+**Folder layout** — `components/onboarding/`:
+
+```
+onboarding/
+├── shared/                  ← cross-step primitives
+│   ├── WizardCard.jsx       ← outer card shell with the SHELL class set
+│   ├── WizardActions.jsx    ← Card.Footer with Back+Continue + footerExtras slot
+│   ├── StepTip.jsx          ← mint-bg italic advice badge
+│   └── StepProgress.jsx     ← progress strip rendered by OnboardingLayout
+├── plants/                  ← Step 3-owned subcomponents (AddPlantForm, etc.)
+├── spaces/                  ← Step 2-owned subcomponents (AddCustomSpaceForm)
+├── intentConfig.js          ← shared logic config (steps, slugs, intents)
+└── Step*.jsx                ← step components only at the root
+```
+
+The root holds *only* step components and `intentConfig`. Cross-step primitives go in `shared/`; subcomponents owned by a single step go in a folder named after the step's domain (`plants/`, `spaces/`).
+
+**Step structure.** Every step component returns:
+
+```jsx
+<form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 gap-4">
+  <Card.Header divider={false}>
+    <Heading variant="display" subtitle="...">…</Heading>
+    {/* StepTip lives here, alongside heading + subtitle — not in Body */}
+  </Card.Header>
+
+  <Card.Body className="flex flex-col gap-4">
+    {/* the work area */}
+  </Card.Body>
+
+  <WizardActions onBack={onBack} continueLabel={...} continueDisabled={...} />
+</form>
+```
+
+Even non-mutation steps (placeholders, intro screens) wrap in `<form>` — Enter-to-submit and `type="submit"` semantics come for free.
+
+**Naming convention for dialog form components.** When a step opens a Dialog containing a small form, the component is named `Add<Thing>Form` and lives in the step's domain folder: `AddCustomSpaceForm` (Step 2 → `spaces/`), `AddPlantForm` (Step 3 → `plants/`).
 
 ### Client directory layout
 

@@ -10,6 +10,8 @@ const VARIANTS = {
 export default function Emphasis({ variant = 'brand', className = '', children }) {
   const variantClasses = VARIANTS[variant] ?? VARIANTS.brand
   return (
-    <em className={`font-display italic bg-clip-text text-transparent ${variantClasses} ${className}`}>{children}</em>
+    <em className={`heading-emphasis font-display italic bg-clip-text text-transparent ${variantClasses} ${className}`}>
+      {children}
+    </em>
   )
 }

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-045 — R9 Onboarding intent-adaptive wizard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+  .ticket { max-width: 1040px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+  .header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+  .header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+  .header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+  .badges { display: flex; gap: 8px; }
+  .badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+  .badge.status { background: #2d6a4f; color: #fff; }
+  .badge.priority-high { background: #e63946; color: #fff; }
+  section { padding: 28px 40px; border-top: 1px solid #eee; }
+  section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+  section h3 { font-size: 13px; font-weight: 800; color: #444; margin: 18px 0 10px; }
+  section > p { font-size: 15px; margin-bottom: 12px; }
+  ol, ul { padding-left: 20px; }
+  li { margin-bottom: 10px; font-size: 15px; }
+
+  .plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+  .plan-step { flex: 1; min-width: 70px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+  .plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+  .plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+  .plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+  .artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+  .artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+  .artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+  .artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+  .artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+  .artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+  .artifact .kind.component { background: #2d6a4f; }
+  .artifact .kind.util { background: #6a4a8f; }
+
+  .criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+  .criterion span { font-size: 15px; }
+
+  .mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+  .mockup-preview iframe { width: 100%; height: 540px; border: none; background: #fff; }
+  .mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+  .mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+
+  blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+  code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+
+  .learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+  .learn strong { color: #7a5a1a; }
+
+  .file-list { list-style: none; padding: 0; }
+  .file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+  .file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+  th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+  td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+</style>
+</head>
+<body>
+<div class="ticket">
+  <div class="header">
+    <div class="id">TICKET-045 · v2 · R9</div>
+    <h1>Onboarding intent-adaptive wizard — 8 steps, 4 intents</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Rewrite the existing 5-step linear Welcome wizard into the v2 8-step intent-adaptive flow per mockup 19. User picks one of four intents (Forgetful · New parent · Sick plant · Browsing) at Step 1; per-intent config drives copy, optional step skips, default form values, and Step 7's CTA target. <code>User.onboarding_intent</code> + <code>onboarding_step_reached</code> persist on the server (B2, already merged) — refresh + re-login resume from where the user left off, indefinitely (no cleanup worker).</p>
+    <p>In one sentence: <strong>one wizard component, four intent paths, server-persisted progress so onboarding feels personal and forgiving.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <div class="plan-step done"><span class="num">020</span>Space rename</div>
+      <div class="plan-step done"><span class="num">021</span>B2 intent</div>
+      <div class="plan-step done"><span class="num">027</span>F1 tokens</div>
+      <div class="plan-step done"><span class="num">028</span>F2 Segment</div>
+      <div class="plan-step done"><span class="num">032</span>F6 Slab</div>
+      <div class="plan-step done"><span class="num">050</span>R14 toast</div>
+      <div class="plan-step done"><span class="num">051</span>R15 auth</div>
+      <div class="plan-step current"><span class="num">045</span>R9 onboarding</div>
+      <div class="plan-step"><span class="num">046</span>R10 tour</div>
+      <div class="plan-step"><span class="num">037</span>R1 nav</div>
+      <div class="plan-step"><span class="num">038</span>R2 Today</div>
+      <div class="plan-step">39–49 rest</div>
+    </div>
+
+    <p><strong>What came before.</strong> B2 (TICKET-021) shipped <code>User.onboarding_intent</code> + <code>onboarding_step_reached</code>. F1 (TICKET-027) shipped tokens. F2 (TICKET-028) shipped Segment for Step 4 L/T/H pickers. F6 (TICKET-032) shipped SummarySlab for Step 7. Toast + auth + space rename complete. Every primitive R9 reaches for is in place.</p>
+    <p><strong>What this unlocks.</strong> R10 (TICKET-046) — the first-run driver.js tour reads <code>User.onboarding_intent</code> from the just-completed wizard to pick its tour length (5/7/2/3 stops). R2 (TICKET-038) — Today's intent-adaptive landing reads the same field for widget priority order. Without R9 setting that field via UI, neither downstream ticket has data to read.</p>
+    <p><strong>Mental model:</strong> the existing Welcome.jsx is Rails' <code>before_action :set_progress</code> + a five-stage controller flow. R9 replaces the controllers with one orchestrator + a config object (per-intent partial overrides). Same idea as <code>has_one :onboarding</code> with a strategy class that looks up which sub-policy applies to the current user's intent.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+
+    <div class="artifact-list">
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span>
+        <span class="name">client/src/pages/Welcome.jsx</span>
+        <div class="role">Wizard orchestrator. 8-step state machine driven by <code>useReducer</code>; reads <code>onboarding_intent</code> + <code>onboarding_step_reached</code> from <code>useAuth().user</code> on mount and lands on the resumed step. Owns the per-step transitions (Next / Back), the route param sync (<code>/welcome/:step</code>), and the final <code>POST /api/v1/onboarding/completion</code> call.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind util">config</span>
+        <span class="name">client/src/components/onboarding/intentConfig.js</span>
+        <div class="role">Single source of truth for per-intent variation: copy strings, default form values, which steps to skip, the Step 7 CTA target, the post-onboarding landing route. Looks up by intent key (<code>forgetful</code> / <code>just_starting</code> / <code>sick_plant</code> / <code>browsing</code>). Components consume via <code>useIntentConfig(currentIntent)</code> rather than branching on intent inline.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span>
+        <span class="name">client/src/components/onboarding/Step0Welcome.jsx</span>
+        <div class="role">New file. Brand moment — logo + headline + "Let's set things up" CTA. Shared across all intents (no variation).</div>
+      </div>
+      <div class="artifact">
+        <span class="kind component">new</span>
+        <span class="name">client/src/components/onboarding/Step1Intent.jsx</span>
+        <div class="role">New file. Four intent cards (emoji + heading + description) in a 2x2 grid. Selecting one fires <code>PATCH /api/v1/profile</code> to persist <code>onboarding_intent</code>, then advances. Below the grid: a Fraunces-italic "preview line" that updates as the user hovers each card — explains what onboarding will look like for that intent.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span>
+        <span class="name">client/src/components/onboarding/Step2Spaces.jsx</span>
+        <div class="role">Existing component — restructure for new layout. Preset grid + custom-add. Commits each space immediately on add (POST <code>/api/v1/spaces</code>) — no batch-on-Continue. Copy varies per intent (Forgetful: "Add the rooms"; New parent: walk-through with explanatory copy; Sick plant: "Where's the patient?").</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span>
+        <span class="name">client/src/components/onboarding/Step3Plants.jsx</span>
+        <div class="role">Existing Step3Species + Step4Environment merged into a single multi-add Plants step. Sick-plant intent shows a single-add variant. New-parent intent surfaces the easy-care species filter (Perenual difficulty ≤ 2). Browsing intent shows gallery-first. Added plant chips persist (Plant records), search input doesn't.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind component">new</span>
+        <span class="name">client/src/components/onboarding/Step4Environment.jsx</span>
+        <div class="role">Per-space L/T/H picker using the new F2 Segment primitive. Forgetful gets a batch default ("Same for all rooms? Yes / Customize"); New parent walks through each space with explanatory copy; Sick plant skips this step entirely via the intent-config skip rule.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind component">new</span>
+        <span class="name">client/src/components/onboarding/Step5Stakes.jsx</span>
+        <div class="role">New file. Streak + vitality preview. <strong>Promoted</strong> for Forgetful (full-page "reminders are your friend" pitch). <strong>Soft</strong> for New parent ("here's what we track" educational). <strong>Skipped</strong> for Sick plant + Browsing via intent-config.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind component">new</span>
+        <span class="name">client/src/components/onboarding/Step6Journal.jsx</span>
+        <div class="role">New file. Auto-creates system Journal events for the just-added plants ("Added Monty to Living Room"). Just shows what got logged. Quick + reassuring; New-parent variant explains what Journal is.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span>
+        <span class="name">client/src/components/onboarding/Step7Welcome.jsx</span>
+        <div class="role">Renamed from Step5Done. Payoff card per mockup 19. Per-intent CTA via intentConfig: Forgetful → Today, New parent → Today (plus "take your time" message), Sick plant → Doctor flow, Browsing → Today + Encyclopedia. Fires <code>POST /api/v1/onboarding/completion</code>.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind rewrite">rewrite</span>
+        <span class="name">client/src/components/onboarding/WizardCard.jsx, StepProgress.jsx</span>
+        <div class="role">Both already exist — extend WizardCard to support the new "micro-tip" footer slot (Fraunces-italic aside per step). StepProgress updates from 5 segments to 8.</div>
+      </div>
+      <div class="artifact">
+        <span class="kind component">new</span>
+        <span class="name">client/tests/pages/welcome.spec.js (replace)</span>
+        <div class="role">Existing 14 specs target the 5-step linear flow — replace wholesale. New coverage: one Playwright spec per intent branch (4 scenarios) + resume-from-step-N + step-7 CTA routes correctly per intent.</div>
+      </div>
+    </div>
+
+    <h3>Wizard state machine</h3>
+    <pre class="shape">{
+  step: 0..7,
+  intent: 'forgetful' | 'just_starting' | 'sick_plant' | 'browsing' | null,
+  spaces: [{ id, name }],   // server-source-of-truth via useSpaces
+  plants: [{ id, ... }],     // server-source-of-truth via usePlants
+  // Form-input drafts that haven't yet committed (e.g. typing in the
+  // species search box) are local useState in their step component —
+  // not in the reducer. They evaporate on refresh; that's fine.
+}
+
+next()      → advance step, accounting for intent-config skips
+back()      → retreat step, also respecting skips
+goTo(n)     → URL-driven (refresh + back-button)
+setIntent() → fires PATCH /profile, then next()</pre>
+
+    <p style="margin-top: 16px; font-size: 14px; color: #666;"><em>Out of scope (deferred):</em></p>
+    <ul style="font-size: 14px; color: #666;">
+      <li>Driver.js tour — TICKET-046 (R10) ships next, reads our final <code>onboarding_intent</code></li>
+      <li>First-care celebration overlay — also R10 scope</li>
+      <li>Today intent-adaptive landing — TICKET-038 (R2)</li>
+      <li>"Manual replay onboarding from Me page" — future Me region work</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li><strong>Step 0 Welcome.</strong> Brand moment renders for everyone. CTA advances to Step 1.</li>
+      <li><strong>Step 1 Intent.</strong> Four intent cards. Selecting one persists <code>onboarding_intent</code> server-side and advances to Step 2. The Fraunces-italic preview line updates as the user hovers each card.</li>
+      <li><strong>Step 2 Spaces.</strong> Preset grid + custom add. Each space commits immediately on add (no batch-on-Continue). Copy varies per intent.</li>
+      <li><strong>Step 3 Plants.</strong> Multi-add for Forgetful / New parent / Browsing; single-add (or skip) for Sick plant. New parent sees easy-care filter; Browsing sees gallery-first.</li>
+      <li><strong>Step 4 Environment.</strong> Per-space L/T/H via Segment. Forgetful shows a batch-default option. New parent walks through each space with explanatory copy. Sick plant skips this step entirely.</li>
+      <li><strong>Step 5 Stakes.</strong> Promoted for Forgetful, soft for New parent, skipped for Sick plant + Browsing.</li>
+      <li><strong>Step 6 Journal.</strong> System events auto-created for each just-added plant. Step renders the resulting list.</li>
+      <li><strong>Step 7 Welcome home.</strong> Per-intent CTA: Forgetful → <code>/</code>, New parent → <code>/</code>, Sick plant → <code>/doctor</code>, Browsing → <code>/encyclopedia</code> (or fallback <code>/</code> if those routes don't ship in time). Fires <code>POST /api/v1/onboarding/completion</code> before navigating.</li>
+      <li><strong>Resume.</strong> Refresh / log out + log back in lands the user at <code>onboarding_step_reached</code>. Already-committed records (intent, spaces, plants) remain. <strong>No cleanup worker</strong> — resume is permanent until completion (decision logged in <code>project_r9_mid_step_draft_persistence.md</code>).</li>
+      <li><strong>Each step advance updates server state.</strong> <code>onboarding_step_reached</code> writes via <code>PATCH /api/v1/profile</code> on every Next.</li>
+      <li><strong>Micro-tip footer.</strong> Each step's WizardCard renders a Fraunces-italic micro-tip per spec §3.1k.</li>
+      <li><strong>Reduced-motion users</strong> get an instant step swap (no slide animation).</li>
+      <li><strong>A11y.</strong> Step region <code>aria-label</code>'d, current step number announced via <code>aria-live</code>, focus moves to step heading on advance, keyboard Next/Back works.</li>
+      <li><strong>Lint, Vitest, Playwright (per-intent), accessibility, and Vercel React review skills</strong> all pass.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><div class="box"></div><span>Register a new account → wizard lands on Step 0 → Welcome → Step 1 → Intent picker shows 4 cards.</span></div>
+    <div class="criterion"><div class="box"></div><span>Pick "Forgetful" → preview line updates on hover for all four cards → click Continue → next API request includes <code>onboarding_intent: "forgetful"</code> and <code>onboarding_step_reached: 2</code>.</span></div>
+    <div class="criterion"><div class="box"></div><span>Forgetful flow: walks through all 8 steps, Stakes step is promoted, lands on Today.</span></div>
+    <div class="criterion"><div class="box"></div><span>Just-starting flow: 8 steps, Stakes is soft, Step 4 walks one space at a time with explanatory copy, lands on Today.</span></div>
+    <div class="criterion"><div class="box"></div><span>Sick-plant flow: skips Step 4 (Environment) and Step 5 (Stakes), lands on Doctor (or fallback Today if Doctor route doesn't exist yet).</span></div>
+    <div class="criterion"><div class="box"></div><span>Browsing flow: skips Step 5 (Stakes), lands on Encyclopedia (or fallback Today).</span></div>
+    <div class="criterion"><div class="box"></div><span>Mid-wizard: refresh on <code>/welcome/3</code> → backend says step_reached: 3 → wizard re-mounts on Step 3 with previously-added spaces visible.</span></div>
+    <div class="criterion"><div class="box"></div><span>Mid-wizard: log out, log back in, land on the same step. Created spaces / plants / intent all preserved.</span></div>
+    <div class="criterion"><div class="box"></div><span>DevTools accessibility: step heading receives focus on advance; reduced-motion users get instant step swap.</span></div>
+    <div class="criterion"><div class="box"></div><span>Browser back button retreats one step; respects intent-config skips.</span></div>
+    <div class="criterion"><div class="box"></div><span>Each step shows a Fraunces-italic micro-tip in the card footer.</span></div>
+    <div class="criterion"><div class="box"></div><span><code>/vercel-react-best-practices</code> review passes.</span></div>
+    <div class="criterion"><div class="box"></div><span><code>/accessibility</code> review passes.</span></div>
+    <div class="criterion"><div class="box"></div><span>Lint, Vitest, and Playwright (4 intent specs + resume + back-button) all green.</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+
+    <div class="mockup-preview">
+      <div class="label">
+        <span>Mockup 19 — Onboarding (8-step + Sick Plant branch)</span>
+        <a href="../../mockups/plantcare-ui/v2/19-onboarding-v1.html" target="_blank">Open ↗</a>
+      </div>
+      <iframe src="../../mockups/plantcare-ui/v2/19-onboarding-v1.html" title="Mockup 19"></iframe>
+    </div>
+
+    <blockquote>
+      <strong>Spec §3.1h:</strong> One wizard component. Per-intent config object drives content + skips + CTA targets. No branching routes; <code>User.onboarding_intent</code> persists for future in-app use (suggested defaults, prompts, widget priority order).
+    </blockquote>
+
+    <blockquote>
+      <strong>Spec §3.1k (first-run arc):</strong> Each onboarding step has one Fraunces-italic aside at the card bottom — educational without preachy. One sentence, ≤20 words. Driver.js tour reads <code>User.onboarding_intent</code> for tour length. Onboarding hands off to tour, tour hands off to first-care celebration.
+    </blockquote>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+
+    <div class="learn">
+      <strong><code>useReducer</code> for wizard state machines.</strong> <code>useState</code> per field works fine for short forms. A wizard with branching, skips, and replayable transitions is a state machine — model it as one. <code>useReducer</code> takes <code>(state, action) =&gt; nextState</code>; you dispatch <code>{ type: 'next' }</code> or <code>{ type: 'setIntent', payload: 'forgetful' }</code>; the reducer encodes the rules. Equivalent to a Rails state machine gem (AASM): one place to read all transitions, no branching scattered across components.
+    </div>
+
+    <div class="learn">
+      <strong>Route <code>state</code> for "where did you come from".</strong> React Router lets you pass <code>state</code> through <code>navigate(path, { state: ... })</code>. The receiving page reads <code>useLocation().state</code>. Useful here for "log in mid-wizard → bounce back to your step" — Login already does this for the <code>/welcome</code> redirect path. Don't store wizard state in URL state; use it for "remember the intended destination" only.
+    </div>
+
+    <div class="learn">
+      <strong>TanStack Query as the wizard's "did this commit?" source.</strong> Step 2 commits each Space via <code>useMutation</code>. Step 3 reads <code>usePlants()</code> to show added plants. Step 4 walks through <code>useSpaces()</code>. Server is the source of truth — useReducer just tracks step + intent + UI flags. Mutations invalidate the relevant query keys; subsequent reads pick up the new state automatically. No manual sync.
+    </div>
+
+    <div class="learn">
+      <strong>StrictMode-safe step advancement.</strong> Every Next click that fires a <code>PATCH /profile</code> (to bump <code>step_reached</code>) needs to be idempotent — StrictMode double-invokes effects in dev, and the server should accept "already at step 5, you said go to 5" gracefully. Useful pattern: only advance if <code>currentStep &gt; previousStep</code>; backwards advancement (back-button) doesn't write.
+    </div>
+
+    <div class="learn">
+      <strong><code>aria-live</code> for step announcements.</strong> Sighted users see the step indicator update (1 of 8 → 2 of 8). Screen-reader users hear nothing unless we announce. Wrap the step heading in an <code>aria-live="polite"</code> region so each step transition reads aloud. Don't mark the entire wizard <code>aria-live</code> — too much chatter. Just the heading.
+    </div>
+  </section>
+
+  <section>
+    <h2>Suggested PR split</h2>
+    <p>Plan classifies R9 as the heaviest UX ticket. Shipping all 8 steps + 4 intents in one PR is hard to review. Suggested decomposition (one ticket, multiple PRs):</p>
+    <table>
+      <thead><tr><th>PR</th><th>Scope</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Wizard shell — Welcome.jsx orchestrator rebuild + intentConfig skeleton + StepProgress 5→8 + resume-from-step + tests for orchestrator</td></tr>
+        <tr><td>2</td><td>Step 0 (Welcome) + Step 1 (Intent) — new content, intent persistence, preview-line</td></tr>
+        <tr><td>3</td><td>Step 2 (Spaces) + Step 3 (Plants) — restructured from existing components</td></tr>
+        <tr><td>4</td><td>Step 4 (Environment, with Segment) + Step 5 (Stakes, conditional)</td></tr>
+        <tr><td>5</td><td>Step 6 (Journal seed) + Step 7 (Welcome home, per-intent CTA) + completion call</td></tr>
+        <tr><td>6</td><td>Playwright per-intent specs + accessibility + final cleanup pass</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top: 12px; font-size: 14px; color: #666;">Per <code>feedback_pair_programming_style.md</code>, work each PR step-by-step. Test-only steps don't need confirmation; production-code commits do.</p>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li><span>client/src/pages/Welcome.jsx</span><span class="action">rewrite</span></li>
+      <li><span>client/src/components/onboarding/intentConfig.js</span><span class="action">create</span></li>
+      <li><span>client/src/components/onboarding/Step0Welcome.jsx</span><span class="action">create</span></li>
+      <li><span>client/src/components/onboarding/Step1Intent.jsx</span><span class="action">create</span></li>
+      <li><span>client/src/components/onboarding/Step2Spaces.jsx</span><span class="action">rewrite</span></li>
+      <li><span>client/src/components/onboarding/Step3Plants.jsx</span><span class="action">rewrite</span></li>
+      <li><span>client/src/components/onboarding/Step4Environment.jsx</span><span class="action">rewrite</span></li>
+      <li><span>client/src/components/onboarding/Step5Stakes.jsx</span><span class="action">create</span></li>
+      <li><span>client/src/components/onboarding/Step6Journal.jsx</span><span class="action">create</span></li>
+      <li><span>client/src/components/onboarding/Step7Welcome.jsx</span><span class="action">rename + rewrite (was Step5Done)</span></li>
+      <li><span>client/src/components/onboarding/WizardCard.jsx</span><span class="action">extend (micro-tip slot)</span></li>
+      <li><span>client/src/components/onboarding/StepProgress.jsx</span><span class="action">extend (5→8)</span></li>
+      <li><span>client/tests/pages/welcome.spec.js</span><span class="action">replace</span></li>
+    </ul>
+    <p style="margin-top: 12px; font-size: 13px; color: #666;"><em>Shape hint, not a spec. If a cleaner split appears during build, follow your nose.</em></p>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li><strong>No cleanup worker.</strong> Decided 2026-04-27. Resume from <code>onboarding_step_reached</code> indefinitely. Worker debate logged in conversation; if abandoned-onboarder rates become a real problem post-launch, revisit then with a soft-reset (clear step_reached, keep created records).</li>
+      <li><strong>Server is source of truth for committed records.</strong> Don't reach into useReducer for the spaces list — use <code>useSpaces()</code>. Same for plants. The reducer tracks step + intent + transient UI flags only.</li>
+      <li><strong>Every Next that bumps step_reached writes to the server.</strong> Backwards moves (Back button, browser back) don't write. The server's value is the high-water mark.</li>
+      <li><strong>Sick plant intent skipping environment + stakes</strong> isn't conditional rendering scattered across step components — the orchestrator's <code>next()</code> consults intentConfig.skipSteps and jumps. Keeps the skip rules in one place.</li>
+      <li><strong>Step 7 CTA fallback.</strong> Doctor route (R13) and Encyclopedia (R6) may not exist yet when R9 ships. If <code>intentConfig.completionRoute</code> resolves to a route that doesn't exist, fall back to <code>/</code>. Sick-plant + Browsing intents land on Today until their target routes ship.</li>
+      <li><strong>Don't auto-write the welcome toast on completion here.</strong> R10 (TICKET-046) owns the welcome toast + driver.js tour kickoff via <code>useFirstRunReveal</code>. R9's job ends with <code>POST /api/v1/onboarding/completion</code> + navigate.</li>
+      <li><strong>Apple/Google sign-in still benched.</strong> Doesn't apply here — wizard is post-auth.</li>
+      <li><strong>Closing checklist (per PR):</strong> <code>./scripts/lint.sh && ./scripts/run_tests.sh client</code>, branch-prefix <code>ticket-045-onboarding-wizard-NN</code> for sub-PRs, PR title <code>feat(v2): R9 onboarding — &lt;phase&gt; (TICKET-045)</code>.</li>
+    </ul>
+  </section>
+</div>
+</body>
+</html>

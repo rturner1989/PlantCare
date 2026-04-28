@@ -84,7 +84,7 @@ function Toast({ id, kind, title, meta, action, onDismiss, styles }) {
     <div
       role={styles.role}
       aria-live={styles.ariaLive}
-      className="toast-vessel flex items-center gap-3 pl-2.5 pr-3.5 py-2.5 rounded-md w-full sm:w-[360px] text-[13px] text-ink"
+      className="glass-card flex items-center gap-3 pl-2.5 pr-3.5 py-2.5 rounded-md w-full sm:w-[360px] text-[13px] text-ink"
       style={{ '--toast-em-color': styles.emColor }}
     >
       <Chip kind={kind} styles={styles} />

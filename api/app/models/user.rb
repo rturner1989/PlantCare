@@ -55,6 +55,7 @@ class User < ApplicationRecord
 
   has_many :spaces, dependent: :destroy
   has_many :plants, through: :spaces
+  has_many :care_logs, through: :plants
   has_many :refresh_tokens, dependent: :destroy
   has_many :password_reset_tokens, dependent: :destroy
 
@@ -88,6 +89,54 @@ class User < ApplicationRecord
     return if onboarded?
 
     update!(onboarding_completed_at: Time.current)
+  end
+
+  # `unknown` is omitted — skipping it from the average lets a freshly-
+  # added plant (no feed signal yet) not drag the score to half-dead.
+  VITALITY_STATUS_SCORE = {
+    healthy: 100,
+    due_soon: 75,
+    due_today: 50,
+    overdue: 25
+  }.freeze
+
+  def current_streak_days
+    return 0 unless plants.exists?
+
+    dates = care_logs
+            .where.not(performed_at: nil)
+            .pluck(Arel.sql('DISTINCT DATE(performed_at)'))
+            .sort
+            .reverse
+    return 0 if dates.empty?
+
+    today = Date.current
+    expected = if dates.first == today
+      today
+    elsif dates.first == today - 1
+      today - 1
+    end
+    return 0 unless expected
+
+    streak = 0
+    dates.each do |date|
+      break unless date == expected
+
+      streak += 1
+      expected -= 1
+    end
+    streak
+  end
+
+  def vitality_percent
+    return 0 if plants.none?
+
+    scored = plants.includes(:species).flat_map do |plant|
+      [VITALITY_STATUS_SCORE[plant.water_status], VITALITY_STATUS_SCORE[plant.feed_status]]
+    end.compact
+    return 0 if scored.empty?
+
+    (scored.sum.to_f / scored.size).round
   end
 
   def as_json(_options = {})

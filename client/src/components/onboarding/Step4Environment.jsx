@@ -1,81 +1,141 @@
 import { faDroplet, faSun, faTemperatureHalf } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
-import { useCreatePlant } from '../../hooks/usePlants'
+import { usePlants } from '../../hooks/usePlants'
+import { useSpaces, useUpdateSpace } from '../../hooks/useSpaces'
+import { getSpaceEmoji } from '../../utils/spaceIcons'
 import SegmentedControl from '../form/SegmentedControl'
-import Action from '../ui/Action'
-import { CardBody, CardFooter } from '../ui/Card'
+import Card from '../ui/Card'
+import Emphasis from '../ui/Emphasis'
+import Heading from '../ui/Heading'
+import StepTip from './shared/StepTip'
+import WizardActions from './shared/WizardActions'
 
-const FIELD_META = [
-  { key: 'light_level', label: 'Light', icon: faSun, optionsKey: 'light' },
-  { key: 'temperature_level', label: 'Temperature', icon: faTemperatureHalf, optionsKey: 'temperature' },
-  { key: 'humidity_level', label: 'Humidity', icon: faDroplet, optionsKey: 'humidity' },
+const FIELDS = [
+  { key: 'light_level', label: 'Light', icon: faSun, options: ['low', 'medium', 'bright'] },
+  { key: 'temperature_level', label: 'Temperature', icon: faTemperatureHalf, options: ['cool', 'average', 'warm'] },
+  { key: 'humidity_level', label: 'Humidity', icon: faDroplet, options: ['dry', 'average', 'humid'] },
 ]
 
-export default function Step4Environment({ species, nickname, spaceId, onBack, onComplete }) {
-  const [environment, setEnvironment] = useState(() => ({
-    light_level: species.suggested_light_level,
-    temperature_level: species.suggested_temperature_level,
-    humidity_level: species.suggested_humidity_level,
-  }))
+export default function Step4Environment({ onBack, onContinue }) {
+  const { data: spaces = [] } = useSpaces({ scope: 'active' })
+  const { data: plants = [] } = usePlants()
+  const updateSpace = useUpdateSpace()
 
-  // useCreatePlant invalidates ['plants'] on success — Welcome.jsx reads that
-  // same query for its createdPlants source, so Step 5 reflects the new plant
-  // automatically + survives a page reload (server is source of truth).
-  const createPlant = useCreatePlant()
+  // Per-space env state — seeded from each space's current values so the
+  // user sees the suggested defaults pre-filled.
+  const [envBySpace, setEnvBySpace] = useState(() =>
+    Object.fromEntries(
+      spaces.map((space) => [
+        space.id,
+        {
+          light_level: space.light_level,
+          temperature_level: space.temperature_level,
+          humidity_level: space.humidity_level,
+        },
+      ]),
+    ),
+  )
 
-  const { submitting, handleSubmit, formRef } = useFormSubmit({
+  function setField(spaceId, key, value) {
+    setEnvBySpace((prev) => ({
+      ...prev,
+      [spaceId]: { ...prev[spaceId], [key]: value },
+    }))
+  }
+
+  function plantSummary(spaceId) {
+    const inSpace = plants.filter((plant) => plant.space?.id === spaceId)
+    if (inSpace.length === 0) return 'No plants yet'
+    const names = inSpace
+      .slice(0, 3)
+      .map((plant) => plant.nickname)
+      .join(', ')
+    const more = inSpace.length > 3 ? ` · +${inSpace.length - 3} more` : ''
+    return `${inSpace.length} ${inSpace.length === 1 ? 'plant' : 'plants'} · ${names}${more}`
+  }
+
+  const { submitting, handleSubmit } = useFormSubmit({
     action: async () => {
-      await createPlant.mutateAsync({
-        species_id: species.id,
-        space_id: spaceId,
-        nickname: nickname || species.common_name,
-        ...environment,
-      })
-      onComplete()
+      await Promise.all(
+        spaces.map((space) => {
+          // envBySpace is seeded from useState's lazy initializer, which
+          // runs once with whatever `spaces` is at first render. If the
+          // spaces query was still loading then, the seed is empty and
+          // unchanged segments stay undefined. Fall back to the space's
+          // current values so PATCH always sends the right body.
+          const env = envBySpace[space.id] ?? {
+            light_level: space.light_level,
+            temperature_level: space.temperature_level,
+            humidity_level: space.humidity_level,
+          }
+          return updateSpace.mutateAsync({ id: space.id, ...env })
+        }),
+      )
+      onContinue()
     },
-    errorMessage: 'Could not add plant',
+    errorMessage: "Couldn't save environment",
   })
 
-  const plantLabel = nickname || species?.common_name || 'your plant'
-
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
-      <CardBody>
-        <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight">
-          {'Tell me about '}
-          <em className="not-italic text-leaf">{plantLabel}&rsquo;s spot</em>.
-        </h1>
-        <p className="mt-3 text-sm text-ink-soft font-medium leading-snug">
-          I&rsquo;ve picked what this plant usually likes — adjust if your spot&rsquo;s different.
-        </p>
-
-        <div className="mt-5">
-          {FIELD_META.map(({ key, label, icon, optionsKey }) => (
-            <SegmentedControl
-              key={key}
-              label={label}
-              icon={icon}
-              value={environment[key]}
-              onChange={(next) => setEnvironment((prev) => ({ ...prev, [key]: next }))}
-              options={species.plant_levels[optionsKey]}
-            />
-          ))}
-
-          <p className="text-center text-xs text-ink-soft font-medium italic mt-2">
-            Not sure? You can update these anytime.
-          </p>
+    <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 gap-4">
+      <Card.Header divider={false}>
+        <Heading
+          variant="display"
+          className="text-ink"
+          subtitle="A rough read is plenty — we'll fine-tune the schedule as you care."
+        >
+          How do your spaces <Emphasis>feel?</Emphasis>
+        </Heading>
+        <div className="mt-4">
+          <StepTip icon="🌿">Rough is fine. We'll refine the schedule as you care.</StepTip>
         </div>
-      </CardBody>
+      </Card.Header>
 
-      <CardFooter className="border-t-0 flex gap-2.5">
-        <Action variant="secondary" onClick={onBack}>
-          Back
-        </Action>
-        <Action type="submit" variant="primary" disabled={submitting} className="flex-1">
-          {submitting ? 'Adding plant...' : 'Continue'}
-        </Action>
-      </CardFooter>
+      <Card.Body className="flex flex-col gap-4">
+        {spaces.map((space) => {
+          const env = envBySpace[space.id] ?? {
+            light_level: space.light_level,
+            temperature_level: space.temperature_level,
+            humidity_level: space.humidity_level,
+          }
+
+          return (
+            <section
+              key={space.id}
+              aria-labelledby={`space-env-${space.id}`}
+              className="p-4 bg-mint/40 border-[1.5px] border-dashed border-leaf/25 rounded-md"
+            >
+              <header className="flex items-center gap-3 mb-3">
+                <span className="text-2xl shrink-0" aria-hidden="true">
+                  {getSpaceEmoji(space.icon)}
+                </span>
+                <div className="min-w-0 text-left">
+                  <Heading as="h3" variant="compact" id={`space-env-${space.id}`} className="truncate">
+                    {space.name}
+                  </Heading>
+                  <p className="text-xs text-ink-soft truncate">{plantSummary(space.id)}</p>
+                </div>
+              </header>
+
+              <div className="flex flex-col gap-5">
+                {FIELDS.map(({ key, label, icon, options }) => (
+                  <SegmentedControl
+                    key={key}
+                    label={label}
+                    icon={icon}
+                    value={env[key]}
+                    onChange={(next) => setField(space.id, key, next)}
+                    options={options}
+                  />
+                ))}
+              </div>
+            </section>
+          )
+        })}
+      </Card.Body>
+
+      <WizardActions onBack={onBack} submitting={submitting} submittingLabel="Saving env…" />
     </form>
   )
 }

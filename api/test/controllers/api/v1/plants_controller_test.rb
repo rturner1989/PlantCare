@@ -50,16 +50,15 @@ class Api::V1::PlantsControllerTest < ActionDispatch::IntegrationTest
     assert json['water_status'].present?
   end
 
-  test 'create with species calculates schedule automatically' do
+  test 'create with species calculates schedule from space env' do
+    @space.update!(light_level: 'bright', temperature_level: 'warm', humidity_level: 'average')
+
     post api_v1_plants_path, headers: auth_headers(@user),
       params: {
         plant: {
           space_id: @space.id,
           species_id: @species.id,
-          nickname: 'New Plant',
-          light_level: 'bright',
-          temperature_level: 'warm',
-          humidity_level: 'average'
+          nickname: 'New Plant'
         }
       }, as: :json
 
@@ -114,15 +113,14 @@ class Api::V1::PlantsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'Sir Plantalot Jr', @plant.reload.nickname
   end
 
-  test 'update environment recalculates schedule' do
+  test 'updating space env recalculates schedules of plants in that space' do
     original_days = @plant.calculated_watering_days
 
-    patch api_v1_plant_path(@plant), headers: auth_headers(@user),
-      params: { plant: { light_level: 'bright', temperature_level: 'warm' } }, as: :json
+    patch api_v1_space_path(@space), headers: auth_headers(@user),
+      params: { space: { light_level: 'bright', temperature_level: 'warm' } }, as: :json
 
     assert_response :ok
-    json = response.parsed_body
-    assert_not_equal original_days, json['calculated_watering_days']
+    assert_not_equal original_days, @plant.reload.calculated_watering_days
   end
 
   test 'destroy removes plant' do

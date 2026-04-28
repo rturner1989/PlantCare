@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { getConfirmQuote } from '../personality/confirmQuotes'
 import PlantAvatar from './PlantAvatar'
 import Action from './ui/Action'
-import { CardBody, CardFooter, CardHeader } from './ui/Card'
+import Card from './ui/Card'
 import Dialog from './ui/Dialog'
 
 const CARE_LABELS = {
@@ -27,7 +27,7 @@ export default function CareConfirmDialog({ open, onClose, onConfirm, plant, car
 
   return (
     <Dialog open={open} onClose={onClose} title={headingText}>
-      <CardHeader divider={false} className="flex items-center justify-between gap-3">
+      <Card.Header divider={false} className="flex items-center justify-between gap-3">
         <p className="text-lg font-extrabold text-ink">{headingText}</p>
         <Action
           variant="unstyled"
@@ -37,25 +37,25 @@ export default function CareConfirmDialog({ open, onClose, onConfirm, plant, car
         >
           <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
         </Action>
-      </CardHeader>
+      </Card.Header>
 
-      <CardBody className="flex flex-col items-center text-center gap-4">
+      <Card.Body className="flex flex-col items-center text-center gap-4">
         <PlantAvatar species={plant.species} size="xl" shape="circle" />
 
         <div>
           <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-emerald">{plant.nickname}</p>
           <p className="mt-2 font-display text-xl italic font-medium text-forest leading-snug">{quote}</p>
         </div>
-      </CardBody>
+      </Card.Body>
 
-      <CardFooter divider={false} className="flex gap-2.5">
+      <Card.Footer divider={false} className="flex gap-2.5">
         <Action variant="secondary" onClick={onClose} disabled={submitting}>
           Cancel
         </Action>
         <Action variant="primary" onClick={onConfirm} disabled={submitting} className="flex-1">
           {submitting ? `${labels.verb}ing...` : `${labels.verb} ${plant.nickname}`}
         </Action>
-      </CardFooter>
+      </Card.Footer>
     </Dialog>
   )
 }

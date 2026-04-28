@@ -11,6 +11,7 @@ import { ToastProvider, useToast } from './context/ToastContext'
 import { useAuth } from './hooks/useAuth'
 import AppLayout from './layouts/AppLayout'
 import AuthLayout from './layouts/AuthLayout'
+import OnboardingLayout from './layouts/OnboardingLayout'
 
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Login = lazy(() => import('./pages/auth/Login'))
@@ -88,14 +89,16 @@ export default function App() {
                   <Route path="/reset-password/:token" element={<ResetPassword />} />
                 </Route>
 
-                <Route
-                  path="/welcome/:step?"
-                  element={
-                    <ProtectedRoute requireOnboarded={false}>
-                      <Welcome />
-                    </ProtectedRoute>
-                  }
-                />
+                <Route element={<OnboardingLayout />}>
+                  <Route
+                    path="/welcome/:step?"
+                    element={
+                      <ProtectedRoute requireOnboarded={false}>
+                        <Welcome />
+                      </ProtectedRoute>
+                    }
+                  />
+                </Route>
 
                 <Route element={<ProtectedAppLayout />}>
                   <Route index element={<Today />} />

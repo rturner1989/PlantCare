@@ -44,19 +44,31 @@ const LABEL_TEXT = 'text-[10px] font-extrabold text-ink-soft uppercase tracking-
 // text-base (16px) specifically — iOS Safari auto-zooms into any input
 // below 16px on focus and doesn't zoom back out, which breaks the layout
 // of every form-bearing page.
+// `ring-inset` keeps the focus ring inside the input's border so it doesn't
+// get clipped when the input lives in an `overflow-hidden` container
+// (Dialog, scrollable Card.Body). Auth surfaces have plenty of room either
+// way, so the inset version is universally safe.
 const INPUT_BASE =
-  'mt-1.5 w-full px-4 py-3 rounded-md bg-paper border-[1.5px] text-ink text-base font-semibold transition-all focus:outline-none focus:ring-4'
+  'w-full px-4 py-2 rounded-md bg-paper border-[1.5px] text-ink text-base font-semibold transition-all focus:outline-none focus:ring-4 focus:ring-inset'
 const INPUT_VALID = 'border-paper-edge focus:border-emerald focus:ring-emerald/15'
 const INPUT_INVALID = 'border-coral focus:border-coral focus:ring-coral/20'
 
-export default function TextInput({ label, hint, error, required = false, className = '', ...kwargs }) {
+export default function TextInput({
+  label,
+  labelHidden = false,
+  hint,
+  error,
+  required = false,
+  className = '',
+  ...kwargs
+}) {
   const generatedId = useId()
   const errorId = useId()
   const hasError = Boolean(error)
 
   return (
     <label className={`block ${className}`}>
-      <span className={LABEL_TEXT}>
+      <span className={labelHidden ? 'sr-only' : `mb-1.5 block ${LABEL_TEXT}`}>
         {label}
         {required && (
           <span aria-hidden="true" className="ml-0.5 text-coral-deep">

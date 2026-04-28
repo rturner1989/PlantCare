@@ -166,7 +166,7 @@ class Species < ApplicationRecord
       # temperatures — no clean map to cool/average/warm. User adjusts.
       suggested_temperature_level: 'average',
       suggested_humidity_level: suggested_humidity_level,
-      plant_levels: Plant.level_options
+      plant_levels: Space.level_options
     }
   end
 end
