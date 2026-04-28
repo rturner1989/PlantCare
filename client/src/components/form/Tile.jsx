@@ -56,13 +56,17 @@ export default function Tile({
   const iconConfig = ICON_BY_SIZE[size]
   const iconStateClass = selected ? iconConfig.selected : iconConfig.unselected
 
+  // chip variant = toggle (Step 2 spaces) — checkbox semantics so screen
+  // readers announce selection state. card variant = one-shot trigger
+  // (Step 3 species → opens add-plant dialog) — native button is correct.
+  const toggleProps = size === 'chip' ? { role: 'checkbox', 'aria-checked': selected } : {}
+
   return (
     <Action
       variant="unstyled"
-      role="checkbox"
-      aria-checked={selected}
       onClick={onClick}
       className={`${BASE} ${sizeClass} w-full ${stateClass} ${className}`}
+      {...toggleProps}
       {...kwargs}
     >
       {icon && <span className={`${iconConfig.base} ${iconStateClass}`}>{icon}</span>}

@@ -73,6 +73,8 @@ export default function Step2Spaces({ onBack, onComplete }) {
     return Array.from(new Set([...serverCustomNames, ...pendingNames]))
   }, [allSpaces, pendingCustom, presets, presetsLoaded])
 
+  const selectedSpaceSet = useMemo(() => new Set(selectedSpaces), [selectedSpaces])
+
   function toggleSpace(spaceName) {
     setSelectedSpaces((prev) =>
       prev.includes(spaceName) ? prev.filter((name) => name !== spaceName) : [...prev, spaceName],
@@ -196,7 +198,7 @@ export default function Step2Spaces({ onBack, onComplete }) {
         open={customDialogOpen}
         onClose={() => setCustomDialogOpen(false)}
         onAdd={handleAddCustom}
-        existingNames={selectedSpaces}
+        existingNames={selectedSpaceSet}
       />
     </>
   )

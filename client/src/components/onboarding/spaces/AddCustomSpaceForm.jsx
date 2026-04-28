@@ -9,7 +9,9 @@ import Dialog from '../../ui/Dialog'
 
 const TITLE = 'Add a custom space'
 
-export default function AddCustomSpaceForm({ open, onClose, onAdd, existingNames = [] }) {
+const EMPTY_SET = new Set()
+
+export default function AddCustomSpaceForm({ open, onClose, onAdd, existingNames = EMPTY_SET }) {
   const [name, setName] = useState('')
   const [category, setCategory] = useState('indoor')
   const [error, setError] = useState(null)
@@ -26,7 +28,7 @@ export default function AddCustomSpaceForm({ open, onClose, onAdd, existingNames
     const trimmed = name.trim()
     if (!trimmed) return
 
-    if (existingNames.includes(trimmed)) {
+    if (existingNames.has(trimmed)) {
       setError({ field: 'name', message: `"${trimmed}" is already in your list.` })
       return
     }

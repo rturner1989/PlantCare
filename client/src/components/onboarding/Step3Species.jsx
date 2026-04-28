@@ -1,6 +1,6 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { apiGet } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
@@ -45,6 +45,10 @@ export default function Step3Species({ availableSpaces = [], onBack, onComplete 
   const { data: addedPlants = [] } = usePlants()
   const createPlant = useCreatePlant()
   const deletePlant = useDeletePlant()
+
+  // Memoised so AddPlantForm gets a stable Set ref when the plant list
+  // hasn't changed — keeps its useEffect deps tight + dup check is O(1).
+  const existingNicknames = useMemo(() => new Set(addedPlants.map((plant) => plant.nickname)), [addedPlants])
 
   function handleSpeciesTap(species) {
     setPendingSpecies(species)
@@ -116,9 +120,13 @@ export default function Step3Species({ availableSpaces = [], onBack, onComplete 
 
         <Card.Body className="flex flex-col gap-4">
           {addedPlants.length > 0 && (
-            <div className="flex flex-wrap gap-2 p-2.5 bg-mint border-[1.5px] border-dashed border-leaf/25 rounded-md">
+            <ul
+              aria-live="polite"
+              aria-label={`${addedPlants.length} ${addedPlants.length === 1 ? 'plant' : 'plants'} added`}
+              className="flex flex-wrap gap-2 p-2.5 bg-mint border-[1.5px] border-dashed border-leaf/25 rounded-md list-none"
+            >
               {addedPlants.map((plant) => (
-                <span
+                <li
                   key={plant.id}
                   className="inline-flex items-center gap-1.5 pl-1 pr-2 py-1 bg-paper rounded-full shadow-warm-sm text-xs font-bold"
                 >
@@ -139,9 +147,9 @@ export default function Step3Species({ availableSpaces = [], onBack, onComplete 
                   >
                     <FontAwesomeIcon icon={faXmark} className="w-2 h-2" />
                   </Action>
-                </span>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
 
           <TextInput
@@ -155,7 +163,7 @@ export default function Step3Species({ availableSpaces = [], onBack, onComplete 
 
           <div>
             {loading && visibleResults.length === 0 ? (
-              <div className="flex items-center justify-center py-8">
+              <div role="status" aria-label="Searching species" className="flex items-center justify-center py-8">
                 <Spinner />
               </div>
             ) : visibleResults.length === 0 && isSearching ? (
@@ -203,7 +211,7 @@ export default function Step3Species({ availableSpaces = [], onBack, onComplete 
         open={dialogOpen}
         species={pendingSpecies}
         availableSpaces={availableSpaces}
-        existingNicknames={addedPlants.map((plant) => plant.nickname)}
+        existingNicknames={existingNicknames}
         submitting={adding}
         onClose={() => setDialogOpen(false)}
         onAdd={handleConfirmAdd}

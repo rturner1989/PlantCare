@@ -9,33 +9,40 @@ import Dialog from '../../ui/Dialog'
 
 const TITLE = 'Add a plant'
 
+const EMPTY_SET = new Set()
+
 export default function AddPlantForm({
   open,
   onClose,
   onAdd,
   species,
   availableSpaces = [],
-  existingNicknames = [],
+  existingNicknames = EMPTY_SET,
   submitting = false,
 }) {
   const [nickname, setNickname] = useState('')
   const [chosenSpaceId, setChosenSpaceId] = useState(null)
   const [error, setError] = useState(null)
 
+  // Primitive dep on the auto-pick id rather than the `availableSpaces`
+  // array — array refs from the parent (refetches, re-renders) would
+  // otherwise re-fire this effect mid-edit and clobber the user's typed
+  // nickname.
+  const autoPickedSpaceId = availableSpaces.length === 1 ? availableSpaces[0].id : null
   useEffect(() => {
     if (!open || !species) return
 
     setNickname(species.common_name ?? '')
-    setChosenSpaceId(availableSpaces.length === 1 ? availableSpaces[0].id : null)
+    setChosenSpaceId(autoPickedSpaceId)
     setError(null)
-  }, [open, species, availableSpaces])
+  }, [open, species, autoPickedSpaceId])
 
   function handleAdd() {
     if (!species) return
     const trimmed = nickname.trim()
     if (!trimmed) return
 
-    if (existingNicknames.includes(trimmed)) {
+    if (existingNicknames.has(trimmed)) {
       setError({ field: 'nickname', message: `"${trimmed}" is already in your list — pick a different name.` })
       return
     }
