@@ -9,9 +9,9 @@ import Tile from '../form/Tile'
 import Card from '../ui/Card'
 import Emphasis from '../ui/Emphasis'
 import Heading from '../ui/Heading'
-import StepTip from './StepTip'
-import CustomSpaceForm from './spaces/CustomSpaceForm'
-import WizardActions from './WizardActions'
+import StepTip from './shared/StepTip'
+import WizardActions from './shared/WizardActions'
+import AddCustomSpaceForm from './spaces/AddCustomSpaceForm'
 
 const CATEGORY_LABELS = {
   indoor: { emoji: '🏠', label: 'Indoor' },
@@ -121,8 +121,8 @@ export default function Step2Spaces({ onBack, onComplete }) {
 
   return (
     <>
-      <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
-        <Card.Header divider={false} className="pb-0">
+      <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 gap-4">
+        <Card.Header divider={false}>
           <Heading
             variant="display"
             className="text-ink"
@@ -130,6 +130,9 @@ export default function Step2Spaces({ onBack, onComplete }) {
           >
             Where do your plants <Emphasis>live?</Emphasis>
           </Heading>
+          <div className="mt-4">
+            <StepTip icon="🌿">Plants prefer staying put — moving them stresses them out.</StepTip>
+          </div>
         </Card.Header>
 
         <Card.Body className="flex flex-col">
@@ -166,7 +169,7 @@ export default function Step2Spaces({ onBack, onComplete }) {
                       exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
                       transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: [0.33, 1, 0.68, 1] }}
                     >
-                      <Tile selected={selectedSpaces.includes(space)} onClick={() => toggleSpace(space)}>
+                      <Tile icon="✨" selected={selectedSpaces.includes(space)} onClick={() => toggleSpace(space)}>
                         {space}
                       </Tile>
                     </motion.div>
@@ -179,10 +182,6 @@ export default function Step2Spaces({ onBack, onComplete }) {
               + Name a space of your own
             </Tile>
           </div>
-
-          <div className="mt-6">
-            <StepTip icon="🌿">Plants prefer staying put — moving them stresses them out.</StepTip>
-          </div>
         </Card.Body>
 
         <WizardActions
@@ -193,7 +192,7 @@ export default function Step2Spaces({ onBack, onComplete }) {
         />
       </form>
 
-      <CustomSpaceForm
+      <AddCustomSpaceForm
         open={customDialogOpen}
         onClose={() => setCustomDialogOpen(false)}
         onAdd={handleAddCustom}

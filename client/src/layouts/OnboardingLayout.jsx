@@ -1,7 +1,7 @@
 import { Outlet, useParams } from 'react-router-dom'
 import Logo from '../components/Logo'
 import { getIntentConfig, STEP_NAMES, stepFromSlug, TOTAL_STEPS } from '../components/onboarding/intentConfig'
-import StepProgress from '../components/onboarding/StepProgress'
+import StepProgress from '../components/onboarding/shared/StepProgress'
 import { useAuth } from '../hooks/useAuth'
 
 export default function OnboardingLayout() {

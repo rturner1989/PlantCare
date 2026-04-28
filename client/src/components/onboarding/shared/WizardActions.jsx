@@ -1,5 +1,5 @@
-import Action from '../ui/Action'
-import Card from '../ui/Card'
+import Action from '../../ui/Action'
+import Card from '../../ui/Card'
 
 export default function WizardActions({
   onBack,
@@ -11,7 +11,7 @@ export default function WizardActions({
   children,
 }) {
   return (
-    <Card.Footer divider={false} className={children ? 'flex flex-col gap-3' : ''}>
+    <Card.Footer divider={false} className={`pt-2 ${children ? 'flex flex-col gap-3' : ''}`}>
       <div className="flex gap-2.5">
         {onBack && (
           <Action variant="secondary" onClick={onBack} disabled={submitting}>

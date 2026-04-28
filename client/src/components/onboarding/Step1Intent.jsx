@@ -3,8 +3,8 @@ import Card from '../ui/Card'
 import Emphasis from '../ui/Emphasis'
 import Heading from '../ui/Heading'
 import { INTENT_CONFIG, INTENT_KEYS } from './intentConfig'
-import StepTip from './StepTip'
-import WizardActions from './WizardActions'
+import StepTip from './shared/StepTip'
+import WizardActions from './shared/WizardActions'
 
 export default function Step1Intent({ initialIntent = null, onBack, onContinue, submitting = false }) {
   const groupName = useId()
@@ -19,8 +19,8 @@ export default function Step1Intent({ initialIntent = null, onBack, onContinue, 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
-      <Card.Header divider={false} className="pb-0">
+    <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 gap-4">
+      <Card.Header divider={false}>
         <Heading
           variant="display"
           className="text-ink"
@@ -28,6 +28,11 @@ export default function Step1Intent({ initialIntent = null, onBack, onContinue, 
         >
           What brings you <Emphasis>here?</Emphasis>
         </Heading>
+        {previewConfig && (
+          <div aria-live="polite" className="mt-4">
+            <StepTip icon={previewConfig.previewIcon}>{previewConfig.previewLine}</StepTip>
+          </div>
+        )}
       </Card.Header>
 
       <Card.Body>
@@ -63,12 +68,6 @@ export default function Step1Intent({ initialIntent = null, onBack, onContinue, 
             )
           })}
         </div>
-
-        {previewConfig && (
-          <div aria-live="polite" className="mt-5">
-            <StepTip icon={previewConfig.previewIcon}>{previewConfig.previewLine}</StepTip>
-          </div>
-        )}
       </Card.Body>
 
       <WizardActions onBack={onBack} continueDisabled={!selectedIntent} submitting={submitting} />

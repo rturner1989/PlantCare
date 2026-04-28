@@ -1,6 +1,6 @@
 import Card from '../ui/Card'
 import Heading from '../ui/Heading'
-import WizardActions from './WizardActions'
+import WizardActions from './shared/WizardActions'
 
 export default function Step6JournalPlaceholder({ onBack, onContinue }) {
   function handleSubmit(event) {
@@ -9,7 +9,7 @@ export default function Step6JournalPlaceholder({ onBack, onContinue }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
+    <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 gap-4">
       <Card.Header divider={false} className="pb-0">
         <Heading variant="display" className="text-ink">
           Journal

@@ -62,10 +62,10 @@ describe('Card.Header', () => {
 })
 
 describe('Card.Body', () => {
-  it('renders children with body padding', () => {
+  it('renders children as the scrollable region', () => {
     const { container } = render(<Card.Body>Content</Card.Body>)
     expect(screen.getByText('Content')).toBeInTheDocument()
-    expect(container.firstChild).toHaveClass('p-6')
+    expect(container.firstChild).toHaveClass('overflow-y-auto')
   })
 
   it('merges a user-provided className (e.g. space-y-4 for field stacks)', () => {

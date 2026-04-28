@@ -1,312 +1,213 @@
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useState } from 'react'
 import { apiGet } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
+import { useCreatePlant, useDeletePlant, usePlants } from '../../hooks/usePlants'
 import { isSearchQuery, useSpeciesSearch } from '../../hooks/useSpecies'
-import SearchField from '../form/SearchField'
 import TextInput from '../form/TextInput'
+import Tile from '../form/Tile'
 import Action from '../ui/Action'
-import Badge from '../ui/Badge'
 import Card from '../ui/Card'
+import Emphasis from '../ui/Emphasis'
 import EmptyState from '../ui/EmptyState'
+import Heading from '../ui/Heading'
+import Spinner from '../ui/Spinner'
+import AddPlantForm from './plants/AddPlantForm'
+import StepTip from './shared/StepTip'
+import WizardActions from './shared/WizardActions'
 
 const EMPTY_RESULTS = []
 
-function SpeciesRow({ species }) {
-  return (
-    <div className="flex items-center justify-between px-4 py-3">
-      <div>
-        <p className="text-sm font-bold text-ink">{species.common_name}</p>
-        {species.scientific_name && <p className="text-xs text-ink-soft italic">{species.scientific_name}</p>}
-      </div>
-      {species.personality && (
-        <Badge scheme="emerald" variant="soft">
-          {species.personality}
-        </Badge>
-      )}
-    </div>
-  )
+function speciesKey(species) {
+  return species.id ?? species.perenual_id ?? species.common_name
 }
 
-export default function Step3Species({
-  availableSpaces = [],
-  createdPlants = [],
-  initialSpecies = null,
-  initialNickname = '',
-  initialSpaceId = null,
-  onBack,
-  onComplete,
-}) {
-  const hasExistingPlants = createdPlants.length > 0
-  const [query, setQuery] = useState('')
-  const [selected, setSelected] = useState(initialSpecies)
-  const [nickname, setNickname] = useState(initialNickname)
-  const [spaceId, setSpaceId] = useState(() => {
-    if (initialSpaceId) return initialSpaceId
-    if (availableSpaces.length === 1) return availableSpaces[0].id
-    return null
-  })
-  const [continuing, setContinuing] = useState(false)
+export default function Step3Species({ availableSpaces = [], onBack, onComplete }) {
   const toast = useToast()
+  const [query, setQuery] = useState('')
+  const [pendingSpecies, setPendingSpecies] = useState(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [adding, setAdding] = useState(false)
 
-  // Debounced not deferred — defer delays the render, not the fetch, and Perenual charges per fetch.
   const debouncedQuery = useDebouncedValue(query, 300)
-  const { data: fetched = EMPTY_RESULTS, isLoading } = useSpeciesSearch(debouncedQuery)
-  // While the user's live input crosses modes (popular ↔ search) ahead of
-  // the debounced fetch, hide the stale list so the spinner transitions
-  // smoothly instead of flashing the previous mode's results.
-  const modeChanging = isSearchQuery(query) !== isSearchQuery(debouncedQuery)
-  const results = modeChanging ? EMPTY_RESULTS : fetched
-  const searching = isLoading || query !== debouncedQuery
-  const shouldReduceMotion = useReducedMotion()
+  const isSearching = isSearchQuery(debouncedQuery)
+  const { data: results = EMPTY_RESULTS, isLoading } = useSpeciesSearch(debouncedQuery)
 
-  // Preload result images during idle time so picking one shows the photo
-  // immediately. Deferred via requestIdleCallback — firing synchronously with
-  // mount had 10 `new Image()` calls stealing frames from the entry animation.
-  useEffect(() => {
-    if (results.length === 0) return
-    const preload = () => {
-      for (const result of results) {
-        if (result.image_url) {
-          const img = new Image()
-          img.src = result.image_url
-        }
-      }
-    }
-    if (typeof window.requestIdleCallback === 'function') {
-      const handle = window.requestIdleCallback(preload, { timeout: 2000 })
-      return () => window.cancelIdleCallback(handle)
-    }
-    const handle = setTimeout(preload, 400)
-    return () => clearTimeout(handle)
-  }, [results])
+  const modeChanging = isSearchQuery(query) !== isSearching
+  const visibleResults = modeChanging ? EMPTY_RESULTS : results
+  const loading = isLoading || query !== debouncedQuery
 
-  function handleSelect(species) {
-    setSelected(species)
-    setNickname('')
+  // Eager-commit pattern — `usePlants()` is the source of truth for added
+  // plants, so back nav restores chips automatically and refreshes match
+  // server state. Local state only tracks the in-flight dialog.
+  const { data: addedPlants = [] } = usePlants()
+  const createPlant = useCreatePlant()
+  const deletePlant = useDeletePlant()
+
+  function handleSpeciesTap(species) {
+    setPendingSpecies(species)
+    setDialogOpen(true)
   }
 
-  function clearSelection() {
-    setSelected(null)
-    setQuery('')
-  }
-
-  // Perenual-sourced results arrive as SpeciesSearchResult wrappers with
-  // id=null. Step 4 needs the full Species#as_json shape (suggested_*,
-  // plant_levels) and the plant POST needs a real id, so hydrate via the
-  // show endpoint — the controller persists the Perenual row on first call.
-  async function handleContinue() {
-    if (!selected) return
-    setContinuing(true)
+  async function handleConfirmAdd({ species, nickname, spaceId }) {
+    setAdding(true)
     try {
-      let species = selected
-      if (!species.id && species.perenual_id) {
+      // Perenual results arrive with id=null. Hydrate via the show endpoint
+      // first — the controller persists the Perenual row on first call.
+      let resolvedSpecies = species
+      if (!resolvedSpecies.id && resolvedSpecies.perenual_id) {
         const params = new URLSearchParams({
-          perenual_id: species.perenual_id,
-          common_name: species.common_name ?? '',
-          scientific_name: species.scientific_name ?? '',
-          image_url: species.image_url ?? '',
+          perenual_id: resolvedSpecies.perenual_id,
+          common_name: resolvedSpecies.common_name ?? '',
+          scientific_name: resolvedSpecies.scientific_name ?? '',
+          image_url: resolvedSpecies.image_url ?? '',
         })
-        species = await apiGet(`/api/v1/species/${species.perenual_id}?${params}`)
+        resolvedSpecies = await apiGet(`/api/v1/species/${resolvedSpecies.perenual_id}?${params}`)
       }
-      onComplete(species, nickname, spaceId)
+      await createPlant.mutateAsync({
+        species_id: resolvedSpecies.id,
+        space_id: spaceId,
+        nickname,
+      })
+      setDialogOpen(false)
     } catch (err) {
-      toast.error(err.message || "Couldn't load that species — please pick another")
+      toast.error(err.message ?? "Couldn't add that plant")
     } finally {
-      setContinuing(false)
+      setAdding(false)
     }
   }
 
-  const needsSpaceChoice = availableSpaces.length > 1
-  const canContinue = selected && (!!spaceId || availableSpaces.length === 0)
+  function handleRemove(plantId) {
+    deletePlant.mutate(plantId, {
+      onError: (err) => toast.error(err.message ?? "Couldn't remove that plant"),
+    })
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault()
+    onComplete(addedPlants)
+  }
+
+  const plantCount = addedPlants.length
+  const continueLabel =
+    plantCount === 0
+      ? 'Continue'
+      : plantCount === 1
+        ? 'Continue with 1 plant →'
+        : `Continue with ${plantCount} plants →`
 
   return (
     <>
-      <Card.Body className={`flex flex-col ${!selected ? 'pb-3' : ''}`}>
-        <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight">
-          {hasExistingPlants ? (
-            <>
-              Add <em className="not-italic text-leaf">another</em>?
-            </>
-          ) : (
-            <>
-              Meet your <em className="not-italic text-leaf">first plant</em>.
-            </>
-          )}
-        </h1>
-        <p className="mt-3 text-sm text-ink-soft font-medium leading-snug">
-          {hasExistingPlants
-            ? 'Keep going, or finish up to land in your jungle.'
-            : 'Or skip — you can add plants anytime from the Add button.'}
-        </p>
-
-        {hasExistingPlants && (
-          <div className="mt-4 flex flex-wrap items-center gap-1.5">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-ink-soft mr-1">Added so far</span>
-            {createdPlants.map((plant) => (
-              <span key={plant.id} className="text-[11px] font-bold bg-mint text-emerald px-2.5 py-1 rounded-full">
-                {plant.nickname}
-              </span>
-            ))}
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 gap-4">
+        <Card.Header divider={false}>
+          <Heading
+            variant="display"
+            className="text-ink"
+            subtitle="Add the ones sharing your home already — you can always add more later."
+          >
+            Meet your <Emphasis>plants</Emphasis>
+          </Heading>
+          <div className="mt-4">
+            <StepTip icon="🌿">Start small — three well-kept beats ten forgotten.</StepTip>
           </div>
-        )}
+        </Card.Header>
 
-        {/* Selected state scrolls the whole stack inside the wizard card so the
-            title/subtitle don't get pushed off-screen. Search state defers
-            scrolling to the listbox inside SearchField. */}
-        <div className={`mt-5 flex-1 min-h-0 ${selected ? 'overflow-y-auto -mx-1 px-1' : 'flex flex-col'}`}>
-          {/* initial={false} — wizard-level AnimatePresence in Welcome.jsx
-              already animates the Step 3 mount; nesting a second entrance
-              animation compounded into a visible stutter. */}
-          <AnimatePresence mode="wait" initial={false}>
-            {!selected ? (
-              <motion.div
-                key="search"
-                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 4 }}
-                animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.22, ease: [0.33, 1, 0.68, 1] }}
-                className="flex-1 min-h-0 flex flex-col"
-              >
-                <SearchField
-                  label="Search species"
-                  placeholder="e.g. Monstera, Snake Plant..."
-                  query={query}
-                  onQueryChange={setQuery}
-                  results={results}
-                  onSelect={handleSelect}
-                  getOptionKey={(species) => species.id ?? species.perenual_id ?? species.common_name}
-                  renderOption={(species) => <SpeciesRow species={species} />}
-                  renderNoResults={(q) => (
-                    <EmptyState
-                      description={
-                        <>
-                          We couldn't find any species matching <span className="font-bold text-ink">"{q}"</span>. Try a
-                          different name — common or scientific both work.
-                        </>
-                      }
-                    />
+        <Card.Body className="flex flex-col gap-4">
+          {addedPlants.length > 0 && (
+            <div className="flex flex-wrap gap-2 p-2.5 bg-mint border-[1.5px] border-dashed border-leaf/25 rounded-md">
+              {addedPlants.map((plant) => (
+                <span
+                  key={plant.id}
+                  className="inline-flex items-center gap-1.5 pl-1 pr-2 py-1 bg-paper rounded-full shadow-warm-sm text-xs font-bold"
+                >
+                  <span className="w-5 h-5 rounded-full bg-paper-deep border border-paper-edge flex items-center justify-center text-[11px]">
+                    {plant.species?.icon || '🌿'}
+                  </span>
+                  <span className="text-ink">{plant.nickname}</span>
+                  {plant.species?.common_name && (
+                    <span className="text-ink-soft font-medium text-[10px]">
+                      · {plant.species.common_name} · {plant.space?.name}
+                    </span>
                   )}
-                  loading={searching}
-                  className="flex-1 min-h-0"
-                />
-              </motion.div>
+                  <Action
+                    variant="unstyled"
+                    onClick={() => handleRemove(plant.id)}
+                    aria-label={`Remove ${plant.nickname}`}
+                    className="w-3.5 h-3.5 rounded-full bg-ink/5 text-ink-soft text-[10px] flex items-center justify-center hover:bg-ink/10"
+                  >
+                    <FontAwesomeIcon icon={faXmark} className="w-2 h-2" />
+                  </Action>
+                </span>
+              ))}
+            </div>
+          )}
+
+          <TextInput
+            label="Search species"
+            labelHidden
+            type="search"
+            placeholder="Search species…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+
+          <div>
+            {loading && visibleResults.length === 0 ? (
+              <div className="flex items-center justify-center py-8">
+                <Spinner />
+              </div>
+            ) : visibleResults.length === 0 && isSearching ? (
+              <EmptyState
+                description={
+                  <>
+                    Nothing matches <span className="font-bold text-ink">"{debouncedQuery}"</span>. Try a different
+                    name.
+                  </>
+                }
+              />
             ) : (
-              <motion.div
-                key="selected"
-                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 4 }}
-                animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.22, ease: [0.33, 1, 0.68, 1] }}
-              >
-                <div className="relative rounded-md text-white overflow-hidden min-h-[140px] bg-[image:var(--gradient-forest)]">
-                  {selected.image_url && (
-                    <img
-                      src={selected.image_url}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover scale-[1.15] origin-center"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none'
-                      }}
-                    />
-                  )}
-
-                  <div className="absolute inset-0 pointer-events-none hero-image-fade" />
-
-                  <div className="relative p-4 pr-[40%]">
-                    <p className="text-[9px] font-extrabold text-lime uppercase tracking-wider mb-1">
-                      Species selected
-                    </p>
-                    <p className="text-lg font-extrabold">{selected.common_name}</p>
-                    {selected.scientific_name && (
-                      <p className="text-xs italic opacity-70">{selected.scientific_name}</p>
-                    )}
-                    <div className="flex gap-2 mt-3">
-                      {selected.personality && (
-                        <span className="text-[10px] font-bold bg-white/10 text-lime px-2.5 py-1 rounded-full">
-                          {selected.personality}
-                        </span>
-                      )}
-                      {selected.difficulty && (
-                        <span className="text-[10px] font-bold bg-white/10 text-lime px-2.5 py-1 rounded-full">
-                          {selected.difficulty}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {needsSpaceChoice && (
-                  <label className="block mt-4">
-                    <span className="text-xs font-bold text-ink-soft uppercase tracking-wider">Which space?</span>
-                    <select
-                      value={spaceId ?? ''}
-                      onChange={(e) => setSpaceId(Number(e.target.value))}
-                      className="mt-1 w-full px-4 py-3 rounded-md bg-mint/50 border border-mint text-ink text-base font-semibold focus:outline-none focus:ring-4 focus:ring-leaf/20 focus:border-leaf"
+              <div className="text-left">
+                <p className="text-[10px] font-extrabold tracking-[0.14em] uppercase text-ink-soft mb-2.5">
+                  {isSearching ? 'Results · tap to add' : 'Popular · tap to add'}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {visibleResults.map((species) => (
+                    <Tile
+                      key={speciesKey(species)}
+                      size="card"
+                      icon={species.icon || '🌿'}
+                      onClick={() => handleSpeciesTap(species)}
                     >
-                      <option value="" disabled>
-                        Pick a space...
-                      </option>
-                      {availableSpaces.map((space) => (
-                        <option key={space.id} value={space.id}>
-                          {space.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                )}
-
-                <div className="mt-4">
-                  <TextInput
-                    label="What should we call them?"
-                    type="text"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)}
-                    placeholder={selected.common_name}
-                    hint={
-                      nickname
-                        ? `Nice choice. I already like ${nickname}.`
-                        : `Leave blank and we'll call them ${selected.common_name}.`
-                    }
-                  />
+                      <div className="min-w-0">
+                        <div className="text-sm font-bold text-ink truncate">{species.common_name}</div>
+                        {species.scientific_name && (
+                          <div className="font-display italic text-xs text-ink-soft truncate">
+                            {species.scientific_name}
+                          </div>
+                        )}
+                      </div>
+                    </Tile>
+                  ))}
                 </div>
-
-                <Action variant="unstyled" onClick={clearSelection} className="mt-3 text-xs text-ink-soft underline">
-                  Choose a different species
-                </Action>
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
+          </div>
+        </Card.Body>
 
-          <p className="text-center text-xs text-ink-soft font-bold mt-4">
-            {hasExistingPlants ? (
-              <>
-                Done adding?{' '}
-                <Action variant="unstyled" onClick={() => onComplete(null, '', null)} className="text-emerald">
-                  Finish up
-                </Action>
-              </>
-            ) : (
-              <>
-                Prefer to do this later?{' '}
-                <Action variant="unstyled" onClick={() => onComplete(null, '', null)} className="text-emerald">
-                  Skip for now
-                </Action>
-              </>
-            )}
-          </p>
-        </div>
-      </Card.Body>
+        <WizardActions onBack={onBack} continueLabel={continueLabel} continueDisabled={plantCount === 0} />
+      </form>
 
-      <Card.Footer divider={false} className={`flex gap-2.5 ${!selected ? 'pt-3' : ''}`}>
-        <Action variant="secondary" onClick={onBack}>
-          Back
-        </Action>
-        <Action variant="primary" onClick={handleContinue} disabled={!canContinue || continuing} className="ml-auto">
-          {continuing ? 'Loading species...' : 'Continue →'}
-        </Action>
-      </Card.Footer>
+      <AddPlantForm
+        open={dialogOpen}
+        species={pendingSpecies}
+        availableSpaces={availableSpaces}
+        existingNicknames={addedPlants.map((plant) => plant.nickname)}
+        submitting={adding}
+        onClose={() => setDialogOpen(false)}
+        onAdd={handleConfirmAdd}
+      />
     </>
   )
 }

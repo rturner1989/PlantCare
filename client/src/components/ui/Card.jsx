@@ -17,7 +17,7 @@ function Card({ variant = 'solid', className = '', ref, children, ...kwargs }) {
 function Header({ className = '', divider = true, children, ...kwargs }) {
   const dividerClass = divider ? 'border-b border-mint' : ''
   return (
-    <div className={`px-6 pt-6 pb-4 ${dividerClass} ${className}`} {...kwargs}>
+    <div className={`${dividerClass} ${className}`} {...kwargs}>
       {children}
     </div>
   )
@@ -25,7 +25,7 @@ function Header({ className = '', divider = true, children, ...kwargs }) {
 
 function Body({ className = '', children, ...kwargs }) {
   return (
-    <div className={`p-6 flex-1 min-h-0 overflow-y-auto scroll-fade-bottom ${className}`} {...kwargs}>
+    <div className={`flex-1 min-h-0 overflow-y-auto ${className}`} {...kwargs}>
       {children}
     </div>
   )
@@ -34,7 +34,7 @@ function Body({ className = '', children, ...kwargs }) {
 function Footer({ className = '', divider = true, children, ...kwargs }) {
   const dividerClass = divider ? 'border-t border-mint' : ''
   return (
-    <div className={`p-6 ${dividerClass} ${className}`} {...kwargs}>
+    <div className={`${dividerClass} ${className}`} {...kwargs}>
       {children}
     </div>
   )

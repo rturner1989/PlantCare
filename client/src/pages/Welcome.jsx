@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   getIntentConfig,
-  LAST_STEP,
   nextVisibleStep,
   pathForStep,
   previousVisibleStep,
@@ -13,11 +12,11 @@ import Step0Welcome from '../components/onboarding/Step0Welcome'
 import Step1Intent from '../components/onboarding/Step1Intent'
 import Step2Spaces from '../components/onboarding/Step2Spaces'
 import Step3Species from '../components/onboarding/Step3Species'
-import Step4Environment from '../components/onboarding/Step4Environment'
+import Step4EnvironmentPlaceholder from '../components/onboarding/Step4EnvironmentPlaceholder'
 import Step5Done from '../components/onboarding/Step5Done'
 import Step5StakesPlaceholder from '../components/onboarding/Step5StakesPlaceholder'
 import Step6JournalPlaceholder from '../components/onboarding/Step6JournalPlaceholder'
-import WizardCard from '../components/onboarding/WizardCard'
+import WizardCard from '../components/onboarding/shared/WizardCard'
 import Spinner from '../components/ui/Spinner'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
@@ -50,9 +49,6 @@ export default function Welcome() {
   const intent = user?.onboarding_intent ?? null
   const intentConfig = getIntentConfig(intent)
 
-  const [selectedSpecies, setSelectedSpecies] = useState(null)
-  const [nickname, setNickname] = useState('')
-  const [spaceId, setSpaceId] = useState(null)
   const [finishing, setFinishing] = useState(false)
 
   const { data: createdPlants = [] } = usePlants()
@@ -114,29 +110,9 @@ export default function Welcome() {
     [updateUser, goToStep, toast],
   )
 
-  const handleSpeciesChosen = useCallback(
-    (species, chosenNickname, chosenSpaceId) => {
-      setSelectedSpecies(species)
-      setNickname(chosenNickname)
-      setSpaceId(chosenSpaceId)
-      const target = species ? 4 : LAST_STEP
-      goToStep(target)
-      persistStepReached(target)
-    },
-    [goToStep, persistStepReached],
-  )
-
-  const handlePlantCreated = useCallback(() => {
+  const handlePlantsAdded = useCallback(() => {
     handleNext()
   }, [handleNext])
-
-  const handleAddAnother = useCallback(() => {
-    setSelectedSpecies(null)
-    setNickname('')
-    setSpaceId(null)
-    goToStep(3)
-    persistStepReached(3)
-  }, [goToStep, persistStepReached])
 
   const handleFinish = useCallback(async () => {
     setFinishing(true)
@@ -165,38 +141,12 @@ export default function Welcome() {
     if (step === 1) return <Step1Intent initialIntent={intent} onBack={handleBack} onContinue={handleSetIntent} />
     if (step === 2) return <Step2Spaces onBack={handleBack} onComplete={handleNext} />
     if (step === 3)
-      return (
-        <Step3Species
-          availableSpaces={existingSpaces}
-          createdPlants={createdPlants}
-          initialSpecies={selectedSpecies}
-          initialNickname={nickname}
-          initialSpaceId={spaceId}
-          onBack={handleBack}
-          onComplete={handleSpeciesChosen}
-        />
-      )
-    if (step === 4)
-      return (
-        <Step4Environment
-          species={selectedSpecies}
-          nickname={nickname}
-          spaceId={spaceId}
-          onBack={handleBack}
-          onComplete={handlePlantCreated}
-        />
-      )
+      return <Step3Species availableSpaces={existingSpaces} onBack={handleBack} onComplete={handlePlantsAdded} />
+    if (step === 4) return <Step4EnvironmentPlaceholder onBack={handleBack} onContinue={handleNext} />
     if (step === 5) return <Step5StakesPlaceholder onBack={handleBack} onContinue={handleNext} />
     if (step === 6) return <Step6JournalPlaceholder onBack={handleBack} onContinue={handleNext} />
-    if (step === 7)
-      return (
-        <Step5Done
-          createdPlants={createdPlants}
-          onAddAnother={handleAddAnother}
-          onFinish={handleFinish}
-          finishing={finishing}
-        />
-      )
+    if (step === 7) return <Step5Done createdPlants={createdPlants} onFinish={handleFinish} finishing={finishing} />
+
     return null
   }
 

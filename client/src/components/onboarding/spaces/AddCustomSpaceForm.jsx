@@ -1,15 +1,15 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useState } from 'react'
 import SegmentedControl from '../../form/SegmentedControl'
+import TextInput from '../../form/TextInput'
 import Action from '../../ui/Action'
 import Card from '../../ui/Card'
 import Dialog from '../../ui/Dialog'
 
 const TITLE = 'Add a custom space'
 
-export default function CustomSpaceForm({ open, onClose, onAdd, existingNames = [] }) {
-  const errorId = useId()
+export default function AddCustomSpaceForm({ open, onClose, onAdd, existingNames = [] }) {
   const [name, setName] = useState('')
   const [category, setCategory] = useState('indoor')
   const [error, setError] = useState(null)
@@ -27,7 +27,7 @@ export default function CustomSpaceForm({ open, onClose, onAdd, existingNames = 
     if (!trimmed) return
 
     if (existingNames.includes(trimmed)) {
-      setError(`"${trimmed}" is already in your list.`)
+      setError({ field: 'name', message: `"${trimmed}" is already in your list.` })
       return
     }
     onAdd(trimmed, category)
@@ -60,25 +60,19 @@ export default function CustomSpaceForm({ open, onClose, onAdd, existingNames = 
       </Card.Header>
 
       <Card.Body className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1.5">
-          <span className="text-[10px] font-extrabold tracking-[0.14em] uppercase text-ink-soft">Name</span>
-          <input
-            type="text"
-            value={name}
-            onChange={(event) => {
-              setName(event.target.value)
-              if (error) setError(null)
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder="Garage, Loft, Greenhouse…"
-            className={`px-3 py-2.5 rounded-md bg-paper border-[1.5px] text-ink text-sm outline-none focus:border-emerald ${
-              error ? 'border-coral-deep' : 'border-paper-edge'
-            }`}
-            aria-invalid={Boolean(error)}
-            aria-describedby={error ? errorId : undefined}
-            autoFocus
-          />
-        </label>
+        <TextInput
+          label="Name"
+          type="text"
+          value={name}
+          onChange={(event) => {
+            setName(event.target.value)
+            if (error) setError(null)
+          }}
+          onKeyDown={handleKeyDown}
+          placeholder="Garage, Loft, Greenhouse…"
+          error={error?.field === 'name' ? error.message : null}
+          autoFocus
+        />
 
         <SegmentedControl
           label="Category"
@@ -89,12 +83,6 @@ export default function CustomSpaceForm({ open, onClose, onAdd, existingNames = 
             { value: 'outdoor', label: 'Outdoor' },
           ]}
         />
-
-        {error && (
-          <p id={errorId} role="alert" className="text-sm text-coral-deep font-medium">
-            {error}
-          </p>
-        )}
       </Card.Body>
 
       <Card.Footer divider={false} className="flex gap-2.5">

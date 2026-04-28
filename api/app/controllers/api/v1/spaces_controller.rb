@@ -11,7 +11,7 @@ module Api
                  when 'archived' then current_user.spaces.archived
                  else current_user.spaces.active
         end
-        render json: spaces
+        render json: spaces.order(:created_at)
       end
 
       def show

@@ -263,6 +263,70 @@ Rules:
 
 Mirrors `components/onboarding/` (the wizard step components live in their own subfolder). The pattern formalises the same idea inside any feature module.
 
+**Card primitive (`Card.Header` / `Card.Body` / `Card.Footer`) slots have no default padding.** Padding is a concern of the *outer container* (the `<form>`, `<Dialog>`'s Card, `WizardCard`'s SHELL), and spacing between slots comes from `gap-*` on that flex parent. Subcomponents are pure layout slots — no `p-6` baked into Header/Body/Footer. `Card.Body` keeps `flex-1 min-h-0 overflow-y-auto` because the scroll behaviour is the slot's job, but everything else (padding, gap) lives on whoever wraps it. The two consumers today: onboarding step `<form>` (`p-6 gap-4` on the form) and `<Dialog>` (`p-6 gap-4` baked into the Dialog's MotionCard className).
+
+### Forms
+
+**Use the `TextInput` primitive, never hand-rolled `<input>`.** TextInput owns the label association, hint/error slots, focus ring, `aria-invalid` wiring, and the iOS no-zoom 16px font-size — all of which are easy to forget when copy-pasting markup. Pass `error` as a string when you want the input to render the invalid state and the message; pass falsy to render the optional `hint` instead.
+
+**Error state for multi-field forms is `{ field, message }`, not a plain string.** Border highlight, `aria-invalid`, and `aria-describedby` should only fire on the field that actually failed. Single-error-string state applies the red border to whichever input you wired it to, even when the failure was elsewhere — caught in TICKET-045 when the "pick a space" error painted the nickname input red.
+
+```jsx
+const [error, setError] = useState(null) // { field: 'nickname' | 'space', message }
+
+<TextInput
+  label="Nickname"
+  error={error?.field === 'nickname' ? error.message : null}
+  ...
+/>
+```
+
+**No primitive for the field type you need? Build the primitive.** When you reach for a control that doesn't have a primitive yet (`<select>`, `<textarea>`, etc.), build the primitive in `components/form/` rather than hand-rolling the markup at the consumer. The "two-or-more" extraction rule still applies — if you're the *first* consumer, ship a thin component that encodes the same label/error/focus-ring shape as `TextInput` (so future consumers find it and the visual stays unified). Don't invent new error-styling or focus-ring rules per consumer.
+
+**Focus rings use `focus:ring-inset`.** A 4px outer ring gets clipped by `overflow-hidden` containers (Dialog, scrollable Card.Body). The inset variant lives inside the input border and is always visible. Auth surfaces have plenty of room either way, so the inset version is universally safe.
+
+### Onboarding wizard structure
+
+The `/welcome` flow has a specific shape that every step follows. Match it; don't invent a new layout per step.
+
+**Folder layout** — `components/onboarding/`:
+
+```
+onboarding/
+├── shared/                  ← cross-step primitives
+│   ├── WizardCard.jsx       ← outer card shell with the SHELL class set
+│   ├── WizardActions.jsx    ← Card.Footer with Back+Continue + footerExtras slot
+│   ├── StepTip.jsx          ← mint-bg italic advice badge
+│   └── StepProgress.jsx     ← progress strip rendered by OnboardingLayout
+├── plants/                  ← Step 3-owned subcomponents (AddPlantForm, etc.)
+├── spaces/                  ← Step 2-owned subcomponents (AddCustomSpaceForm)
+├── intentConfig.js          ← shared logic config (steps, slugs, intents)
+└── Step*.jsx                ← step components only at the root
+```
+
+The root holds *only* step components and `intentConfig`. Cross-step primitives go in `shared/`; subcomponents owned by a single step go in a folder named after the step's domain (`plants/`, `spaces/`).
+
+**Step structure.** Every step component returns:
+
+```jsx
+<form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 gap-4">
+  <Card.Header divider={false}>
+    <Heading variant="display" subtitle="...">…</Heading>
+    {/* StepTip lives here, alongside heading + subtitle — not in Body */}
+  </Card.Header>
+
+  <Card.Body className="flex flex-col gap-4">
+    {/* the work area */}
+  </Card.Body>
+
+  <WizardActions onBack={onBack} continueLabel={...} continueDisabled={...} />
+</form>
+```
+
+Even non-mutation steps (placeholders, intro screens) wrap in `<form>` — Enter-to-submit and `type="submit"` semantics come for free.
+
+**Naming convention for dialog form components.** When a step opens a Dialog containing a small form, the component is named `Add<Thing>Form` and lives in the step's domain folder: `AddCustomSpaceForm` (Step 2 → `spaces/`), `AddPlantForm` (Step 3 → `plants/`).
+
 ### Client directory layout
 
 The `client/` tree is organised by *role*, not by feature. Every file has one obvious home based on what kind of thing it is. Keep it this way — don't invent new top-level folders without a real reason.
