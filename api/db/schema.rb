@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_25_201937) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_27_210805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -106,6 +106,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_25_201937) do
   end
 
   create_table "spaces", force: :cascade do |t|
+    t.datetime "archived_at"
+    t.string "category", default: "indoor", null: false
     t.datetime "created_at", null: false
     t.string "icon"
     t.string "name", null: false
@@ -113,6 +115,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_25_201937) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index "user_id, lower((name)::text)", name: "index_spaces_on_user_id_and_lower_name", unique: true
+    t.index ["user_id", "archived_at"], name: "index_spaces_on_user_id_and_archived_at"
     t.index ["user_id"], name: "index_spaces_on_user_id"
   end
 

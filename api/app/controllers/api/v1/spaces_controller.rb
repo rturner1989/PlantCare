@@ -6,7 +6,12 @@ module Api
       before_action :set_space, only: [:show, :update, :destroy]
 
       def index
-        render json: current_user.spaces
+        spaces = case params[:scope]
+                 when 'all' then current_user.spaces
+                 when 'archived' then current_user.spaces.archived
+                 else current_user.spaces.active
+        end
+        render json: spaces
       end
 
       def show
@@ -41,7 +46,7 @@ module Api
       end
 
       private def space_params
-        params.expect(space: [:name, :icon])
+        params.expect(space: [:name, :icon, :category])
       end
     end
   end

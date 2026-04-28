@@ -360,6 +360,43 @@ input[type="search"]::-webkit-search-cancel-button {
   }
 }
 
+/* Drop-cap on the body paragraph — Fraunces italic, emerald, floats so
+ * the surrounding lines wrap around it on desktop. Mobile inlines it. */
+@utility step0-dropcap {
+  font-family: "Fraunces", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 0.9;
+  float: left;
+  margin: 4px 8px -6px 0;
+  color: var(--emerald);
+}
+
+@media (max-width: 639px) {
+  .step0-dropcap {
+    float: none;
+    display: inline;
+    font-size: 32px;
+    margin: 0 4px 0 0;
+    vertical-align: -6px;
+  }
+}
+
+/* Position + size are set inline at the consumer site. */
+@utility onboarding-blob {
+  border-radius: 50%;
+  filter: blur(80px);
+}
+
+@utility onboarding-blob-mint {
+  background: rgba(134, 219, 101, 0.4);
+}
+
+@utility onboarding-blob-sun {
+  background: rgba(255, 184, 61, 0.25);
+}
+
 @utility hero-glow-urgent {
   background: radial-gradient(circle at 85% 100%, rgba(255, 107, 61, 0.25) 0%, transparent 60%);
 }
@@ -385,22 +422,48 @@ input[type="search"]::-webkit-search-cancel-button {
 /* Toast vessel — glass paper card. Backdrop-blur for the frosted look,
  * paper-edge inset border, warm composite shadow. Single utility so the
  * recipe stays canonical (mirrors the notifications-drawer vessel). */
-@utility toast-vessel {
+@utility glass-card {
   background: rgba(251, 248, 241, 0.72);
   backdrop-filter: blur(var(--blur-heavy)) saturate(1.4);
   -webkit-backdrop-filter: blur(var(--blur-heavy)) saturate(1.4);
   box-shadow: var(--shadow-toast);
 }
 
-/* Fraunces-italic emphasis inside a toast title picks up the kind's
- * accent colour via a per-instance CSS custom property set on the
- * vessel: style={{ '--toast-em-color': styles.emColor }}.
- */
-.toast-vessel em {
+.glass-card em {
   font-family: "Fraunces", Georgia, serif;
   font-style: italic;
   font-weight: 500;
   color: var(--toast-em-color, currentColor);
+}
+
+/* bg-clip-text + italic descenders ('?', 'g', 'y') paint outside the inline
+ * em's content box and lose their gradient fill. Promote to inline-block and
+ * pad the bottom so the gradient extends under the descender. Negative margin
+ * neutralises the layout push. */
+@utility heading-emphasis {
+  display: inline-block;
+  padding-block-end: 0.25em;
+  margin-block-end: -0.25em;
+  vertical-align: baseline;
+}
+
+/* Scroll-aware fade on the bottom edge — visible only when there's more
+ * content below. Pairs a card-coloured "cover" attached to the scrolling
+ * content with a darker shadow attached to the scroll viewport. When the
+ * user scrolls to the bottom, the cover reaches the edge and hides the
+ * shadow. Two-layer technique by Roman Komarov / Lea Verou. */
+@utility scroll-fade-bottom {
+  background-image:
+    linear-gradient(to top, var(--color-card), var(--color-card)),
+    radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0));
+  background-repeat: no-repeat;
+  background-position:
+    bottom center,
+    bottom center;
+  background-size:
+    100% 14px,
+    100% 14px;
+  background-attachment: local, scroll;
 }
 
 /* Toast chip highlight — top-left radial wash, layered above the gradient

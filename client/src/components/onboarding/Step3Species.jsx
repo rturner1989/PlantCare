@@ -8,7 +8,7 @@ import SearchField from '../form/SearchField'
 import TextInput from '../form/TextInput'
 import Action from '../ui/Action'
 import Badge from '../ui/Badge'
-import { CardBody, CardFooter } from '../ui/Card'
+import Card from '../ui/Card'
 import EmptyState from '../ui/EmptyState'
 
 const EMPTY_RESULTS = []
@@ -123,7 +123,7 @@ export default function Step3Species({
 
   return (
     <>
-      <CardBody className={`flex flex-col ${!selected ? 'pb-3' : ''}`}>
+      <Card.Body className={`flex flex-col ${!selected ? 'pb-3' : ''}`}>
         <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight">
           {hasExistingPlants ? (
             <>
@@ -278,37 +278,35 @@ export default function Step3Species({
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
-      </CardBody>
 
-      <CardFooter className={`border-t-0 flex flex-col gap-3 ${!selected ? 'pt-3' : ''}`}>
-        <div className="flex gap-2.5">
-          <Action variant="secondary" onClick={onBack}>
-            Back
-          </Action>
-          <Action variant="primary" onClick={handleContinue} disabled={!canContinue || continuing} className="flex-1">
-            {continuing ? 'Loading species...' : 'Continue'}
-          </Action>
+          <p className="text-center text-xs text-ink-soft font-bold mt-4">
+            {hasExistingPlants ? (
+              <>
+                Done adding?{' '}
+                <Action variant="unstyled" onClick={() => onComplete(null, '', null)} className="text-emerald">
+                  Finish up
+                </Action>
+              </>
+            ) : (
+              <>
+                Prefer to do this later?{' '}
+                <Action variant="unstyled" onClick={() => onComplete(null, '', null)} className="text-emerald">
+                  Skip for now
+                </Action>
+              </>
+            )}
+          </p>
         </div>
+      </Card.Body>
 
-        <p className="text-center text-xs text-ink-soft font-bold">
-          {hasExistingPlants ? (
-            <>
-              Done adding?{' '}
-              <Action variant="unstyled" onClick={() => onComplete(null, '', null)} className="text-emerald">
-                Finish up
-              </Action>
-            </>
-          ) : (
-            <>
-              Prefer to do this later?{' '}
-              <Action variant="unstyled" onClick={() => onComplete(null, '', null)} className="text-emerald">
-                Skip for now
-              </Action>
-            </>
-          )}
-        </p>
-      </CardFooter>
+      <Card.Footer divider={false} className={`flex gap-2.5 ${!selected ? 'pt-3' : ''}`}>
+        <Action variant="secondary" onClick={onBack}>
+          Back
+        </Action>
+        <Action variant="primary" onClick={handleContinue} disabled={!canContinue || continuing} className="ml-auto">
+          {continuing ? 'Loading species...' : 'Continue →'}
+        </Action>
+      </Card.Footer>
     </>
   )
 }

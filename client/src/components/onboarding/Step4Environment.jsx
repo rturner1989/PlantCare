@@ -4,7 +4,7 @@ import { useFormSubmit } from '../../hooks/useFormSubmit'
 import { useCreatePlant } from '../../hooks/usePlants'
 import SegmentedControl from '../form/SegmentedControl'
 import Action from '../ui/Action'
-import { CardBody, CardFooter } from '../ui/Card'
+import Card from '../ui/Card'
 
 const FIELD_META = [
   { key: 'light_level', label: 'Light', icon: faSun, optionsKey: 'light' },
@@ -41,7 +41,7 @@ export default function Step4Environment({ species, nickname, spaceId, onBack, o
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
-      <CardBody>
+      <Card.Body>
         <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight">
           {'Tell me about '}
           <em className="not-italic text-leaf">{plantLabel}&rsquo;s spot</em>.
@@ -66,16 +66,16 @@ export default function Step4Environment({ species, nickname, spaceId, onBack, o
             Not sure? You can update these anytime.
           </p>
         </div>
-      </CardBody>
+      </Card.Body>
 
-      <CardFooter className="border-t-0 flex gap-2.5">
+      <Card.Footer divider={false} className="flex gap-2.5">
         <Action variant="secondary" onClick={onBack}>
-          Back
+          ← Back
         </Action>
-        <Action type="submit" variant="primary" disabled={submitting} className="flex-1">
-          {submitting ? 'Adding plant...' : 'Continue'}
+        <Action type="submit" variant="primary" disabled={submitting} className="ml-auto">
+          {submitting ? 'Adding plant…' : 'Continue →'}
         </Action>
-      </CardFooter>
+      </Card.Footer>
     </form>
   )
 }

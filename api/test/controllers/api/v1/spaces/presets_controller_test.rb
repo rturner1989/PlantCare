@@ -17,6 +17,18 @@ class Api::V1::Spaces::PresetsControllerTest < ActionDispatch::IntegrationTest
     assert_equal Space::PRESETS.length, json.length
     assert_equal Space::PRESETS.first[:name], json.first['name']
     assert_equal Space::PRESETS.first[:icon], json.first['icon']
+    assert_equal Space::PRESETS.first[:category], json.first['category']
+  end
+
+  test 'index returns both indoor and outdoor categories' do
+    get api_v1_spaces_presets_path,
+      headers: auth_headers(@user),
+      as: :json
+
+    json = response.parsed_body
+    categories = json.pluck('category').uniq
+    assert_includes categories, 'indoor'
+    assert_includes categories, 'outdoor'
   end
 
   test 'index requires authentication' do

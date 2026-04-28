@@ -1,17 +1,16 @@
-import { faBath, faBed, faBriefcase, faCouch, faUtensils } from '@fortawesome/free-solid-svg-icons'
-
-/**
- * Maps the backend's `space.icon` string (see `Space::ICONS` on the Rails
- * side — couch/kitchen/bed/bath/desk) to the FontAwesome definition used
- * in the UI. Any unknown value — including null/undefined — resolves to
- * `undefined`, which consumers treat as "no tile". Safer than crashing
- * if the backend adds a new icon slug before the matching glyph ships.
- *
- * Consumers: `Step2Spaces` (onboarding picker), `SpaceCard` (House grid).
- *
- *   import { getSpaceIcon } from '../../utils/spaceIcons'
- *   const icon = getSpaceIcon(space.icon)
- */
+import {
+  faBath,
+  faBed,
+  faBriefcase,
+  faBuilding,
+  faCity,
+  faCouch,
+  faMugSaucer,
+  faSeedling,
+  faShoePrints,
+  faSpa,
+  faUtensils,
+} from '@fortawesome/free-solid-svg-icons'
 
 const SPACE_ICONS = {
   couch: faCouch,
@@ -19,8 +18,34 @@ const SPACE_ICONS = {
   bed: faBed,
   bath: faBath,
   desk: faBriefcase,
+  hallway: faShoePrints,
+  study: faBuilding,
+  conservatory: faSpa,
+  patio: faMugSaucer,
+  balcony: faCity,
+  garden_bed: faSeedling,
+  greenhouse: faSpa,
+}
+
+const SPACE_EMOJI = {
+  couch: '🛋️',
+  kitchen: '🍳',
+  bed: '🛏️',
+  bath: '🚿',
+  desk: '💻',
+  hallway: '🪜',
+  study: '📚',
+  conservatory: '🪴',
+  patio: '☕',
+  balcony: '🏙️',
+  garden_bed: '🌱',
+  greenhouse: '🌿',
 }
 
 export function getSpaceIcon(slug) {
   return SPACE_ICONS[slug]
+}
+
+export function getSpaceEmoji(slug) {
+  return SPACE_EMOJI[slug]
 }

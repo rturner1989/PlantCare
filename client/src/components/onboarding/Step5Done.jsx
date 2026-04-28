@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { getWelcomeQuote } from '../../personality/welcomeQuotes'
 import PlantAvatar from '../PlantAvatar'
 import Action from '../ui/Action'
-import { CardBody, CardFooter } from '../ui/Card'
+import Card from '../ui/Card'
 
 // Decorative leaves that peek from the card corners as the user's collection
 // grows. Count scales (0–4); emojis rotate so each corner feels distinct.
@@ -55,7 +55,7 @@ export default function Step5Done({ createdPlants = [], onAddAnother, onFinish, 
 
   return (
     <>
-      <CardBody className="relative">
+      <Card.Body className="relative">
         <CornerLeaves count={count} />
 
         <div className="relative">
@@ -88,18 +88,18 @@ export default function Step5Done({ createdPlants = [], onAddAnother, onFinish, 
             </p>
           </div>
         </div>
-      </CardBody>
+      </Card.Body>
 
-      <CardFooter className="border-t-0 flex gap-2.5">
+      <Card.Footer divider={false} className="flex gap-2.5">
         {count >= 1 && onAddAnother && (
           <Action variant="secondary" onClick={onAddAnother} disabled={finishing}>
             Add another
           </Action>
         )}
-        <Action variant="primary" onClick={onFinish} disabled={finishing} className="flex-1">
-          {finishing ? 'Finishing up...' : 'Enter your jungle'}
+        <Action variant="primary" onClick={onFinish} disabled={finishing} className="ml-auto">
+          {finishing ? 'Finishing up…' : 'Enter your jungle'}
         </Action>
-      </CardFooter>
+      </Card.Footer>
     </>
   )
 }

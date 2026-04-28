@@ -22,7 +22,11 @@ Rails.application.routes.draw do
       namespace :spaces do
         resources :presets, only: :index
       end
-      resources :spaces, only: [:index, :show, :create, :update, :destroy]
+      resources :spaces, only: [:index, :show, :create, :update, :destroy] do
+        scope module: :spaces do
+          resource :archive, only: [:create, :destroy]
+        end
+      end
       resources :plants, only: [:index, :show, :create, :update, :destroy] do
         scope module: :plants do
           resources :care_logs, only: [:index, :create]

@@ -1,11 +1,32 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiDelete, apiGet, apiPatch, apiPost } from '../api/client'
 
-export function useSpaces({ enabled = true } = {}) {
+export function useSpaces({ enabled = true, scope = 'active' } = {}) {
+  const queryParam = scope === 'active' ? '' : `?scope=${scope}`
   return useQuery({
-    queryKey: ['spaces'],
-    queryFn: () => apiGet('/api/v1/spaces'),
+    queryKey: ['spaces', scope],
+    queryFn: () => apiGet(`/api/v1/spaces${queryParam}`),
     enabled,
+  })
+}
+
+export function useArchiveSpace() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id) => apiPost(`/api/v1/spaces/${id}/archive`, {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['spaces'] })
+    },
+  })
+}
+
+export function useUnarchiveSpace() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id) => apiDelete(`/api/v1/spaces/${id}/archive`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['spaces'] })
+    },
   })
 }
 

@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import { apiDelete, apiPost, setAccessToken } from '../api/client'
+import { apiDelete, apiPatch, apiPost, setAccessToken } from '../api/client'
 
 export const AuthContext = createContext(null)
 
@@ -103,6 +103,14 @@ export function AuthProvider({ children }) {
     setUser(updatedUser)
   }, [])
 
+  // Keeps AuthContext.user in sync after a profile patch — consumers
+  // reading useAuth().user pick up the new value without a separate refetch.
+  const updateUser = useCallback(async (data) => {
+    const updatedUser = await apiPatch('/api/v1/profile', { user: data })
+    setUser(updatedUser)
+    return updatedUser
+  }, [])
+
   const logout = useCallback(async () => {
     try {
       await apiDelete('/api/v1/session')
@@ -117,8 +125,8 @@ export function AuthProvider({ children }) {
   }, [queryClient])
 
   const value = useMemo(
-    () => ({ user, loading, login, register, logout, refreshToken, markOnboarded }),
-    [user, loading, login, register, logout, refreshToken, markOnboarded],
+    () => ({ user, loading, login, register, logout, refreshToken, markOnboarded, updateUser }),
+    [user, loading, login, register, logout, refreshToken, markOnboarded, updateUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
