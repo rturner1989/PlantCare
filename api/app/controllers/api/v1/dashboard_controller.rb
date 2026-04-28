@@ -12,7 +12,9 @@ module Api
           upcoming_care: plants.select { |p| p.water_status == :due_soon || p.feed_status == :due_soon },
           stats: {
             total_plants: plants.size,
-            total_spaces: current_user.spaces.count
+            total_spaces: current_user.spaces.count,
+            streak_days: current_user.current_streak_days,
+            vitality_percent: current_user.vitality_percent
           }
         }
       end

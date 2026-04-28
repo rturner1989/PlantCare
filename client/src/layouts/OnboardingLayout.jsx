@@ -1,3 +1,4 @@
+import { motion } from 'motion/react'
 import { Outlet, useParams } from 'react-router-dom'
 import Logo from '../components/Logo'
 import {
@@ -40,14 +41,27 @@ export default function OnboardingLayout() {
           <Logo />
         </header>
 
-        {showProgress && (
-          <div className="px-6 sm:px-10 max-w-[820px] w-full mx-auto">
+        {/* Wrapper always renders so welcome's `<main>` doesn't reflow when
+         *  the bar appears. Content fades on the welcome ↔ wizard boundary
+         *  at the same rhythm as Welcome.jsx's inner step content (delay
+         *  0.8s in, 0.2s out). */}
+        <div className="px-6 sm:px-10 max-w-[820px] w-full mx-auto">
+          <motion.div
+            initial={false}
+            animate={{
+              opacity: showProgress ? 1 : 0,
+              transition: showProgress
+                ? { duration: 0.25, ease: 'easeOut', delay: 0.8 }
+                : { duration: 0.2, ease: 'easeOut' },
+            }}
+            aria-hidden={showProgress ? undefined : 'true'}
+          >
             <StepProgress step={step} total={TOTAL_STEPS} skipSteps={skipSteps} />
             <p className="mt-2 mb-4 text-[10px] font-extrabold text-emerald uppercase tracking-wider">
               {isLastStep ? STEP_NAMES[LAST_STEP] : `Step ${step} of ${TOTAL_STEPS} · ${STEP_NAMES[step]}`}
             </p>
-          </div>
-        )}
+          </motion.div>
+        </div>
 
         <main className="flex-1 flex flex-col px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:px-10 sm:pb-10">
           <Outlet />

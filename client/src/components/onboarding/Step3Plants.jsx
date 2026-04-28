@@ -205,7 +205,7 @@ export default function Step3Plants({ availableSpaces = [], onBack, onComplete }
           </div>
         </Card.Body>
 
-        <WizardActions onBack={onBack} continueLabel={continueLabel} continueDisabled={plantCount === 0} />
+        <WizardActions onBack={onBack} continueLabel={continueLabel} />
       </form>
 
       <AddPlantForm

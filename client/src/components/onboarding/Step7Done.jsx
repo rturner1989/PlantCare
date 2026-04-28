@@ -1,105 +1,65 @@
-import { useMemo } from 'react'
 import { useAuth } from '../../hooks/useAuth'
-import { getWelcomeQuote } from '../../personality/welcomeQuotes'
-import PlantAvatar from '../PlantAvatar'
 import Action from '../ui/Action'
 import Card from '../ui/Card'
+import Emphasis from '../ui/Emphasis'
+import Heading from '../ui/Heading'
+import { getIntentConfig } from './intentConfig'
 
-// Decorative leaves that peek from the card corners as the user's collection
-// grows. Count scales (0–4); emojis rotate so each corner feels distinct.
-const CORNER_LEAVES = [
-  { emoji: '🌿', className: '-top-2 -left-2 text-6xl opacity-25 -rotate-12' },
-  { emoji: '🪴', className: '-top-3 -right-3 text-5xl opacity-20 rotate-12' },
-  { emoji: '🌸', className: '-bottom-2 -left-3 text-5xl opacity-25 rotate-45' },
-  { emoji: '🌲', className: '-bottom-3 -right-2 text-6xl opacity-20 -rotate-12' },
+const NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
+
+const SPARKLES = [
+  { id: 'tl', glyph: '✦', position: { top: '8%', left: '10%' } },
+  { id: 'tr', glyph: '✧', position: { top: '16%', right: '8%' } },
+  { id: 'l', glyph: '·', position: { top: '28%', left: '6%' } },
+  { id: 'br', glyph: '✦', position: { bottom: '28%', right: '12%' } },
+  { id: 'bl', glyph: '✧', position: { bottom: '20%', left: '12%' } },
 ]
 
-function CornerLeaves({ count }) {
-  if (count <= 0) return null
-  const visible = Math.min(count + 1, CORNER_LEAVES.length)
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      {CORNER_LEAVES.slice(0, visible).map((leaf) => (
-        <span key={leaf.emoji} className={`absolute ${leaf.className}`}>
-          {leaf.emoji}
-        </span>
-      ))}
-    </div>
-  )
+function residentsLine(count) {
+  if (count === 0) return 'Your greenhouse is ready when you are.'
+
+  const word = count < NUMBER_WORDS.length ? NUMBER_WORDS[count] : String(count)
+  const noun = count === 1 ? 'resident' : 'residents'
+  return `Your greenhouse has ${word} ${noun}, ready to be known.`
 }
 
-export default function Step7Done({ createdPlants = [], onAddAnother, onFinish, finishing = false }) {
+export default function Step7Done({ createdPlants = [], onFinish, finishing = false }) {
   const { user } = useAuth()
-  const latest = createdPlants.at(-1) ?? null
-  const species = latest?.species ?? null
-  const plantName = latest?.nickname || species?.common_name
+  const intent = user?.onboarding_intent ?? null
+  const intentConfig = getIntentConfig(intent)
+  const completionCta = intentConfig?.completionCta ?? 'Enter your greenhouse'
+  const firstName = user?.name?.split(' ')[0]
 
-  // Quote keys off the latest plant's personality so each "add another" shows
-  // a fresh line. Generic pool kicks in when no plants exist (skip path).
-  const quote = useMemo(() => getWelcomeQuote(species?.personality), [species?.personality])
-
-  const count = createdPlants.length
-  const eyebrow = count === 0 ? 'Your jungle' : count === 1 ? plantName?.toUpperCase() : `Your jungle of ${count}`
-  const headline =
-    count >= 2 ? (
-      <>
-        Your <em className="not-italic text-leaf">jungle</em> is taking shape
-        {user?.name ? `, ${user.name.split(' ')[0]}` : ''}.
-      </>
-    ) : (
-      <>
-        You&rsquo;re <em className="not-italic text-leaf">all set</em>
-        {user?.name ? `, ${user.name.split(' ')[0]}` : ''}.
-      </>
-    )
+  function handleSubmit(event) {
+    event.preventDefault()
+    onFinish()
+  }
 
   return (
-    <>
-      <Card.Body className="relative">
-        <CornerLeaves count={count} />
+    <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 gap-4 relative">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        {SPARKLES.map((sparkle) => (
+          <span key={sparkle.id} className="absolute text-sunshine-deep text-2xl opacity-60" style={sparkle.position}>
+            {sparkle.glyph}
+          </span>
+        ))}
+      </div>
 
-        <div className="relative">
-          <div className="text-center py-3" aria-hidden="true">
-            <div className="text-7xl">✨</div>
-          </div>
-
-          <h1 className="font-display text-3xl font-medium italic text-forest leading-tight tracking-tight mt-2">
-            {headline}
-          </h1>
-
-          {count > 0 && (
-            <div className="mt-5 flex justify-center -space-x-3">
-              {createdPlants.map((plant) => (
-                <PlantAvatar
-                  key={plant.id}
-                  species={plant.species}
-                  shape="circle"
-                  className="border-2 border-card shadow-[var(--shadow-sm)]"
-                  data-testid="added-avatar"
-                />
-              ))}
-            </div>
-          )}
-
-          <div className="mt-5 p-4 rounded-md text-white relative overflow-hidden bg-[image:var(--gradient-forest)]">
-            <p className="text-[9px] font-extrabold text-lime uppercase tracking-wider mb-1.5">{eyebrow}</p>
-            <p className="font-display text-base italic font-medium leading-snug pl-2.5 border-l-2 border-coral">
-              {quote}
-            </p>
-          </div>
-        </div>
+      <Card.Body className="flex flex-col items-center justify-center text-center gap-5">
+        <span className="text-7xl" aria-hidden="true">
+          🌿
+        </span>
+        <Heading variant="display" className="text-ink" subtitle={residentsLine(createdPlants.length)}>
+          You're <Emphasis>all set</Emphasis>
+          {firstName ? `, ${firstName}` : ''}.
+        </Heading>
       </Card.Body>
 
-      <Card.Footer divider={false} className="flex gap-2.5">
-        {count >= 1 && onAddAnother && (
-          <Action variant="secondary" onClick={onAddAnother} disabled={finishing}>
-            Add another
-          </Action>
-        )}
-        <Action variant="primary" onClick={onFinish} disabled={finishing} className="ml-auto">
-          {finishing ? 'Finishing up…' : 'Enter your jungle'}
+      <Card.Footer divider={false} className="pt-2">
+        <Action type="submit" variant="primary" disabled={finishing} className="w-full justify-center">
+          {finishing ? 'Finishing up…' : `${completionCta} →`}
         </Action>
       </Card.Footer>
-    </>
+    </form>
   )
 }

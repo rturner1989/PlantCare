@@ -17,8 +17,10 @@ const VARIANT_CLASSES = {
   unstyled: '',
 }
 
+// Matches the form primitives' inset emerald glow so tabbing across a
+// form doesn't swap between inward + outward rings mid-step.
 const FOCUS_VISIBLE =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2'
+  'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-emerald/15'
 
 const BUTTON_RESET = 'cursor-pointer'
 const LINK_RESET = 'no-underline'

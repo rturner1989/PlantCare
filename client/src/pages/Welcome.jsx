@@ -13,8 +13,8 @@ import Step1Intent from '../components/onboarding/Step1Intent'
 import Step2Spaces from '../components/onboarding/Step2Spaces'
 import Step3Plants from '../components/onboarding/Step3Plants'
 import Step4Environment from '../components/onboarding/Step4Environment'
-import Step5StakesPlaceholder from '../components/onboarding/Step5StakesPlaceholder'
-import Step6JournalPlaceholder from '../components/onboarding/Step6JournalPlaceholder'
+import Step5Stakes from '../components/onboarding/Step5Stakes'
+import Step6Journal from '../components/onboarding/Step6Journal'
 import Step7Done from '../components/onboarding/Step7Done'
 import WizardCard from '../components/onboarding/shared/WizardCard'
 import Spinner from '../components/ui/Spinner'
@@ -23,12 +23,6 @@ import { useAuth } from '../hooks/useAuth'
 import { usePlants } from '../hooks/usePlants'
 import { useSpaces } from '../hooks/useSpaces'
 import { useSpeciesSearch } from '../hooks/useSpecies'
-
-const stepVariants = {
-  enter: { opacity: 0 },
-  center: { opacity: 1 },
-  exit: { opacity: 0 },
-}
 
 export default function Welcome() {
   const { step: slug } = useParams()
@@ -130,32 +124,75 @@ export default function Welcome() {
     if (step === 3)
       return <Step3Plants availableSpaces={existingSpaces} onBack={handleBack} onComplete={handlePlantsAdded} />
     if (step === 4) return <Step4Environment onBack={handleBack} onContinue={handleNext} />
-    if (step === 5) return <Step5StakesPlaceholder onBack={handleBack} onContinue={handleNext} />
-    if (step === 6) return <Step6JournalPlaceholder onBack={handleBack} onContinue={handleNext} />
+    if (step === 5) return <Step5Stakes onBack={handleBack} onContinue={handleNext} />
+    if (step === 6) return <Step6Journal onBack={handleBack} onContinue={handleNext} />
     if (step === 7) return <Step7Done createdPlants={createdPlants} onFinish={handleFinish} finishing={finishing} />
 
     return null
   }
 
-  const content = (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.div
-        key={step}
-        variants={stepVariants}
-        initial="enter"
-        animate="center"
-        exit="exit"
-        transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.15, ease: 'easeOut' }}
-        className="flex-1 flex flex-col min-h-0"
-      >
-        {renderStep()}
-      </motion.div>
-    </AnimatePresence>
-  )
+  const transition = shouldReduceMotion ? { duration: 0 } : { duration: 0.15, ease: 'easeOut' }
+  const isWelcome = step === 0
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full">
-      {step === 0 ? content : <WizardCard>{content}</WizardCard>}
+    <div className="relative flex-1 flex flex-col items-center justify-center w-full">
+      {/* Welcome ↔ wizard handoff: children fade → layoutId morph → step
+       *  content fades. Mirror sequence on Back. No `mode="wait"` on outer
+       *  AnimatePresence — layoutId needs both branches alive so framer can
+       *  read the source rect. Branches absolute-overlay so they don't fight
+       *  for layout while concurrent. */}
+      <AnimatePresence initial={false}>
+        {isWelcome ? (
+          <motion.div
+            key="welcome"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 1, transition: { duration: 0.85 } }}
+            className="absolute inset-0 flex flex-col items-center justify-center w-full"
+          >
+            {renderStep()}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="wizard"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 1, transition: { duration: 0.85 } }}
+            className="absolute inset-0 flex flex-col items-center justify-center w-full"
+          >
+            <WizardCard>
+              {/* Outer fade tracks the wizard ↔ welcome boundary: on first
+               *  mount the wrapper fades in *after* the layoutId morph
+               *  (delay 0.8s). On Back, animate target flips to 0 and
+               *  content fades *before* the morph starts (delay 0). The
+               *  inner AnimatePresence still handles step 1↔7 crossfades. */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.25, ease: 'easeOut', delay: 0.8 }}
+                exit={{
+                  opacity: 0,
+                  transition: shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: 'easeOut' },
+                }}
+                className="flex-1 flex flex-col min-h-0"
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={step}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={transition}
+                    className="flex-1 flex flex-col min-h-0"
+                  >
+                    {renderStep()}
+                  </motion.div>
+                </AnimatePresence>
+              </motion.div>
+            </WizardCard>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

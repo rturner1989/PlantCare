@@ -26,7 +26,7 @@ const PRIMARY_PADDING_BY_SIZE = {
 
 const ICON_BY_SIZE = {
   chip: {
-    base: 'w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0',
+    base: 'w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 transition-colors duration-200',
     selected: 'bg-leaf text-paper',
     unselected: 'bg-mint text-emerald',
   },
