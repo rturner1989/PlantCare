@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_27_210805) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_28_131500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -80,15 +80,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_27_210805) do
     t.integer "calculated_feeding_days"
     t.integer "calculated_watering_days"
     t.datetime "created_at", null: false
-    t.string "humidity_level", default: "average", null: false
     t.datetime "last_fed_at"
     t.datetime "last_watered_at"
-    t.string "light_level", default: "medium", null: false
     t.string "nickname", null: false
     t.text "notes"
     t.bigint "space_id", null: false
     t.bigint "species_id"
-    t.string "temperature_level", default: "average", null: false
     t.datetime "updated_at", null: false
     t.index ["space_id"], name: "index_plants_on_space_id"
     t.index ["species_id"], name: "index_plants_on_species_id"
@@ -109,9 +106,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_27_210805) do
     t.datetime "archived_at"
     t.string "category", default: "indoor", null: false
     t.datetime "created_at", null: false
+    t.string "humidity_level", default: "average", null: false
     t.string "icon"
+    t.string "light_level", default: "medium", null: false
     t.string "name", null: false
     t.integer "plants_count", default: 0, null: false
+    t.string "temperature_level", default: "average", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index "user_id, lower((name)::text)", name: "index_spaces_on_user_id_and_lower_name", unique: true

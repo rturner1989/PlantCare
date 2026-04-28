@@ -12,7 +12,7 @@ import Step0Welcome from '../components/onboarding/Step0Welcome'
 import Step1Intent from '../components/onboarding/Step1Intent'
 import Step2Spaces from '../components/onboarding/Step2Spaces'
 import Step3Species from '../components/onboarding/Step3Species'
-import Step4EnvironmentPlaceholder from '../components/onboarding/Step4EnvironmentPlaceholder'
+import Step4Environment from '../components/onboarding/Step4Environment'
 import Step5Done from '../components/onboarding/Step5Done'
 import Step5StakesPlaceholder from '../components/onboarding/Step5StakesPlaceholder'
 import Step6JournalPlaceholder from '../components/onboarding/Step6JournalPlaceholder'
@@ -142,7 +142,7 @@ export default function Welcome() {
     if (step === 2) return <Step2Spaces onBack={handleBack} onComplete={handleNext} />
     if (step === 3)
       return <Step3Species availableSpaces={existingSpaces} onBack={handleBack} onComplete={handlePlantsAdded} />
-    if (step === 4) return <Step4EnvironmentPlaceholder onBack={handleBack} onContinue={handleNext} />
+    if (step === 4) return <Step4Environment onBack={handleBack} onContinue={handleNext} />
     if (step === 5) return <Step5StakesPlaceholder onBack={handleBack} onContinue={handleNext} />
     if (step === 6) return <Step6JournalPlaceholder onBack={handleBack} onContinue={handleNext} />
     if (step === 7) return <Step5Done createdPlants={createdPlants} onFinish={handleFinish} finishing={finishing} />

@@ -106,6 +106,8 @@ docker compose up                   # Start everything
 
 **Phase 3** — weather-adjusted care, home automation (soil probes), LLM-generated personality messages, **dollhouse view** (interactive 3D isometric house with Three.js, plant speech bubbles per room)
 
+**Auto-layout / best-space-for-plant suggestions** (post-R9 follow-up) — per-space environment (`Space.light_level` / `temperature_level` / `humidity_level`, owned per-space since R9) gives a clean species-vs-space comparison: score each space against the species' suggested levels, default-pick the best fit when adding a plant, surface "consider moving to {space}" hints in Plant Doctor, eventually offer a one-shot "auto-layout" pass that proposes optimal plant→space assignments. Hold until R9 baseline ships.
+
 The dollhouse view is the standout product feature — keep data model decisions compatible with it.
 
 ## Project Documentation

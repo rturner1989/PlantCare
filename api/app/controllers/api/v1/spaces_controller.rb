@@ -46,7 +46,7 @@ module Api
       end
 
       private def space_params
-        params.expect(space: [:name, :icon, :category])
+        params.expect(space: [:name, :icon, :category, :light_level, :temperature_level, :humidity_level])
       end
     end
   end

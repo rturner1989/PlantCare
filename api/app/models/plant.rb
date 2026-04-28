@@ -8,13 +8,10 @@
 #  acquired_at              :date
 #  calculated_feeding_days  :integer
 #  calculated_watering_days :integer
-#  humidity_level           :string           default("average"), not null
 #  last_fed_at              :datetime
 #  last_watered_at          :datetime
-#  light_level              :string           default("medium"), not null
 #  nickname                 :string           not null
 #  notes                    :text
-#  temperature_level        :string           default("average"), not null
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
 #  space_id                 :bigint           not null
@@ -31,48 +28,25 @@
 #  fk_rails_...  (species_id => species.id)
 #
 class Plant < ApplicationRecord
-  # Ordered low → high intensity so `.keys` drives both validation and
-  # the frontend Step 4 picker order via Species#as_json.
-  LIGHT_MODIFIERS = {
-    'low' => 0.2,
-    'medium' => 0.0,
-    'bright' => -0.15
-  }.freeze
-
-  TEMPERATURE_MODIFIERS = {
-    'cool' => 0.15,
-    'average' => 0.0,
-    'warm' => -0.1
-  }.freeze
-
-  HUMIDITY_MODIFIERS = {
-    'dry' => -0.1,
-    'average' => 0.0,
-    'humid' => 0.15
-  }.freeze
-
   belongs_to :space, counter_cache: true
   belongs_to :species, optional: true
   has_many :care_logs, dependent: :destroy
   has_many :plant_photos, dependent: :destroy
 
   validates :nickname, presence: true
-  validates :light_level, inclusion: { in: LIGHT_MODIFIERS.keys }
-  validates :temperature_level, inclusion: { in: TEMPERATURE_MODIFIERS.keys }
-  validates :humidity_level, inclusion: { in: HUMIDITY_MODIFIERS.keys }
 
   scope :in_space, ->(space_id) { where(space_id: space_id) if space_id.present? }
 
-  def self.level_options
-    {
-      light: LIGHT_MODIFIERS.keys,
-      temperature: TEMPERATURE_MODIFIERS.keys,
-      humidity: HUMIDITY_MODIFIERS.keys
-    }
-  end
-
   before_save :calculate_schedule, if: :should_recalculate?
   before_create :set_initial_watered_at
+
+  # Triggered by Space#after_update when env shifts — the space callback
+  # iterates its plants and runs this. Bypasses `should_recalculate?`
+  # which only watches Plant's own columns.
+  def recalculate_schedule!
+    calculate_schedule
+    save!
+  end
 
   def water_status
     return :unknown unless last_watered_at && calculated_watering_days
@@ -125,9 +99,6 @@ class Plant < ApplicationRecord
       notes: notes,
       space: space.as_json,
       species: species&.as_json,
-      light_level: light_level,
-      temperature_level: temperature_level,
-      humidity_level: humidity_level,
       calculated_watering_days: calculated_watering_days,
       calculated_feeding_days: calculated_feeding_days,
       water_status: water_status,
@@ -152,10 +123,8 @@ class Plant < ApplicationRecord
   private def should_recalculate?
     species.present? && (
       new_record? ||
-      light_level_changed? ||
-      temperature_level_changed? ||
-      humidity_level_changed? ||
-      species_id_changed?
+      species_id_changed? ||
+      space_id_changed?
     )
   end
 
@@ -163,11 +132,16 @@ class Plant < ApplicationRecord
     self.last_watered_at ||= Time.current
   end
 
+  # Reads env from the plant's space — Space#after_update re-saves every
+  # plant in the space when its env changes, so each plant runs through
+  # this callback again with the fresh values.
   private def calculate_schedule
+    return unless space
+
     modifier = 1.0 +
-      LIGHT_MODIFIERS.fetch(light_level, 0.0) +
-      TEMPERATURE_MODIFIERS.fetch(temperature_level, 0.0) +
-      HUMIDITY_MODIFIERS.fetch(humidity_level, 0.0)
+      Space::LIGHT_MODIFIERS.fetch(space.light_level, 0.0) +
+      Space::TEMPERATURE_MODIFIERS.fetch(space.temperature_level, 0.0) +
+      Space::HUMIDITY_MODIFIERS.fetch(space.humidity_level, 0.0)
 
     self.calculated_watering_days = [(species.watering_frequency_days * modifier).round, 1].max
 

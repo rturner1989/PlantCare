@@ -93,7 +93,7 @@ class SpeciesTest < ActiveSupport::TestCase
     assert_equal 'bright', payload[:suggested_light_level]
     assert_equal 'average', payload[:suggested_temperature_level]
     assert_equal 'humid', payload[:suggested_humidity_level]
-    assert_equal Plant.level_options, payload[:plant_levels]
+    assert_equal Space.level_options, payload[:plant_levels]
   end
 
   class StubClient

@@ -6,13 +6,10 @@
 #  acquired_at              :date
 #  calculated_feeding_days  :integer
 #  calculated_watering_days :integer
-#  humidity_level           :string           default("average"), not null
 #  last_fed_at              :datetime
 #  last_watered_at          :datetime
-#  light_level              :string           default("medium"), not null
 #  nickname                 :string           not null
 #  notes                    :text
-#  temperature_level        :string           default("average"), not null
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
 #  space_id                 :bigint           not null
@@ -32,9 +29,6 @@ sir_plantalot:
   space: living_room
   species: monstera
   nickname: Sir Plantalot
-  light_level: medium
-  temperature_level: average
-  humidity_level: average
   calculated_watering_days: 7
   calculated_feeding_days: 30
   last_watered_at: <%= 3.days.ago %>
@@ -44,9 +38,6 @@ spike:
   space: bedroom
   species: cactus
   nickname: Spike
-  light_level: bright
-  temperature_level: warm
-  humidity_level: dry
   calculated_watering_days: 16
   last_watered_at: <%= 10.days.ago %>
 
@@ -54,9 +45,6 @@ wilty:
   space: living_room
   species: snake_plant
   nickname: Wilty
-  light_level: low
-  temperature_level: cool
-  humidity_level: average
   calculated_watering_days: 17
   calculated_feeding_days: 71
   last_watered_at: <%= 20.days.ago %>
