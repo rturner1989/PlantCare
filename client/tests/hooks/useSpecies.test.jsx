@@ -50,7 +50,7 @@ describe('useSpeciesSearch', () => {
 
   // Without placeholderData: keepPreviousData the dropdown flashes empty on
   // every keystroke as the queryKey changes. This test locks in the no-flash
-  // behaviour that the inline version in Step3Species was designed around.
+  // behaviour that the inline version in Step3Plants was designed around.
   describe('keepPreviousData', () => {
     it('keeps previous results visible while the next query is in flight', async () => {
       let resolveSecond

@@ -36,17 +36,17 @@ export default function Step1Intent({ initialIntent = null, onBack, onContinue, 
       </Card.Header>
 
       <Card.Body>
-        <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Onboarding intent">
+        <div className="grid grid-cols-2 auto-rows-fr gap-3" role="radiogroup" aria-label="Onboarding intent">
           {INTENT_KEYS.map((intent) => {
             const config = INTENT_CONFIG[intent]
             const isSelected = selectedIntent === intent
             return (
               <label
                 key={intent}
-                className={`relative flex flex-col items-start gap-2 p-4 rounded-md cursor-pointer transition-all ${
+                className={`relative flex flex-col items-start gap-2 p-4 rounded-md border-[1.5px] cursor-pointer transition-colors ${
                   isSelected
-                    ? 'bg-paper border-2 border-emerald shadow-warm-sm'
-                    : 'bg-paper-deep border-2 border-transparent hover:border-paper-edge'
+                    ? 'bg-mint border-leaf'
+                    : 'bg-paper-deep border-paper-edge hover:bg-mint/40 hover:border-leaf'
                 }`}
               >
                 <input

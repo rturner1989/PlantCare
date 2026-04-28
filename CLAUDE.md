@@ -195,6 +195,26 @@ Every cache in the app — server-side `Rails.cache`, client-side TanStack Query
 - **One key per consumer.** If two controllers return popular species, both read `species:popular:v1`. The writer doesn't own the namespace — the resource does.
 - **Bump, don't chain.** Schema change → `:v2`, old entries expire naturally. Never `species:popular:v1:new`.
 
+### Mutation cache pattern (TanStack Query)
+
+`invalidateQueries` is the **default**. `setQueriesData` is a **targeted optimization** for specific scenarios — never reach for it without one of the criteria below.
+
+**Use `invalidateQueries` when:**
+
+- The mutation has cascading server effects on *other* queries (counter caches, computed fields, related records). The response only carries the directly-mutated record, so the cache for the cascade has to be refetched anyway. Most of our mutations land here.
+- An active subscriber will be on screen when the mutation finishes (typical for "edit in place" flows). The refetch fires through the subscriber and the screen updates live.
+- The mutation response is `204 No Content` (delete). There's nothing to patch with — invalidate is mandatory.
+
+**Upgrade to `setQueriesData` (often combined with selective invalidate) when ALL of these hold:**
+
+- The mutation response IS the canonical record for the cache shape (server returns the full updated row, not a partial).
+- The flow is **submit → unmount → remount** so there's no active subscriber to drive a refetch in time. The next reader gets stale cache before refetch completes — this is the race that justifies the upgrade.
+- Any cascading effects on *other* queries can be covered by selective `invalidateQueries` calls layered on top of the patch.
+
+**Worked example — TICKET-045 Step 4:** `useUpdateSpace` patches every cached `['spaces', *]` list with the mutation response (canonical Space row), then `invalidateQueries(['plants'])` because the server reschedules every plant in the space and those records aren't in the response. On Back nav from Step 5, Step 4 remounts and `useState`'s initializer reads the just-patched cache instead of stale values waiting on a refetch.
+
+**Don't apply this pattern speculatively.** Audit shows most of our hooks (plant CRUD, care logs, photos, archive/unarchive, profile) correctly use plain invalidate because they either have wide cascades or stay subscribed during the mutation. Upgrade only when you can name the specific race or perf cost.
+
 ### Naming
 
 - **Be explicit with variable names.** No single-letter or ultra-short abbreviations (`s`, `x`, `fn`, `cfg`, `tmp`) — even in tiny helper functions. Use `schemeRecipe` not `s`, `handleSubmit` not `fn`, `roomCount` not `rc`. A reader should understand what a variable holds without scrolling up to the declaration.

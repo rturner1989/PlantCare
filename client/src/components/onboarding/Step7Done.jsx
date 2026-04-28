@@ -28,7 +28,7 @@ function CornerLeaves({ count }) {
   )
 }
 
-export default function Step5Done({ createdPlants = [], onAddAnother, onFinish, finishing = false }) {
+export default function Step7Done({ createdPlants = [], onAddAnother, onFinish, finishing = false }) {
   const { user } = useAuth()
   const latest = createdPlants.at(-1) ?? null
   const species = latest?.species ?? null

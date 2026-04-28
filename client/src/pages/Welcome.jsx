@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   getIntentConfig,
@@ -11,11 +11,11 @@ import {
 import Step0Welcome from '../components/onboarding/Step0Welcome'
 import Step1Intent from '../components/onboarding/Step1Intent'
 import Step2Spaces from '../components/onboarding/Step2Spaces'
-import Step3Species from '../components/onboarding/Step3Species'
+import Step3Plants from '../components/onboarding/Step3Plants'
 import Step4Environment from '../components/onboarding/Step4Environment'
-import Step5Done from '../components/onboarding/Step5Done'
 import Step5StakesPlaceholder from '../components/onboarding/Step5StakesPlaceholder'
 import Step6JournalPlaceholder from '../components/onboarding/Step6JournalPlaceholder'
+import Step7Done from '../components/onboarding/Step7Done'
 import WizardCard from '../components/onboarding/shared/WizardCard'
 import Spinner from '../components/ui/Spinner'
 import { useToast } from '../context/ToastContext'
@@ -24,17 +24,10 @@ import { usePlants } from '../hooks/usePlants'
 import { useSpaces } from '../hooks/useSpaces'
 import { useSpeciesSearch } from '../hooks/useSpecies'
 
-const SLIDE_OFFSET = 40
 const stepVariants = {
-  enter: (direction) => ({
-    x: direction === 0 ? 0 : direction * SLIDE_OFFSET,
-    opacity: direction === 0 ? 1 : 0,
-  }),
-  center: { x: 0, opacity: 1 },
-  exit: (direction) => ({
-    x: direction * -SLIDE_OFFSET,
-    opacity: 0,
-  }),
+  enter: { opacity: 0 },
+  center: { opacity: 1 },
+  exit: { opacity: 0 },
 }
 
 export default function Welcome() {
@@ -52,12 +45,6 @@ export default function Welcome() {
   const [finishing, setFinishing] = useState(false)
 
   const { data: createdPlants = [] } = usePlants()
-
-  const previousStepRef = useRef(step)
-  const direction = step > previousStepRef.current ? 1 : step < previousStepRef.current ? -1 : 0
-  useEffect(() => {
-    previousStepRef.current = step
-  }, [step])
 
   useEffect(() => {
     if (user?.onboarded) {
@@ -141,25 +128,24 @@ export default function Welcome() {
     if (step === 1) return <Step1Intent initialIntent={intent} onBack={handleBack} onContinue={handleSetIntent} />
     if (step === 2) return <Step2Spaces onBack={handleBack} onComplete={handleNext} />
     if (step === 3)
-      return <Step3Species availableSpaces={existingSpaces} onBack={handleBack} onComplete={handlePlantsAdded} />
+      return <Step3Plants availableSpaces={existingSpaces} onBack={handleBack} onComplete={handlePlantsAdded} />
     if (step === 4) return <Step4Environment onBack={handleBack} onContinue={handleNext} />
     if (step === 5) return <Step5StakesPlaceholder onBack={handleBack} onContinue={handleNext} />
     if (step === 6) return <Step6JournalPlaceholder onBack={handleBack} onContinue={handleNext} />
-    if (step === 7) return <Step5Done createdPlants={createdPlants} onFinish={handleFinish} finishing={finishing} />
+    if (step === 7) return <Step7Done createdPlants={createdPlants} onFinish={handleFinish} finishing={finishing} />
 
     return null
   }
 
   const content = (
-    <AnimatePresence mode="wait" initial={false} custom={direction}>
+    <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={step}
-        custom={direction}
         variants={stepVariants}
         initial="enter"
         animate="center"
         exit="exit"
-        transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.22, ease: [0.33, 1, 0.68, 1] }}
+        transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.15, ease: 'easeOut' }}
         className="flex-1 flex flex-col min-h-0"
       >
         {renderStep()}

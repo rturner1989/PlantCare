@@ -49,7 +49,7 @@ const LABEL_TEXT = 'text-[10px] font-extrabold text-ink-soft uppercase tracking-
 // (Dialog, scrollable Card.Body). Auth surfaces have plenty of room either
 // way, so the inset version is universally safe.
 const INPUT_BASE =
-  'mt-1.5 w-full px-4 py-3 rounded-md bg-paper border-[1.5px] text-ink text-base font-semibold transition-all focus:outline-none focus:ring-4 focus:ring-inset'
+  'w-full px-4 py-2 rounded-md bg-paper border-[1.5px] text-ink text-base font-semibold transition-all focus:outline-none focus:ring-4 focus:ring-inset'
 const INPUT_VALID = 'border-paper-edge focus:border-emerald focus:ring-emerald/15'
 const INPUT_INVALID = 'border-coral focus:border-coral focus:ring-coral/20'
 
@@ -68,7 +68,7 @@ export default function TextInput({
 
   return (
     <label className={`block ${className}`}>
-      <span className={labelHidden ? 'sr-only' : LABEL_TEXT}>
+      <span className={labelHidden ? 'sr-only' : `mb-1.5 block ${LABEL_TEXT}`}>
         {label}
         {required && (
           <span aria-hidden="true" className="ml-0.5 text-coral-deep">

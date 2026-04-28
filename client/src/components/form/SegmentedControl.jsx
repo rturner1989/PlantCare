@@ -5,8 +5,8 @@ import { useId } from 'react'
 // Hidden radios inside labels — native arrow-key navigation + form semantics
 // for free. The active pill slides between positions via a shared layoutId.
 
-const TRACK = 'flex gap-[3px] mt-2 bg-paper-deep p-[3px] rounded-md'
-const LABEL = 'flex items-center gap-1.5 text-xs font-bold text-ink-soft uppercase tracking-wider'
+const TRACK = 'flex gap-[3px] mt-2 bg-paper-deep border border-paper-edge p-[3px] rounded-md'
+const LABEL = 'flex items-center gap-1.5 text-[10px] font-extrabold text-ink-soft uppercase tracking-[0.14em]'
 const OPTION_BASE =
   'relative flex-1 flex items-center justify-center py-2 rounded-[11px] text-xs capitalize transition-colors duration-200'
 const OPTION_ACTIVE = 'text-forest font-bold'

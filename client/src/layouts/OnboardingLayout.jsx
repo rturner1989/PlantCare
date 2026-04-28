@@ -1,6 +1,12 @@
 import { Outlet, useParams } from 'react-router-dom'
 import Logo from '../components/Logo'
-import { getIntentConfig, STEP_NAMES, stepFromSlug, TOTAL_STEPS } from '../components/onboarding/intentConfig'
+import {
+  getIntentConfig,
+  LAST_STEP,
+  STEP_NAMES,
+  stepFromSlug,
+  TOTAL_STEPS,
+} from '../components/onboarding/intentConfig'
 import StepProgress from '../components/onboarding/shared/StepProgress'
 import { useAuth } from '../hooks/useAuth'
 
@@ -11,12 +17,10 @@ export default function OnboardingLayout() {
   const { user } = useAuth()
   const intent = user?.onboarding_intent ?? null
   const intentConfig = getIntentConfig(intent)
-  const skipSteps = (intentConfig?.skipSteps ?? []).map((skipped) => skipped + 1)
+  const skipSteps = intentConfig?.skipSteps ?? []
 
-  const visibleTotal = TOTAL_STEPS - skipSteps.length
-  const skippedBefore = skipSteps.filter((position) => position < step + 1).length
-  const visibleStep = step + 1 - skippedBefore
   const showProgress = step > 0
+  const isLastStep = step === LAST_STEP
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-[image:var(--gradient-mint)]">
@@ -38,11 +42,9 @@ export default function OnboardingLayout() {
 
         {showProgress && (
           <div className="px-6 sm:px-10 max-w-[820px] w-full mx-auto">
-            <StepProgress step={step + 1} total={TOTAL_STEPS} skipSteps={skipSteps} />
+            <StepProgress step={step} total={TOTAL_STEPS} skipSteps={skipSteps} />
             <p className="mt-2 mb-4 text-[10px] font-extrabold text-emerald uppercase tracking-wider">
-              {visibleStep === visibleTotal
-                ? STEP_NAMES[STEP_NAMES.length - 1]
-                : `Step ${visibleStep} of ${visibleTotal} · ${STEP_NAMES[step]}`}
+              {isLastStep ? STEP_NAMES[LAST_STEP] : `Step ${step} of ${TOTAL_STEPS} · ${STEP_NAMES[step]}`}
             </p>
           </div>
         )}

@@ -11,9 +11,9 @@ import { useId } from 'react'
  * elements — typically a leading disabled placeholder + the real options.
  */
 
-const LABEL_TEXT = 'text-[10px] font-extrabold text-ink-soft uppercase tracking-[0.14em]'
+const LABEL_TEXT = 'mb-1.5 block text-[10px] font-extrabold text-ink-soft uppercase tracking-[0.14em]'
 const SELECT_BASE =
-  'mt-1.5 w-full px-4 py-3 rounded-md bg-paper border-[1.5px] text-ink text-base font-semibold transition-all focus:outline-none focus:ring-4 focus:ring-inset'
+  'w-full px-4 py-2 rounded-md bg-paper border-[1.5px] text-ink text-base font-semibold transition-all focus:outline-none focus:ring-4 focus:ring-inset'
 const SELECT_VALID = 'border-paper-edge focus:border-emerald focus:ring-emerald/15'
 const SELECT_INVALID = 'border-coral focus:border-coral focus:ring-coral/20'
 

@@ -3,7 +3,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { useToast } from '../../context/ToastContext'
 import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
-import { useArchiveSpace, useCreateSpace, useSpacePresets, useSpaces, useUnarchiveSpace } from '../../hooks/useSpaces'
+import {
+  useArchiveSpace,
+  useCreateSpace,
+  useDeleteSpace,
+  useSpacePresets,
+  useSpaces,
+  useUnarchiveSpace,
+} from '../../hooks/useSpaces'
 import { getSpaceEmoji } from '../../utils/spaceIcons'
 import Tile from '../form/Tile'
 import Card from '../ui/Card'
@@ -43,6 +50,7 @@ export default function Step2Spaces({ onBack, onComplete }) {
   const createSpace = useCreateSpace()
   const archiveSpace = useArchiveSpace()
   const unarchiveSpace = useUnarchiveSpace()
+  const deleteSpace = useDeleteSpace()
 
   useEffect(() => {
     if (!spacesLoaded || hydrated) return
@@ -84,6 +92,35 @@ export default function Step2Spaces({ onBack, onComplete }) {
   function handleAddCustom(name, category) {
     setSelectedSpaces((prev) => [...prev, name])
     setPendingCustom((prev) => [...prev, { name, category }])
+  }
+
+  const pendingCustomNames = useMemo(() => new Set(pendingCustom.map((entry) => entry.name)), [pendingCustom])
+  const serverByName = useMemo(() => new Map(allSpaces.map((space) => [space.name, space])), [allSpaces])
+
+  function canRemoveCustom(name) {
+    if (pendingCustomNames.has(name)) return true
+    const server = serverByName.get(name)
+    // Server-side customs are only safely removable when no plants live in
+    // them — DELETE cascades and would take user data with it. Spaces that
+    // already have plants stay until Step 3 lets the user reassign or
+    // remove those plants first.
+    return Boolean(server && (server.plants_count ?? 0) === 0)
+  }
+
+  function handleRemoveCustom(name) {
+    setSelectedSpaces((prev) => prev.filter((entry) => entry !== name))
+
+    if (pendingCustomNames.has(name)) {
+      setPendingCustom((prev) => prev.filter((entry) => entry.name !== name))
+      return
+    }
+
+    const server = serverByName.get(name)
+    if (server) {
+      deleteSpace.mutate(server.id, {
+        onError: (err) => toast.error(err.message ?? "Couldn't remove that space"),
+      })
+    }
   }
 
   const { submitting, handleSubmit, formRef } = useFormSubmit({
@@ -171,7 +208,13 @@ export default function Step2Spaces({ onBack, onComplete }) {
                       exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
                       transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: [0.33, 1, 0.68, 1] }}
                     >
-                      <Tile icon="✨" selected={selectedSpaces.includes(space)} onClick={() => toggleSpace(space)}>
+                      <Tile
+                        icon="✨"
+                        selected={selectedSpaces.includes(space)}
+                        onClick={() => toggleSpace(space)}
+                        onRemove={canRemoveCustom(space) ? () => handleRemoveCustom(space) : undefined}
+                        removeLabel={`Remove ${space}`}
+                      >
                         {space}
                       </Tile>
                     </motion.div>

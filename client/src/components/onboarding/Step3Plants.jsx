@@ -24,7 +24,7 @@ function speciesKey(species) {
   return species.id ?? species.perenual_id ?? species.common_name
 }
 
-export default function Step3Species({ availableSpaces = [], onBack, onComplete }) {
+export default function Step3Plants({ availableSpaces = [], onBack, onComplete }) {
   const toast = useToast()
   const [query, setQuery] = useState('')
   const [pendingSpecies, setPendingSpecies] = useState(null)
@@ -76,6 +76,7 @@ export default function Step3Species({ availableSpaces = [], onBack, onComplete 
         nickname,
       })
       setDialogOpen(false)
+      setQuery('')
     } catch (err) {
       toast.error(err.message ?? "Couldn't add that plant")
     } finally {

@@ -59,8 +59,17 @@ export function useUpdateSpace() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, ...data }) => apiPatch(`/api/v1/spaces/${id}`, { space: data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['spaces'] })
+    onSuccess: (updatedSpace) => {
+      // Patch every cached spaces list (active / archived / all) with the
+      // updated record so subsequent reads — including Step 4 remount on
+      // Back nav — see the new env immediately, without waiting for a
+      // refetch round-trip. Plants reschedule on the server, so their
+      // cache also needs invalidating.
+      queryClient.setQueriesData({ queryKey: ['spaces'] }, (existing) => {
+        if (!Array.isArray(existing)) return existing
+        return existing.map((space) => (space.id === updatedSpace.id ? updatedSpace : space))
+      })
+      queryClient.invalidateQueries({ queryKey: ['plants'] })
     },
   })
 }

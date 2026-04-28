@@ -92,20 +92,21 @@ export default function Step4Environment({ onBack, onContinue }) {
             temperature_level: space.temperature_level,
             humidity_level: space.humidity_level,
           }
+
           return (
             <section
               key={space.id}
               aria-labelledby={`space-env-${space.id}`}
-              className="p-4 bg-mint/40 border-[1.5px] border-mint rounded-md"
+              className="p-4 bg-mint/40 border-[1.5px] border-dashed border-leaf/25 rounded-md"
             >
               <header className="flex items-center gap-3 mb-3">
                 <span className="text-2xl shrink-0" aria-hidden="true">
                   {getSpaceEmoji(space.icon)}
                 </span>
                 <div className="min-w-0 text-left">
-                  <h3 id={`space-env-${space.id}`} className="text-base font-extrabold text-ink truncate">
+                  <Heading as="h3" variant="compact" id={`space-env-${space.id}`} className="truncate">
                     {space.name}
-                  </h3>
+                  </Heading>
                   <p className="text-xs text-ink-soft truncate">{plantSummary(space.id)}</p>
                 </div>
               </header>
