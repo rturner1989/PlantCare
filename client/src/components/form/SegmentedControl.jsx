@@ -30,7 +30,7 @@ export default function SegmentedControl({ icon, label, value, onChange, options
   const normalized = options.map(normalizeOption)
 
   return (
-    <div className={`mb-5 ${className}`}>
+    <div className={className}>
       {label && (
         <span className={LABEL}>
           {icon && <FontAwesomeIcon icon={icon} className="text-sm text-emerald" aria-hidden="true" />}

@@ -30,7 +30,7 @@ export default function JournalEntry({ avatar, plantName, eventType, eventLabel,
             {eventLabel}
           </span>
         </div>
-        <p className={textClass}>{text}</p>
+        <p className={`text-left ${textClass}`}>{text}</p>
       </div>
       <span className="font-display italic text-xs text-ink-soft self-center">{time}</span>
     </li>

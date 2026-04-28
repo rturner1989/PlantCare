@@ -183,12 +183,7 @@ export default function Step3Plants({ availableSpaces = [], onBack, onComplete }
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   {visibleResults.map((species) => (
-                    <Tile
-                      key={speciesKey(species)}
-                      size="card"
-                      icon={species.icon || '🌿'}
-                      onClick={() => handleSpeciesTap(species)}
-                    >
+                    <Tile key={speciesKey(species)} size="card" onClick={() => handleSpeciesTap(species)}>
                       <div className="min-w-0">
                         <div className="text-sm font-bold text-ink truncate">{species.common_name}</div>
                         {species.scientific_name && (

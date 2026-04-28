@@ -131,7 +131,7 @@ export default function Welcome() {
     return null
   }
 
-  const transition = shouldReduceMotion ? { duration: 0 } : { duration: 0.15, ease: 'easeOut' }
+  const transition = shouldReduceMotion ? { duration: 0 } : { duration: 0.25, ease: 'easeOut' }
   const isWelcome = step === 0
 
   return (

@@ -25,7 +25,7 @@ function Header({ className = '', divider = true, children, ...kwargs }) {
 
 function Body({ className = '', children, ...kwargs }) {
   return (
-    <div className={`flex-1 min-h-0 overflow-y-auto ${className}`} {...kwargs}>
+    <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain ${className}`} {...kwargs}>
       {children}
     </div>
   )

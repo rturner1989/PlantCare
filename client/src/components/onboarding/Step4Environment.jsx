@@ -58,12 +58,19 @@ export default function Step4Environment({ onBack, onContinue }) {
   const { submitting, handleSubmit } = useFormSubmit({
     action: async () => {
       await Promise.all(
-        spaces.map((space) =>
-          updateSpace.mutateAsync({
-            id: space.id,
-            ...envBySpace[space.id],
-          }),
-        ),
+        spaces.map((space) => {
+          // envBySpace is seeded from useState's lazy initializer, which
+          // runs once with whatever `spaces` is at first render. If the
+          // spaces query was still loading then, the seed is empty and
+          // unchanged segments stay undefined. Fall back to the space's
+          // current values so PATCH always sends the right body.
+          const env = envBySpace[space.id] ?? {
+            light_level: space.light_level,
+            temperature_level: space.temperature_level,
+            humidity_level: space.humidity_level,
+          }
+          return updateSpace.mutateAsync({ id: space.id, ...env })
+        }),
       )
       onContinue()
     },
@@ -111,16 +118,18 @@ export default function Step4Environment({ onBack, onContinue }) {
                 </div>
               </header>
 
-              {FIELDS.map(({ key, label, icon, options }) => (
-                <SegmentedControl
-                  key={key}
-                  label={label}
-                  icon={icon}
-                  value={env[key]}
-                  onChange={(next) => setField(space.id, key, next)}
-                  options={options}
-                />
-              ))}
+              <div className="flex flex-col gap-5">
+                {FIELDS.map(({ key, label, icon, options }) => (
+                  <SegmentedControl
+                    key={key}
+                    label={label}
+                    icon={icon}
+                    value={env[key]}
+                    onChange={(next) => setField(space.id, key, next)}
+                    options={options}
+                  />
+                ))}
+              </div>
             </section>
           )
         })}

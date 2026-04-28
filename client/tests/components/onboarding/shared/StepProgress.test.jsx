@@ -32,8 +32,8 @@ describe('StepProgress', () => {
   it('marks bars after the current step as pending', () => {
     const { container } = render(<StepProgress step={3} total={5} />)
     const bars = container.querySelectorAll('[role="presentation"] > div')
-    expect(bars[3]).toHaveClass('bg-paper-edge')
-    expect(bars[4]).toHaveClass('bg-paper-edge')
+    expect(bars[3]).toHaveClass('bg-emerald/20')
+    expect(bars[4]).toHaveClass('bg-emerald/20')
   })
 
   it('exposes the bar group as decorative (role="presentation")', () => {

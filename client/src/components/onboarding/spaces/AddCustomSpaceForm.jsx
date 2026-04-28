@@ -61,7 +61,7 @@ export default function AddCustomSpaceForm({ open, onClose, onAdd, existingNames
         </Action>
       </Card.Header>
 
-      <Card.Body className="flex flex-col gap-4">
+      <Card.Body className="!flex-none flex flex-col gap-4">
         <TextInput
           label="Name"
           type="text"

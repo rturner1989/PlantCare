@@ -78,12 +78,12 @@ export default function Tile({
       <Action
         variant="unstyled"
         onClick={onClick}
-        className={`${PRIMARY_PADDING_BY_SIZE[size]} flex-1 flex items-center text-left cursor-pointer`}
+        className={`${PRIMARY_PADDING_BY_SIZE[size]} flex-1 min-w-0 flex items-center text-left cursor-pointer`}
         {...toggleProps}
         {...kwargs}
       >
         {icon && <span className={`${iconConfig.base} ${iconStateClass}`}>{icon}</span>}
-        <span className="flex-1 text-left">{children}</span>
+        <span className="flex-1 min-w-0 text-left">{children}</span>
       </Action>
       {onRemove && (
         <Action

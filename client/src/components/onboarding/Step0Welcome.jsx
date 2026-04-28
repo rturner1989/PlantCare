@@ -57,7 +57,7 @@ export default function Step0Welcome({ onNext }) {
           it's allowed.
         </p>
 
-        <div className="flex items-center justify-center lg:justify-start gap-4 mt-4 flex-wrap">
+        <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 mt-4">
           <Action variant="primary" onClick={onNext}>
             Let's meet them →
           </Action>
@@ -69,7 +69,6 @@ export default function Step0Welcome({ onNext }) {
         <MotionCard
           layoutId="wizard-frame"
           transition={MORPH_TRANSITION}
-          variant="glass"
           style={{ borderRadius: 14 }}
           className="absolute inset-0 p-1.5"
         >
@@ -89,7 +88,7 @@ export default function Step0Welcome({ onNext }) {
           initial="initial"
           animate="animate"
           exit="exit"
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-paper px-4 py-2 rounded-full shadow-warm-sm flex items-center gap-2 z-10"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-paper px-6 py-2 lg:px-4 rounded-full shadow-warm-sm flex items-center gap-2 z-10 whitespace-nowrap"
         >
           <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-leaf" />
           <em className="font-display italic font-normal text-xs text-ink">Monstera deliciosa</em>

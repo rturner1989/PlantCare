@@ -1,23 +1,9 @@
 import { expect, test } from '@playwright/test'
+import { completeOnboarding, registerUser } from '../helpers/onboarding'
 
 async function registerAndOnboard(page, { spaces = ['Living Room', 'Kitchen'] } = {}) {
-  const email = `test-${crypto.randomUUID()}@example.com`
-  const password = 'greenthumb99'
-  await page.goto('/register')
-  await page.getByLabel('Name').fill('House Tester')
-  await page.getByLabel('Email').fill(email)
-  await page.getByRole('textbox', { name: 'Password', exact: true }).fill(password)
-  await page.getByLabel('Confirm password').fill(password)
-  await page.getByRole('button', { name: /Create account/i }).click()
-  await page.waitForURL('/welcome')
-  await page.getByRole('button', { name: /begin/i }).click()
-  for (const space of spaces) {
-    await page.getByRole('checkbox', { name: new RegExp(space, 'i') }).click()
-  }
-  await page.getByRole('button', { name: 'Continue' }).click()
-  await page.getByRole('button', { name: /Skip for now/i }).click()
-  await page.getByRole('button', { name: /Enter your jungle/i }).click()
-  await page.waitForURL('/')
+  await registerUser(page, 'House Tester')
+  await completeOnboarding(page, { spaces })
 }
 
 test.describe('House screen', () => {

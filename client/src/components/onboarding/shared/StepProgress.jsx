@@ -1,5 +1,5 @@
 const BAR_BASE = 'flex-1 h-[5px] rounded-full'
-const BAR_PENDING = 'bg-paper-edge'
+const BAR_PENDING = 'bg-emerald/20'
 const BAR_DONE = 'bg-emerald'
 const BAR_ACTIVE = 'bg-emerald shadow-[0_0_0_3px_rgba(20,144,47,0.2)]'
 

@@ -15,17 +15,31 @@ export default function StakeRing({ scheme, label, percent, valueDisplay, unit, 
   const labelColor = LABEL_COLOR_BY_SCHEME[scheme] ?? LABEL_COLOR_BY_SCHEME.vitality
 
   return (
-    <div className="flex-1 flex flex-col items-center text-center gap-2 p-4 bg-paper-deep border border-paper-edge rounded-md">
+    <div className="flex-1 min-w-0 flex flex-col items-center text-center gap-1.5 sm:gap-2 p-3 sm:p-4 bg-paper-deep border border-paper-edge rounded-md">
       <p className={`text-[10px] font-extrabold uppercase tracking-[0.14em] ${labelColor}`}>{label}</p>
 
-      <ProgressRing value={percent} size={128} strokeWidth={10} color={ringColor} trackColor="var(--paper-edge)">
-        <div className="flex flex-col items-center">
-          <span className="font-display italic text-3xl font-medium text-ink leading-none">{valueDisplay}</span>
-          <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink-soft mt-1">{unit}</span>
-        </div>
-      </ProgressRing>
+      <div className="block sm:hidden">
+        <ProgressRing value={percent} size={88} strokeWidth={8} color={ringColor} trackColor="var(--paper-edge)">
+          <div className="flex flex-col items-center">
+            <span className="font-display italic text-xl font-medium text-ink leading-none">{valueDisplay}</span>
+            {unit && (
+              <span className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-ink-soft mt-0.5">{unit}</span>
+            )}
+          </div>
+        </ProgressRing>
+      </div>
+      <div className="hidden sm:block">
+        <ProgressRing value={percent} size={128} strokeWidth={10} color={ringColor} trackColor="var(--paper-edge)">
+          <div className="flex flex-col items-center">
+            <span className="font-display italic text-3xl font-medium text-ink leading-none">{valueDisplay}</span>
+            {unit && (
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink-soft mt-1">{unit}</span>
+            )}
+          </div>
+        </ProgressRing>
+      </div>
 
-      <p className="text-sm font-bold text-ink">{title}</p>
+      <p className="text-[13px] sm:text-sm font-bold text-ink">{title}</p>
       <p className="text-xs text-ink-soft leading-snug">{description}</p>
     </div>
   )

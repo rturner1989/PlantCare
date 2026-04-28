@@ -32,7 +32,7 @@ export default function Step5Stakes({ onBack, onContinue }) {
       </Card.Header>
 
       <Card.Body className="flex flex-col gap-4">
-        <div className="flex gap-4">
+        <div className="flex gap-3 sm:gap-4">
           <StakeRing
             scheme="streak"
             label="Streak"
@@ -52,7 +52,6 @@ export default function Step5Stakes({ onBack, onContinue }) {
                 <span className="font-sans not-italic text-base text-ink-soft font-semibold">%</span>
               </>
             }
-            unit="greenhouse"
             title="Half-full, half-empty"
             description="Reflects how your greenhouse is doing overall. Consistent care lifts it."
           />

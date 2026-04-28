@@ -79,7 +79,7 @@ export default function AddPlantForm({
         </Action>
       </Card.Header>
 
-      <Card.Body className="flex flex-col gap-4">
+      <Card.Body className="!flex-none flex flex-col gap-4">
         <div className="flex items-center gap-3">
           <span className="text-3xl shrink-0" aria-hidden="true">
             {species?.icon || '🌿'}

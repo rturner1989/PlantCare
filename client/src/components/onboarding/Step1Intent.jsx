@@ -36,14 +36,14 @@ export default function Step1Intent({ initialIntent = null, onBack, onContinue, 
       </Card.Header>
 
       <Card.Body>
-        <div className="grid grid-cols-2 auto-rows-fr gap-3" role="radiogroup" aria-label="Onboarding intent">
+        <div className="grid grid-cols-2 auto-rows-fr gap-3 h-full" role="radiogroup" aria-label="Onboarding intent">
           {INTENT_KEYS.map((intent) => {
             const config = INTENT_CONFIG[intent]
             const isSelected = selectedIntent === intent
             return (
               <label
                 key={intent}
-                className={`relative flex flex-col items-start gap-2 p-4 rounded-md border-[1.5px] cursor-pointer transition-colors ${
+                className={`relative flex flex-col items-center sm:items-start text-center sm:text-left gap-2 p-4 rounded-md border-[1.5px] cursor-pointer transition-colors ${
                   isSelected
                     ? 'bg-mint border-leaf'
                     : 'bg-paper-deep border-paper-edge hover:bg-mint/40 hover:border-leaf'
@@ -57,7 +57,7 @@ export default function Step1Intent({ initialIntent = null, onBack, onContinue, 
                   onChange={() => setSelectedIntent(intent)}
                   className="sr-only"
                 />
-                <span className="text-3xl leading-none" aria-hidden="true">
+                <span className="hidden sm:inline text-3xl leading-none" aria-hidden="true">
                   {config.emoji}
                 </span>
                 <Heading as="h3" variant="compact">

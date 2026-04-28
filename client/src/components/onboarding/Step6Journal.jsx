@@ -67,7 +67,7 @@ export default function Step6Journal({ onBack, onContinue }) {
         <Heading
           variant="display"
           className="text-ink"
-          subtitle="Your greenhouse's living record. Photos, milestones, notes — all filed and searchable. We mark moments for you; you write the rest."
+          subtitle="Your greenhouse's living record. We mark moments for you; you write the rest."
         >
           Meet the <Emphasis>journal</Emphasis>
         </Heading>
@@ -78,14 +78,14 @@ export default function Step6Journal({ onBack, onContinue }) {
 
       <Card.Body className="flex flex-col overflow-hidden">
         <div aria-hidden="true" className="flex items-end gap-0.5">
-          {TABS.map((tab) => (
+          {TABS.map((tab, index) => (
             <span
               key={tab.label}
-              className={
+              className={`${
                 tab.active
                   ? 'relative z-10 -mb-px px-5 py-3 bg-paper border border-paper-edge border-b-transparent rounded-t-[10px] font-display italic font-medium text-ink shadow-[0_-2px_6px_rgba(80,56,18,0.05),inset_0_1px_0_rgba(255,255,255,0.6)]'
                   : 'px-5 py-2.5 bg-paper-deep border border-paper-edge border-b-transparent rounded-t-[10px] font-display italic font-normal text-ink-soft shadow-[inset_0_2px_0_rgba(255,255,255,0.4)]'
-              }
+              } ${index >= 2 ? 'hidden sm:inline-flex' : 'inline-flex'}`}
             >
               {tab.label}
               {tab.count != null && (

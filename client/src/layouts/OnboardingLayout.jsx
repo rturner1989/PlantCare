@@ -36,8 +36,8 @@ export default function OnboardingLayout() {
         style={{ width: '380px', height: '380px', bottom: '-140px', left: '-120px' }}
       />
 
-      <div className="relative z-10 min-h-dvh flex flex-col">
-        <header className="flex items-center justify-between px-6 py-5 sm:px-10 sm:py-6">
+      <div className="relative z-10 min-h-dvh flex flex-col pt-[env(safe-area-inset-top)] sm:pt-0">
+        <header className="hidden sm:flex items-center justify-between px-6 pb-5 pt-[max(1.25rem,env(safe-area-inset-top))] sm:px-10 sm:pt-6 sm:pb-6">
           <Logo />
         </header>
 
@@ -56,14 +56,18 @@ export default function OnboardingLayout() {
             }}
             aria-hidden={showProgress ? undefined : 'true'}
           >
-            <StepProgress step={step} total={TOTAL_STEPS} skipSteps={skipSteps} />
-            <p className="mt-2 mb-4 text-[10px] font-extrabold text-emerald uppercase tracking-wider">
-              {isLastStep ? STEP_NAMES[LAST_STEP] : `Step ${step} of ${TOTAL_STEPS} · ${STEP_NAMES[step]}`}
-            </p>
+            <div className="flex flex-col mb-4">
+              <div className="order-2 sm:order-1">
+                <StepProgress step={step} total={TOTAL_STEPS - 1} skipSteps={skipSteps} />
+              </div>
+              <p className="order-1 sm:order-2 mb-2 sm:mt-2 sm:mb-0 text-[10px] font-extrabold text-emerald uppercase tracking-wider">
+                {isLastStep ? STEP_NAMES[LAST_STEP] : `Step ${step} of ${TOTAL_STEPS - 1} · ${STEP_NAMES[step]}`}
+              </p>
+            </div>
           </motion.div>
         </div>
 
-        <main className="flex-1 flex flex-col px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:px-10 sm:pb-10">
+        <main className="flex-1 flex flex-col px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:px-10 sm:pb-10 overflow-x-hidden">
           <Outlet />
         </main>
       </div>
