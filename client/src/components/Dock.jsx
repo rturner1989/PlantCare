@@ -11,6 +11,9 @@ const navItems = [
   { to: '/me', label: 'Me', icon: faUser },
 ]
 
+const LEFT_ITEMS = navItems.slice(0, 2)
+const RIGHT_ITEMS = navItems.slice(2)
+
 const dockVariants = {
   hidden: { y: 100 },
   visible: {
@@ -42,8 +45,6 @@ function DockNavLink({ to, label, icon, end = false }) {
 export default function Dock({ isFirstRun = false }) {
   const shouldReduceMotion = useReducedMotion()
   const shouldAnimate = isFirstRun && !shouldReduceMotion
-  const leftItems = navItems.slice(0, 2)
-  const rightItems = navItems.slice(2)
 
   return (
     <motion.nav
@@ -54,7 +55,7 @@ export default function Dock({ isFirstRun = false }) {
       animate={shouldAnimate ? 'visible' : false}
     >
       <div className="flex items-center justify-around px-4 h-[74px]">
-        {leftItems.map((item) => (
+        {LEFT_ITEMS.map((item) => (
           <motion.div key={item.to} variants={itemVariants}>
             <DockNavLink {...item} />
           </motion.div>
@@ -66,7 +67,7 @@ export default function Dock({ isFirstRun = false }) {
           </Action>
         </motion.div>
 
-        {rightItems.map((item) => (
+        {RIGHT_ITEMS.map((item) => (
           <motion.div key={item.to} variants={itemVariants}>
             <DockNavLink {...item} />
           </motion.div>

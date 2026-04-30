@@ -80,7 +80,6 @@ describe('Sidebar', () => {
     it('renders all five v2 nav items in the Full body', () => {
       render(<Sidebar />, { wrapper })
       const navs = screen.getAllByRole('navigation', { name: 'Primary' })
-      // First nav = Full body's nav
       const fullNav = navs[0]
       const labels = within(fullNav)
         .getAllByRole('link')
