@@ -86,6 +86,15 @@
   --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
   --font-display: "Fraunces", Georgia, serif;
 
+  /* Custom breakpoints — match mockup 26's nav state boundaries:
+   *   xs       (480px) → phone↔drawer split
+   *   desktop (1200px) → rail↔full split
+   * Tailwind defaults (sm 640 / md 768 / lg 1024 / xl 1280) don't hit
+   * these exactly, and the 80px slip on the desktop boundary is too
+   * loose for the v2 nav matrix. */
+  --breakpoint-xs: 30rem;
+  --breakpoint-desktop: 75rem;
+
   /* Radius — v2 canon from spec §5. Banned tokens documented below;
    * do not re-introduce without a spec amendment. */
   --radius-xs: 4px; /* segment-option inner */

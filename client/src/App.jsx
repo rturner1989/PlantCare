@@ -105,7 +105,9 @@ export default function App() {
 
                   <Route path="house" element={<House />} />
                   <Route path="plants/:id" element={<PlaceholderPage title="Plant Detail" />} />
-                  <Route path="discover" element={<PlaceholderPage title="Discover" />} />
+                  <Route path="journal" element={<PlaceholderPage title="Journal" />} />
+                  <Route path="encyclopedia" element={<PlaceholderPage title="Encyclopedia" />} />
+                  <Route path="notifications" element={<PlaceholderPage title="Notifications" />} />
                   <Route path="me" element={<PlaceholderPage title="Me" />} />
                   <Route path="add-plant" element={<PlaceholderPage title="Add Plant" />} />
                 </Route>

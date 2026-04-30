@@ -1,13 +1,13 @@
-import { faHouse, faMagnifyingGlass, faPlus, faSun, faUser } from '@fortawesome/free-solid-svg-icons'
+import { faHouse, faPenToSquare, faPlus, faSun, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { motion, useReducedMotion } from 'motion/react'
 import { NavLink } from 'react-router-dom'
 import Action from './ui/Action'
 
 const navItems = [
-  { to: '/', label: 'Today', icon: faSun },
+  { to: '/', label: 'Today', icon: faSun, end: true },
   { to: '/house', label: 'House', icon: faHouse },
-  { to: '/discover', label: 'Discover', icon: faMagnifyingGlass },
+  { to: '/journal', label: 'Journal', icon: faPenToSquare },
   { to: '/me', label: 'Me', icon: faUser },
 ]
 
@@ -24,11 +24,11 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
 }
 
-function DockNavLink({ to, label, icon }) {
+function DockNavLink({ to, label, icon, end = false }) {
   return (
     <NavLink
       to={to}
-      end={to === '/'}
+      end={end}
       className={({ isActive }) =>
         `flex flex-col items-center gap-1 py-2 px-3 ${isActive ? 'text-forest' : 'text-ink-soft'}`
       }
@@ -47,8 +47,8 @@ export default function Dock({ isFirstRun = false }) {
 
   return (
     <motion.nav
-      aria-label="Primary"
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-paper/[0.78] backdrop-blur-heavy backdrop-saturate-150 rounded-t-md border-t border-paper/60 shadow-[var(--shadow-dock)]"
+      aria-label="Bottom navigation"
+      className="fixed bottom-0 left-0 right-0 z-50 xs:hidden bg-paper/[0.78] backdrop-blur-heavy backdrop-saturate-150 rounded-t-md border-t border-paper/60 shadow-[var(--shadow-dock)] pb-[clamp(2px,env(safe-area-inset-bottom),12px)]"
       variants={dockVariants}
       initial={shouldAnimate ? 'hidden' : false}
       animate={shouldAnimate ? 'visible' : false}

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-037 — R1 — Sidebar + Dock nav restructure</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+.badge.kind { background: #4a6fa5; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 80px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.component { background: #1a1a2e; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.hook { background: #4a6fa5; }
+.artifact .kind.page { background: #2d6a4f; }
+.artifact .kind.tests { background: #6a4a8f; }
+
+.shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 480px; border: none; background: #fff; }
+.mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.plan-link:hover { background: #e6e6de; }
+
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<header class="header">
+  <div class="id">TICKET-037 · v2 plan R1</div>
+  <h1>Sidebar + Dock nav restructure</h1>
+  <div class="badges">
+    <span class="badge status">Open</span>
+    <span class="badge priority-high">High</span>
+    <span class="badge kind">Frontend · navigation spine</span>
+  </div>
+</header>
+
+<section>
+  <h2>Summary</h2>
+  <p>Restructure the app's primary navigation to the v2 vocabulary: <strong>Today · House · Journal · Encyclopedia · Me</strong>. Sidebar becomes responsive across three viewport states (Full ≥1200px, Icon-rail 768–1199px, Drawer &lt;768px) per mockup 26. Mobile dock keeps four primary items + a centre Add FAB (Encyclopedia is sidebar-only — reachable via search/cmd-K once that lands). Bell + search-pill stubs are visual placeholders here; their behaviour wires up in later tickets.</p>
+  <p>PlantAvatar drops the 🎭 personality emoji per the v2 design memo — personality is inferred from card chrome, never labelled.</p>
+  <p>In one sentence: <strong>swap v1 nav (Today / House / Discover) for the v2 5-region spine, ship the new icon-rail breakpoint, and stand up a MobileTopBar so every region after this can hang off the same chrome.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+
+  <div class="plan-strip">
+    <div class="plan-step done"><span class="num">B1</span>020 Space</div>
+    <div class="plan-step done"><span class="num">B2</span>021 Intent</div>
+    <div class="plan-step done"><span class="num">F1</span>027 Tokens</div>
+    <div class="plan-step done"><span class="num">F2</span>028 Segment</div>
+    <div class="plan-step done"><span class="num">F6</span>032 Slab</div>
+    <div class="plan-step done"><span class="num">R14</span>050 Toast</div>
+    <div class="plan-step done"><span class="num">R15</span>051 Auth</div>
+    <div class="plan-step done"><span class="num">R9</span>045 Onboard</div>
+    <div class="plan-step current"><span class="num">R1</span>037 Nav</div>
+    <div class="plan-step"><span class="num">R2</span>038 Today</div>
+    <div class="plan-step"><span class="num">R3-R8</span>Regions</div>
+    <div class="plan-step"><span class="num">…</span>rest</div>
+  </div>
+
+  <p><strong>What came before:</strong> R9 (onboarding wizard, TICKET-045) merged 2026-04-29 — that locked in the v2 step vocabulary and gave the wizard its own layout shell. The sidebar/dock were left at v1 vocabulary because every region after R9 reshapes them anyway. R15 (auth visual) re-painted signed-out chrome; this ticket re-paints signed-in chrome.</p>
+
+  <p><strong>What this unlocks:</strong> R2 Today (TICKET-038), R3 House (TICKET-039), and every region after them assume the v2 nav vocabulary is in place. R8 Notifications drawer (TICKET-044) needs the bell button this ticket scaffolds. Pairing partner is B4 Notifications endpoint (TICKET-023) — the bell badge wires up there once this ticket has placed the button. Without 037 the region tickets each try to invent their own chrome.</p>
+
+  <p><strong>Mental model:</strong> Rails analogy is <code>app/views/layouts/application.html.erb</code>. The layout's job is to show the right links to whichever section the user is in, and to put the persistent furniture (logo, search, account chip, notification bell) where it belongs. You're swapping the layout markup, not touching any controller. JSX + the responsive viewport pick are the React-flavoured replacement for media queries inside ERB.</p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <p>One responsive nav with three viewport states, a slimmed mobile dock, a new top bar for the bell on phones, and a small avatar tweak. Plus a hook to drive the sidebar's mode pick.</p>
+
+  <div class="artifact-list">
+
+    <div class="artifact">
+      <div><span class="kind rewrite">Rewrite</span><span class="name">client/src/components/Sidebar.jsx</span></div>
+      <div class="role">Three responsive states by viewport: <strong>Full</strong> (≥1200px, 240px column with logo + bell + search pill + 5 nav items + user card), <strong>Icon-rail</strong> (768–1199px, 64px column with icon-only nav, count badges as coral chips top-right, tooltip on hover/focus), <strong>Drawer</strong> (&lt;768px, 260px overlay reused from current burger flow with retouched scrim). Same nav vocabulary in every state — only chrome changes. Bell + search pill render as visual stubs (no click handlers) so later tickets can wire them up without re-shaping the markup.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind rewrite">Rewrite</span><span class="name">client/src/components/Dock.jsx</span></div>
+      <div class="role">Mobile bottom nav at &lt;md only. Four primary items + centre Add FAB: Today · House · [+ FAB] · Journal · Me. Drops Discover (renamed to Encyclopedia and demoted to sidebar-only — phones reach it via search). Existing reveal animation stays.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind component">New</span><span class="name">client/src/components/MobileTopBar.jsx</span></div>
+      <div class="role">52px sticky top bar at &lt;md only. Holds the burger trigger (opens Drawer state), the Logo, the bell button, and an avatar chip linking to Me. Empty middle. Renders alongside Dock as the mobile chrome pair. Bell is a visual stub here — no badge until B4 Notifications lands.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind hook">New</span><span class="name">client/src/hooks/useViewportSize.js</span></div>
+      <div class="role">Reads <code>window.innerWidth</code> on mount + on resize (debounced) and returns a string mode: <code>'full' | 'rail' | 'drawer' | 'mobile'</code>. Sidebar uses it to pick its render branch; AppLayout uses it to decide whether to render Dock + MobileTopBar or Sidebar. SSR-safe default for the first render so the JSX shape doesn't flicker.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind extend">Modify</span><span class="name">client/src/components/PlantAvatar.jsx</span></div>
+      <div class="role">Strip the 🎭 personality emoji and any personality text label. Avatar still renders (image / initial fallback / mood ring), but personality stays implicit. Per v2 design memo: personality is inferred from card chrome, never labelled.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind extend">Modify</span><span class="name">client/src/App.jsx</span></div>
+      <div class="role">Route table reshaped to match v2 vocabulary. <code>/discover</code> → <code>/encyclopedia</code>. New routes: <code>/journal</code>, <code>/notifications</code>. Each new route renders a <code>PlaceholderPage</code> until its region ticket lands. <code>/me</code> stays on the existing placeholder. Lazy + Suspense pattern continues for whichever pages already had it.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind extend">Modify</span><span class="name">client/src/layouts/AppLayout.jsx</span></div>
+      <div class="role">Renders Sidebar at md+ and Dock + MobileTopBar at &lt;md (current logic — confirm it survives the Sidebar rewrite). Drives the burger-open state for the Drawer variant.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">client/tests/components/Sidebar.test.jsx</span></div>
+      <div class="role">Vitest: render the three states by mocking <code>useViewportSize</code>, assert each state's items + active-state aria-current. Bell button has accessible name even with no badge.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">client/tests/components/Dock.test.jsx</span></div>
+      <div class="role">Vitest: 4 nav items + 1 FAB rendered, FAB centre-positioned (<code>order</code> or sibling-index check), no Encyclopedia item.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">client/tests/components/MobileTopBar.test.jsx</span></div>
+      <div class="role">Vitest: bell + burger + logo + avatar render, burger toggles drawer-open prop.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">client/tests/e2e/nav.spec.js</span></div>
+      <div class="role">Playwright smoke: log in, click each sidebar item (Today/House/Journal/Encyclopedia/Me), URL changes + page renders. Mobile viewport: each dock item navigates. Bell button click is no-op (asserts no error, no navigation) until B4.</div>
+    </div>
+
+  </div>
+
+  <p style="margin-top: 20px;">How they nest at runtime:</p>
+  <div class="shape">AppLayout
+├── Sidebar             (md+ only)
+│   ├── Full state      (≥1200px)
+│   ├── Icon-rail       (768–1199px)
+│   └── Drawer          (overlay, opens via burger)
+│
+├── MobileTopBar        (&lt;md only)
+│   └── Burger → opens Sidebar Drawer
+│
+├── &lt;Outlet /&gt;          (route content)
+│
+└── Dock                (&lt;md only, bottom)</div>
+
+  <blockquote><strong>Placeholder note.</strong> Bell button + search pill are scaffolded as visual stubs. Don't wire <code>useNotifications</code> here — that hook lands with B4 (TICKET-023) and gates the badge count. Don't build a cmd-K dialog here either — that's a separate future ticket. The button + pill must exist in the JSX and be styleable, but their click handlers can be no-ops with TODOs that point at the right ticket.</blockquote>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+
+  <ol>
+    <li>Sidebar renders three distinct visual states based on viewport width: Full at ≥1200px, Icon-rail between 768–1199px, Drawer below 768px.</li>
+    <li>Sidebar shows five nav items in every state: Today, House, Journal, Encyclopedia, Me — in that order. Each links to its route and reflects the active route via <code>aria-current="page"</code>.</li>
+    <li>Icon-rail state shows count badges (coral chip top-right of icon) for items that have counts; rail items reveal a dark tooltip with the label on hover or keyboard focus.</li>
+    <li>Drawer state opens via a burger trigger in the top bar, dims the page with a scrim, and closes on Escape, scrim tap, or close button.</li>
+    <li>Mobile dock (&lt;md) shows four nav items + centre Add FAB: Today · House · [+ FAB] · Journal · Me. Encyclopedia is not in the dock.</li>
+    <li>MobileTopBar (52px sticky) renders at &lt;md and holds: burger, logo, spacer, bell button, avatar chip linking to Me.</li>
+    <li>Bell button has an accessible name ("Notifications") even when no badge count is rendered.</li>
+    <li>PlantAvatar no longer renders the 🎭 personality emoji or any personality text label.</li>
+    <li>Routing: <code>/discover</code> is removed; <code>/encyclopedia</code>, <code>/journal</code>, <code>/notifications</code> are added. Each new route renders the existing PlaceholderPage component until its region ticket lands.</li>
+    <li>Sidebar mode pick survives a window resize without remount glitch — switching from 1400 → 1000 → 600 changes states cleanly.</li>
+    <li>Reduced-motion respected — no resize-driven animations for users with the OS preference set.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+
+  <div class="criterion"><div class="box"></div><span>At ≥1200px the sidebar shows the full 240px column with logo + bell + search pill + five nav items with labels + user card.</span></div>
+  <div class="criterion"><div class="box"></div><span>Resizing the window from 1400px → 900px collapses the sidebar to the 64px icon-rail state without a flash of unstyled content.</span></div>
+  <div class="criterion"><div class="box"></div><span>Hovering an icon-rail item shows a black tooltip to the right with the label; tabbing to it via keyboard does the same.</span></div>
+  <div class="criterion"><div class="box"></div><span>Resizing below 768px hides the sidebar; clicking the burger in the top bar reveals the drawer overlay.</span></div>
+  <div class="criterion"><div class="box"></div><span>Pressing Escape with the drawer open closes it. Tapping the dimmed area (scrim) also closes it.</span></div>
+  <div class="criterion"><div class="box"></div><span>On a mobile viewport (390×844), the bottom dock shows exactly: Today, House, [+ FAB], Journal, Me.</span></div>
+  <div class="criterion"><div class="box"></div><span>The mobile top bar shows burger + logo + bell + avatar; the bell has an accessible name visible to screen readers.</span></div>
+  <div class="criterion"><div class="box"></div><span>Clicking each sidebar item changes the URL and renders the matching page (Today/House live; Journal/Encyclopedia/Me/Notifications render placeholder pages).</span></div>
+  <div class="criterion"><div class="box"></div><span>Visiting <code>/discover</code> renders the 404 page (the route is gone).</span></div>
+  <div class="criterion"><div class="box"></div><span>The active route's nav item has <code>aria-current="page"</code> when inspected in DevTools.</span></div>
+  <div class="criterion"><div class="box"></div><span>PlantAvatar instances on Today / House no longer show 🎭 anywhere.</span></div>
+  <div class="criterion"><div class="box"></div><span>DevTools → Elements: the sidebar's <code>&lt;nav&gt;</code> has <code>role="navigation"</code> and an <code>aria-label</code>.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> + <code>./scripts/run_tests.sh client</code> pass.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/vercel-react-best-practices</code> + <code>/accessibility</code> + <code>/dhh-rails-reviewer</code> review skills run, no blockers raised.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/pre-commit</code> + <code>/comment-audit</code> pass.</span></div>
+</section>
+
+<section>
+  <h2>Design references</h2>
+
+  <div class="mockup-preview">
+    <div class="label">
+      <span>Mockup 26 · Sidebar states (full / rail / drawer)</span>
+      <a href="../../mockups/plantcare-ui/v2/26-sidebar-states-v1.html" target="_blank">Open ↗</a>
+    </div>
+    <iframe src="../../mockups/plantcare-ui/v2/26-sidebar-states-v1.html"></iframe>
+  </div>
+
+  <div class="mockup-preview">
+    <div class="label">
+      <span>Mockup 18 · Today mobile (dock + topbar context)</span>
+      <a href="../../mockups/plantcare-ui/v2/18-today-mobile-v1.html" target="_blank">Open ↗</a>
+    </div>
+    <iframe src="../../mockups/plantcare-ui/v2/18-today-mobile-v1.html"></iframe>
+  </div>
+
+  <div class="mockup-preview">
+    <div class="label">
+      <span>Mockup 17 · Today desktop (sidebar in context)</span>
+      <a href="../../mockups/plantcare-ui/v2/17-today-density-v1.html" target="_blank">Open ↗</a>
+    </div>
+    <iframe src="../../mockups/plantcare-ui/v2/17-today-density-v1.html"></iframe>
+  </div>
+
+  <h3 style="font-size: 14px; margin: 18px 0 6px; color: #444;">From the v2 design spec</h3>
+
+  <blockquote>
+    "Encyclopedia becomes a first-class reference. Article-reader on desktop; card-stream on mobile. Renamed from 'Discover' for clarity."
+    <br><em>— docs/specs/2026-04-23-plantcare-design-v2.md §125–127</em>
+  </blockquote>
+
+  <blockquote>
+    "Web uses react-router. The seven regions (Today / House / Journal / Encyclopedia / Me + Plant Detail / Add Plant as pushed screens) map cleanly to bottom tabs + stack. Keep the URL structure and the tab structure isomorphic."
+    <br><em>— docs/specs/2026-04-23-plantcare-design-v2.md §315</em>
+  </blockquote>
+
+  <blockquote>
+    "Vocabulary shared across states. Nav items render the same data — icon, label, count, active state — just with different chrome around them. One React component Sidebar with a mode prop ('full' | 'rail' | 'drawer') picked by a useMediaQuery / useViewportSize hook."
+    <br><em>— mockup 26 wrap-up</em>
+  </blockquote>
+
+  <p><strong>Scope clarifier:</strong> mockup 26 shows a search pill and ⌘K hint in every state. <em>Visual placeholder only here</em> — no dialog, no shortcut wiring. The cmd-K search dialog is a separate future ticket. Mockup 18 shows full Today content (rituals, jobs rail, weekly calendar) — those are <strong>not</strong> in scope; this ticket only touches the dock + top bar chrome on that screen. Today's body stays as-is until R2 (TICKET-038).</p>
+
+  <a class="plan-link" href="../../plans/2026-04-24-plantcare-frontend-v2.md" target="_blank">Plan §11 R1 — TICKET-037 (one worked example, not a script to transcribe)</a>
+</section>
+
+<section>
+  <h2>React concepts worth looking up</h2>
+
+  <div class="learn">
+    <strong>Reading window dimensions in React.</strong> <code>window.innerWidth</code> only exists in the browser, not during SSR/initial render. The pattern: initialise state with a sensible default (e.g. <code>'full'</code>), then update inside a <code>useEffect</code> that subscribes to the <code>resize</code> event. Debounce so you're not re-rendering the entire layout on every pixel of a drag. Always return a cleanup function from the effect that removes the listener — otherwise every navigation leaks one.
+  </div>
+
+  <div class="learn">
+    <strong>StrictMode double-fire of effects.</strong> In dev, React intentionally mounts → unmounts → re-mounts every component once to catch missing cleanup. If your resize listener is added in <code>useEffect</code> without a cleanup, you'll see <em>two</em> listeners attached after a refresh. The cleanup function (returning <code>() => window.removeEventListener(...)</code>) is what makes the effect survive StrictMode without leaking.
+  </div>
+
+  <div class="learn">
+    <strong>NavLink + active state.</strong> React Router's <code>NavLink</code> already exposes an <code>isActive</code> flag in its className/style render-prop. Use it to apply the active styling AND to set <code>aria-current="page"</code> on the underlying anchor — accessibility wants both the visual cue and the semantic attribute. <code>end</code> prop matters: <code>to="/"</code> matches every path unless you set <code>end</code>, otherwise Today highlights as active on every page.
+  </div>
+
+  <div class="learn">
+    <strong>Accessible name for icon-only buttons.</strong> A button with just an SVG inside has no accessible name — screen readers will read "button" with no context. <code>aria-label="Notifications"</code> is the fix on the bell. For the icon-rail nav items, a tooltip is a visual hint; the button still needs an <code>aria-label</code> (or visually-hidden label) so the SR experience matches the sighted one. Tooltips are a UX nicety, not an a11y substitute.
+  </div>
+
+  <div class="learn">
+    <strong>When NOT to memo.</strong> Vercel's <code>rerender-simple-expression-in-memo</code> rule: don't wrap trivial computed values in <code>useMemo</code>. The viewport-size hook returns a tiny string; the components that consume it aren't doing expensive work. Memoising the mode pick is cargo-cult. Ship the simple version; the React Compiler (when it's on) handles the cases that actually matter.
+  </div>
+</section>
+
+<section>
+  <h2>Rails ↔ React mental map</h2>
+
+  <table class="rails-map">
+    <thead>
+      <tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>app/views/layouts/application.html.erb</code></td>
+        <td><code>AppLayout.jsx</code> with <code>&lt;Outlet /&gt;</code></td>
+        <td>Persistent frame — sidebar + dock + topbar live here, page content slots into <code>&lt;Outlet /&gt;</code></td>
+      </tr>
+      <tr>
+        <td><code>config/routes.rb</code></td>
+        <td><code>&lt;Routes&gt;</code> + <code>&lt;Route&gt;</code> in <code>App.jsx</code></td>
+        <td>Adding <code>/journal</code>, <code>/encyclopedia</code>, <code>/notifications</code> is the equivalent of adding three resource lines</td>
+      </tr>
+      <tr>
+        <td><code>link_to 'Today', root_path</code></td>
+        <td><code>&lt;NavLink to="/"&gt;Today&lt;/NavLink&gt;</code></td>
+        <td>Client-side nav, no full page reload. NavLink also gives you the active flag for free.</td>
+      </tr>
+      <tr>
+        <td>Partial (<code>_sidebar.html.erb</code>)</td>
+        <td><code>Sidebar.jsx</code> imported into AppLayout</td>
+        <td>One file, called from the layout. No string lookup.</td>
+      </tr>
+      <tr>
+        <td>Media-query helper / <code>display: none</code> in CSS</td>
+        <td><code>useViewportSize()</code> returning a mode string</td>
+        <td>Tailwind's <code>md:hidden</code> still works for static cases — but when you need to swap entire markup branches (drawer vs full sidebar) the JS-driven mode pick is cleaner.</td>
+      </tr>
+      <tr>
+        <td>Rails view doesn't auto-mark "active" links — you'd build a helper</td>
+        <td><code>aria-current="page"</code> via NavLink's render-prop</td>
+        <td>React Router did this work for you. Use it.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Related files</h2>
+
+  <ul class="file-list">
+    <li><span>client/src/components/Sidebar.jsx</span><span class="action">Rewrite</span></li>
+    <li><span>client/src/components/Dock.jsx</span><span class="action">Rewrite</span></li>
+    <li><span>client/src/components/MobileTopBar.jsx</span><span class="action">Create</span></li>
+    <li><span>client/src/components/PlantAvatar.jsx</span><span class="action">Modify</span></li>
+    <li><span>client/src/hooks/useViewportSize.js</span><span class="action">Create</span></li>
+    <li><span>client/src/App.jsx</span><span class="action">Modify</span></li>
+    <li><span>client/src/layouts/AppLayout.jsx</span><span class="action">Confirm / minor tidy</span></li>
+    <li><span>client/tests/components/Sidebar.test.jsx</span><span class="action">Rewrite</span></li>
+    <li><span>client/tests/components/Dock.test.jsx</span><span class="action">Rewrite</span></li>
+    <li><span>client/tests/components/MobileTopBar.test.jsx</span><span class="action">Create</span></li>
+    <li><span>client/tests/components/PlantAvatar.test.jsx</span><span class="action">Modify</span></li>
+    <li><span>client/tests/e2e/nav.spec.js</span><span class="action">Create</span></li>
+  </ul>
+
+  <p style="margin-top: 12px; color: #666; font-size: 13px;"><em>This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose.</em></p>
+</section>
+
+<section>
+  <h2>Notes &amp; gotchas</h2>
+
+  <ul>
+    <li><strong>Don't wire the bell to a real endpoint here.</strong> B4 Notifications (TICKET-023) is the right home for that. Stub the button + leave a single-line TODO referencing TICKET-023, no <code>useNotifications</code> hook stub.</li>
+    <li><strong>Don't build a cmd-K dialog.</strong> The search pill is a visual placeholder. Keyboard shortcut not wired. A future ticket owns the dialog + indexer.</li>
+    <li><strong>The drawer state already exists</strong> from TICKET-019's md-breakpoint burger work. Reuse the existing AnimatePresence + scrim pattern in Sidebar.jsx; don't reinvent it. The new work is the <em>icon-rail</em> branch between drawer and full.</li>
+    <li><strong>Watch the lg vs md breakpoint</strong> in the existing Sidebar/Dock — current code switches at <code>lg</code> (1024px) and <code>md</code> (768px). Mockup 26 specifies the rail boundary at 1200px. Use a custom value (<code>useViewportSize</code>'s thresholds), not a Tailwind breakpoint, for the full↔rail switch — Tailwind's <code>xl</code> default is 1280px which is too high.</li>
+    <li><strong>NavLink active-class typo trap.</strong> NavLink takes a function-as-className. If you pass a string instead it never highlights. Read the existing Sidebar.jsx pattern for the right shape before retyping.</li>
+    <li><strong>The PlantAvatar 🎭 strip will break tests</strong> that assert on the emoji. Update those tests in the same commit, don't leave them red.</li>
+    <li><strong>Don't rename the <code>/me</code> route.</strong> It's already wired and the auth flow redirects to it. Keep the path; just leave the placeholder page in place.</li>
+    <li><strong>When you're done:</strong> run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, run the three review skills (<code>/vercel-react-best-practices</code>, <code>/accessibility</code>, <code>/dhh-rails-reviewer</code> on any backend touch — none expected here), then <code>/pre-commit</code> + <code>/comment-audit</code>, commit on this branch (<code>ticket-037-sidebar-dock-nav</code>), and open the PR with a <code>chore(v2):</code> or <code>feat(v2):</code> prefix.</li>
+  </ul>
+</section>
+
+</div>
+</body>
+</html>

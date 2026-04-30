@@ -1,4 +1,14 @@
-import { faArrowRightFromBracket, faHouse, faMagnifyingGlass, faPlus, faSun } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowRightFromBracket,
+  faBell,
+  faBook,
+  faHouse,
+  faMagnifyingGlass,
+  faPenToSquare,
+  faSun,
+  faUser,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef } from 'react'
@@ -8,13 +18,13 @@ import { useAuth } from '../hooks/useAuth'
 import Logo from './Logo'
 import Action from './ui/Action'
 import Avatar from './ui/Avatar'
-import Badge from './ui/Badge'
 
-// TODO(ticket 14): real counts from dashboard + house queries.
 const navItems = [
-  { to: '/', label: 'Today', icon: faSun, count: 2 },
-  { to: '/house', label: 'House', icon: faHouse, count: 12 },
-  { to: '/discover', label: 'Discover', icon: faMagnifyingGlass },
+  { to: '/', label: 'Today', icon: faSun, end: true },
+  { to: '/house', label: 'House', icon: faHouse },
+  { to: '/journal', label: 'Journal', icon: faPenToSquare },
+  { to: '/encyclopedia', label: 'Encyclopedia', icon: faBook },
+  { to: '/me', label: 'Me', icon: faUser },
 ]
 
 const revealVariants = {
@@ -44,96 +54,224 @@ const backdropMotion = {
   transition: { duration: 0.18, ease: 'easeOut' },
 }
 
-function SidebarNavLink({ to, label, icon, count, onNavigate }) {
+const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform)
+const SHORTCUT_LABEL = isMac ? '⌘K' : 'Ctrl+K'
+
+function UserAvatar({ user }) {
+  return (
+    <Avatar
+      src={user.avatar_url}
+      fallback={<span className="text-emerald font-bold">{user.name?.[0]?.toUpperCase() ?? '?'}</span>}
+      size="sm"
+      shape="circle"
+    />
+  )
+}
+
+function NavLinkFull({ to, label, icon, end = false, onNavigate }) {
   return (
     <NavLink
       to={to}
-      end={to === '/'}
+      end={end}
       onClick={onNavigate}
       className={({ isActive }) =>
-        `flex items-center gap-3 py-[11px] px-[14px] rounded-md text-sm font-bold tracking-[-0.01em] mb-1 transition-colors ${
-          isActive
-            ? 'bg-mint text-forest before:content-[""] before:w-1 before:h-[22px] before:bg-leaf before:rounded-full before:-mr-1'
-            : 'text-ink-soft hover:bg-mint/50'
+        `flex items-center gap-3 py-[7px] px-[10px] rounded-md text-sm font-semibold mx-3 transition-colors ${
+          isActive ? 'bg-mint text-forest font-bold' : 'text-ink-soft hover:bg-mint/50'
         }`
       }
     >
       {({ isActive }) => (
         <>
-          <FontAwesomeIcon icon={icon} className="w-5 h-5" />
+          <span
+            className={`w-[22px] h-[22px] rounded-full flex items-center justify-center text-[12px] shrink-0 ${
+              isActive ? 'bg-emerald text-paper' : 'text-ink-softer'
+            }`}
+          >
+            <FontAwesomeIcon icon={icon} className="w-3 h-3" />
+          </span>
           <span className="flex-1">{label}</span>
-
-          <Badge scheme={isActive ? 'leaf' : 'forest'} variant={isActive ? 'solid' : 'soft'}>
-            {count}
-          </Badge>
         </>
       )}
     </NavLink>
   )
 }
 
-function SidebarBody({ user, onLogout, onNavigate }) {
+function NavLinkRail({ to, label, icon, end = false }) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      aria-label={label}
+      className={({ isActive }) =>
+        `group relative w-11 h-11 rounded-md flex items-center justify-center transition-colors ${
+          isActive ? 'bg-mint text-forest' : 'text-ink-softer hover:bg-mint/50'
+        }`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <span
+            className={`w-[22px] h-[22px] rounded-full flex items-center justify-center ${
+              isActive ? 'bg-emerald text-paper' : ''
+            }`}
+          >
+            <FontAwesomeIcon icon={icon} className="w-[14px] h-[14px]" />
+          </span>
+          <span
+            role="tooltip"
+            className="absolute left-full top-1/2 -translate-y-1/2 translate-x-1.5 px-2.5 py-1 rounded-full bg-ink text-paper text-[11px] font-bold whitespace-nowrap shadow-md opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 pointer-events-none transition-opacity duration-150 z-30"
+          >
+            {label}
+          </span>
+        </>
+      )}
+    </NavLink>
+  )
+}
+
+function UserCard({ user, onLogout, onNavigate }) {
+  if (!user) return null
+  return (
+    <div className="px-3 pb-4 pt-3 border-t border-paper-edge">
+      <div className="flex items-center gap-2">
+        <Action
+          to="/me"
+          variant="unstyled"
+          aria-label="View profile"
+          onClick={onNavigate}
+          className="flex items-center gap-2 flex-1 min-w-0 p-1 rounded-md hover:bg-mint/50 transition-colors"
+        >
+          <UserAvatar user={user} />
+          <div className="flex-1 min-w-0 text-left">
+            <p className="text-sm font-bold text-ink truncate">{user.name}</p>
+            <p className="text-xs text-ink-softer truncate">{user.email}</p>
+          </div>
+        </Action>
+        <Action
+          onClick={onLogout}
+          variant="unstyled"
+          aria-label="Log out"
+          className="text-ink-soft hover:text-coral-deep transition-colors p-1 rounded-md shrink-0"
+        >
+          <FontAwesomeIcon icon={faArrowRightFromBracket} className="w-4 h-4" />
+        </Action>
+      </div>
+    </div>
+  )
+}
+
+function Body({ user, onLogout, onClose }) {
   return (
     <>
-      <Logo to="/" className="px-6 pt-6 pb-4" />
-
-      <div className="px-6 pt-4 pb-2">
-        <span className="text-[10px] font-extrabold text-ink-soft uppercase tracking-[0.12em]">Navigate</span>
+      <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-4">
+        <Logo to="/" size="sm" />
+        {onClose ? (
+          <Action
+            variant="unstyled"
+            onClick={onClose}
+            aria-label="Close menu"
+            className="w-[28px] h-[28px] rounded-full bg-paper-deep text-ink-soft hover:text-ink hover:bg-mint/60 transition-colors flex items-center justify-center shrink-0"
+          >
+            <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
+          </Action>
+        ) : (
+          <Action
+            variant="unstyled"
+            disabled
+            aria-label="Notifications (coming soon)"
+            className="w-[26px] h-[26px] rounded-full bg-paper-deep text-ink-soft flex items-center justify-center shrink-0"
+          >
+            <FontAwesomeIcon icon={faBell} className="w-3 h-3" />
+          </Action>
+        )}
       </div>
 
-      <nav aria-label="Primary" className="flex-1 px-3">
+      <Action
+        variant="unstyled"
+        disabled
+        aria-label="Search (coming soon)"
+        className="mx-3 flex items-center gap-2 px-3 py-[7px] rounded-full bg-paper-deep text-xs font-semibold text-ink-soft"
+      >
+        <FontAwesomeIcon icon={faMagnifyingGlass} className="w-3 h-3 text-emerald" />
+        <span>Search…</span>
+        <span className="ml-auto px-[5px] py-[1px] rounded-sm border border-paper-edge bg-paper text-[9px] text-ink-soft font-mono">
+          {SHORTCUT_LABEL}
+        </span>
+      </Action>
+
+      <div className="mt-3">
+        <div className="px-6 pb-1">
+          <span className="text-[9px] font-extrabold text-ink-soft uppercase tracking-[0.18em]">Tend</span>
+        </div>
+        <nav aria-label="Primary" className="flex flex-col gap-0.5">
+          {navItems.map((item) => (
+            <motion.div key={item.to} variants={itemVariants}>
+              <NavLinkFull {...item} onNavigate={onClose} />
+            </motion.div>
+          ))}
+        </nav>
+      </div>
+
+      <div className="flex-1" />
+
+      <UserCard user={user} onLogout={onLogout} onNavigate={onClose} />
+    </>
+  )
+}
+
+function RailBody({ user, onLogout }) {
+  return (
+    <>
+      <div className="pt-4 pb-2 flex justify-center">
+        <Logo to="/" size="sm" markOnly />
+      </div>
+
+      <div className="flex justify-center pb-2">
+        <Action
+          variant="unstyled"
+          disabled
+          aria-label="Search (coming soon)"
+          className="w-10 h-10 rounded-full bg-paper-deep flex items-center justify-center text-emerald"
+        >
+          <FontAwesomeIcon icon={faMagnifyingGlass} className="w-3 h-3" />
+        </Action>
+      </div>
+
+      <nav aria-label="Primary" className="flex flex-col items-center gap-1 w-full">
         {navItems.map((item) => (
           <motion.div key={item.to} variants={itemVariants}>
-            <SidebarNavLink {...item} onNavigate={onNavigate} />
+            <NavLinkRail {...item} />
           </motion.div>
         ))}
       </nav>
 
-      <div className="px-4 pb-4">
-        <Action to="/add-plant" variant="cta-card" onClick={onNavigate}>
-          <div className="flex items-center gap-2 text-lime">
-            <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-            <span className="text-sm font-extrabold">New plant</span>
-          </div>
-          <p className="text-xs text-lime/70 mt-1">Add a new plant to your collection</p>
-        </Action>
-      </div>
+      <div className="flex-1" />
 
       {user && (
-        <div className="px-4 pb-6 border-t border-mint pt-4">
-          <div className="flex items-center gap-2">
-            <Action
-              to="/me"
-              variant="unstyled"
-              aria-label="View profile"
-              onClick={onNavigate}
-              className="flex items-center gap-3 flex-1 min-w-0 p-1 rounded-md hover:bg-mint/50 transition-colors"
-            >
-              <Avatar
-                src={user.avatar_url}
-                fallback={<span className="text-emerald font-bold">{user.name?.[0]?.toUpperCase() ?? '?'}</span>}
-                size="sm"
-                shape="circle"
-              />
-              <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-bold text-ink truncate">{user.name}</p>
-                <p className="text-xs text-ink-soft truncate">{user.email}</p>
-              </div>
-            </Action>
-            <Action
-              onClick={onLogout}
-              variant="unstyled"
-              aria-label="Log out"
-              className="text-ink-soft hover:text-coral-deep transition-colors p-1 rounded-md shrink-0"
-            >
-              <FontAwesomeIcon icon={faArrowRightFromBracket} className="w-4 h-4" />
-            </Action>
-          </div>
+        <div className="pb-4 flex justify-center border-t border-paper-edge pt-3">
+          <Action
+            to="/me"
+            variant="unstyled"
+            aria-label="View profile"
+            className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-mint transition-shadow"
+          >
+            <UserAvatar user={user} />
+          </Action>
+          <Action
+            onClick={onLogout}
+            variant="unstyled"
+            aria-label="Log out"
+            className="ml-1 text-ink-soft hover:text-coral-deep transition-colors p-2 rounded-md"
+          >
+            <FontAwesomeIcon icon={faArrowRightFromBracket} className="w-3 h-3" />
+          </Action>
         </div>
       )}
     </>
   )
 }
+
+const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 export default function Sidebar({ isFirstRun = false, isOpen = false, onClose }) {
   const { user, logout } = useAuth()
@@ -141,6 +279,7 @@ export default function Sidebar({ isFirstRun = false, isOpen = false, onClose })
   const shouldReduceMotion = useReducedMotion()
   const shouldAnimateReveal = isFirstRun && !shouldReduceMotion
   const onCloseRef = useRef(onClose)
+  const drawerRef = useRef(null)
 
   useEffect(() => {
     onCloseRef.current = onClose
@@ -148,11 +287,37 @@ export default function Sidebar({ isFirstRun = false, isOpen = false, onClose })
 
   useEffect(() => {
     if (!isOpen) return
+
+    const previouslyFocused = document.activeElement
+    const drawer = drawerRef.current
+    const closeButton = drawer?.querySelector('[aria-label="Close menu"]')
+    const initialFocus = closeButton ?? drawer?.querySelector(FOCUSABLE_SELECTOR)
+    initialFocus?.focus()
+
     function handleKey(event) {
-      if (event.key === 'Escape') onCloseRef.current?.()
+      if (event.key === 'Escape') {
+        onCloseRef.current?.()
+        return
+      }
+      if (event.key !== 'Tab' || !drawer) return
+      const focusables = drawer.querySelectorAll(FOCUSABLE_SELECTOR)
+      if (focusables.length === 0) return
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
     }
+
     document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
+    return () => {
+      document.removeEventListener('keydown', handleKey)
+      if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus()
+    }
   }, [isOpen])
 
   async function handleLogout() {
@@ -163,17 +328,24 @@ export default function Sidebar({ isFirstRun = false, isOpen = false, onClose })
 
   return (
     <>
-      {/* Persistent sidebar at lg+ */}
       <motion.aside
-        className="hidden lg:flex flex-col w-[260px] h-dvh bg-card border-r border-mint fixed left-0 top-0 z-40"
+        className="hidden desktop:flex flex-col w-[260px] h-dvh bg-paper border-r border-paper-edge fixed left-0 top-0 z-40"
         variants={revealVariants}
         initial={shouldAnimateReveal ? 'hidden' : false}
         animate={shouldAnimateReveal ? 'visible' : false}
       >
-        <SidebarBody user={user} onLogout={handleLogout} />
+        <Body user={user} onLogout={handleLogout} />
       </motion.aside>
 
-      {/* Drawer sidebar for md–lg range (tablet portrait) — opens on burger tap */}
+      <motion.aside
+        className="hidden md:flex desktop:hidden flex-col w-[64px] h-dvh bg-paper border-r border-paper-edge fixed left-0 top-0 z-40"
+        variants={revealVariants}
+        initial={shouldAnimateReveal ? 'hidden' : false}
+        animate={shouldAnimateReveal ? 'visible' : false}
+      >
+        <RailBody user={user} onLogout={handleLogout} />
+      </motion.aside>
+
       <AnimatePresence>
         {isOpen && (
           <>
@@ -181,14 +353,18 @@ export default function Sidebar({ isFirstRun = false, isOpen = false, onClose })
               type="button"
               aria-label="Close menu"
               onClick={onClose}
-              className="lg:hidden fixed inset-0 z-40 bg-black/50 border-0 cursor-pointer"
+              className="hidden xs:block md:hidden fixed inset-0 z-40 bg-black/50 border-0 cursor-pointer"
               {...backdropMotion}
             />
             <motion.aside
-              className="lg:hidden flex flex-col w-[260px] h-dvh bg-card border-r border-mint fixed left-0 top-0 z-50"
+              ref={drawerRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navigation menu"
+              className="hidden xs:flex md:hidden flex-col w-[260px] h-dvh bg-paper border-r border-paper-edge fixed left-0 top-0 z-50"
               {...drawerMotion}
             >
-              <SidebarBody user={user} onLogout={handleLogout} onNavigate={onClose} />
+              <Body user={user} onLogout={handleLogout} onClose={onClose} />
             </motion.aside>
           </>
         )}
