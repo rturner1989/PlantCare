@@ -18,9 +18,9 @@ test.describe('First-run wizard → Today reveal', () => {
 
     await page
       .getByRole('navigation', { name: 'Primary' })
-      .getByRole('link', { name: /Discover/i })
+      .getByRole('link', { name: /Encyclopedia/i })
       .click()
-    await expect(page).toHaveURL(/\/discover$/)
+    await expect(page).toHaveURL(/\/encyclopedia$/)
     await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: /Today/i }).click()
     await expect(page).toHaveURL('/')
     await expect(page.getByText(/Welcome, Reveal/i)).toHaveCount(0)

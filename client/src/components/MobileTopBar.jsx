@@ -25,8 +25,8 @@ export default function MobileTopBar({ isFirstRun = false, onMenuOpen }) {
   const shouldAnimate = isFirstRun && !shouldReduceMotion
 
   return (
-    <motion.div
-      className="lg:hidden fixed top-0 left-0 right-0 z-30 bg-card rounded-b-md shadow-[var(--shadow-sm)] pt-[env(safe-area-inset-top)]"
+    <motion.header
+      className="md:hidden fixed top-0 left-0 right-0 z-30 bg-card rounded-b-md shadow-[var(--shadow-sm)] pt-[env(safe-area-inset-top)]"
       variants={barVariants}
       initial={shouldAnimate ? 'hidden' : false}
       animate={shouldAnimate ? 'visible' : false}
@@ -34,7 +34,7 @@ export default function MobileTopBar({ isFirstRun = false, onMenuOpen }) {
       <div className="flex items-center justify-between gap-3 px-4 py-3">
         <div className="flex items-center gap-2">
           {onMenuOpen && (
-            <motion.div variants={itemVariants} className="hidden md:flex">
+            <motion.div variants={itemVariants} className="hidden xs:flex">
               <Action
                 variant="unstyled"
                 onClick={onMenuOpen}
@@ -54,8 +54,9 @@ export default function MobileTopBar({ isFirstRun = false, onMenuOpen }) {
           <motion.div variants={itemVariants}>
             <Action
               variant="unstyled"
-              aria-label="Notifications"
-              className="w-9 h-9 rounded-full flex items-center justify-center text-ink-soft hover:text-ink hover:bg-mint/60 transition-colors"
+              disabled
+              aria-label="Notifications (coming soon)"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-ink-soft"
             >
               <FontAwesomeIcon icon={faBell} className="w-4 h-4" />
             </Action>
@@ -75,6 +76,6 @@ export default function MobileTopBar({ isFirstRun = false, onMenuOpen }) {
           )}
         </div>
       </div>
-    </motion.div>
+    </motion.header>
   )
 }
