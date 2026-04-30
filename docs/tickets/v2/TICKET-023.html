@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-023 — B4 — Notifications system (Noticed gem)</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+.badge.kind { background: #4a6fa5; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 80px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.model { background: #2d6a4f; }
+.artifact .kind.controller { background: #1a1a2e; }
+.artifact .kind.notifier { background: #4a6fa5; }
+.artifact .kind.job { background: #6a4a8f; }
+.artifact .kind.migration { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.config { background: #555; }
+.artifact .kind.tests { background: #6a4a8f; }
+
+.shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.plan-link:hover { background: #e6e6de; }
+
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<header class="header">
+  <div class="id">TICKET-023 · v2 plan B4</div>
+  <h1>Notifications system (Noticed gem foundation)</h1>
+  <div class="badges">
+    <span class="badge status">Open</span>
+    <span class="badge priority-high">High</span>
+    <span class="badge kind">Backend · Rails</span>
+  </div>
+</header>
+
+<section>
+  <h2>Summary</h2>
+  <p>Stand up the app's notifications foundation on top of the <a href="https://github.com/excid3/noticed" target="_blank"><code>noticed</code></a> gem. Phase 1 ships database delivery + ActionCable real-time + REST endpoint + two event sources (care due, milestone) + a daily Sidekiq cron job that drives them. Phase 2 (push notifications, email digest, AI doctor results, LLM plant messages) plug in as additional notifiers + <code>deliver_by</code> channels later without rewriting the surface area.</p>
+  <p>Originally specced as a hand-rolled <code>Notification</code> table; <strong>upgraded to Noticed</strong> after weighing Phase 2/2.5/3 plumbing cost, then <strong>ActionCable pulled into Phase 1</strong> after weighing tech debt of adding it later. Then narrowed: <strong>self-action events (plant added, photo added, care logged) belong in the Journal region (R5/B3), not the notifications inbox</strong> — toasts already confirm those user-initiated actions immediately. The notifications inbox stays signal-rich for things the user might miss.</p>
+  <p>In one sentence: <strong>install Noticed, ship two notifier classes (CareDue + Milestone) with ActionCable delivery, expose <code>GET /notifications</code> + read/seen mutations, drive both via a daily Sidekiq cron job, and authenticate the cable channel via the existing refresh-token cookie.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+
+  <div class="plan-strip">
+    <div class="plan-step done"><span class="num">B1</span>020 Space</div>
+    <div class="plan-step done"><span class="num">B2</span>021 Intent</div>
+    <div class="plan-step current"><span class="num">B4</span>023 Notifs</div>
+    <div class="plan-step"><span class="num">B3</span>022 Journal</div>
+    <div class="plan-step"><span class="num">B5</span>024 Cal</div>
+    <div class="plan-step"><span class="num">B6</span>025 Miles</div>
+    <div class="plan-step"><span class="num">B7</span>026 Photo</div>
+    <div class="plan-step done"><span class="num">R1</span>037 Nav</div>
+    <div class="plan-step"><span class="num">R2</span>038 Today</div>
+    <div class="plan-step"><span class="num">R8</span>044 Drawer</div>
+    <div class="plan-step"><span class="num">…</span>rest</div>
+  </div>
+
+  <p><strong>What came before:</strong> R1 (TICKET-037) shipped the bell button and notifications drawer-trigger as <code>disabled</code> stubs on both Sidebar (Full + Drawer headers) and MobileTopBar. Bell badge UI is in place but rendering nothing — <em>it's waiting on this endpoint</em>. R9 onboarding (TICKET-045) shipped the user model with stable IDs that recipients hang off of.</p>
+
+  <p><strong>What this unlocks:</strong></p>
+  <ul>
+    <li><strong>R8 Notifications drawer (TICKET-044)</strong> — the actual UI for the inbox. Cannot start until items exist to show.</li>
+    <li><strong>R2 Today (TICKET-038)</strong> — desktop layout has an organiser column on the right that previews recent notifications. Needs the same data feed.</li>
+    <li><strong>Sidebar + MobileTopBar bell badge</strong> — flips from <code>disabled</code> stub to live unread count. Small client follow-up after this ticket lands; uses both the REST endpoint (initial fetch) and the cable subscription (live updates).</li>
+    <li><strong>Phase 2 web push</strong> — drops in as another <code>deliver_by :web_push</code> channel on the same notifiers. No new architecture.</li>
+    <li><strong>Phase 2.5 LLM plant messages</strong> — ships through a future <code>PlantMessageNotifier</code> using the same envelope + drawer surface, broadcasting to the same channel.</li>
+    <li><strong>Phase 3 weather alerts / sensor events</strong> — same pattern. Notifier-per-event-type scales.</li>
+  </ul>
+
+  <p><strong>Mental model:</strong> Noticed is to notifications what ActionMailer is to email. One framework-provided class per event type, framework owns the persistence + delivery dispatch. CLAUDE.md's "no service objects" rule still holds — Noticed::Event subclasses are framework-native abstractions, not hand-rolled service objects.</p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <p>Gem install, two tables (auto-migrated), four notifier classes, a daily cron job, REST controller, ActionCable connection + channel, User-model mixin, and tests.</p>
+
+  <div class="artifact-list">
+
+    <div class="artifact">
+      <div><span class="kind config">Config</span><span class="name">Gemfile</span></div>
+      <div class="role">Add <code>gem 'noticed', '~> 2.4'</code>. Run <code>bundle install</code> + <code>bin/rails noticed:install:migrations</code>. Standard install path.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind migration">Migration</span><span class="name">db/migrate/*_create_noticed_tables.rb</span></div>
+      <div class="role">Auto-generated by <code>noticed:install:migrations</code>. Creates <code>noticed_events</code> (event log: type, params jsonb, record_type, record_id, created_at) + <code>noticed_notifications</code> (per-recipient: event_id, recipient polymorphic, read_at, seen_at, created_at). Don't hand-edit beyond what the generator gives.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind model">Model</span><span class="name">app/models/user.rb</span></div>
+      <div class="role">Add <code>has_many :notifications, as: :recipient, class_name: "Noticed::Notification", dependent: :destroy</code>. Drop a <code>def unread_notifications_count = notifications.unread.count</code> helper that the controller can call without leaking <code>Noticed::Notification</code> into request specs.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind notifier">Notifier</span><span class="name">app/notifiers/care_due_notifier.rb</span></div>
+      <div class="role">Fires when a plant's <code>next_water_at</code> or <code>next_feed_at</code> falls within a "due window" the daily cron job decides. <code>deliver_by :database</code> + <code>deliver_by :action_cable, channel: "NotificationsChannel"</code>. Phase 2 chains <code>deliver_by :web_push, if: -&gt; { recipient.web_push_subscribed? }</code>. Params: <code>plant_id</code>, <code>plant_nickname</code>, <code>care_kind</code> ('water' / 'feed'), <code>days_overdue</code>. Notification methods expose <code>title</code>, <code>meta</code>, <code>url</code> for the JSON serializer.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind notifier">Notifier</span><span class="name">app/notifiers/milestone_notifier.rb</span></div>
+      <div class="role">Fires from the daily cron job when a plant hits 30 / 100 / 365 days since <code>plant.created_at</code>. <code>deliver_by :database</code> + <code>:action_cable</code>. Idempotent: cron job dedups by checking for an existing milestone notification with the same <code>plant_id</code> + <code>day_count</code> in the event log.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind config">Channel</span><span class="name">app/channels/application_cable/connection.rb</span></div>
+      <div class="role">Authenticates WebSocket connections via the existing refresh-token httpOnly cookie. Reads cookie, verifies signature + expiry, identifies the connection by <code>current_user</code>. Rejects with <code>reject_unauthorized_connection</code> if the cookie is missing or invalid. Same auth surface as REST refresh, so no new token-management path.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind config">Channel</span><span class="name">app/channels/notifications_channel.rb</span></div>
+      <div class="role">Per-user stream. <code>def subscribed; stream_for current_user; end</code>. Noticed's <code>:action_cable</code> deliverer broadcasts to this channel using the recipient as the stream key, so each user only receives their own notifications. Tiny class — most logic is in Noticed.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind job">Job</span><span class="name">app/sidekiq/notifications_sweeper_job.rb</span></div>
+      <div class="role">Runs daily (sidekiq-cron schedule). Walks <code>Plant.includes(:user, :space)</code>, fires <code>CareDueNotifier</code> for any plant where care is due-today or overdue and no recent CareDue notification has fired (24h dedup window), fires <code>MilestoneNotifier</code> for plants matching anniversary windows. Adding sidekiq-cron is bundled if it's not already in the Gemfile.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind config">Config</span><span class="name">config/sidekiq.yml (or schedule.yml)</span></div>
+      <div class="role">Cron entry for <code>NotificationsSweeperJob</code> running daily — pick a quiet window (07:00 user-local rough proxy, settle for UTC for Phase 1; per-user timezone is a follow-up). Sidekiq-cron config block.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind controller">Controller</span><span class="name">app/controllers/api/v1/notifications_controller.rb</span></div>
+      <div class="role">Inherits <code>Api::V1::BaseController</code> (auth applied). Three actions, all standard CRUD-shaped:
+      <ul>
+        <li><code>index</code> — paginated list of <code>current_user.notifications</code>, newest first, plus <code>unread_count</code>. Default page size 20.</li>
+        <li><code>update</code> — marks a single notification's <code>read_at</code>. Standard <code>PATCH /notifications/:id</code>.</li>
+        <li><code>seen</code> — bulk-marks all unseen as seen. <code>PATCH /notifications/seen</code> via singular nested resource. Use this when the user opens the drawer.</li>
+      </ul>
+      All scoped through <code>current_user.notifications.find_by(id:)</code> per project security rule.
+      </div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind config">Config</span><span class="name">config/routes.rb</span></div>
+      <div class="role">Adds <code>resources :notifications, only: [:index, :update]</code> + <code>collection { patch :seen }</code> inside <code>:api, :v1</code> namespace.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">test/notifiers/*_notifier_test.rb</span></div>
+      <div class="role">One per notifier (4 total). Asserts notification rows are created with the right params + recipient when triggered. Database delivery only — no channel mocking needed Phase 1.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">test/sidekiq/notifications_sweeper_job_test.rb</span></div>
+      <div class="role">Asserts the job fires CareDue + Milestone notifiers for the right rows + skips already-notified plants within the dedup window. Time-travel via <code>travel_to</code>.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">test/controllers/api/v1/notifications_controller_test.rb</span></div>
+      <div class="role">Index returns scoped to <code>current_user</code>, scope leak test (Bob can't see Alice's notifications), update marks read, seen bulk-marks. Standard request specs.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">test/channels/notifications_channel_test.rb</span></div>
+      <div class="role">Channel auth: connection rejects without refresh cookie, accepts with valid one. Subscription streams scoped per user. Notifier broadcasts reach the right user's stream and not others (cable scope leak test).</div>
+    </div>
+
+  </div>
+
+  <p style="margin-top: 20px;">How the pieces wire at runtime:</p>
+  <div class="shape">     Event sources                              Delivery
+─────────────────────                       ──────────────────────────────
+Daily NotificationsSweeperJob               ┌─────────────┐
+  ├ CareDueNotifier ────────────┐           │ :database   │ → noticed_*
+  └ MilestoneNotifier ──────────┤           ├─────────────┤
+                                ├──────────►│ :action_cable│ → channel
+   (Phase 2 — AIDoctorNotifier  │           ├─────────────┤
+    Phase 2.5 — LLMPlantMessage │           │ :web_push   │ ← Phase 2
+    Phase 3 — WeatherAlert)     │           ├─────────────┤
+                                ▼           │ :email      │ ← future
+                       Per-user broadcast    └─────────────┘
+NOT in this inbox (live in Journal R5/B3 instead):
+  Plant added, Photo added, Care logged — user-initiated, toast-confirmed.
+                                                    │
+                  ┌─────────────────────────────────┴──────────────────────────┐
+                  ▼                                                            ▼
+        GET /api/v1/notifications                          NotificationsChannel WebSocket
+        ↳ initial backfill                                 ↳ live updates
+                  │                                                            │
+                  └────────────────┬───────────────────────────────────────────┘
+                                   ▼
+                       client/src/hooks/useNotifications
+                                   │
+                  ┌────────────────┼────────────────┐
+                  ▼                ▼                ▼
+        Sidebar bell        MobileTopBar      R8 drawer (TICKET-044)
+        unread badge        bell badge        + R2 organiser column</div>
+
+  <blockquote><strong>Phase 2 hooks designed in but not enabled.</strong> Each notifier is structured so <code>deliver_by :web_push</code> or <code>deliver_by :email</code> can be added later as a single-line addition. <strong>Don't ship those in this ticket</strong> — Web Push needs subscription management + VAPID keys + browser permission flow, email needs a digest cadence and template work. Those are their own tickets. Just leave a comment on each notifier showing the future delivery hook.</blockquote>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+
+  <ol>
+    <li>The <code>noticed</code> gem is installed and its tables (<code>noticed_events</code> + <code>noticed_notifications</code>) exist in development, test, and production schemas.</li>
+    <li>The daily sweeper job fires <code>CareDueNotifier</code> for plants where water or feed care is due within 24 hours OR overdue, scoped per user, with a 24-hour dedup window so the user doesn't get the same notification daily.</li>
+    <li>The daily sweeper job fires <code>MilestoneNotifier</code> for plants whose <code>created_at</code> falls on a 30-day, 100-day, or 365-day anniversary today. Idempotent — re-running the same day produces zero duplicates.</li>
+    <li><code>GET /api/v1/notifications</code> returns the authenticated user's notifications, newest first, with <code>unread_count</code> separately. Page size 20 default. No leakage to other users (covered by scoped query).</li>
+    <li><code>PATCH /api/v1/notifications/:id</code> marks a notification as read for the current user. 404 if the notification belongs to another user.</li>
+    <li><code>PATCH /api/v1/notifications/seen</code> marks all the current user's unseen notifications as seen.</li>
+    <li>Each notification serializes to a stable JSON envelope: <code>id, type, title, meta, url, read_at, seen_at, created_at, params</code>. Front-end can render every kind without case-statements per type.</li>
+    <li>Each notifier delivers to <code>:database</code> + <code>:action_cable</code> in Phase 1, with a comment placeholder showing where Phase 2 channels (<code>:web_push</code>, <code>:email</code>) will plug in.</li>
+    <li>The cable connection authenticates via the existing refresh-token httpOnly cookie. Connections without a valid cookie are rejected.</li>
+    <li>Notifications channel scopes per recipient — user A's connection only receives broadcasts from notifiers where <code>recipient == user_A</code>.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+
+  <div class="criterion"><div class="box"></div><span><code>bin/rails db:migrate</code> on a fresh checkout adds <code>noticed_events</code> + <code>noticed_notifications</code> with no errors.</span></div>
+  <div class="criterion"><div class="box"></div><span>Setting <code>plant.next_water_at</code> to today and running the sweeper job in <code>rails console</code> creates a CareDue notification for that plant. Running the sweeper a second time within 24 hours creates zero additional rows.</span></div>
+  <div class="criterion"><div class="box"></div><span>Travelling time forward 30 days and running the sweeper job creates a milestone notification for that plant. Running the sweeper a second time the same day creates zero additional rows.</span></div>
+  <div class="criterion"><div class="box"></div><span>A second user (B) calling <code>GET /api/v1/notifications</code> sees zero rows from user A — verified in request specs.</span></div>
+  <div class="criterion"><div class="box"></div><span>Calling <code>PATCH /api/v1/notifications/seen</code> while having 5 unseen notifications returns <code>{ unread_count: 5 }</code> (still unread — seen ≠ read), and a follow-up GET reflects all <code>seen_at</code> timestamps populated.</span></div>
+  <div class="criterion"><div class="box"></div><span>Calling <code>PATCH /api/v1/notifications/:id</code> on one row drops <code>unread_count</code> by 1 on the next index call.</span></div>
+  <div class="criterion"><div class="box"></div><span>Sidekiq dashboard shows the daily cron job scheduled. Triggering it manually from the Sidekiq UI executes successfully.</span></div>
+  <div class="criterion"><div class="box"></div><span>Opening a WebSocket connection to <code>/cable</code> with a valid refresh-token cookie identifies the user. Without the cookie, the connection is rejected.</span></div>
+  <div class="criterion"><div class="box"></div><span>Triggering a notifier in <code>rails console</code> for user A causes a broadcast on user A's <code>NotificationsChannel</code> stream. User B subscribed to their own stream sees no message.</span></div>
+  <div class="criterion"><div class="box"></div><span>API tests green: notifier tests, sweeper-job test, controller tests including scope leak. Run via <code>./scripts/run_tests.sh api</code>.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/dhh-rails-reviewer</code> review skill passes — no service-object smells, controller actions match standard CRUD shape, scoping done through <code>current_user</code>, fat-model patterns honoured.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/pre-commit</code> + <code>/comment-audit</code> pass.</span></div>
+</section>
+
+<section>
+  <h2>Notes &amp; gotchas</h2>
+
+  <ul>
+    <li><strong>Web Push stays out of scope.</strong> Web Push needs subscription management + VAPID keys + browser permission flow — own Phase 2 ticket. Just leave the <code>deliver_by :web_push</code> comment placeholder on each notifier.</li>
+    <li><strong>ActionCable IS in scope here</strong> (ticket-scope upgraded — see Summary). Cable auth via refresh-token cookie; broadcasts reach <code>NotificationsChannel</code> per user. Frontend subscription wiring lives in the follow-up client PR.</li>
+    <li><strong>Cable adapter check.</strong> Production needs Redis adapter (project already has Redis with db 1 reserved for ActionCable per existing config). Development can use the async adapter (default). Confirm <code>config/cable.yml</code> production block points at <code>REDIS_CABLE_URL</code> with a sensible default like the project's other Redis-uses pattern.</li>
+    <li><strong>Sidekiq-cron is the recommended cron scheduler.</strong> Project already runs Sidekiq + Redis. Add <code>gem 'sidekiq-cron'</code> if not yet present and configure via <code>config/schedule.yml</code> loaded in a Sidekiq initializer.</li>
+    <li><strong>The dedup window for CareDue.</strong> Use <code>Noticed::Event.where(type: "CareDueNotifier", record: plant).where("created_at &gt; ?", 24.hours.ago).exists?</code> to skip re-firing. Don't write a new dedup table.</li>
+    <li><strong>Don't dispatch notifiers from inside <code>after_create</code>.</strong> Use <code>after_create_commit</code> so the notifier fires after the DB transaction succeeds. <code>after_create</code> fires inside the transaction — if the outer save fails, the notification persists with no plant attached.</li>
+    <li><strong>Time zones for the daily sweeper.</strong> Phase 1: run in UTC, accept that "due today" is approximate for users in distant time zones. Per-user TZ is a follow-up — note in code that the cron schedule is timezone-naive for Phase 1.</li>
+    <li><strong>Polymorphic recipient.</strong> Don't restrict <code>noticed_notifications.recipient</code> to <code>User</code> in the migration. Leave polymorphic — Phase 2.5 might add per-Plant recipient (LLM messages voiced by a specific plant where the plant is the addressee for routing).</li>
+    <li><strong>JSON shape: serializer or <code>as_json</code>?</strong> Per project convention (<code>as_json</code> on models, no serializer gems), put the JSON shape on the Notification class via a thin model concern or override <code>as_json</code> on a wrapper. <code>Noticed::Notification</code> ships its own <code>as_json</code> — extend rather than replace.</li>
+    <li><strong>Rate-limit the controller?</strong> Not for this ticket. Notifications endpoint is read-heavy + cheap; if it gets abused, add <code>Rack::Attack</code> rule in a follow-up.</li>
+    <li><strong>i18n.</strong> Hardcode notification titles in English on the notifier classes for Phase 1. Per <code>project_i18n_strategy.md</code> i18n is post-launch.</li>
+    <li><strong>Frontend follow-up after this ticket merges (separate short PR):</strong> swap the <code>disabled</code> bell button stubs in <code>Sidebar.jsx</code> + <code>MobileTopBar.jsx</code> for live unread-count badges. Add <code>@rails/actioncable</code> npm dep, build a <code>useNotifications</code> hook (initial REST fetch via TanStack Query for backfill, ActionCable subscription invalidates the query on each new notification — no polling). Single-flight subscription owned by an app-level <code>NotificationsProvider</code> mounted under <code>AuthProvider</code> so the consumer is created once per session.</li>
+    <li><strong>When you're done:</strong> run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh api</code>, run <code>/dhh-rails-reviewer</code>, then <code>/pre-commit</code> + <code>/comment-audit</code>, commit on this branch (<code>ticket-023-notifications-endpoint</code>), and open the PR with the <code>feat(v2): B4 notifications system</code> prefix.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Related files</h2>
+
+  <ul class="file-list">
+    <li><span>Gemfile</span><span class="action">Modify</span></li>
+    <li><span>db/migrate/*_create_noticed_tables.rb</span><span class="action">Generate</span></li>
+    <li><span>app/models/user.rb</span><span class="action">Modify</span></li>
+    <li><span>app/notifiers/application_notifier.rb</span><span class="action">Modify (shared notification_methods)</span></li>
+    <li><span>app/notifiers/care_due_notifier.rb</span><span class="action">Create</span></li>
+    <li><span>app/notifiers/milestone_notifier.rb</span><span class="action">Create</span></li>
+    <li><span>app/sidekiq/notifications_sweeper_job.rb</span><span class="action">Create</span></li>
+    <li><span>app/controllers/api/v1/notifications_controller.rb</span><span class="action">Create</span></li>
+    <li><span>app/channels/application_cable/connection.rb</span><span class="action">Modify</span></li>
+    <li><span>app/channels/notifications_channel.rb</span><span class="action">Create</span></li>
+    <li><span>config/cable.yml</span><span class="action">Confirm/modify</span></li>
+    <li><span>config/routes.rb</span><span class="action">Modify</span></li>
+    <li><span>config/schedule.yml (sidekiq-cron)</span><span class="action">Create or modify</span></li>
+    <li><span>config/initializers/sidekiq.rb</span><span class="action">Modify</span></li>
+    <li><span>test/notifiers/care_due_notifier_test.rb</span><span class="action">Create</span></li>
+    <li><span>test/notifiers/milestone_notifier_test.rb</span><span class="action">Create</span></li>
+    <li><span>test/sidekiq/notifications_sweeper_job_test.rb</span><span class="action">Create</span></li>
+    <li><span>test/controllers/api/v1/notifications_controller_test.rb</span><span class="action">Create</span></li>
+    <li><span>test/channels/notifications_channel_test.rb</span><span class="action">Create</span></li>
+  </ul>
+
+  <p style="margin-top: 12px; color: #666; font-size: 13px;"><em>This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose.</em></p>
+
+  <a class="plan-link" href="../../plans/2026-04-24-plantcare-frontend-v2.md" target="_blank">Plan §9 B4 — TICKET-023 (original spec is hand-rolled; this ticket upgrades to Noticed)</a>
+</section>
+
+</div>
+</body>
+</html>

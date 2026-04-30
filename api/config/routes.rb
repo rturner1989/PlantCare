@@ -11,6 +11,11 @@ Rails.application.routes.draw do
   # delivery method to real SMTP, which means this mount never runs there.
   mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?
 
+  # Mounted under /api/v1 so the refresh_token cookie (path-scoped to
+  # /api/v1) reaches the cable upgrade request. Default /cable would not
+  # receive the cookie and the connection would reject every client.
+  mount ActionCable.server => '/api/v1/cable'
+
   namespace :api do
     namespace :v1 do
       resource :registration, only: [:create]

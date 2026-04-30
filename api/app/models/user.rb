@@ -58,6 +58,7 @@ class User < ApplicationRecord
   has_many :care_logs, through: :plants
   has_many :refresh_tokens, dependent: :destroy
   has_many :password_reset_tokens, dependent: :destroy
+  has_many :notifications, as: :recipient, class_name: 'Noticed::Notification', dependent: :destroy
 
   # validate: { allow_nil: true } turns an invalid assignment into a 422 validation
   # error instead of the default ArgumentError that would surface as a 500. allow_nil
@@ -126,6 +127,10 @@ class User < ApplicationRecord
       expected -= 1
     end
     streak
+  end
+
+  def unread_notifications_count
+    notifications.unread.count
   end
 
   def vitality_percent
