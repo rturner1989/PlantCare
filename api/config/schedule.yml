@@ -1,0 +1,11 @@
+# Sidekiq-cron job schedule. Loaded by config/initializers/sidekiq.rb.
+#
+# Cron expressions are UTC — per-user time zones are a follow-up. For
+# Phase 1 the daily sweeper runs at a quiet UTC window; "due today" is
+# approximate for users in distant time zones.
+
+notifications_sweeper:
+  cron: '0 7 * * *'  # daily at 07:00 UTC
+  class: 'NotificationsSweeperJob'
+  queue: default
+  description: 'Fires CareDueNotifier + MilestoneNotifier for plants matching the day window. Idempotent.'

@@ -51,6 +51,12 @@ Rails.application.routes.draw do
       namespace :onboarding do
         resource :completion, only: :create
       end
+
+      resources :notifications, only: [:index, :update] do
+        collection do
+          patch :seen
+        end
+      end
     end
   end
 
