@@ -23,12 +23,6 @@ module Api
           notification: notification.as_json
         }
       end
-
-      def seen
-        current_user.notifications.unseen.mark_as_seen
-
-        render json: { unread_count: current_user.unread_notifications_count }
-      end
     end
   end
 end

@@ -2,19 +2,29 @@
 
 class ApplicationNotifier < Noticed::Event
   notification_methods do
-    # Stable string the client switches on. `PlantAddedNotifier` →
-    # `'plant_added'`. Keeps client templates decoupled from Ruby class names.
+    # Stable string the client switches on. `CareDue::WaterNotifier` →
+    # `'care_due_water'`, `MilestoneNotifier` → `'milestone'`. Keeps client
+    # templates decoupled from Ruby class names + namespaces.
     def kind
-      event.type.delete_suffix('Notifier').underscore
+      event.type.delete_suffix('Notifier').underscore.tr('/', '_')
     end
+
+    # Subclasses override these. Defaults so `as_json` doesn't have to
+    # care which subclass it's serializing.
+    def title
+      raise NotImplementedError, "#{self.class.name} must define title"
+    end
+
+    def meta = nil
+    def url = nil
 
     def as_json(_options = {})
       {
         id: id,
         kind: kind,
         title: title,
-        meta: respond_to?(:meta) ? meta : nil,
-        url: respond_to?(:url) ? url : nil,
+        meta: meta,
+        url: url,
         params: params,
         read_at: read_at,
         seen_at: seen_at,

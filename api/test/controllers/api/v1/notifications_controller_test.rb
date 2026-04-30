@@ -70,29 +70,6 @@ class Api::V1::NotificationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test 'seen marks every unseen notification as seen without marking them read' do
-    deliver_milestone(@user, day_count: 30)
-    deliver_milestone(@user, day_count: 100)
-
-    patch seen_api_v1_notifications_path, headers: auth_headers(@user), as: :json
-
-    assert_response :ok
-    json = response.parsed_body
-    assert_equal 2, json['unread_count']
-    @user.notifications.each do |notification|
-      assert_not_nil notification.seen_at
-      assert_nil notification.read_at
-    end
-  end
-
-  test 'seen does not touch other users notifications' do
-    deliver_milestone(@other_user, day_count: 30)
-
-    patch seen_api_v1_notifications_path, headers: auth_headers(@user), as: :json
-
-    assert_nil @other_user.notifications.first.seen_at
-  end
-
   private def deliver_milestone(user, day_count:)
     MilestoneNotifier.with(
       record: @plant,

@@ -52,11 +52,8 @@ Rails.application.routes.draw do
         resource :completion, only: :create
       end
 
-      resources :notifications, only: [:index, :update] do
-        collection do
-          patch :seen
-        end
-      end
+      resources :notifications, only: [:index, :update]
+      resource :notifications_seen, only: [:create], controller: 'notifications_seen'
     end
   end
 
