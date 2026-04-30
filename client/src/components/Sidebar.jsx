@@ -199,18 +199,13 @@ function Body({ user, onLogout, onClose }) {
         </span>
       </Action>
 
-      <div className="mt-3">
-        <div className="px-6 pb-1">
-          <span className="text-[9px] font-extrabold text-ink-soft uppercase tracking-[0.18em]">Tend</span>
-        </div>
-        <nav aria-label="Primary" className="flex flex-col gap-0.5">
-          {navItems.map((item) => (
-            <motion.div key={item.to} variants={itemVariants}>
-              <NavLinkFull {...item} onNavigate={onClose} />
-            </motion.div>
-          ))}
-        </nav>
-      </div>
+      <nav aria-label="Primary" className="flex flex-col gap-0.5 mt-3">
+        {navItems.map((item) => (
+          <motion.div key={item.to} variants={itemVariants}>
+            <NavLinkFull {...item} onNavigate={onClose} />
+          </motion.div>
+        ))}
+      </nav>
 
       <div className="flex-1" />
 
