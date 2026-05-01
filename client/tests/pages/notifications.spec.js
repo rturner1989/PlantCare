@@ -101,10 +101,12 @@ test.describe('Notifications drawer', () => {
     await expect(drawer).toBeVisible()
 
     await expect(drawer.getByRole('heading', { name: 'Milestone' })).toBeVisible()
-    await expect(drawer.getByText(/3 unread/)).toBeVisible()
+    // Counter line is "{N} unread · {N} this week" — the · disambiguates
+    // from sr-only "N unread" copy on the group badge + live region.
+    await expect(drawer.getByText(/3 unread · /)).toBeVisible()
 
     await drawer.getByRole('button', { name: 'Mark all as read' }).click()
-    await expect(drawer.getByText(/0 unread/)).toBeVisible()
+    await expect(drawer.getByText(/0 unread · /)).toBeVisible()
   })
 
   test('view all expands a group, back arrow returns to index', async ({ page }) => {
