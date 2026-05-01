@@ -3,9 +3,8 @@ import { expect, test } from '@playwright/test'
 import { completeOnboarding, registerUser } from '../helpers/onboarding'
 
 // Triggers Noticed events server-side via rails runner so the drawer
-// has real data to show. Wipes the user's existing notifications first
-// so each test starts clean. Plant is created if missing — onboarding
-// completes with zero plants by default.
+// has real data to show. CI runs Rails natively (no docker compose);
+// local dev runs via the `api` compose service.
 function seedMilestonesForUser(email, count) {
   const script = `
 user = User.find_by(email: '${email}')
@@ -17,9 +16,11 @@ ${count}.times do |i|
   MilestoneNotifier.with(record: plant, plant_id: plant.id, plant_nickname: plant.nickname, day_count: 30 + i).deliver(user)
 end
 `
-  execSync('docker compose exec -T api bin/rails runner -', {
+  const command = process.env.CI ? 'cd ../api && bin/rails runner -' : 'docker compose exec -T api bin/rails runner -'
+  execSync(command, {
     input: script,
     stdio: ['pipe', 'pipe', 'pipe'],
+    shell: '/bin/bash',
   })
 }
 
@@ -42,7 +43,10 @@ test.describe('Notifications drawer', () => {
     await registerUser(page, 'Esc User')
     await completeOnboarding(page)
 
-    await page.getByRole('button', { name: /^Notifications$/ }).first().click()
+    await page
+      .getByRole('button', { name: /^Notifications$/ })
+      .first()
+      .click()
     const drawer = page.getByRole('dialog', { name: 'Notifications' })
     await expect(drawer).toBeVisible()
 
@@ -54,7 +58,10 @@ test.describe('Notifications drawer', () => {
     await registerUser(page, 'X User')
     await completeOnboarding(page)
 
-    await page.getByRole('button', { name: /^Notifications$/ }).first().click()
+    await page
+      .getByRole('button', { name: /^Notifications$/ })
+      .first()
+      .click()
     const drawer = page.getByRole('dialog', { name: 'Notifications' })
     await expect(drawer).toBeVisible()
 
@@ -69,7 +76,10 @@ test.describe('Notifications drawer', () => {
     await registerUser(page, 'Outside User')
     await completeOnboarding(page)
 
-    await page.getByRole('button', { name: /^Notifications$/ }).first().click()
+    await page
+      .getByRole('button', { name: /^Notifications$/ })
+      .first()
+      .click()
     await expect(page.getByRole('dialog', { name: 'Notifications' })).toBeVisible()
 
     // The transparent click-outside overlay is itself a dialog-overlay button.
@@ -83,7 +93,10 @@ test.describe('Notifications drawer', () => {
     seedMilestonesForUser(email, 3)
     await page.reload()
 
-    await page.getByRole('button', { name: /^Notifications/ }).first().click()
+    await page
+      .getByRole('button', { name: /^Notifications/ })
+      .first()
+      .click()
     const drawer = page.getByRole('dialog', { name: 'Notifications' })
     await expect(drawer).toBeVisible()
 
@@ -100,7 +113,10 @@ test.describe('Notifications drawer', () => {
     seedMilestonesForUser(email, 8)
     await page.reload()
 
-    await page.getByRole('button', { name: /^Notifications/ }).first().click()
+    await page
+      .getByRole('button', { name: /^Notifications/ })
+      .first()
+      .click()
     const drawer = page.getByRole('dialog', { name: 'Notifications' })
 
     // Capped — only "View all (8)" link shown
@@ -122,7 +138,10 @@ test.describe('Notifications drawer', () => {
     seedMilestonesForUser(email, 1)
     await page.reload()
 
-    await page.getByRole('button', { name: /^Notifications/ }).first().click()
+    await page
+      .getByRole('button', { name: /^Notifications/ })
+      .first()
+      .click()
     const drawer = page.getByRole('dialog', { name: 'Notifications' })
 
     const item = drawer.getByRole('button', { name: /30 days with/ }).first()
