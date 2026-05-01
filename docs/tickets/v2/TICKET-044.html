@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-044 — R8 — Notifications drawer + bell badge wiring</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+.badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+.badge.kind { background: #4a6fa5; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 80px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.component { background: #1a1a2e; }
+.artifact .kind.context { background: #2d6a4f; }
+.artifact .kind.hook { background: #4a6fa5; }
+.artifact .kind.util { background: #6a4a8f; }
+.artifact .kind.modify { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.tests { background: #6a4a8f; }
+.artifact .kind.config { background: #555; }
+
+.shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 480px; border: none; background: #fff; }
+.mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.plan-link:hover { background: #e6e6de; }
+
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<header class="header">
+  <div class="id">TICKET-044 · v2 plan R8</div>
+  <h1>Notifications drawer + bell badge wiring</h1>
+  <div class="badges">
+    <span class="badge status">Open</span>
+    <span class="badge priority-high">High</span>
+    <span class="badge kind">Frontend · React + ActionCable</span>
+  </div>
+</header>
+
+<section>
+  <h2>Summary</h2>
+  <p>Wire the bell buttons (Sidebar + MobileTopBar) to a real notifications drawer. B4 (TICKET-023) just shipped the backend — Noticed gem, REST endpoints, ActionCable channel, daily sweeper. The bell stubs from R1 (TICKET-037) currently render <code>disabled</code>. This ticket flips them to live unread-count badges that open a drawer showing the current user's notifications.</p>
+  <p>Drawer is desktop-right-slide (420px, no scrim — Mac-notification-centre style) and mobile-right-slide (full-width). Each item shows kind-icon + title + meta + time-ago. Click marks-read and navigates to <code>notification.url</code>. Drawer-open fires a single mark-all-seen so the badge clears on glance even when items go un-clicked.</p>
+  <p>ActionCable subscription is owned by a single app-level <code>NotificationsProvider</code>, mounted under <code>AuthProvider</code>. Server broadcasts (sweeper firing, real-time events) push updates into the same TanStack Query cache that the bell + drawer read from — no polling.</p>
+  <p>In one sentence: <strong>swap the disabled bell stubs for a live drawer connected to the cable channel, with mark-read + mark-seen flows wired to B4's REST endpoints.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+
+  <div class="plan-strip">
+    <div class="plan-step done"><span class="num">B1</span>020 Space</div>
+    <div class="plan-step done"><span class="num">B2</span>021 Intent</div>
+    <div class="plan-step done"><span class="num">B4</span>023 Notifs</div>
+    <div class="plan-step done"><span class="num">F1</span>027 Tokens</div>
+    <div class="plan-step done"><span class="num">F2</span>028 Segment</div>
+    <div class="plan-step done"><span class="num">F6</span>032 Slab</div>
+    <div class="plan-step done"><span class="num">R14</span>050 Toast</div>
+    <div class="plan-step done"><span class="num">R15</span>051 Auth</div>
+    <div class="plan-step done"><span class="num">R9</span>045 Onboard</div>
+    <div class="plan-step done"><span class="num">R1</span>037 Nav</div>
+    <div class="plan-step current"><span class="num">R8</span>044 Drawer</div>
+    <div class="plan-step"><span class="num">F3-F8</span>Primitives</div>
+    <div class="plan-step"><span class="num">R2</span>038 Today</div>
+    <div class="plan-step"><span class="num">…</span>rest</div>
+  </div>
+
+  <p><strong>What came before:</strong> R1 (TICKET-037) shipped Sidebar + MobileTopBar with bell button <em>stubs</em> — disabled Action elements with <code>aria-label="Notifications (coming soon)"</code>. B4 (TICKET-023) shipped the backend last week — Noticed gem, REST controller (<code>GET /notifications</code>, <code>PATCH /notifications/:id</code>, <code>POST /notifications_seen</code>), ActionCable channel scoped per-user via the existing refresh-token cookie, daily sweeper firing CareDue + Milestone notifiers. The system has data + a delivery channel; the UI consumes nothing.</p>
+
+  <p><strong>What this unlocks:</strong> R2 Today (TICKET-038) has an organiser column on desktop that previews recent notifications — same hook + same context, no new fetch. The drawer pattern itself becomes a reference for any future right-slide panel work. Wiring the cable subscription proves the WS auth path end-to-end so Phase 2 work (Web Push, AI doctor messages) can land additional notifier classes without rewiring the consumer.</p>
+
+  <p><strong>Mental model:</strong> Rails analogy is the layout's persistent flash partial — but instead of <code>flash[:notice]</code> rendering inline once, this is a persistent inbox the user can pull open at any time. The "drawer" is a piece of chrome that lives in the layout, owned by an outer provider, fed by a single query cache shared between the bell badge and the drawer body.</p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <p>One context provider, three hooks, three components, two file modifications, plus an npm dep + tests.</p>
+
+  <div class="artifact-list">
+
+    <div class="artifact">
+      <div><span class="kind config">Config</span><span class="name">client/package.json</span></div>
+      <div class="role">Add <code>@rails/actioncable</code> npm dep. Single dep, no other client-side cable consumers exist yet.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind util">Util</span><span class="name">client/src/lib/actionCable.js</span></div>
+      <div class="role">Module-level singleton wrapping <code>createConsumer('/api/v1/cable')</code>. Lazy-initialised on first call so test environments that don't open WebSockets stay quiet. Exports a <code>cableConsumer()</code> getter.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind context">Context</span><span class="name">client/src/context/NotificationsContext.jsx</span></div>
+      <div class="role">App-level provider mounted under <code>AuthProvider</code> in <code>App.jsx</code>. Owns the single ActionCable subscription per session (creates the consumer + subscription on mount, tears down on unmount). Owns the drawer-open boolean state. Exposes <code>{ open, openDrawer, closeDrawer }</code> via context. The notifications data itself lives in the TanStack Query cache, NOT in the context — context is for state that crosses components, not for cached server data.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind hook">Hook</span><span class="name">client/src/hooks/useNotifications.js</span></div>
+      <div class="role"><code>useQuery</code> on <code>['notifications']</code> hitting <code>GET /api/v1/notifications</code>. <code>staleTime: 30_000</code>. Returns <code>{ data, isLoading, isError }</code>. Anyone who needs unread count or list reads from here — Sidebar bell, MobileTopBar bell, drawer body. One fetch, multiple consumers, courtesy of TanStack Query's deduping.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind hook">Hook</span><span class="name">client/src/hooks/useMarkNotificationRead.js</span></div>
+      <div class="role"><code>useMutation</code> wrapping <code>PATCH /api/v1/notifications/:id</code>. On success: <code>queryClient.invalidateQueries(['notifications'])</code>. Returns the <code>mutate</code> function. Called by <code>NotificationItem</code> on click.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind hook">Hook</span><span class="name">client/src/hooks/useNotificationsSeen.js</span></div>
+      <div class="role"><code>useMutation</code> wrapping <code>POST /api/v1/notifications_seen</code>. On success: invalidate <code>['notifications']</code>. Fires from the drawer's open-effect — once per open, not on every render. Important: <strong>seen ≠ read</strong>. Seen says "you've glanced at it" (clears the badge subtle indicator); read says "you've acted on it" (per-item click).</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind component">Component</span><span class="name">client/src/components/notifications/NotificationsDrawer.jsx</span></div>
+      <div class="role">The drawer panel. <code>role="dialog" aria-modal="true" aria-label="Notifications"</code>. Mounts via <code>AnimatePresence</code> when context says open. Desktop: <code>md:fixed md:right-0 md:w-[420px]</code> with NO scrim — main content stays visible behind. Mobile: full-width right-slide sheet. Renders the head (title + ✕ close button), the "Mark all as read" button when unread &gt; 0, and a scrollable body with the notifications list. Calls <code>useNotificationsSeen()</code> in a one-shot effect on open.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind component">Component</span><span class="name">client/src/components/notifications/NotificationItem.jsx</span></div>
+      <div class="role">Single row. Renders kind-icon (mapped from <code>notification.kind</code> — water 💧, feed 🌱, milestone 🏆, etc), title, meta string, time-ago via a tiny formatter. Unread items get a small coral dot indicator on the left and bolder text. Click handler calls <code>useMarkNotificationRead()</code> with the notification id, then navigates to <code>notification.url</code> via <code>useNavigate</code>. Wraps the whole row in a button so keyboard activation works.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind component">Component</span><span class="name">client/src/components/notifications/NotificationsEmpty.jsx</span></div>
+      <div class="role">Zero-state rendered when <code>notifications.length === 0</code>. Single illustrative emoji + a "You're all caught up" line + a softer subtitle. Reuses <code>EmptyState</code> primitive if it fits; otherwise inline (this slot has its own visual rhythm inside the drawer, not the page-level empty state).</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind modify">Modify</span><span class="name">client/src/components/Sidebar.jsx</span></div>
+      <div class="role">Flip both bell <code>Action</code> stubs (Full body + Drawer body via <code>SidebarBody</code>) from <code>disabled</code> to live. Read <code>useNotifications().data?.unread_count</code>; show a coral count badge over the bell when &gt; 0; on click call <code>openDrawer()</code> from <code>NotificationsContext</code>. Remove the "(coming soon)" suffix from <code>aria-label</code>.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind modify">Modify</span><span class="name">client/src/components/MobileTopBar.jsx</span></div>
+      <div class="role">Same flip on the mobile bell. Same hook + same context call. The mobile bell already has the badge dot styling slot from R1 — wire it up.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind modify">Modify</span><span class="name">client/src/App.jsx</span></div>
+      <div class="role">Insert <code>&lt;NotificationsProvider&gt;</code> directly under <code>&lt;AuthProvider&gt;</code> + above <code>&lt;ToastProvider&gt;</code>. Mount the <code>NotificationsDrawer</code> inside <code>AppLayout</code> (so it renders alongside the protected routes, never on auth pages). The <code>/notifications</code> placeholder route from R1 stays as a trivial fallback page that links back to the drawer — drawer is the canonical UX, the route just exists so deep links don't 404.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">client/tests/hooks/useNotifications.test.jsx</span></div>
+      <div class="role">Vitest: query fires the right URL, returns the parsed payload, exposes unread_count. Mock the api client.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">client/tests/components/notifications/NotificationsDrawer.test.jsx</span></div>
+      <div class="role">Vitest: opens via context, renders items, fires mark-seen on open exactly once, ✕ closes, Escape closes, empty state renders when list is empty.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">client/tests/components/notifications/NotificationItem.test.jsx</span></div>
+      <div class="role">Vitest: click marks-read + navigates, unread items render with coral dot, kind-icon mapping covers care_due_water / care_due_feed / milestone.</div>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind tests">Tests</span><span class="name">client/tests/pages/notifications.spec.js</span></div>
+      <div class="role">Playwright: log in, click sidebar bell, drawer opens, click an item → URL changes to plant detail. Mark-all-read clears badge.</div>
+    </div>
+
+  </div>
+
+  <p style="margin-top: 20px;">How the pieces wire at runtime:</p>
+  <div class="shape">App
+├── AuthProvider
+│   └── NotificationsProvider              (single cable subscription)
+│       ├── ToastProvider
+│       └── BrowserRouter
+│           └── Routes
+│               └── ProtectedAppLayout
+│                   ├── Sidebar            ← bell badge reads useNotifications
+│                   ├── MobileTopBar       ← same
+│                   ├── &lt;Outlet /&gt;
+│                   └── NotificationsDrawer   ← reads + writes via hooks
+
+Bell click → context.openDrawer() → drawer mounts (AnimatePresence)
+Drawer mounts → useNotificationsSeen mutation fires once
+Item click → useMarkNotificationRead → navigate(notification.url)
+Cable broadcast → invalidateQueries(['notifications']) → bell + drawer refresh</div>
+
+  <blockquote><strong>Phase 1 deferral list (NOT in this ticket):</strong> filter chips, category grouping with collapsible rail-cards, sticky day headers, per-item dismiss button, inline action-hint CTAs ("💧 Water now"), settings link in drawer footer, mobile drag-handle. Mockup 30 shows all of these — they're follow-ups, not MVP. Build the flat list first; if Rob wants the rich grouping later it gets its own ticket.</blockquote>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+
+  <ol>
+    <li>The bell button in Sidebar (both Full and Drawer states) and MobileTopBar shows the live unread notification count when &gt; 0.</li>
+    <li>Clicking any bell opens the notifications drawer.</li>
+    <li>The drawer renders the current user's notifications from <code>GET /api/v1/notifications</code>, newest first, flat list (no grouping).</li>
+    <li>Each notification row shows kind icon, title, meta line, and a relative time-ago string. Unread rows are visually distinct from read rows.</li>
+    <li>Clicking a notification row marks it read and navigates the user to the notification's <code>url</code>.</li>
+    <li>The drawer has a "Mark all as read" button visible when there's at least one unread notification. Clicking it marks every visible notification as read.</li>
+    <li>Opening the drawer fires <code>POST /api/v1/notifications_seen</code> exactly once per open (not per render). The mutation invalidates the cache so the next read reflects updated <code>seen_at</code> stamps.</li>
+    <li>The drawer closes on ✕ button, Escape key, and (desktop only, since there's no scrim) clicking outside the drawer panel.</li>
+    <li>An empty state renders when the user has zero notifications — calm copy, illustrative emoji, no list shell.</li>
+    <li>An ActionCable subscription is established on app mount (after the user is authenticated) and torn down on unmount. Server broadcasts to the user's <code>NotificationsChannel</code> stream invalidate the <code>['notifications']</code> query so the bell and drawer update without polling.</li>
+    <li>The drawer's open state survives navigation between protected routes (closing the drawer is an explicit user action, not a side effect of route change).</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+
+  <div class="criterion"><div class="box"></div><span>Log in, then in <code>rails console</code> trigger <code>MilestoneNotifier.with(record: Plant.first, plant_id: 1, plant_nickname: 'Test', day_count: 30).deliver(User.first)</code>. Within ~1 second the bell badge in the browser increments by 1 (no page reload).</span></div>
+  <div class="criterion"><div class="box"></div><span>Click the bell — drawer slides in from the right (420px on desktop, full width on mobile). Main content stays visible behind on desktop (no dim/scrim).</span></div>
+  <div class="criterion"><div class="box"></div><span>The drawer lists the new milestone notification with a coral dot (unread), the title "30 days with Test", a meta line, and "just now" or similar.</span></div>
+  <div class="criterion"><div class="box"></div><span>Click the row → URL changes to <code>/plants/1</code> and the dot disappears (item is now read). Bell badge count drops by 1.</span></div>
+  <div class="criterion"><div class="box"></div><span>Trigger 3 more notifications via console. Click "Mark all as read" — every dot disappears at once and the badge goes to 0.</span></div>
+  <div class="criterion"><div class="box"></div><span>DevTools → Network: opening the drawer fires exactly one <code>POST /notifications_seen</code> request, not one per render.</span></div>
+  <div class="criterion"><div class="box"></div><span>DevTools → Network: only one WebSocket connection to <code>/api/v1/cable</code> exists when the app is mounted, regardless of how many components consume notifications.</span></div>
+  <div class="criterion"><div class="box"></div><span>Press Escape with the drawer open — drawer closes. Click outside the drawer (desktop only, no scrim) — drawer closes. ✕ button — drawer closes.</span></div>
+  <div class="criterion"><div class="box"></div><span>With zero notifications: drawer shows the empty state copy, no list shell, no Mark-all button.</span></div>
+  <div class="criterion"><div class="box"></div><span>Bell aria-label no longer says "(coming soon)"; bell button is no longer <code>disabled</code>.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh</code> + <code>./scripts/run_tests.sh client</code> pass.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/vercel-react-best-practices</code> + <code>/accessibility</code> review skills pass.</span></div>
+  <div class="criterion"><div class="box"></div><span><code>/pre-commit</code> + <code>/comment-audit</code> pass.</span></div>
+</section>
+
+<section>
+  <h2>Design references</h2>
+
+  <div class="mockup-preview">
+    <div class="label">
+      <span>Mockup 30 · Notifications drawer · both viewports</span>
+      <a href="../../mockups/plantcare-ui/v2/30-notifications-v1.html" target="_blank">Open ↗</a>
+    </div>
+    <iframe src="../../mockups/plantcare-ui/v2/30-notifications-v1.html"></iframe>
+  </div>
+
+  <h3 style="font-size: 14px; margin: 18px 0 6px; color: #444;">From the v2 design spec</h3>
+
+  <blockquote>
+    "Bell icon in the sidebar (desktop) or topbar (mobile) opens a drawer that shows recent system events, care reminders, rescue alerts, milestones, and weather shifts. Desktop: 420px right-slide drawer with scrim. Mobile: top-down sheet with drag handle. Same entry types as Journal — consistent colour coding."
+    <br><em>— Mockup 30 header</em>
+  </blockquote>
+
+  <p><strong>Scope clarifier — mockup 30 shows MORE than this ticket builds.</strong> Specifically deferred to follow-ups:</p>
+  <ul>
+    <li>Filter chips ("Care", "Rescue", "Milestone", "Weather", "System") — Phase 1 ships flat list, no filters.</li>
+    <li>Category grouping with collapsible rail-cards per kind — Phase 1 ships flat chronological list.</li>
+    <li>Sticky day headers ("Today / Yesterday / This Week / Older") — defer.</li>
+    <li>Per-item dismiss ✕ on each notification row — defer; only bulk mark-all-read for Phase 1.</li>
+    <li>Inline action-hint CTAs ("💧 Water now →" inside the row) — defer; click navigates to plant detail.</li>
+    <li>Settings link in drawer footer — defer.</li>
+    <li>Mobile drag-handle to dismiss — defer; ✕ + Escape only.</li>
+    <li>Desktop scrim — mockup says "with scrim" but the textual note in the body says "no scrim, Mac-notification-centre style." The latter wins (main content visible behind). If a real-world UX session changes this later, it's a one-line className flip.</li>
+  </ul>
+
+  <a class="plan-link" href="../../plans/2026-04-24-plantcare-frontend-v2.md" target="_blank">Plan §11 R8 — TICKET-044 (one worked example, not a script to transcribe)</a>
+</section>
+
+<section>
+  <h2>React concepts worth looking up</h2>
+
+  <div class="learn">
+    <strong>TanStack Query + WebSocket = invalidation glue, not state replacement.</strong> The pattern: REST <code>useQuery</code> is the source of truth. WebSocket broadcasts call <code>queryClient.invalidateQueries</code> on receive — that triggers a refetch which updates every consumer. You don't store the WebSocket payload in state. The cable is a "hey, refresh" signal, not a data delivery channel. Rails analogy: it's like Turbo Streams telling the browser to re-fetch a frame, not delivering the frame contents inline.
+  </div>
+
+  <div class="learn">
+    <strong>One subscription per session, not per component.</strong> If you put <code>useEffect</code> with <code>consumer.subscriptions.create</code> inside a hook that components call individually, you'll open N WebSockets — one per mounted consumer. The fix is a single app-level provider that owns the subscription. Components read shared state from the provider's context and shared data from the TanStack Query cache. Both are global by design; the WebSocket is the resource.
+  </div>
+
+  <div class="learn">
+    <strong>Context for state that crosses components, NOT for cached server data.</strong> The drawer-open boolean belongs in <code>NotificationsContext</code> because Sidebar, MobileTopBar, and the drawer itself all need to read and toggle it. The notifications array does NOT belong in context — it's server data, lives in TanStack Query's cache, and re-fetches via invalidation. Putting server data in context means re-implementing caching, deduping, and revalidation by hand.
+  </div>
+
+  <div class="learn">
+    <strong>Effect-once-per-open vs effect-on-render.</strong> Drawer-open should fire mark-seen <em>once</em> when it opens. Naive <code>useEffect(() =&gt; markSeen(), [open])</code> fires on every render where <code>open</code> is referenced. Use a deps array of <code>[open]</code> (re-fires only when <code>open</code> changes) and gate inside with <code>if (!open) return</code>. Cleanup function isn't needed since the mutation fires once and resolves; if it were a subscription it would.
+  </div>
+
+  <div class="learn">
+    <strong>StrictMode double-fire of effects in dev.</strong> The mark-seen-on-open effect will fire twice in development StrictMode (mount → unmount → re-mount). Two POSTs to <code>/notifications_seen</code> are idempotent on the server (re-marking already-seen is a no-op), so this is safe. But verify: if the request count actually mattered (e.g. analytics events), you'd need a ref guard.
+  </div>
+
+  <div class="learn">
+    <strong>Click-outside-to-close — only on desktop, not on mobile.</strong> Desktop has no scrim, so clicking the main content area is the implicit "I'm done with the drawer" signal. Mobile is a full-width sheet — there is no main content area to click. Use a media-query check (or just gate by viewport size) inside the click-outside listener so it doesn't accidentally fire on mobile.
+  </div>
+</section>
+
+<section>
+  <h2>Rails ↔ React mental map</h2>
+
+  <table class="rails-map">
+    <thead>
+      <tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>flash[:notice]</code> (persistent inbox version)</td>
+        <td><code>useNotifications()</code> + <code>NotificationsDrawer</code></td>
+        <td>The drawer is the persistent flash — items hang around until acted on or marked-read</td>
+      </tr>
+      <tr>
+        <td>Turbo Streams broadcast</td>
+        <td>ActionCable broadcast → <code>queryClient.invalidateQueries</code></td>
+        <td>Both nudge the client to re-fetch. Cable here is the messenger; TanStack Query is the cache.</td>
+      </tr>
+      <tr>
+        <td><code>after_create_commit { broadcast_to user, ... }</code></td>
+        <td>Already wired in B4 via Noticed's <code>deliver_by :action_cable</code></td>
+        <td>Server-side fan-out is done. Client just subscribes and listens.</td>
+      </tr>
+      <tr>
+        <td>Helper around <code>distance_of_time_in_words</code></td>
+        <td>Tiny <code>timeAgo()</code> formatter in <code>NotificationItem</code></td>
+        <td>Plain function, no library. Inline if &lt; 20 lines, extract to <code>utils/</code> if reused.</td>
+      </tr>
+      <tr>
+        <td>Singleton service registered in <code>config/initializers</code></td>
+        <td>Module-level singleton in <code>lib/actionCable.js</code></td>
+        <td>One consumer per page load. Lazy-init on first call so test setup doesn't open WebSockets.</td>
+      </tr>
+      <tr>
+        <td>Layout-rendered partial that shows on every page (e.g. <code>_flash.html.erb</code>)</td>
+        <td><code>NotificationsDrawer</code> mounted inside <code>AppLayout</code></td>
+        <td>Lives at the layout level, not inside any specific page</td>
+      </tr>
+      <tr>
+        <td><code>before_action :authenticate!</code> before subscribing</td>
+        <td><code>NotificationsProvider</code> mounted under <code>AuthProvider</code></td>
+        <td>Subscription only opens when there's a user; provider tears down on logout</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Related files</h2>
+
+  <ul class="file-list">
+    <li><span>client/package.json</span><span class="action">Modify (add dep)</span></li>
+    <li><span>client/src/lib/actionCable.js</span><span class="action">Create</span></li>
+    <li><span>client/src/context/NotificationsContext.jsx</span><span class="action">Create</span></li>
+    <li><span>client/src/hooks/useNotifications.js</span><span class="action">Create</span></li>
+    <li><span>client/src/hooks/useMarkNotificationRead.js</span><span class="action">Create</span></li>
+    <li><span>client/src/hooks/useNotificationsSeen.js</span><span class="action">Create</span></li>
+    <li><span>client/src/components/notifications/NotificationsDrawer.jsx</span><span class="action">Create</span></li>
+    <li><span>client/src/components/notifications/NotificationItem.jsx</span><span class="action">Create</span></li>
+    <li><span>client/src/components/notifications/NotificationsEmpty.jsx</span><span class="action">Create</span></li>
+    <li><span>client/src/components/Sidebar.jsx</span><span class="action">Modify (bell wire)</span></li>
+    <li><span>client/src/components/MobileTopBar.jsx</span><span class="action">Modify (bell wire)</span></li>
+    <li><span>client/src/App.jsx</span><span class="action">Modify (provider mount)</span></li>
+    <li><span>client/src/layouts/AppLayout.jsx</span><span class="action">Modify (drawer mount)</span></li>
+    <li><span>client/tests/hooks/useNotifications.test.jsx</span><span class="action">Create</span></li>
+    <li><span>client/tests/components/notifications/NotificationsDrawer.test.jsx</span><span class="action">Create</span></li>
+    <li><span>client/tests/components/notifications/NotificationItem.test.jsx</span><span class="action">Create</span></li>
+    <li><span>client/tests/components/Sidebar.test.jsx</span><span class="action">Modify (bell now live)</span></li>
+    <li><span>client/tests/components/MobileTopBar.test.jsx</span><span class="action">Modify (bell now live)</span></li>
+    <li><span>client/tests/pages/notifications.spec.js</span><span class="action">Create (Playwright)</span></li>
+  </ul>
+
+  <p style="margin-top: 12px; color: #666; font-size: 13px;"><em>This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose.</em></p>
+</section>
+
+<section>
+  <h2>Notes &amp; gotchas</h2>
+
+  <ul>
+    <li><strong>Don't add a server-side bulk-read endpoint in this ticket.</strong> Phase 1 "Mark all as read" iterates client-side via <code>Promise.all</code> over <code>useMarkNotificationRead.mutateAsync</code>. With max ~20 items per page that's fine. If real users hit it hard, add <code>PATCH /api/v1/notifications/read_all</code> as a follow-up — it's a 6-line controller action.</li>
+    <li><strong>Mark-seen vs mark-read confusion.</strong> Seen = "user opened the drawer" (clears the badge subtle indicator). Read = "user clicked the item" (clears the per-item dot). They're separate timestamps on the Noticed::Notification record. <code>unread_count</code> on the index endpoint returns <code>unread.count</code> — items with <code>read_at IS NULL</code>, regardless of seen state.</li>
+    <li><strong>Cable consumer auth path is the existing refresh-token cookie.</strong> Don't pass tokens in the URL or via subprotocol. Browser auto-sends the cookie because cable mounts at <code>/api/v1/cable</code> (B4 path-aligned the cookie scope). If the consumer fails to connect, double-check the user is logged in and <code>document.cookie</code> shows <code>refresh_token</code>.</li>
+    <li><strong>WSS in production rides the existing TLS termination.</strong> Don't hardcode <code>wss://</code> or <code>ws://</code> in the consumer. <code>createConsumer('/api/v1/cable')</code> with a relative path lets ActionCable's JS resolve the protocol from <code>window.location.protocol</code>. Same TLS cert as the rest of the API.</li>
+    <li><strong>Drawer focus trap.</strong> When the drawer opens, focus should move to the close button. Tab cycles inside; Escape closes; close button restores focus to the bell that opened it. Reuse the focus-management pattern from <code>Sidebar.jsx</code>'s drawer state — same shape.</li>
+    <li><strong>Disabled bell tests in <code>Sidebar.test.jsx</code> + <code>MobileTopBar.test.jsx</code> need updating.</strong> They currently assert the bell is <code>disabled</code> with <code>aria-label="Notifications (coming soon)"</code>. After this ticket those assertions flip — bell is enabled, label is "Notifications", clicking opens the drawer. Update assertions in the same commit so tests stay accurate.</li>
+    <li><strong>Don't render the drawer inside the auth pages.</strong> Mount it inside <code>AppLayout</code>, not <code>App.jsx</code>'s top-level. Auth pages have no bell to open it from + no notifications to show.</li>
+    <li><strong>The provider mount order matters.</strong> <code>NotificationsProvider</code> goes <em>under</em> <code>AuthProvider</code> (so it can read the user) but <em>above</em> <code>BrowserRouter</code> (so the same provider serves every route). It does NOT belong inside <code>AppLayout</code> — that would re-mount the consumer on logout/login cycles.</li>
+    <li><strong>Postman collection update for the 3 endpoints from B4 was deferred</strong> in TICKET-023's PR. Optional: bundle the Postman update into this ticket since you're touching the same endpoints. Or keep deferred.</li>
+    <li><strong>When you're done:</strong> run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, run <code>/vercel-react-best-practices</code> + <code>/accessibility</code> review skills, then <code>/pre-commit</code> + <code>/comment-audit</code>, commit on this branch (<code>ticket-044-notifications-drawer</code>), and open the PR with the <code>feat(v2): R8 notifications drawer + bell badge wiring</code> prefix.</li>
+  </ul>
+</section>
+
+</div>
+</body>
+</html>
