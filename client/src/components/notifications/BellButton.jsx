@@ -23,7 +23,7 @@ export default function BellButton({ size = 'sm' }) {
       {unread > 0 && (
         <span
           aria-hidden="true"
-          className="absolute top-0 right-0 min-w-[16px] h-[16px] px-1 rounded-full bg-coral text-paper text-[9px] font-extrabold flex items-center justify-center leading-none ring-2 ring-paper"
+          className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-coral text-paper text-[9px] font-extrabold flex items-center justify-center leading-none ring-2 ring-paper"
         >
           {unread > 9 ? '9+' : unread}
         </span>
