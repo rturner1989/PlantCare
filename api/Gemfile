@@ -17,6 +17,10 @@ gem 'rack-cors'
 
 # Background jobs
 gem 'sidekiq'
+gem 'sidekiq-cron'
+
+# Notifications (multi-channel: database + ActionCable; web_push + email later)
+gem 'noticed', '~> 2.4'
 
 # Request throttling (per-endpoint rate limits)
 gem 'rack-attack'
