@@ -129,9 +129,15 @@ function GroupCard({ group, items, onViewAll, onClose, capped }) {
           {group.label}
         </Heading>
         {groupUnread > 0 && (
-          <span className="px-1.5 py-px rounded-full bg-coral text-paper text-[9px] font-extrabold tracking-[0.06em]">
-            {groupUnread} NEW
-          </span>
+          <>
+            <span className="sr-only">{groupUnread} unread</span>
+            <span
+              aria-hidden="true"
+              className="px-1.5 py-px rounded-full bg-coral text-paper text-[9px] font-extrabold tracking-[0.06em]"
+            >
+              {groupUnread} NEW
+            </span>
+          </>
         )}
       </Card.Header>
       <Card.Body className={`px-2 pb-2 ${capped ? 'overflow-visible' : ''}`}>
@@ -178,6 +184,7 @@ function GroupCard({ group, items, onViewAll, onClose, capped }) {
                 variant="unstyled"
                 onClick={handleViewAllClick}
                 disabled={!capped || viewAllLeaving}
+                aria-expanded={!capped}
                 className="text-emerald text-xs font-bold underline decoration-dotted"
               >
                 View all ({items.length})
@@ -289,6 +296,10 @@ export default function NotificationsDrawer() {
           <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
         </Action>
       </header>
+
+      <p aria-live="polite" className="sr-only">
+        {unreadCount} unread {unreadCount === 1 ? 'notification' : 'notifications'}
+      </p>
 
       <div className="flex items-center justify-between px-4 pb-2.5 text-[11px] font-semibold text-ink-softer shrink-0">
         <span>

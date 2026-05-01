@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useDragControls } from 'motion/react'
+import { AnimatePresence, motion, useDragControls, useReducedMotion } from 'motion/react'
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Card from './Card'
@@ -59,7 +59,9 @@ export default function Dialog({
   const titleId = useId()
   const dragControls = useDragControls()
   const isMobile = isMobileViewport()
-  const cardMotion = isRight ? rightDrawerMotion : isMobile ? mobileCardMotion : desktopCardMotion
+  const shouldReduceMotion = useReducedMotion()
+  const baseMotion = isRight ? rightDrawerMotion : isMobile ? mobileCardMotion : desktopCardMotion
+  const cardMotion = shouldReduceMotion ? { ...baseMotion, transition: { duration: 0 } } : baseMotion
   const allowDrag = !isRight && isMobile
 
   useEffect(() => {
