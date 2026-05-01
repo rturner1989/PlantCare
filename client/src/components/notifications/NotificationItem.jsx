@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useMarkNotificationRead } from '../../hooks/useNotifications'
+import Action from '../ui/Action'
 
 function timeAgo(isoString) {
   const seconds = Math.floor((Date.now() - new Date(isoString)) / 1000)
@@ -29,8 +30,8 @@ export default function NotificationItem({ notification, onClose }) {
   }
 
   return (
-    <button
-      type="button"
+    <Action
+      variant="unstyled"
       onClick={handleClick}
       className="group relative w-full flex items-start gap-2.5 px-2 py-2 text-left rounded-md cursor-pointer hover:bg-paper-deep/60 transition-colors"
     >
@@ -53,6 +54,6 @@ export default function NotificationItem({ notification, onClose }) {
       <span className="font-display italic text-[10px] text-ink-softer shrink-0 pt-0.5">
         {timeAgo(notification.created_at)}
       </span>
-    </button>
+    </Action>
   )
 }
