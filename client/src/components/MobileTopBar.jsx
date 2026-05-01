@@ -1,8 +1,9 @@
-import { faBars, faBell } from '@fortawesome/free-solid-svg-icons'
+import { faBars } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { motion, useReducedMotion } from 'motion/react'
 import { useAuth } from '../hooks/useAuth'
 import Logo from './Logo'
+import BellButton from './notifications/BellButton'
 import Action from './ui/Action'
 import Avatar from './ui/Avatar'
 
@@ -52,14 +53,7 @@ export default function MobileTopBar({ isFirstRun = false, onMenuOpen }) {
 
         <div className="flex items-center gap-2">
           <motion.div variants={itemVariants}>
-            <Action
-              variant="unstyled"
-              disabled
-              aria-label="Notifications (coming soon)"
-              className="w-9 h-9 rounded-full flex items-center justify-center text-ink-soft"
-            >
-              <FontAwesomeIcon icon={faBell} className="w-4 h-4" />
-            </Action>
+            <BellButton size="lg" />
           </motion.div>
 
           {user && (

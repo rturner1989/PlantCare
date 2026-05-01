@@ -28,12 +28,12 @@ test.describe('Primary navigation — sidebar (≥1200px)', () => {
     await expect(page).toHaveURL(/\/$/)
   })
 
-  test('bell button is disabled until B4 wires up notifications', async ({ page }) => {
+  test('bell button is enabled (R8 wired the drawer)', async ({ page }) => {
     await registerUser(page, 'Robin')
     await completeOnboarding(page)
 
-    const bell = page.getByRole('button', { name: 'Notifications (coming soon)' }).first()
-    await expect(bell).toBeDisabled()
+    const bell = page.getByRole('button', { name: /^Notifications/ }).first()
+    await expect(bell).toBeEnabled()
   })
 
   test('search pill is disabled until cmd-K dialog ticket lands', async ({ page }) => {

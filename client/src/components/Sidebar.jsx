@@ -1,6 +1,5 @@
 import {
   faArrowRightFromBracket,
-  faBell,
   faBook,
   faHouse,
   faMagnifyingGlass,
@@ -16,6 +15,7 @@ import { NavLink } from 'react-router-dom'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
 import Logo from './Logo'
+import BellButton from './notifications/BellButton'
 import Action from './ui/Action'
 import Avatar from './ui/Avatar'
 
@@ -175,14 +175,7 @@ function Body({ user, onLogout, onClose }) {
             <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
           </Action>
         ) : (
-          <Action
-            variant="unstyled"
-            disabled
-            aria-label="Notifications (coming soon)"
-            className="w-[26px] h-[26px] rounded-full bg-paper-deep text-ink-soft flex items-center justify-center shrink-0"
-          >
-            <FontAwesomeIcon icon={faBell} className="w-3 h-3" />
-          </Action>
+          <BellButton />
         )}
       </div>
 
