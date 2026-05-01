@@ -26,19 +26,41 @@ const mobileCardMotion = {
   transition: { duration: 0.26, ease: [0.33, 1, 0.68, 1] },
 }
 
+const rightDrawerMotion = {
+  initial: { x: '100%' },
+  animate: { x: 0 },
+  exit: { x: '100%' },
+  transition: { duration: 0.28, ease: [0.33, 1, 0.68, 1] },
+}
+
 function isMobileViewport() {
   if (typeof window === 'undefined') return false
   return window.matchMedia('(max-width: 1023px)').matches
 }
 
-export default function Dialog({ open, onClose, title, children, className = '' }) {
+export default function Dialog({
+  open,
+  onClose,
+  title,
+  children,
+  className = '',
+  placement = 'center',
+  scrim,
+  cardVariant = 'solid',
+}) {
+  const isRight = placement === 'right'
+  // Center placement defaults to a dimmed scrim. Right drawer defaults to
+  // no scrim (Mac-notification-centre style — main content visible behind)
+  // but stays click-to-close via a transparent overlay.
+  const showScrim = scrim ?? !isRight
   const cardRef = useRef(null)
   const previouslyFocusedRef = useRef(null)
   const onCloseRef = useRef(onClose)
   const titleId = useId()
   const dragControls = useDragControls()
   const isMobile = isMobileViewport()
-  const cardMotion = isMobile ? mobileCardMotion : desktopCardMotion
+  const cardMotion = isRight ? rightDrawerMotion : isMobile ? mobileCardMotion : desktopCardMotion
+  const allowDrag = !isRight && isMobile
 
   useEffect(() => {
     onCloseRef.current = onClose
@@ -98,19 +120,20 @@ export default function Dialog({ open, onClose, title, children, className = '' 
           <motion.button
             type="button"
             aria-label="Close dialog"
-            className="dialog-overlay"
+            className={showScrim ? 'dialog-overlay' : 'dialog-overlay dialog-overlay-transparent'}
             onClick={() => onCloseRef.current?.()}
             {...overlayMotion}
           />
-          <div className="dialog-content">
+          <div className={isRight ? 'dialog-content dialog-content-right' : 'dialog-content'}>
             <MotionCard
               ref={cardRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby={title ? titleId : undefined}
               tabIndex={-1}
+              variant={cardVariant}
               className={`shadow-[var(--shadow-md)] flex flex-col min-h-0 px-6 pt-2 pb-6 gap-4 sm:pt-6 ${className}`}
-              drag={isMobile ? 'y' : false}
+              drag={allowDrag ? 'y' : false}
               dragListener={false}
               dragControls={dragControls}
               dragConstraints={{ top: 0 }}
@@ -118,7 +141,7 @@ export default function Dialog({ open, onClose, title, children, className = '' 
               onDragEnd={handleDragEnd}
               {...cardMotion}
             >
-              {isMobile && (
+              {allowDrag && (
                 <button
                   type="button"
                   aria-label="Drag to dismiss"

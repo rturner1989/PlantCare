@@ -4,13 +4,21 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Sidebar from '../../src/components/Sidebar'
 import { AuthProvider } from '../../src/context/AuthContext'
+import { NotificationsProvider } from '../../src/context/NotificationsContext'
 import { ToastProvider } from '../../src/context/ToastContext'
 
 vi.mock('../../src/api/client', () => ({
+  apiGet: vi.fn().mockResolvedValue({ unread_count: 0, notifications: [] }),
   apiPost: vi.fn(),
+  apiPatch: vi.fn(),
   apiDelete: vi.fn(),
   setAccessToken: vi.fn(),
   getAccessToken: vi.fn(() => null),
+}))
+
+vi.mock('../../src/api/cable', () => ({
+  cableConsumer: () => ({ subscriptions: { create: () => ({ unsubscribe: () => {} }) } }),
+  disconnectCable: () => {},
 }))
 
 let queryClient
@@ -19,9 +27,11 @@ function wrapper({ children }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ToastProvider>
-          <MemoryRouter>{children}</MemoryRouter>
-        </ToastProvider>
+        <NotificationsProvider>
+          <ToastProvider>
+            <MemoryRouter>{children}</MemoryRouter>
+          </ToastProvider>
+        </NotificationsProvider>
       </AuthProvider>
     </QueryClientProvider>
   )
@@ -100,11 +110,11 @@ describe('Sidebar', () => {
   })
 
   describe('header stubs', () => {
-    it('renders a disabled notifications bell stub (waiting on B4)', () => {
+    it('renders an enabled notifications bell button (live since R8 wired the drawer)', () => {
       render(<Sidebar />, { wrapper })
-      const bells = screen.getAllByRole('button', { name: 'Notifications (coming soon)' })
+      const bells = screen.getAllByRole('button', { name: /^Notifications/ })
       expect(bells.length).toBeGreaterThan(0)
-      for (const bell of bells) expect(bell).toBeDisabled()
+      for (const bell of bells) expect(bell).not.toBeDisabled()
     })
 
     it('renders a disabled search pill stub with the cmd-K shortcut hint', () => {

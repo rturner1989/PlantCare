@@ -4,6 +4,8 @@ const VARIANTS = {
   display: 'font-display italic font-normal text-[34px] sm:text-[40px] leading-[1.15] tracking-tight',
   'display-lg': 'font-display italic font-normal text-[44px] lg:text-[54px] leading-[1.02] tracking-tight',
   'display-xl': 'font-display italic font-light text-[40px] lg:text-[64px] leading-[1.15] tracking-tight',
+  panel: 'font-display italic font-semibold text-[22px] leading-none tracking-[-0.02em]',
+  card: 'font-display italic font-normal text-base leading-tight tracking-[-0.01em]',
   compact: 'font-sans font-extrabold text-base text-ink leading-tight',
 }
 
@@ -11,6 +13,8 @@ const PREHEADING_VARIANT_BY_HEADING = {
   display: 'card',
   'display-lg': 'pill',
   'display-xl': 'card',
+  panel: 'card',
+  card: 'card',
   compact: 'card',
 }
 

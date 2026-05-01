@@ -1,5 +1,11 @@
 development:
-  adapter: async
+  # Sidekiq runs in a separate process from the api server, so its
+  # broadcasts (e.g. from Noticed delivery jobs) need to cross processes
+  # to reach connected WebSocket clients. The default :async adapter is
+  # in-process only; Redis pub/sub is the cross-process bridge.
+  adapter: redis
+  url: <%= ENV.fetch("REDIS_CABLE_URL") { "redis://redis:6379/1" } %>
+  channel_prefix: plantcare_development
 
 test:
   adapter: test

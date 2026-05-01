@@ -4,12 +4,20 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import MobileTopBar from '../../src/components/MobileTopBar'
 import { AuthProvider } from '../../src/context/AuthContext'
+import { NotificationsProvider } from '../../src/context/NotificationsContext'
 
 vi.mock('../../src/api/client', () => ({
+  apiGet: vi.fn().mockResolvedValue({ unread_count: 0, notifications: [] }),
   apiPost: vi.fn(),
+  apiPatch: vi.fn(),
   apiDelete: vi.fn(),
   setAccessToken: vi.fn(),
   getAccessToken: vi.fn(() => null),
+}))
+
+vi.mock('../../src/api/cable', () => ({
+  cableConsumer: () => ({ subscriptions: { create: () => ({ unsubscribe: () => {} }) } }),
+  disconnectCable: () => {},
 }))
 
 let queryClient
@@ -18,7 +26,9 @@ function wrapper({ children }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <MemoryRouter>{children}</MemoryRouter>
+        <NotificationsProvider>
+          <MemoryRouter>{children}</MemoryRouter>
+        </NotificationsProvider>
       </AuthProvider>
     </QueryClientProvider>
   )
@@ -47,11 +57,11 @@ describe('MobileTopBar', () => {
     })
   })
 
-  describe('bell stub', () => {
-    it('renders a disabled notifications button until B4 wires up unread counts', () => {
+  describe('bell button', () => {
+    it('renders an enabled notifications button (live since R8 wired the drawer)', () => {
       render(<MobileTopBar />, { wrapper })
-      const bell = screen.getByRole('button', { name: 'Notifications (coming soon)' })
-      expect(bell).toBeDisabled()
+      const bell = screen.getByRole('button', { name: /^Notifications/ })
+      expect(bell).not.toBeDisabled()
     })
   })
 

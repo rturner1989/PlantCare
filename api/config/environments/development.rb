@@ -70,8 +70,12 @@ Rails.application.configure do
   # Annotate rendered view with file names.
   config.action_view.annotate_rendered_view_with_filenames = true
 
-  # Uncomment if you wish to allow Action Cable access from any origin.
-  # config.action_cable.disable_request_forgery_protection = true
+  # Vite dev server runs on a different origin (localhost:5173) than the
+  # Rails API (localhost:3000). ActionCable's default origin check rejects
+  # cross-origin upgrades, so the WS handshake silently fails. Disable the
+  # check in dev only — production gets a real `allowed_request_origins`
+  # list when that ticket lands.
+  config.action_cable.disable_request_forgery_protection = true
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true

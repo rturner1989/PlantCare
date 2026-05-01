@@ -3,6 +3,7 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Dock from '../components/Dock'
 import MobileTopBar from '../components/MobileTopBar'
+import NotificationsDrawer from '../components/notifications/NotificationsDrawer'
 import Sidebar from '../components/Sidebar'
 import ProgressBar from '../components/ui/ProgressBar'
 import Spinner from '../components/ui/Spinner'
@@ -98,6 +99,7 @@ export default function AppLayout() {
       )}
 
       <Dock isFirstRun={isFirstRun} />
+      <NotificationsDrawer />
     </div>
   )
 }
