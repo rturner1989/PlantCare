@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Sidebar from '../../src/components/Sidebar'
 import { AuthProvider } from '../../src/context/AuthContext'
 import { NotificationsProvider } from '../../src/context/NotificationsContext'
+import { OrganiserProvider } from '../../src/context/OrganiserContext'
 import { ToastProvider } from '../../src/context/ToastContext'
 
 vi.mock('../../src/api/client', () => ({
@@ -28,9 +29,11 @@ function wrapper({ children }) {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <NotificationsProvider>
-          <ToastProvider>
-            <MemoryRouter>{children}</MemoryRouter>
-          </ToastProvider>
+          <OrganiserProvider>
+            <ToastProvider>
+              <MemoryRouter>{children}</MemoryRouter>
+            </ToastProvider>
+          </OrganiserProvider>
         </NotificationsProvider>
       </AuthProvider>
     </QueryClientProvider>

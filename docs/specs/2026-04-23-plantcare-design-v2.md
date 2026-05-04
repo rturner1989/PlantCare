@@ -49,14 +49,14 @@ Unchanged by the flip:
 
 - Full colour palette (`--mint / --leaf / --emerald / --forest / --coral / --ink`, etc.) — §3.2 of v1 still authoritative.
 - Typography (Plus Jakarta Sans for UI, Fraunces italic for display) — §3.3 of v1.
-- Personality system — 5 archetypes (§12 of v1), per-personality animation parameters (§15.3). **Voice library / templated voice lines are retired** (see §1.4).
+- Personality system — 5 archetypes (§12 of v1), per-personality animation parameters (§15.3). **All voice / scripted-copy systems retired** — personality is visual only (see §1.4 + memory `project_voice_removed_from_plan.md`).
 - Plant visual states (thriving / content / thirsty / wilting / parched) — §13 of v1.
 - Care animation (tap → pour → morph → reward → settle) — §15 of v1.
 - Data model additions (`CareLog.source`, `Room.default_*`) — §16 of v1.
 
 ### 1.4 What gets retired or reshaped
 
-- **Templated voice-line library** (v1 §12.2) — retired. Tested during TICKET-009, read robotic. **Personality shows through visuals in Phase 1, not scripted copy.** Emoji, colour, motion, mood-coded decoration on state-change rows — not one-liners pulled from a variant pool. Two surviving text-voice moments: Step 5 welcome quote (one-off static picker) and CareConfirm dialog (already shipped). Both are *moments*, not streams. Any future "voice line" slot is gated behind Phase 2.5 LLM.
+- **All voice / scripted plant-copy systems** — retired (originally tested during TICKET-009, scrubbed across the plan 2026-05-03 per memory `project_voice_removed_from_plan.md`). **Personality shows through visuals only — across every phase.** Emoji, colour, motion, mood-coded decoration on state-change rows — never scripted lines or per-plant voice. Two surviving text moments: Step 5 welcome quote (one-off static picker) and CareConfirm dialog (already shipped). Both are *moments*, not streams. No future plant-voiced surface is planned — Phase 2.5 helper is TBD with no per-plant voice assumption.
 - **Glass floating dock** (v1 §5.1 step 7) — abandoned. Mobile now uses edge-to-edge flush chrome (shipped TICKET-019). v2 codifies flush as canonical; no going back to glass.
 - **22–37px corner radii on surfaces** — swept to `rounded-md` (12px) app-wide. v1 §3.4 radius table stays for decoration; surfaces default to `--radius-md`.
 - **Page-canvas-over-gradient pattern** (invented TICKET-019) — stays for mobile, re-evaluated on desktop where a different container shape likely fits better.
@@ -78,7 +78,7 @@ Quick audit of three adjacent products. None go web-first; per-plant personality
 - **Flagship:** comprehensive management + **"Dr Planta"** diagnostic character. Watering/fertilising reminders, plant journal, light-meter tool, community sharing.
 - **Personality:** app-level mascot (Dr Planta) but individual plants stay utilitarian. No per-plant voice.
 - **Style:** playful-editorial hybrid; warm copy; subscription-driven.
-- **What we take from it:** diagnostic tool as a distinct entry point (ties to our Phase 2 AI diagnose). Dr-Planta-style named helper feels adjacent to our Phase 2.5 plant-voiced bot — they've proven character-helpers work.
+- **What we take from it:** diagnostic tool as a distinct entry point (ties to our Phase 2 AI diagnose). Their Dr-Planta-style named helper proves character-helpers work — Phase 2.5 helper layer is TBD on our side (no per-plant voice — see memory `project_voice_removed_from_plan.md`).
 - **What we avoid:** mobile-only ceiling. No real web presence.
 
 ### 2.2 Greg (`greg.app`)
@@ -88,7 +88,7 @@ Quick audit of three adjacent products. None go web-first; per-plant personality
 - **Personality:** app-level again ("Greg" the mascot), purple accent, approachable. Not per-plant.
 - **Style:** playful, purple, pastel. Closest to PlantCare's lane emotionally.
 - **What we take:** community-as-Phase-3 is validated; identification-as-Phase-2 is validated.
-- **What we avoid:** single-mascot flattens personality. We give every plant its own voice instead.
+- **What we avoid:** single-mascot flattens personality. Per-plant differentiation comes through visuals (motion + colour + emoji) — never scripted voice. See memory `project_voice_removed_from_plan.md`.
 
 ### 2.3 PictureThis (`picturethisai.com`)
 
@@ -105,10 +105,10 @@ PlantCare isn't trying to win against Planta. It's an indie project with a speci
 
 1. **Made for me (and people like me).** Authored from personal need. The copy reflects it. Honest about plant-parent failings. Conversational, self-aware, slightly irreverent. Not corporate.
 2. **Web-first.** Every rival is mobile-first or mobile-only. A real desktop plant-management app is open ground. (RN mobile follows later; all phases ship together before going public.)
-3. **Per-plant personality through visuals.** Every plant has visible mood via motion + colour + emoji. Rivals have app-mascots; ours is per-character. No templated voice copy — personality shows, doesn't monologue.
+3. **Per-plant personality through visuals.** Every plant has visible mood via motion + colour + emoji. Rivals have app-mascots; ours is per-character. Personality is visual-only — never scripted lines (memory `project_voice_removed_from_plan.md`).
 4. **Game loop with stakes.** Care consistently or decline sets in. Streak, mood, per-plant health, greenhouse vitality, rescue missions. Retention through genuine attachment, not push-notification guilt.
 5. **3D Habitat-style view (Phase 3, name TBD).** Nobody else is doing isometric room-aware rendering of your collection. The north-star moment.
-6. **Journal as the long arc.** Your relationship with your plants, recorded over time. User writes; system marks events; eventually plants speak (Phase 2.5). Nobody else has this.
+6. **Journal as the long arc.** Your relationship with your plants, recorded over time. User writes; system marks events visually. Nobody else has this. (No plant-voiced journal entries — see memory `project_voice_removed_from_plan.md`.)
 
 ---
 
@@ -130,21 +130,21 @@ Renaming + phasing locked now so layout work has fixed targets.
 
 **Supporting flows** (not top-level nav): Auth, Onboarding, Add Plant dialog, Care Confirm dialog, Diagnose flow (Phase 2).
 
-**Personality** is cross-cutting, not a region. Lives on Today (hero voice), Plant Detail (voice card), Add Plant Step 5 welcome quote, Encyclopedia species pages (personality paragraph), Dollhouse bubbles.
+**Personality** is cross-cutting, not a region. Surfaces visually on Today (hero mood + decoration), Plant Detail (mood + motion), Add Plant Step 5 welcome quote (one-off static moment), Encyclopedia species pages (personality paragraph), Dollhouse mood signals. No plant-voiced copy anywhere — see memory `project_voice_removed_from_plan.md`.
 
 ### 3.1a Active framing — the governing principle
 
 Planta's homepage offers jobs: "Get help with a sick plant", "Get water and care reminders", "Identify a plant". Each entry is a named user goal. The app presents itself as *offering* things. Ours currently *displays* things — a dashboard of data that monologues at the user. That's why v1 feels flat.
 
-**v2 rule:** every screen offers jobs, not data. Entry points are named, personality-voiced, and user-selected. "Here's what I can help with right now" beats "here's what you own". Data still exists — it's the reward of picking a job, not the main content.
+**v2 rule:** every screen offers jobs, not data. Entry points are named verbs with visual personality decoration (no scripted voice copy — see memory `project_voice_removed_from_plan.md`). "Here's what I can help with right now" beats "here's what you own". Data still exists — it's the reward of picking a job, not the main content.
 
 **Consequences that propagate through §§4–5:**
 
-- Today gains a **jobs rail** above the rituals list. Each card is a personality-voiced verb — "Water Monty · he's begging", "Check on Spike · something's off", "Meet a new plant", "Learn to read your Monstera".
+- Today gains a **jobs rail** above the rituals list. Each card is a named-verb action with mood-coded visuals — "Water Monty · 3 days overdue" (factual copy + coral ring + droop animation), never voice-lined.
 - **FAB = "Add a plant" only.** Single dedicated action, not a menu. Tap = opens Add Plant bottom-sheet (mobile) / modal (desktop). Keyboard shortcut `N`. Present on every screen for muscle-memory access. The `+` icon reads "add" unambiguously. Jobs rail handles multi-action breadth; radial wheel handles per-plant rich actions; FAB handles the one primary universal action.
 - **Onboarding asks intent first.** New Step 0: "What brings you here?" — forgetful waterer / plant-parent / sick-plant saver / learning-as-I-go. Answer seeds Today's default jobs rail + tip prompts. Lightweight segmentation, no feature gates.
 - **Sidebar grows shortcut jobs** beneath the region nav — not another nav layer, but one-tap entries to common verbs (Water something / Log care / Take a photo).
-- **Plant Detail gains per-plant job shortcuts** — "feed me", "check my mood", "take my photo", "ask me how I'm doing" (Phase 2.5). Voiced by that plant's personality.
+- **Plant Detail gains per-plant job shortcuts** — Feed · Check mood · Take photo. Mood decoration via personality visuals (motion + colour + emoji). No plant-voiced copy.
 
 ### 3.1b Canonical jobs-to-be-done
 
@@ -376,7 +376,7 @@ Tips are authored + reviewed content (not user-generated in Phase 1). Phase 3 op
 |---|---|---|
 | 1 | Symptom picker → templated summary (combines symptom + plant state + static tips) | Species-tab stack + job-rail entry + milestone-triggered |
 | 2 | AI photo diagnosis + richer summary | Weekly recap bundling + contextual prompts |
-| 2.5 | Plant-voiced "I'm not feeling great" journal entries (LLM) | LLM-personalised per user's collection |
+| 2.5 | (TBD — Phase 2.5 helper layer scope removed; redesign needed — see memory `project_voice_removed_from_plan.md`) | LLM-personalised per user's collection |
 | 3 | Community-shared recovery stories | Community-contributed tips |
 
 **Action-wheel update.** The radial wheel's 6 spokes are now: 💧 Water · 🌱 Feed · 📷 Photo · ✎ Note · 🩺 Doctor · ⌂ Move. Dropped "Open" (tap-without-long-press = open plant). Doctor spoke slots in.
@@ -524,13 +524,13 @@ Short, Fraunces italic, appears below grid as user selects. Updates dynamically 
 
 What each region holds at each product maturity. Locks slot allocation now so we don't retrofit later.
 
-| Region | Phase 1 (MVP) | Phase 2 (push + AI) | Phase 2.5 (AI bot + journal LLM) | Phase 3 (sensors + Dollhouse) |
+| Region | Phase 1 (MVP) | Phase 2 (push + AI) | Phase 2.5 (AI helper layer — TBD, no plant voice) | Phase 3 (sensors + Dollhouse) |
 |---|---|---|---|---|
-| **Today** | Hero + since-ribbon + jobs rail + rituals + progress + latest-journal widget | Adaptive scheduling tweaks task timings · push nudges surface here | Bot tile appears inline when user stalls (optional dismiss) · voice-of-the-day greeting · LLM-generated journal entries flow into widget | Weather band under header · sensor-logged care lands in since-ribbon automatically |
+| **Today** | Hero + since-ribbon + jobs rail + rituals + progress + latest-journal widget | Adaptive scheduling tweaks task timings · push nudges surface here | TBD helper layer surface (no plant-voiced copy) | Weather band under header · sensor-logged care lands in since-ribbon automatically |
 | **House** | Rooms grid + flat list + search + filter + customisable grid density | — | — | **Dollhouse 3D view** as third toggle · room-aware plant rendering |
-| **Plant Detail** | Portrait + rings + care/species/journal/history tabs + photos + per-plant job shortcuts | AI diagnose CTA (camera → result → optional CareLog + journal entry) | Plant speaks in-context — speech bubble above portrait · ask-a-plant bot CTA · journal entries LLM-generated | Sensor readings inline · weather-adjusted next-due · device pairing card |
-| **Journal** | User-composed entries + templated plant-authored entries (trigger library) · archive feed · per-plant filter · mood filter | Auto-entries on AI diagnose · auto-entries on AI identification (global / system entries) | **LLM-generated plant entries** replace templated library · user can prompt entries ("how was your week?") · bot can narrate weekly recap | Sensor-triggered entries ("I heard thunder last night") · automation-triggered entries |
-| **Encyclopedia** | Species library + care guides + tips articles · card-grid + article reader | AI identification (no add) · camera entry | Bot picks articles based on user's collection | Community care journals · shared tips · trending species |
+| **Plant Detail** | Portrait + rings + care/species/journal/history tabs + photos + per-plant job shortcuts | AI diagnose CTA (camera → result → optional CareLog + journal entry) | TBD helper layer surface (no plant-voiced speech bubbles) | Sensor readings inline · weather-adjusted next-due · device pairing card |
+| **Journal** | User-composed entries + system events (visual decoration only, no plant-voiced copy) · archive feed · per-plant filter · mood filter | Auto-entries on AI diagnose · auto-entries on AI identification (global / system entries) | TBD helper layer surface (no LLM-generated plant entries) | Sensor-triggered entries (system marker, no plant voice) · automation-triggered entries |
+| **Encyclopedia** | Species library + care guides + tips articles · card-grid + article reader | AI identification (no add) · camera entry | TBD helper layer | Community care journals · shared tips · trending species |
 | **Me** | Profile + password + logout + basic prefs + streak | Notification preferences · push subscription management | **Billing** (bot + LLM journal is paid) · subscription tier · usage meter | **Devices hub** — paired soil probes, weather hooks, automation webhooks |
 | **Add Plant** | Species search → env questions → save · seeds first journal entry ("Day 1. Interesting pot.") | Camera-first AI identification · confidence bar · fallback to search | Bot nudges on stuck fields ("not sure which room? ask your Monstera") | — |
 
@@ -546,7 +546,7 @@ What each region holds at each product maturity. Locks slot allocation now so we
 
 ### 3.2a The Journal — cross-cutting spine
 
-Journal is the narrative glue that threads personality across time. User writes the story; plants appear in the story via **visual system events** (Phase 1) or **LLM-generated entries** (Phase 2.5). No templated plant-voice copy.
+Journal is the narrative glue that threads personality across time. User writes the story; plants appear in the story via **visual system events** only (timestamped markers with mood-coded decoration). No plant-voice copy — ever — see memory `project_voice_removed_from_plan.md`.
 
 **Phase 1 authorship model:**
 
@@ -564,7 +564,7 @@ Journal is the narrative glue that threads personality across time. User writes 
 
 System events never write voiced copy. They're visual timeline markers. The *user* supplies narrative by writing their own entries alongside.
 
-**Phase 2.5 upgrade — plant-authored entries arrive.** Same data model, new `author_type: plant` entries with LLM-generated `body`. Plants become third-person speakers in the stream. Gated behind paid tier (LLM cost + quality).
+**Phase 2.5 upgrade — TBD helper layer.** Plant-voiced framing was retired 2026-05-03 (see memory `project_voice_removed_from_plan.md`). Whatever ships in 2.5 must not assume plant-authored entries; redesign needed.
 
 **Shape of a journal entry:**
 
@@ -607,7 +607,7 @@ Album view = all entries where `image_id IS NOT NULL`. Phase 2+ opens "Before/af
 
 Not scoped in Phase 1. Worth design-room now because opt-in sharing affects how entries are stored (privacy flags on `JournalEntry`).
 
-**Tone discipline (Phase 2.5+).** When plant entries arrive via LLM, they never break character. A stoic cactus doesn't suddenly wax poetic. A dramatic Monstera doesn't write bullet lists. Voice consistency per-plant over time is what makes the journal feel like a relationship rather than RNG flavour text. Phase 1 stream sidesteps this entirely by letting the user write and the system log.
+**Tone discipline.** Plant-voiced LLM entries removed from scope (see memory `project_voice_removed_from_plan.md`). Phase 1+ keeps the stream user-authored + system-event-decorated; if Phase 2.5 helper layer eventually ships, it won't speak as the plant.
 
 ### 3.3 Cross-region journeys
 

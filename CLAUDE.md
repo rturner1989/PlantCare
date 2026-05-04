@@ -102,7 +102,7 @@ docker compose up                   # Start everything
 
 **Phase 2** — push notifications (Web Push), AI plant recognition, adaptive scheduling
 
-**Phase 2.5** — **in-app AI helper bot voiced by the user's own plants.** Claude API backend, contextual triggers (stuck on a form, explicit "?" tap) rather than always-on chat. System prompt is built from the active plant's personality type, so a dramatic Monstera sounds different to a stoic snake plant — rotate per session so each plant gets to be the voice-of-the-day. Tool use for safe actions ("I'll add the Kitchen room for you" → confirm button → POST `/rooms`, routed through the existing `current_user`-scoped queries). Shares the personality-prompting infrastructure with Phase 3's LLM messages and dollhouse speech bubbles. Gated behind payment (LLM cost) — build after the free tier is stable.
+**Phase 2.5** — **TBD AI helper layer (redesign needed).** Original "voiced by user's plants" framing was retired 2026-05-03 (see memory `project_voice_removed_from_plan.md`). Personality stays visual-only across all phases. Whatever ships in 2.5 should not assume per-plant voice. Use case to revisit (contextual help / tool use for safe actions / generic onboarding assistant) — design from scratch when scoping.
 
 **Phase 3** — weather-adjusted care, home automation (soil probes), LLM-generated personality messages, **dollhouse view** (interactive 3D isometric house with Three.js, plant speech bubbles per room)
 

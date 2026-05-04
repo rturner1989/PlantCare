@@ -3,7 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { motion, useReducedMotion } from 'motion/react'
 import { useAuth } from '../hooks/useAuth'
 import Logo from './Logo'
-import BellButton from './notifications/BellButton'
+import NotificationsTrigger from './notifications/NotificationsTrigger'
+import OrganiserTrigger from './organiser/OrganiserTrigger'
 import Action from './ui/Action'
 import Avatar from './ui/Avatar'
 
@@ -53,7 +54,10 @@ export default function MobileTopBar({ isFirstRun = false, onMenuOpen }) {
 
         <div className="flex items-center gap-2">
           <motion.div variants={itemVariants}>
-            <BellButton size="lg" />
+            <OrganiserTrigger size="lg" />
+          </motion.div>
+          <motion.div variants={itemVariants}>
+            <NotificationsTrigger size="lg" />
           </motion.div>
 
           {user && (

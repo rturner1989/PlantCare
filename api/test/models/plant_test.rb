@@ -2,7 +2,10 @@
 
 require 'test_helper'
 
+# rubocop:disable Rails/SkipsModelValidations -- update_columns seeds calculated schedule values directly so tests don't have to round-trip through Plant#calculate_schedule
 class PlantTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   setup do
     @space = spaces(:living_room)
     @species = species(:monstera)
@@ -134,7 +137,58 @@ class PlantTest < ActiveSupport::TestCase
     assert plant.calculated_watering_days >= 1
   end
 
+  test 'create unlocks first_plant achievement (idempotent across plants)' do
+    user = User.create!(email: 'first-plant@test.com', name: 'FP', password: 'greenthumb99')
+    space = user.spaces.create!(name: 'Office', light_level: 'medium', temperature_level: 'average', humidity_level: 'average')
+
+    perform_enqueued_jobs do
+      space.plants.create!(nickname: 'Number 1', species: @species)
+    end
+    assert_equal 1, user.achievements.where(kind: 'first_plant').count
+
+    perform_enqueued_jobs do
+      space.plants.create!(nickname: 'Number 2', species: @species)
+    end
+    assert_equal 1, user.achievements.where(kind: 'first_plant').count
+  end
+
+  test 'tasks_on returns water + feed tasks due on or before the date' do
+    plant = @space.plants.create!(nickname: 'Wilty', species: @species, last_watered_at: 10.days.ago, last_fed_at: 60.days.ago)
+    plant.update_columns(calculated_watering_days: 7, calculated_feeding_days: 30)
+
+    tasks = plant.tasks_on(Date.current)
+    kinds = tasks.pluck(:kind)
+    assert_includes kinds, 'water'
+    assert_includes kinds, 'feed'
+  end
+
+  test 'tasks_on returns empty array when nothing due yet' do
+    plant = @space.plants.create!(nickname: 'Fresh', species: @species, last_watered_at: 1.hour.ago, last_fed_at: 1.hour.ago)
+    plant.update_columns(calculated_watering_days: 7, calculated_feeding_days: 30)
+
+    assert_empty plant.tasks_on(Date.current)
+  end
+
+  test 'tasks_on labels overdue with day count' do
+    plant = @space.plants.create!(nickname: 'Late', species: @species, last_watered_at: 10.days.ago)
+    plant.update_columns(calculated_watering_days: 7, calculated_feeding_days: nil, last_fed_at: nil)
+
+    water_task = plant.tasks_on(Date.current).find { |task| task[:kind] == 'water' }
+    assert_equal 'overdue', water_task[:due_state]
+    assert_match(/days overdue/, water_task[:due_label])
+  end
+
+  test 'tasks_on labels due_today when due_on equals target date' do
+    plant = @space.plants.create!(nickname: 'Right Time', species: @species, last_watered_at: 7.days.ago)
+    plant.update_columns(calculated_watering_days: 7, calculated_feeding_days: nil, last_fed_at: nil)
+
+    water_task = plant.tasks_on(Date.current).find { |task| task[:kind] == 'water' }
+    assert_equal 'due_today', water_task[:due_state]
+    assert_equal 'Due today', water_task[:due_label]
+  end
+
   private def current_user
     @space.user
   end
 end
+# rubocop:enable Rails/SkipsModelValidations

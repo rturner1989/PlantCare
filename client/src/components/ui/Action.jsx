@@ -31,6 +31,7 @@ function compose(variant, elementReset, userClassName) {
 }
 
 export default function Action({
+  ref,
   to,
   href,
   external = false,
@@ -53,7 +54,7 @@ export default function Action({
       )
     }
     return (
-      <Link to={to} className={classes} aria-label={ariaLabel} {...kwargs}>
+      <Link ref={ref} to={to} className={classes} aria-label={ariaLabel} {...kwargs}>
         {children}
       </Link>
     )
@@ -70,7 +71,7 @@ export default function Action({
       )
     }
     return (
-      <a href={href} className={classes} aria-label={ariaLabel} {...targetProps} {...kwargs}>
+      <a ref={ref} href={href} className={classes} aria-label={ariaLabel} {...targetProps} {...kwargs}>
         {children}
       </a>
     )
@@ -84,6 +85,7 @@ export default function Action({
 
   return (
     <button
+      ref={ref}
       type={type ?? 'button'}
       onClick={onClick}
       disabled={disabled}

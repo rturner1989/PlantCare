@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import MobileTopBar from '../../src/components/MobileTopBar'
 import { AuthProvider } from '../../src/context/AuthContext'
 import { NotificationsProvider } from '../../src/context/NotificationsContext'
+import { OrganiserProvider } from '../../src/context/OrganiserContext'
 
 vi.mock('../../src/api/client', () => ({
   apiGet: vi.fn().mockResolvedValue({ unread_count: 0, notifications: [] }),
@@ -27,7 +28,9 @@ function wrapper({ children }) {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <NotificationsProvider>
-          <MemoryRouter>{children}</MemoryRouter>
+          <OrganiserProvider>
+            <MemoryRouter>{children}</MemoryRouter>
+          </OrganiserProvider>
         </NotificationsProvider>
       </AuthProvider>
     </QueryClientProvider>

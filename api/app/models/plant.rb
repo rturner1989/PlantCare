@@ -33,12 +33,17 @@ class Plant < ApplicationRecord
   has_many :care_logs, dependent: :destroy
   has_many :plant_photos, dependent: :destroy
 
+  delegate :user, to: :space
+
   validates :nickname, presence: true
 
   scope :in_space, ->(space_id) { where(space_id: space_id) if space_id.present? }
 
   before_save :calculate_schedule, if: :should_recalculate?
   before_create :set_initial_watered_at
+  after_create_commit :increment_user_plants_count
+  after_create_commit :check_plant_created_achievements
+  after_destroy_commit :decrement_user_plants_count
 
   # Triggered by Space#after_update when env shifts — the space callback
   # iterates its plants and runs this. Bypasses `should_recalculate?`
@@ -92,6 +97,32 @@ class Plant < ApplicationRecord
     calculated_feeding_days - days_since_fed
   end
 
+  def next_water_on
+    return nil unless last_watered_at && calculated_watering_days
+
+    last_watered_at.to_date + calculated_watering_days.days
+  end
+
+  def next_feed_on
+    return nil unless last_fed_at && calculated_feeding_days
+
+    last_fed_at.to_date + calculated_feeding_days.days
+  end
+
+  # Returns the care tasks (water + feed) due on or before the given
+  # date. Each task is a hash the dashboard payload + Today's rituals
+  # card can render directly. Drives both the rituals list and the
+  # week-view calendar's per-day dots.
+  def tasks_on(date)
+    tasks = []
+
+    tasks << build_task(kind: 'water', due_on: next_water_on, target_date: date) if next_water_on && next_water_on <= date
+
+    tasks << build_task(kind: 'feed', due_on: next_feed_on, target_date: date) if next_feed_on && next_feed_on <= date
+
+    tasks
+  end
+
   def as_json(_options = {})
     {
       id: id,
@@ -109,6 +140,31 @@ class Plant < ApplicationRecord
       last_fed_at: last_fed_at,
       acquired_at: acquired_at,
       created_at: created_at
+    }
+  end
+
+  private def build_task(kind:, due_on:, target_date:)
+    today = Date.current
+    days_overdue_today = (today - due_on).to_i
+    state = days_overdue_today.positive? ? 'overdue' : 'due_today'
+    label = if days_overdue_today.positive?
+      "#{days_overdue_today} #{'day'.pluralize(days_overdue_today)} overdue"
+    elsif due_on == today
+      'Due today'
+    else
+      due_on.strftime('Due %a %-d %b')
+    end
+
+    {
+      id: "plant-#{id}-#{kind}",
+      kind: kind,
+      plant_id: id,
+      plant_nickname: nickname,
+      personality: species&.personality,
+      due_on: due_on,
+      due_state: state,
+      due_label: label,
+      target_date: target_date
     }
   end
 
@@ -131,6 +187,29 @@ class Plant < ApplicationRecord
   private def set_initial_watered_at
     self.last_watered_at ||= Time.current
   end
+
+  private def check_plant_created_achievements
+    CheckAchievementsJob.perform_later(
+      event: 'plant_created',
+      user_id: user.id,
+      source_type: 'Plant',
+      source_id: id
+    )
+  end
+
+  # User.increment_counter / decrement_counter are atomic SQL operations
+  # — same machinery Rails' built-in counter_cache uses. Direct
+  # counter_cache: true would have been ideal, but Plant -> Space -> User
+  # is a through-association which counter_cache doesn't support.
+  # rubocop:disable Rails/SkipsModelValidations -- atomic counter, no validations needed
+  private def increment_user_plants_count
+    User.increment_counter(:plants_count, user.id)
+  end
+
+  private def decrement_user_plants_count
+    User.decrement_counter(:plants_count, user.id)
+  end
+  # rubocop:enable Rails/SkipsModelValidations
 
   # Reads env from the plant's space — Space#after_update re-saves every
   # plant in the space when its env changes, so each plant runs through

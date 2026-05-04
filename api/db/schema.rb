@@ -10,10 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_30_201420) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_03_144943) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
+
+  create_table "achievements", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "earned_at", null: false
+    t.string "kind", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "seen_at"
+    t.bigint "source_id"
+    t.string "source_type"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["earned_at"], name: "index_achievements_on_earned_at"
+    t.index ["source_type", "source_id"], name: "index_achievements_on_source_type_and_source_id"
+    t.index ["user_id", "kind", "source_type", "source_id"], name: "index_achievements_on_user_kind_source", unique: true, nulls_not_distinct: true
+    t.index ["user_id", "seen_at"], name: "index_achievements_on_user_id_and_seen_at"
+    t.index ["user_id"], name: "index_achievements_on_user_id"
+  end
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
@@ -171,18 +188,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_30_201420) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.integer "care_logs_count", default: 0, null: false
     t.datetime "created_at", null: false
+    t.integer "current_care_streak_days", default: 0, null: false
+    t.integer "current_login_streak_days", default: 0, null: false
     t.string "email", null: false
+    t.date "last_care_logged_on"
+    t.date "last_login_on"
+    t.decimal "latitude", precision: 9, scale: 6
+    t.string "location_label"
+    t.integer "longest_care_streak_days", default: 0, null: false
+    t.integer "longest_login_streak_days", default: 0, null: false
+    t.decimal "longitude", precision: 9, scale: 6
     t.string "name", null: false
     t.datetime "onboarding_completed_at"
     t.string "onboarding_intent"
     t.integer "onboarding_step_reached", default: 0, null: false
     t.string "password_digest", null: false
+    t.integer "plants_count", default: 0, null: false
     t.string "timezone", default: "UTC"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "achievements", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "care_logs", "plants"

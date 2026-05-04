@@ -28,7 +28,7 @@ describe('useNotifications hooks', () => {
     it('fetches /api/v1/notifications and exposes the parsed payload', async () => {
       apiGet.mockResolvedValue({
         unread_count: 3,
-        notifications: [{ id: 1, kind: 'milestone', title: '30 days with Wilty' }],
+        notifications: [{ id: 1, kind: 'achievement', title: '30 days with Wilty' }],
       })
       const { result } = renderHook(() => useNotifications(), { wrapper: makeWrapper() })
 

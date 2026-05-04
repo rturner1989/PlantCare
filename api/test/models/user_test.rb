@@ -2,6 +2,7 @@
 
 require 'test_helper'
 
+# rubocop:disable Rails/SkipsModelValidations -- update_columns seeds cached streak counters under test
 class UserTest < ActiveSupport::TestCase
   test 'valid user' do
     user = User.new(email: 'test@example.com', name: 'Test', password: 'greenthumb99',
@@ -168,4 +169,131 @@ class UserTest < ActiveSupport::TestCase
   test 'USER_INTENT_LABELS exposes the four canonical options' do
     assert_equal [:forgetful, :just_starting, :sick_plant, :browsing], User::USER_INTENT_LABELS.keys
   end
+
+  test 'current_care_streak_days returns 0 when user has no plants' do
+    user = User.create!(email: 'streaker@test.com', name: 'Streaker', password: 'greenthumb99')
+    assert_equal 0, user.current_care_streak_days
+    assert_equal 0, user.longest_care_streak_days
+  end
+
+  # Streak counters are cached columns now (maintained by callbacks).
+  # Tests that seed historical care_logs with backdated performed_at
+  # values call recompute_aggregates! to walk the raw data and populate
+  # the cache. Live writes (a fresh CareLog#create) update the cache
+  # incrementally via User#bump_care_streak_for_today!.
+
+  test 'recompute_aggregates! sets current_streak to the consecutive-days count ending today' do
+    user = users(:john)
+    plant = user.plants.first
+    CareLog.where(plant: user.plants).destroy_all
+    [Date.current, Date.current - 1, Date.current - 2].each do |date|
+      plant.care_logs.create!(care_type: 'watering', performed_at: date.to_time + 9.hours)
+    end
+    user.recompute_aggregates!
+    assert_equal 3, user.current_care_streak_days
+  end
+
+  test 'recompute_aggregates! allows yesterday as the most recent date' do
+    user = users(:john)
+    plant = user.plants.first
+    CareLog.where(plant: user.plants).destroy_all
+    [Date.current - 1, Date.current - 2].each do |date|
+      plant.care_logs.create!(care_type: 'watering', performed_at: date.to_time + 9.hours)
+    end
+    user.recompute_aggregates!
+    assert_equal 2, user.current_care_streak_days
+  end
+
+  test 'recompute_aggregates! returns 0 when most recent care log is older than yesterday' do
+    user = users(:john)
+    plant = user.plants.first
+    CareLog.where(plant: user.plants).destroy_all
+    plant.care_logs.create!(care_type: 'watering', performed_at: (Date.current - 5).to_time + 9.hours)
+    user.recompute_aggregates!
+    assert_equal 0, user.current_care_streak_days
+  end
+
+  test 'recompute_aggregates! finds the longest historical run' do
+    user = users(:john)
+    plant = user.plants.first
+    CareLog.where(plant: user.plants).destroy_all
+    five_day_run = (10..14).map { |offset| Date.current - offset }
+    two_day_run = [Date.current - 1, Date.current]
+    (five_day_run + two_day_run).each do |date|
+      plant.care_logs.create!(care_type: 'watering', performed_at: date.to_time + 9.hours)
+    end
+    user.recompute_aggregates!
+    assert_equal 5, user.longest_care_streak_days
+    assert_equal 2, user.current_care_streak_days
+  end
+
+  test 'bump_care_streak_for_today! increments when last_care_logged_on was yesterday' do
+    user = users(:john)
+    user.update_columns(current_care_streak_days: 5, longest_care_streak_days: 5, last_care_logged_on: Date.current - 1)
+    user.bump_care_streak_for_today!
+    assert_equal 6, user.current_care_streak_days
+    assert_equal 6, user.longest_care_streak_days
+    assert_equal Date.current, user.last_care_logged_on
+  end
+
+  test 'bump_care_streak_for_today! is a no-op when last_care_logged_on is today' do
+    user = users(:john)
+    user.update_columns(current_care_streak_days: 5, longest_care_streak_days: 5, last_care_logged_on: Date.current)
+    user.bump_care_streak_for_today!
+    assert_equal 5, user.current_care_streak_days
+  end
+
+  test 'bump_care_streak_for_today! resets to 1 when there is a gap' do
+    user = users(:john)
+    user.update_columns(current_care_streak_days: 5, longest_care_streak_days: 5, last_care_logged_on: Date.current - 3)
+    user.bump_care_streak_for_today!
+    assert_equal 1, user.current_care_streak_days
+    assert_equal 5, user.longest_care_streak_days
+  end
+
+  test 'mark_logged_in_today! increments when last_login_on was yesterday' do
+    user = users(:john)
+    user.update_columns(current_login_streak_days: 3, longest_login_streak_days: 3, last_login_on: Date.current - 1)
+    user.mark_logged_in_today!
+    assert_equal 4, user.current_login_streak_days
+    assert_equal 4, user.longest_login_streak_days
+    assert_equal Date.current, user.last_login_on
+  end
+
+  test 'mark_logged_in_today! is a no-op when last_login_on is today (multi-login same day)' do
+    user = users(:john)
+    user.update_columns(current_login_streak_days: 7, longest_login_streak_days: 7, last_login_on: Date.current)
+    user.mark_logged_in_today!
+    assert_equal 7, user.current_login_streak_days
+  end
+
+  test 'mark_logged_in_today! resets to 1 when there is a gap' do
+    user = users(:john)
+    user.update_columns(current_login_streak_days: 7, longest_login_streak_days: 7, last_login_on: Date.current - 5)
+    user.mark_logged_in_today!
+    assert_equal 1, user.current_login_streak_days
+    assert_equal 7, user.longest_login_streak_days
+  end
+
+  test 'effective_current_login_streak_days returns 0 when last_login_on older than yesterday' do
+    user = users(:john)
+    user.update_columns(current_login_streak_days: 7, last_login_on: Date.current - 3)
+    assert_equal 0, user.effective_current_login_streak_days
+  end
+
+  test 'effective_current_login_streak_days returns cached value when last_login_on is today or yesterday' do
+    user = users(:john)
+    user.update_columns(current_login_streak_days: 7, last_login_on: Date.current)
+    assert_equal 7, user.effective_current_login_streak_days
+
+    user.update_columns(current_login_streak_days: 7, last_login_on: Date.current - 1)
+    assert_equal 7, user.effective_current_login_streak_days
+  end
+
+  test 'effective_current_care_streak_days returns 0 when last_care_logged_on older than yesterday' do
+    user = users(:john)
+    user.update_columns(current_care_streak_days: 5, last_care_logged_on: Date.current - 3)
+    assert_equal 0, user.effective_current_care_streak_days
+  end
 end
+# rubocop:enable Rails/SkipsModelValidations

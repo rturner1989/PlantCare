@@ -4,7 +4,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { useNotificationsContext } from '../../hooks/useNotificationsContext'
 import Action from '../ui/Action'
 
-export default function BellButton({ size = 'sm' }) {
+export default function NotificationsTrigger({ size = 'sm' }) {
   const { openDrawer } = useNotificationsContext()
   const { data } = useNotifications()
   const unread = data?.unread_count ?? 0

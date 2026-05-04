@@ -15,7 +15,8 @@ import { NavLink } from 'react-router-dom'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
 import Logo from './Logo'
-import BellButton from './notifications/BellButton'
+import NotificationsTrigger from './notifications/NotificationsTrigger'
+import OrganiserTrigger from './organiser/OrganiserTrigger'
 import Action from './ui/Action'
 import Avatar from './ui/Avatar'
 
@@ -175,7 +176,10 @@ function Body({ user, onLogout, onClose }) {
             <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
           </Action>
         ) : (
-          <BellButton />
+          <div className="flex items-center gap-1.5">
+            <OrganiserTrigger />
+            <NotificationsTrigger />
+          </div>
         )}
       </div>
 
@@ -317,7 +321,7 @@ export default function Sidebar({ isFirstRun = false, isOpen = false, onClose })
   return (
     <>
       <motion.aside
-        className="hidden desktop:flex flex-col w-[260px] h-dvh bg-paper border-r border-paper-edge fixed left-0 top-0 z-40"
+        className="hidden desktop:flex flex-col w-[260px] h-dvh bg-paper shadow-warm-md border-r border-paper-edge/50 fixed left-0 top-0 z-40"
         variants={revealVariants}
         initial={shouldAnimateReveal ? 'hidden' : false}
         animate={shouldAnimateReveal ? 'visible' : false}
@@ -326,7 +330,7 @@ export default function Sidebar({ isFirstRun = false, isOpen = false, onClose })
       </motion.aside>
 
       <motion.aside
-        className="hidden md:flex desktop:hidden flex-col w-[64px] h-dvh bg-paper border-r border-paper-edge fixed left-0 top-0 z-40"
+        className="hidden md:flex desktop:hidden flex-col w-[64px] h-dvh bg-paper shadow-warm-md border-r border-paper-edge/50 fixed left-0 top-0 z-40"
         variants={revealVariants}
         initial={shouldAnimateReveal ? 'hidden' : false}
         animate={shouldAnimateReveal ? 'visible' : false}
@@ -349,7 +353,7 @@ export default function Sidebar({ isFirstRun = false, isOpen = false, onClose })
               role="dialog"
               aria-modal="true"
               aria-label="Navigation menu"
-              className="hidden xs:flex md:hidden flex-col w-[260px] h-dvh bg-paper border-r border-paper-edge fixed left-0 top-0 z-50"
+              className="hidden xs:flex md:hidden flex-col w-[260px] h-dvh bg-paper shadow-warm-md border-r border-paper-edge/50 fixed left-0 top-0 z-50"
               {...drawerMotion}
             >
               <Body user={user} onLogout={handleLogout} onClose={onClose} />

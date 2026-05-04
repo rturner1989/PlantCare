@@ -4,16 +4,27 @@
 #
 # Table name: users
 #
-#  id                      :bigint           not null, primary key
-#  email                   :string           not null
-#  name                    :string           not null
-#  onboarding_completed_at :datetime
-#  onboarding_intent       :string
-#  onboarding_step_reached :integer          default(0), not null
-#  password_digest         :string           not null
-#  timezone                :string           default("UTC")
-#  created_at              :datetime         not null
-#  updated_at              :datetime         not null
+#  id                        :bigint           not null, primary key
+#  care_logs_count           :integer          default(0), not null
+#  current_care_streak_days  :integer          default(0), not null
+#  current_login_streak_days :integer          default(0), not null
+#  email                     :string           not null
+#  last_care_logged_on       :date
+#  last_login_on             :date
+#  latitude                  :decimal(9, 6)
+#  location_label            :string
+#  longest_care_streak_days  :integer          default(0), not null
+#  longest_login_streak_days :integer          default(0), not null
+#  longitude                 :decimal(9, 6)
+#  name                      :string           not null
+#  onboarding_completed_at   :datetime
+#  onboarding_intent         :string
+#  onboarding_step_reached   :integer          default(0), not null
+#  password_digest           :string           not null
+#  plants_count              :integer          default(0), not null
+#  timezone                  :string           default("UTC")
+#  created_at                :datetime         not null
+#  updated_at                :datetime         not null
 #
 # Indexes
 #
@@ -59,6 +70,7 @@ class User < ApplicationRecord
   has_many :refresh_tokens, dependent: :destroy
   has_many :password_reset_tokens, dependent: :destroy
   has_many :notifications, as: :recipient, class_name: 'Noticed::Notification', dependent: :destroy
+  has_many :achievements, dependent: :destroy
 
   # validate: { allow_nil: true } turns an invalid assignment into a 422 validation
   # error instead of the default ArgumentError that would surface as a 500. allow_nil
@@ -101,32 +113,84 @@ class User < ApplicationRecord
     overdue: 25
   }.freeze
 
-  def current_streak_days
-    return 0 unless plants.exists?
+  # Cached aggregate columns maintained by callbacks (Plant + CareLog +
+  # auth touch). Reads are O(1). If the cache ever drifts (manual SQL
+  # inserts, fixture loads, etc.), call recompute_aggregates! to rebuild
+  # from raw data. Login streak has no raw source — it's tracked solely
+  # through the touch path, so recompute leaves it alone.
+  def recompute_aggregates!
+    # rubocop:disable Rails/SkipsModelValidations -- cached aggregate columns
+    update_columns(
+      plants_count: plants.count,
+      care_logs_count: care_logs.count,
+      current_care_streak_days: recompute_current_care_streak,
+      longest_care_streak_days: recompute_longest_care_streak,
+      last_care_logged_on: distinct_care_log_dates.last
+    )
+    # rubocop:enable Rails/SkipsModelValidations
+  end
 
-    dates = care_logs
-            .where.not(performed_at: nil)
-            .pluck(Arel.sql('DISTINCT DATE(performed_at)'))
-            .sort
-            .reverse
-    return 0 if dates.empty?
+  # Bumps care streak based on `last_care_logged_on` vs today.
+  # Called from CareLog#after_create_commit. O(1) — never scans care_logs.
+  def bump_care_streak_for_today!
+    new_streak = compute_bumped_streak(current_care_streak_days, last_care_logged_on)
+    # rubocop:disable Rails/SkipsModelValidations -- cached aggregate columns
+    update_columns(
+      current_care_streak_days: new_streak,
+      longest_care_streak_days: [longest_care_streak_days, new_streak].max,
+      last_care_logged_on: Date.current
+    )
+    # rubocop:enable Rails/SkipsModelValidations
+  end
 
-    today = Date.current
-    expected = if dates.first == today
-      today
-    elsif dates.first == today - 1
-      today - 1
+  # Bumps login streak based on `last_login_on` vs today. Called from
+  # BaseController#touch_user_login on the first authenticated request
+  # of each calendar day (refresh-token-driven sessions count too —
+  # any user-driven authenticated request triggers it).
+  def mark_logged_in_today!
+    return if last_login_on == Date.current
+
+    new_streak = compute_bumped_streak(current_login_streak_days, last_login_on)
+    # rubocop:disable Rails/SkipsModelValidations -- cached aggregate columns
+    update_columns(
+      current_login_streak_days: new_streak,
+      longest_login_streak_days: [longest_login_streak_days, new_streak].max,
+      last_login_on: Date.current
+    )
+    # rubocop:enable Rails/SkipsModelValidations
+  end
+
+  # Lazy-decay accessor: returns 0 if the cached streak has staled past
+  # the gap threshold (last activity was older than yesterday). Use this
+  # for display + dashboard payloads. Achievement conditions can read
+  # the raw column since they're checked at bump time when cache is
+  # fresh.
+  def effective_current_care_streak_days
+    return 0 unless last_care_logged_on
+    return 0 if last_care_logged_on < Date.current - 1
+
+    current_care_streak_days
+  end
+
+  def effective_current_login_streak_days
+    return 0 unless last_login_on
+    return 0 if last_login_on < Date.current - 1
+
+    current_login_streak_days
+  end
+
+  # Coordinates the weather backend should query for this user. Falls
+  # back to Greenwich (51.4779, -0.0015) when the user hasn't set a
+  # location — gives weather widgets something to render rather than a
+  # null state. Onboarding can collect a real location later.
+  GREENWICH_FALLBACK = { latitude: 51.4779, longitude: -0.0015, label: 'Greenwich (default)' }.freeze
+
+  def weather_location
+    if latitude.present? && longitude.present?
+      { latitude: latitude.to_f, longitude: longitude.to_f, label: location_label.presence || 'Your location' }
+    else
+      GREENWICH_FALLBACK
     end
-    return 0 unless expected
-
-    streak = 0
-    dates.each do |date|
-      break unless date == expected
-
-      streak += 1
-      expected -= 1
-    end
-    streak
   end
 
   def unread_notifications_count
@@ -144,6 +208,14 @@ class User < ApplicationRecord
     (scored.sum.to_f / scored.size).round
   end
 
+  # Care tasks (water + feed) due on or before the given date across
+  # every plant the user owns. Drives the Today rituals card; pass
+  # Date.current for "today's rituals" or any date the calendar
+  # selects.
+  def tasks_on(date)
+    plants.includes(:space, :species).flat_map { |plant| plant.tasks_on(date) }
+  end
+
   def as_json(_options = {})
     {
       id: id,
@@ -152,7 +224,10 @@ class User < ApplicationRecord
       timezone: timezone,
       onboarded: onboarded?,
       onboarding_intent: onboarding_intent,
-      onboarding_step_reached: onboarding_step_reached
+      onboarding_step_reached: onboarding_step_reached,
+      latitude: latitude&.to_f,
+      longitude: longitude&.to_f,
+      location_label: location_label
     }
   end
 
@@ -170,5 +245,63 @@ class User < ApplicationRecord
 
   private def password_not_common
     errors.add(:password, :too_common) if COMMON_PASSWORDS.include?(password.downcase)
+  end
+
+  # Sorted (asc) array of distinct dates this user has care-logged on.
+  # Used by recompute_aggregates! to rebuild cached columns from raw data.
+  private def distinct_care_log_dates
+    care_logs
+      .where.not(performed_at: nil)
+      .pluck(Arel.sql('DISTINCT DATE(performed_at)'))
+      .sort
+  end
+
+  # Shared bump logic for any streak (care or login). Returns the new
+  # streak value based on the last-activity date relative to today.
+  private def compute_bumped_streak(current, last_date)
+    today = Date.current
+    return current if last_date == today # same-day, no change
+    return current + 1 if last_date == today - 1 # consecutive day, +1
+
+    1 # gap → reset
+  end
+
+  private def recompute_current_care_streak
+    dates = distinct_care_log_dates
+    return 0 if dates.empty?
+
+    today = Date.current
+    expected = if dates.last == today
+      today
+    elsif dates.last == today - 1
+      today - 1
+    end
+    return 0 unless expected
+
+    streak = 0
+    dates.reverse_each do |date|
+      break unless date == expected
+
+      streak += 1
+      expected -= 1
+    end
+    streak
+  end
+
+  private def recompute_longest_care_streak
+    dates = distinct_care_log_dates
+    return 0 if dates.empty?
+
+    longest = 1
+    current = 1
+    dates.each_cons(2) do |earlier, later|
+      if later == earlier + 1
+        current += 1
+        longest = current if current > longest
+      else
+        current = 1
+      end
+    end
+    longest
   end
 end

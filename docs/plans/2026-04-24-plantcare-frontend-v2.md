@@ -1427,7 +1427,7 @@ Explicit scope-out — work logged but not in this plan:
 - Phase 2: Weather-driven watering (skip-rain), frost alerts, calendar weather overlay (Journal Schedule → full forecast).
 - Phase 2: AI plant recognition (camera-first Add Plant).
 - Phase 2: Push notifications (Web Push).
-- Phase 2.5: AI helper bot (LLM, Claude API). Plant-voiced journal entries. Per-plant rotation.
+- Phase 2.5: TBD AI helper layer (Claude API). Plant-voiced framing retired 2026-05-03 (see memory `project_voice_removed_from_plan.md`). Redesign before scoping.
 - Phase 3: Dollhouse / Habitat 3D view (name TBD). Three.js.
 - Phase 3: Community gateway via Journal opt-in sharing.
 - Phase 3: Soil moisture probes + device pairing in Me.
