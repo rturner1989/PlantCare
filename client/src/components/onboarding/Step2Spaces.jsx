@@ -81,6 +81,13 @@ export default function Step2Spaces({ onBack, onComplete }) {
     return Array.from(new Set([...serverCustomNames, ...pendingNames]))
   }, [allSpaces, pendingCustom, presets, presetsLoaded])
 
+  const customIconByName = useMemo(() => {
+    const map = new Map()
+    for (const space of allSpaces) map.set(space.name, space.icon)
+    for (const entry of pendingCustom) map.set(entry.name, entry.icon)
+    return map
+  }, [allSpaces, pendingCustom])
+
   const selectedSpaceSet = useMemo(() => new Set(selectedSpaces), [selectedSpaces])
 
   function toggleSpace(spaceName) {
@@ -210,7 +217,7 @@ export default function Step2Spaces({ onBack, onComplete }) {
                       transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: [0.33, 1, 0.68, 1] }}
                     >
                       <Tile
-                        icon="✨"
+                        icon={getSpaceEmoji(customIconByName.get(space)) ?? '✨'}
                         selected={selectedSpaces.includes(space)}
                         onClick={() => toggleSpace(space)}
                         onRemove={canRemoveCustom(space) ? () => handleRemoveCustom(space) : undefined}
