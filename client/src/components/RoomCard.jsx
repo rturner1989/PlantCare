@@ -29,10 +29,7 @@ export default function RoomCard({
 
   return (
     <Action variant="unstyled" onClick={onClick} className="block w-full h-full text-left">
-      <Card
-        variant="paper-warm"
-        className="h-full min-h-[200px] p-4 gap-2.5 hover:shadow-warm-md transition-shadow"
-      >
+      <Card variant="paper-warm" className="h-full min-h-[200px] p-4 gap-2.5 hover:shadow-warm-md transition-shadow">
         <Card.Header divider={false} className="flex items-start gap-2.5">
           <span
             aria-hidden="true"
@@ -127,11 +124,7 @@ function SummaryRow({ icon, text, overdue = false }) {
       >
         {icon}
       </span>
-      {overdue ? (
-        <em className="font-display italic text-coral-deep font-medium">{text}</em>
-      ) : (
-        <span>{text}</span>
-      )}
+      {overdue ? <em className="font-display italic text-coral-deep font-medium">{text}</em> : <span>{text}</span>}
     </p>
   )
 }

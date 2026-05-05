@@ -39,12 +39,7 @@ describe('RoomCard', () => {
   })
 
   it('renders the next-care label as overdue (Fraunces italic) when overdue is true', () => {
-    render(
-      <RoomCard
-        {...baseProps}
-        nextCare={{ icon: '💧', label: 'Monty · 3 days overdue', overdue: true }}
-      />,
-    )
+    render(<RoomCard {...baseProps} nextCare={{ icon: '💧', label: 'Monty · 3 days overdue', overdue: true }} />)
     const overdue = screen.getByText('Monty · 3 days overdue')
     expect(overdue.tagName.toLowerCase()).toBe('em')
   })

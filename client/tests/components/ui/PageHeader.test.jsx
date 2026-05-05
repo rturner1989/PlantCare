@@ -19,11 +19,7 @@ describe('PageHeader', () => {
   })
 
   it('renders the meta line when provided', () => {
-    render(
-      <PageHeader meta="12 plants · 5 spaces">
-        Browse your plants
-      </PageHeader>,
-    )
+    render(<PageHeader meta="12 plants · 5 spaces">Browse your plants</PageHeader>)
     expect(screen.getByText('12 plants · 5 spaces')).toBeInTheDocument()
   })
 
@@ -33,11 +29,7 @@ describe('PageHeader', () => {
   })
 
   it('renders the actions slot when provided', () => {
-    render(
-      <PageHeader actions={<button type="button">View toggle</button>}>
-        Browse your plants
-      </PageHeader>,
-    )
+    render(<PageHeader actions={<button type="button">View toggle</button>}>Browse your plants</PageHeader>)
     expect(screen.getByRole('button', { name: 'View toggle' })).toBeInTheDocument()
   })
 

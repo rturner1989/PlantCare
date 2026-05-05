@@ -1,8 +1,8 @@
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useMemo, useState } from 'react'
-import RoomCard from '../components/RoomCard'
 import SegmentedControl from '../components/form/SegmentedControl'
+import RoomCard from '../components/RoomCard'
 import AddCustomSpaceForm from '../components/spaces/AddCustomSpaceForm'
 import Action from '../components/ui/Action'
 import EmptyState from '../components/ui/EmptyState'
@@ -11,8 +11,8 @@ import Spinner from '../components/ui/Spinner'
 import { usePlants } from '../hooks/usePlants'
 import { useCreateSpace, useSpaces, useUpdateSpace } from '../hooks/useSpaces'
 import { useWeather } from '../hooks/useWeather'
-import { getSpaceEmoji } from '../utils/spaceIcons'
 import { pluralize } from '../utils/pluralize'
+import { getSpaceEmoji } from '../utils/spaceIcons'
 
 const VIEW_OPTIONS = [
   { value: 'rooms', label: 'Rooms', icon: '⊞' },
@@ -133,13 +133,7 @@ export default function House() {
         eyebrow="Your greenhouse"
         meta={meta}
         actions={
-          <SegmentedControl
-            label="View as"
-            labelHidden
-            value={view}
-            onChange={setView}
-            options={VIEW_OPTIONS}
-          />
+          <SegmentedControl label="View as" labelHidden value={view} onChange={setView} options={VIEW_OPTIONS} />
         }
       >
         Browse your <em className="text-emerald">plants</em>

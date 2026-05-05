@@ -13,12 +13,12 @@ import {
 } from '../../hooks/useSpaces'
 import { getSpaceEmoji } from '../../utils/spaceIcons'
 import Tile from '../form/Tile'
+import AddCustomSpaceForm from '../spaces/AddCustomSpaceForm'
 import Card from '../ui/Card'
 import Emphasis from '../ui/Emphasis'
 import Heading from '../ui/Heading'
 import StepTip from './shared/StepTip'
 import WizardActions from './shared/WizardActions'
-import AddCustomSpaceForm from '../spaces/AddCustomSpaceForm'
 
 const CATEGORY_LABELS = {
   indoor: { emoji: '🏠', label: 'Indoor' },

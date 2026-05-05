@@ -1,14 +1,7 @@
 import Heading from './Heading'
 import Preheading from './Preheading'
 
-export default function PageHeader({
-  eyebrow,
-  meta,
-  actions,
-  headingVariant = 'display',
-  className = '',
-  children,
-}) {
+export default function PageHeader({ eyebrow, meta, actions, headingVariant = 'display', className = '', children }) {
   return (
     <header className={`flex items-end justify-between gap-4 flex-wrap ${className}`}>
       <div className="flex flex-col min-w-0">

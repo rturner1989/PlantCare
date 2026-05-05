@@ -18,11 +18,7 @@ function formatToday() {
 
 export default function TodayHeader({ firstName }) {
   return (
-    <PageHeader
-      eyebrow={`${getGreeting()} · ${formatToday()}`}
-      headingVariant="display-lg"
-      actions={<StreakStat />}
-    >
+    <PageHeader eyebrow={`${getGreeting()} · ${formatToday()}`} headingVariant="display-lg" actions={<StreakStat />}>
       Hi, <span className="text-emerald">{firstName ?? 'there'}</span>
     </PageHeader>
   )
