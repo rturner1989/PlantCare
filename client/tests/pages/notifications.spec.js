@@ -5,23 +5,34 @@ import { completeOnboarding, registerUser } from '../helpers/onboarding'
 // Triggers Noticed events server-side via rails runner so the drawer
 // has real data to show. CI runs Rails natively (no docker compose);
 // local dev runs via the `api` compose service.
+//
+// Sidekiq::Testing.inline! makes plant creation + achievement triggers
+// + notifier delivery run synchronously inside the runner — without it,
+// space.plants.create! enqueues the first-plant achievement check
+// async, the notification arrives AFTER destroy_all, and the test sees
+// 4 unread instead of 3.
 function seedMilestonesForUser(email, count) {
   const script = `
-user = User.find_by(email: '${email}')
-user.notifications.destroy_all
-user.achievements.where(kind: 'plant_anniversary').destroy_all
-space = user.spaces.first
-species = Species.first || Species.create!(common_name: 'Test', watering_frequency_days: 7, feeding_frequency_days: 30, personality: 'chill')
-plant = space.plants.first || space.plants.create!(nickname: 'Wilty', species: species)
-${count}.times do |i|
-  AchievementNotifier.with(
-    record: plant,
-    achievement_id: i + 1,
-    title: 'Achievement unlocked',
-    label: "#{30 + i} days with Wilty",
-    emoji: '🏆',
-    url: "/plants/#{plant.id}"
-  ).deliver(user)
+require 'sidekiq/testing'
+
+Sidekiq::Testing.inline! do
+  user = User.find_by(email: '${email}')
+  space = user.spaces.first
+  species = Species.first || Species.create!(common_name: 'Test', watering_frequency_days: 7, feeding_frequency_days: 30, personality: 'chill')
+  plant = space.plants.first || space.plants.create!(nickname: 'Wilty', species: species)
+  user.notifications.reload.destroy_all
+  user.achievements.where(kind: 'plant_anniversary').destroy_all
+
+  ${count}.times do |i|
+    AchievementNotifier.with(
+      record: plant,
+      achievement_id: i + 1,
+      title: 'Achievement unlocked',
+      label: "#{30 + i} days with Wilty",
+      emoji: '🏆',
+      url: "/plants/#{plant.id}"
+    ).deliver(user)
+  end
 end
 `
   const command = process.env.CI ? 'cd ../api && bin/rails runner -' : 'docker compose exec -T api bin/rails runner -'
