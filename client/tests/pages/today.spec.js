@@ -1,6 +1,52 @@
 import { expect, test } from '@playwright/test'
 import { completeOnboarding, registerUser } from '../helpers/onboarding'
 
+// Walks the wizard with a single seeded plant so the dashboard renders
+// the WeekCard / Highlights / PlantsRow surfaces instead of the
+// zero-plants empty state. Used by the WeekStrip + plants-row specs.
+async function registerWithOnePlant(page, name = 'Sprout') {
+  await registerUser(page, name)
+  // Step 0 → Step 1
+  await page.getByRole('button', { name: /Let's meet them/i }).click()
+  await page
+    .getByRole('radiogroup', { name: 'Onboarding intent' })
+    .getByText(/Forgetful/i)
+    .click()
+  await page.getByRole('button', { name: /^Continue/i }).click()
+  // Step 2 — Living Room
+  await page.getByRole('checkbox', { name: /Living Room/i }).click()
+  await page.getByRole('button', { name: /^Continue/i }).click()
+  // Step 3 — pick the seeded Snake Plant tile, override nickname, confirm.
+  await expect(page.getByRole('heading', { level: 1, name: /Meet your plants/i })).toBeVisible()
+  await page
+    .getByRole('button', { name: /Snake Plant/i })
+    .first()
+    .click()
+  await page.getByLabel('Nickname').fill('Spike')
+  await page.getByRole('button', { name: /^Add plant$/i }).click()
+  await page.getByRole('button', { name: /Continue with 1 plant/i }).click()
+  await expect(page).toHaveURL(/\/welcome\/environment$/)
+
+  // Step 4 Environment — accept defaults.
+  await expect(page.getByRole('heading', { level: 1, name: /How do your spaces feel/i })).toBeVisible()
+  await page.getByRole('button', { name: /^Continue/i }).click()
+  await expect(page).toHaveURL(/\/welcome\/stakes$/)
+
+  // Step 5 Stakes.
+  await expect(page.getByRole('heading', { level: 1, name: /This is your streak/i })).toBeVisible()
+  await page.getByRole('button', { name: /^Continue/i }).click()
+  await expect(page).toHaveURL(/\/welcome\/journal$/)
+
+  // Step 6 Journal.
+  await expect(page.getByRole('heading', { level: 1, name: /Meet the journal/i })).toBeVisible()
+  await page.getByRole('button', { name: /^Continue/i }).click()
+  await expect(page).toHaveURL(/\/welcome\/done$/)
+
+  // Step 7 done.
+  await page.getByRole('button', { name: /Enter your greenhouse/i }).click()
+  await expect(page).toHaveURL('/')
+}
+
 test.describe('Today dashboard', () => {
   test('greets a brand-new user and invites them to add their first plant', async ({ page }) => {
     await registerUser(page, 'Robin')
@@ -18,5 +64,37 @@ test.describe('Today dashboard', () => {
   test('unauthenticated visit redirects to login', async ({ page }) => {
     await page.goto('/')
     await expect(page).toHaveURL(/\/login$/)
+  })
+
+  test('week strip renders seven day chips and selecting a future day swaps the rituals heading', async ({ page }) => {
+    await registerWithOnePlant(page)
+
+    // WeekStrip exposes each day as a button with an aria-label that
+    // includes the weekday + date + count summary. "today" appears on
+    // exactly one chip.
+    const todayChip = page.getByRole('button', { name: /today/ })
+    await expect(todayChip).toBeVisible()
+    await expect(todayChip).toHaveAttribute('aria-pressed', 'true')
+
+    // Default heading on the rituals slab is "Today's rituals".
+    await expect(page.getByRole('heading', { name: /Today's rituals/ })).toBeVisible()
+
+    // Pick a future day — the chip whose aria-label contains a weekday
+    // but NOT "today". WeekStrip renders today + 6 forward days, so any
+    // non-today chip is in the future.
+    const futureChips = page.getByRole('button', { name: /^(?!.*today).*(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/ })
+    await futureChips.first().click()
+
+    // Heading updates to "Rituals · {Weekday} {date} {month}".
+    await expect(page.getByRole('heading', { name: /Rituals · / })).toBeVisible()
+    // Future-day empty state when nothing's scheduled.
+    await expect(page.getByText(/Nothing scheduled/)).toBeVisible()
+  })
+
+  test('plants row shows the seeded plant tile alongside the Add-a-plant CTA', async ({ page }) => {
+    await registerWithOnePlant(page)
+
+    await expect(page.getByText(/^Spike$/)).toBeVisible()
+    await expect(page.getByRole('link', { name: /Add plant/i })).toBeVisible()
   })
 })
