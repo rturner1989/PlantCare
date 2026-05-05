@@ -1,7 +1,7 @@
 import { faClock, faDroplet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { getDaysDisplay } from '../utils/careStatus'
-import PlantAvatar from './PlantAvatar'
+import PlantAvatar from './plants/Avatar'
 import Action from './ui/Action'
 
 export default function HeroCard({ plant, onWater }) {

@@ -1,6 +1,6 @@
 import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import PlantAvatar from './PlantAvatar'
+import PlantAvatar from './plants/Avatar'
 import Action from './ui/Action'
 
 // Keys match backend care_logs.action values — rename-safe for telemetry later.

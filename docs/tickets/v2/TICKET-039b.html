@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-039b — R3b House List view + plant rows + filter chip + search</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #f5f5f0;
+  color: #1a1a1a;
+  padding: 40px;
+  line-height: 1.6;
+}
+.ticket {
+  max-width: 960px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 32px 40px;
+}
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #666;
+  margin-bottom: 16px;
+}
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+
+.plan-strip {
+  display: flex;
+  gap: 4px;
+  margin: 16px 0 20px;
+  flex-wrap: wrap;
+}
+.plan-step {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 8px;
+  text-align: center;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f0f0ea;
+  color: #888;
+  border: 1px solid transparent;
+}
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact {
+  padding: 14px 18px;
+  background: #f8faf8;
+  border-left: 3px solid #2d6a4f;
+  border-radius: 0 8px 8px 0;
+}
+.artifact .name {
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: #1a1a2e;
+  color: #fff;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.artifact .kind.component { background: #1a1a2e; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.style { background: #6a4a8f; }
+
+.shape {
+  background: #1a1a2e;
+  color: #d4d4d4;
+  border-radius: 8px;
+  padding: 20px 24px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  margin-top: 12px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box {
+  width: 18px; height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.criterion span { font-size: 15px; }
+
+.mockup-preview {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+.mockup-preview iframe {
+  width: 100%;
+  height: 480px;
+  border: none;
+  background: #fff;
+}
+.mockup-preview .label {
+  padding: 10px 14px;
+  background: #f5f5f0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+
+blockquote {
+  border-left: 3px solid #2d6a4f;
+  padding: 12px 16px;
+  margin: 12px 0;
+  background: #f8faf8;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  color: #444;
+}
+code {
+  background: #f0f0ea;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'SF Mono', Consolas, monospace;
+}
+
+.learn {
+  background: #fff8e8;
+  border-left: 3px solid #f4a261;
+  padding: 14px 18px;
+  border-radius: 0 8px 8px 0;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #4a3a1a;
+}
+.learn strong { color: #7a5a1a; }
+
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th {
+  text-align: left;
+  padding: 10px 12px;
+  background: #1a1a2e;
+  color: #fff;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+.rails-map td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+
+.plan-link {
+  display: inline-block;
+  padding: 8px 14px;
+  background: #f0f0ea;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #444;
+  text-decoration: none;
+  margin-top: 8px;
+}
+.plan-link:hover { background: #e6e6de; }
+
+.file-list { list-style: none; padding: 0; }
+.file-list li {
+  padding: 10px 14px;
+  background: #f8f8f5;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}
+.file-list .action {
+  font-family: inherit;
+  font-size: 11px;
+  color: #888;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<div class="header">
+  <div class="id">TICKET-039b</div>
+  <h1>R3b — House List view + plant rows + filter chip + search</h1>
+  <div class="badges">
+    <span class="badge status">Open</span>
+    <span class="badge priority-high">High</span>
+  </div>
+</div>
+
+<section>
+  <h2>Summary</h2>
+  <p>
+    Second slice of the R3 House rework. Replaces the
+    <code>List view ships in TICKET-039b</code> placeholder with the real list:
+    a paper-warm card holding a sticky column header + scrollable body of plant rows
+    grouped by space, with a search input + a "Filtered by {space}" chip when the
+    user arrives from a Rooms-tab card tap.
+  </p>
+  <p>
+    R3a's RoomCard click was stubbed to "jump to List filtered by this space" — this
+    ticket wires that handoff. Add-a-space row at the top of the list reuses R3a's
+    AddCustomSpaceForm dialog. Mobile search expanded drawer ships in R3c.
+  </p>
+  <p>In one sentence: <strong>Build the List tab. Plant rows grouped by space. Search + filter chip + Add-a-space row. Wire the Rooms→List jump.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+
+  <div class="plan-strip">
+    <div class="plan-step done"><span class="num">B1</span>020 Spaces</div>
+    <div class="plan-step done"><span class="num">B4</span>023 Notif</div>
+    <div class="plan-step done"><span class="num">F1</span>027 Tokens</div>
+    <div class="plan-step done"><span class="num">R15</span>051 Auth</div>
+    <div class="plan-step done"><span class="num">R9</span>045 Wizard</div>
+    <div class="plan-step done"><span class="num">R1</span>037 Nav</div>
+    <div class="plan-step done"><span class="num">R8</span>044 Drawer</div>
+    <div class="plan-step done"><span class="num">R14</span>050 Toast</div>
+    <div class="plan-step done"><span class="num">R2</span>038 Today</div>
+    <div class="plan-step done"><span class="num">R3a</span>039a Rooms</div>
+    <div class="plan-step current"><span class="num">R3b</span>039b List</div>
+    <div class="plan-step"><span class="num">R3c</span>039c Search</div>
+    <div class="plan-step"><span class="num">R4</span>040 Detail</div>
+    <div class="plan-step"><span class="num">R5–R13</span>Journal · Doctor</div>
+  </div>
+
+  <p>
+    <strong>What came before:</strong> TICKET-039a (R3a) shipped the page chrome,
+    PageHeader primitive, the SegmentedControl extension (per-option icon + phase
+    chip + density + labelHidden), the Rooms tab with RoomCard primitive (peek strip,
+    weather pill, edit pencil), and the AddCustomSpaceForm dialog with icon picker +
+    edit mode. The List tab is currently a placeholder div.
+  </p>
+
+  <p>
+    <strong>What this unlocks:</strong> R3c (TICKET-039c) adds the mobile search
+    expanded state (a floating drawer that slides in from below MobileTopBar) on top
+    of the search input shipped here. R4 (TICKET-040 Plant Detail) consumes the row
+    click — tapping a row routes to <code>/plants/:id</code>, and Plant Detail picks
+    that up.
+  </p>
+
+  <p>
+    <strong>Mental model:</strong> R3b is Rails' <code>plants/index.html.erb</code>
+    grouped by space — <code>group_by(&amp;:space)</code> + a search box + a "filter
+    by space" chip when the user clicked a space from the rooms grid. The grouping
+    logic that would live in a Rails helper lives in a single <code>useMemo</code>
+    here.
+  </p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <p>One new primitive (PlantRow), one inline section component (ListView), one CSS keyframes utility, plus the House.jsx wiring.</p>
+
+  <div class="artifact-list">
+    <div class="artifact">
+      <span class="kind component">component</span><span class="name">client/src/components/PlantRow.jsx</span>
+      <div class="role">
+        One row in the list. Renders the 40px circular avatar (with coral urgent ring
+        when the plant is overdue), name + species (truncated), next-care label
+        ("3 days overdue" in coral italic / "Due today" / "In 4 days"), and a 20px
+        mood dot (thriving / thirsty / wilting). Whole row is one button — clicking
+        navigates to <code>/plants/:id</code>. Animation on the mood dot respects
+        prefers-reduced-motion.
+      </div>
+    </div>
+
+    <div class="artifact">
+      <span class="kind component">component</span><span class="name">client/src/components/PlantRow.test.jsx</span>
+      <div class="role">
+        Vitest coverage: avatar urgent ring on overdue, mood-dot variant per status,
+        next-care label formatting (overdue / due today / in N days), row click
+        navigates. Skip animation tests (reduced-motion class is what matters).
+      </div>
+    </div>
+
+    <div class="artifact">
+      <span class="kind rewrite">rewrite</span><span class="name">client/src/pages/House.jsx</span>
+      <div class="role">
+        Replace the placeholder div with a real ListView component. Wires search
+        input + filter chip state + the Rooms→List jump (clicking a RoomCard in the
+        Rooms tab now sets <code>filteredSpaceId</code> + flips view to List). Reuse
+        the existing dialogState — Add-a-space row in the list opens the same
+        AddCustomSpaceForm.
+      </div>
+    </div>
+
+    <div class="artifact">
+      <span class="kind style">style</span><span class="name">client/src/globals.css</span>
+      <div class="role">
+        Add two <code>@utility</code> blocks for mood-dot animation —
+        <code>@utility mood-breathe</code> (4s ease-in-out infinite for thriving +
+        thirsty) and <code>@utility mood-pulse</code> (1.6s ease-in-out infinite
+        with coral box-shadow ripple for wilting). Keyframes already defined in
+        mockup 21 — port verbatim. Wrap in <code>@media (prefers-reduced-motion:
+        reduce)</code> guards.
+      </div>
+    </div>
+
+    <div class="artifact">
+      <span class="kind extend">extend</span><span class="name">client/tests/pages/house.spec.js</span>
+      <div class="role">
+        Add Playwright cases: List view renders seeded plants grouped by space,
+        clicking a Rooms-tab card lands on List view filtered by that space + the
+        chip is visible, clearing the chip restores the full list, search narrows
+        rows by nickname.
+      </div>
+    </div>
+  </div>
+
+  <div class="shape">House.jsx
+├── PageHeader (R3a)
+├── view === 'rooms' → RoomsView (R3a)  [room card click now sets filter + flips to List]
+├── view === 'list' → ListView (NEW)
+│   └── &lt;Card variant="paper-warm"&gt;
+│       ├── &lt;header className="pl-header"&gt;       ← sticky 4-col labels
+│       │   └── search input + filter chip (when filteredSpaceId set)
+│       ├── &lt;Card.Body&gt;                           ← scrollable
+│       │   ├── AddSpaceRow                       ← reuses dialogState
+│       │   └── per space:
+│       │       ├── SpaceGroupHeader (Fraunces italic + optional weather pill)
+│       │       └── PlantRow × N                  ← NEW primitive
+│       └── &lt;Empty state&gt; if user.plants.length === 0
+└── AddCustomSpaceForm (R3a, dialogState shared)
+</div>
+
+  <p style="margin-top: 14px; font-size: 14px; color: #666;">
+    <strong>Placeholder note:</strong> Plant Detail (<code>/plants/:id</code>) is R4
+    territory and may not exist yet when R3b ships. Row clicks navigate cleanly; the
+    target page can 404 in the interim.
+  </p>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+  <ol>
+    <li>The List tab renders a paper-warm card with a sticky column header and a scrollable body. Plant rows are grouped by space, in the order spaces appear in <code>useSpaces</code>.</li>
+    <li>Each plant row shows avatar (coral urgent ring on overdue), name, species (Fraunces italic), next-care label, and a mood dot (thriving / thirsty / wilting).</li>
+    <li>The mood dot animates subtly (mood-breathe for thriving + thirsty, mood-pulse for wilting). Users with <code>prefers-reduced-motion: reduce</code> get a static dot.</li>
+    <li>Tapping a plant row navigates to <code>/plants/:id</code>. The link works even if Plant Detail is a placeholder page.</li>
+    <li>Each space group has a header — Fraunces italic + space icon + name + plant count. Outdoor groups also show a weather pill (sky or frost) when weather data is loaded; otherwise the pill is omitted.</li>
+    <li>The first body row is an "Add a space" CTA. Clicking opens the same AddCustomSpaceForm dialog used by the Rooms grid; saving creates a new space + closes the dialog + a new (empty) space group appears at the bottom.</li>
+    <li>Tapping a RoomCard in the Rooms tab jumps to List view filtered by that space, and a "Filtered by {name}" chip appears at the top with a clear-X. Clearing restores the full grouped list.</li>
+    <li>The search input filters plant rows by nickname OR species common name (case-insensitive contains). Empty groups (no matching plants) hide while search is active. Clearing search restores the full grouped list.</li>
+    <li>If the user has zero plants, the List view shows an empty state with a CTA routing to <code>/add-plant</code>.</li>
+    <li>Backend stays untouched — same <code>useSpaces</code> + <code>usePlants</code> + <code>useWeather</code> data already loaded by the page.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+  <div class="criterion"><div class="box"></div><span>Switching the segment toggle from Rooms → List swaps the body to the list view; the page header (eyebrow + heading + meta + view toggle) stays put.</span></div>
+  <div class="criterion"><div class="box"></div><span>List view shows seeded plants grouped under their space's group header in the same order spaces appear on the Rooms tab.</span></div>
+  <div class="criterion"><div class="box"></div><span>Each plant row renders avatar + name + species + next-care label + mood dot. Overdue plants get a coral urgent ring on the avatar AND coral italic next-care label.</span></div>
+  <div class="criterion"><div class="box"></div><span>Outdoor space groups (e.g. Patio) show a weather pill in the group header when weather data is available; indoor groups don't.</span></div>
+  <div class="criterion"><div class="box"></div><span>DevTools → emulate <code>prefers-reduced-motion: reduce</code> → mood dots stop animating.</span></div>
+  <div class="criterion"><div class="box"></div><span>Click a RoomCard in the Rooms tab → page lands on List view with chip "Filtered by {name}" visible. The list shows only plants from that space.</span></div>
+  <div class="criterion"><div class="box"></div><span>Click the chip's clear-X → chip disappears, full grouped list restores.</span></div>
+  <div class="criterion"><div class="box"></div><span>Type into the search input → rows narrow by name OR species. Empty groups hide. Clearing the input restores everything.</span></div>
+  <div class="criterion"><div class="box"></div><span>Click the "Add a space" row at the top of the list → the same dialog used in Rooms tab opens. Saving adds the space + the dialog closes + a new empty group appears at the bottom of the list.</span></div>
+  <div class="criterion"><div class="box"></div><span>Click a plant row → navigates to <code>/plants/:id</code>. (Plant Detail page may 404 until R4.)</span></div>
+  <div class="criterion"><div class="box"></div><span>On a fresh user with zero plants, List view shows an empty state with a CTA routing to <code>/add-plant</code>.</span></div>
+  <div class="criterion"><div class="box"></div><span>Lint passes; vitest passes; 1+ Playwright spec covers the List view happy path (filter chip + clear + search + add-space).</span></div>
+</section>
+
+<section>
+  <h2>Design references</h2>
+
+  <div class="mockup-preview">
+    <div class="label">
+      <span>Mockup 21 — House (Rooms + List + mobile)</span>
+      <a href="../../mockups/plantcare-ui/v2/21-house-v1.html" target="_blank">Open ↗</a>
+    </div>
+    <iframe src="../../mockups/plantcare-ui/v2/21-house-v1.html"></iframe>
+  </div>
+
+  <p style="margin-top: 14px; font-size: 14px; color: #666;">
+    <strong>In scope this ticket:</strong> the DESKTOP — List + MOBILE — List
+    sections of mockup 21. Sticky pl-header, scrollable pl-body, space-group-header
+    (with weather pill on outdoor), pl-row, add-space-row, filter chip, search.
+  </p>
+  <p style="margin-top: 8px; font-size: 14px; color: #666;">
+    <strong>Out of scope this ticket:</strong> mobile search expanded state /
+    floating drawer (R3c — TICKET-039c). Plant Detail page (R4 — TICKET-040).
+    Habitat tab (Phase 3, stays disabled).
+  </p>
+
+  <a class="plan-link" href="../../plans/2026-04-24-plantcare-frontend-v2.md" target="_blank">→ Plan: docs/plans/2026-04-24-plantcare-frontend-v2.md (R3 House)</a>
+  <p style="margin-top: 8px; font-size: 13px; color: #888;">
+    Plan defines R3 as one ticket; R3a/b/c is the agreed split. One worked example,
+    not a script to transcribe.
+  </p>
+</section>
+
+<section>
+  <h2>React concepts worth looking up</h2>
+
+  <div class="learn">
+    <strong>Group-by + filter pipelines in <code>useMemo</code>.</strong> The list
+    body needs three derivations: filter plants by space (when chip set), filter by
+    search query, group by space. Naively re-computing on every render — including
+    unrelated state changes like dialog open/close — is wasted work. Wrap in
+    <code>useMemo</code> with deps <code>[plants, spaces, searchQuery,
+    filteredSpaceId]</code> so it only recomputes when one of those four changes.
+    Same pattern Rails would use with a memoized helper method on a presenter.
+  </div>
+
+  <div class="learn">
+    <strong><code>useDeferredValue</code> for search input.</strong> React 18 added
+    a hook that lets the input render at full responsiveness while the heavy
+    downstream work (filter + regroup) catches up at lower priority. Useful when the
+    list is genuinely expensive to recompute. With ≤30 plants you almost certainly
+    don't need it — measure first. If the input feels laggy under typing, reach for
+    it; otherwise skip. (Project precedent: Step 3's species search uses
+    <code>useDebouncedValue</code> for a similar reason; both work, pick one.)
+  </div>
+
+  <div class="learn">
+    <strong>URL search-params vs local state for the filter chip.</strong> Two
+    options: store <code>filteredSpaceId</code> in <code>useState</code>, or push
+    it into the URL via <code>useSearchParams</code> from react-router-dom
+    (<code>?view=list&amp;space_id=N</code>). URL state survives refresh + makes
+    "deep-link to filtered list" trivial. Local state is simpler. Pick one + commit
+    — don't half-implement both. Recommendation: URL for both <code>view</code> and
+    <code>space_id</code> so refreshing keeps the user where they were. Rails
+    analog: <code>params[:view] / params[:space_id]</code>.
+  </div>
+
+  <div class="learn">
+    <strong>Prefers-reduced-motion via CSS media query.</strong> The mood dot
+    animations live in <code>globals.css</code> as <code>@utility</code> blocks.
+    Wrap the animation rules in <code>@media (prefers-reduced-motion: reduce)
+    { animation: none; }</code> so OS-level "reduce motion" settings auto-disable
+    them. No JS needed for this case (unlike DayRituals' Framer drag, which uses
+    <code>useReducedMotion</code> because Framer doesn't auto-respect the media
+    query).
+  </div>
+
+  <div class="learn">
+    <strong>Compound component vs plain props for PlantRow.</strong> CLAUDE.md's
+    slot decision tree: single-paired slots = props (Rails'
+    <code>renders_one</code>), multi-occurrence = compound children
+    (<code>renders_many</code>). PlantRow has fixed slots (avatar, title block,
+    next-care, mood dot) — plain prop API. Don't reach for
+    <code>&lt;PlantRow&gt;&lt;Avatar /&gt;&lt;Title /&gt;…&lt;/PlantRow&gt;</code>
+    here; it's overkill.
+  </div>
+</section>
+
+<section>
+  <h2>Rails ↔ React mental map</h2>
+  <table class="rails-map">
+    <thead>
+      <tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>plants/index.html.erb</code></td>
+        <td><code>House.jsx</code> List view</td>
+        <td>Same job, different rendering layer</td>
+      </tr>
+      <tr>
+        <td><code>@plants.group_by(&amp;:space)</code></td>
+        <td><code>useMemo(() =&gt; spaces.map(s =&gt; ({ space: s, plants: filtered.filter(p =&gt; p.space.id === s.id) })), […])</code></td>
+        <td>Memoised on the inputs that affect grouping</td>
+      </tr>
+      <tr>
+        <td><code>params[:space_id]</code></td>
+        <td><code>useSearchParams()</code> + <code>params.get('space_id')</code></td>
+        <td>Filter chip backed by URL state for refresh + deep-link</td>
+      </tr>
+      <tr>
+        <td><code>helper :next_care_label(plant)</code></td>
+        <td>Plain function imported into PlantRow</td>
+        <td>Same logic R3a's House.jsx uses for RoomCard's nextCare</td>
+      </tr>
+      <tr>
+        <td><code>render partial: 'plants/row', collection: @plants</code></td>
+        <td><code>plants.map(plant =&gt; &lt;PlantRow plant={plant} /&gt;)</code></td>
+        <td>One PlantRow per plant in the group</td>
+      </tr>
+      <tr>
+        <td><code>@plants.search(query)</code></td>
+        <td>Client-side <code>plants.filter(p =&gt; matchesQuery(p, q))</code></td>
+        <td>≤30 plants — server search not warranted yet</td>
+      </tr>
+      <tr>
+        <td><code>turbo_frame_tag</code> for the list region</td>
+        <td>The List ↔ Rooms swap is just <code>view</code> state in House.jsx</td>
+        <td>No frame magic needed — page is a SPA</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Related files</h2>
+  <ul class="file-list">
+    <li>client/src/components/PlantRow.jsx <span class="action">create</span></li>
+    <li>client/tests/components/PlantRow.test.jsx <span class="action">create</span></li>
+    <li>client/src/pages/House.jsx <span class="action">rewrite</span></li>
+    <li>client/src/globals.css <span class="action">extend (mood keyframes)</span></li>
+    <li>client/tests/pages/house.spec.js <span class="action">extend (List spec)</span></li>
+  </ul>
+  <p style="margin-top: 12px; font-size: 13px; color: #666;">
+    This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose.
+  </p>
+</section>
+
+<section>
+  <h2>Notes &amp; gotchas</h2>
+  <ul>
+    <li>
+      <strong>Reuse the AddCustomSpaceForm dialog.</strong> R3a's House.jsx already
+      holds <code>dialogState</code> + handlers. The list's "Add a space" row opens
+      the same dialog. Don't duplicate state.
+    </li>
+    <li>
+      <strong>Plant Detail (<code>/plants/:id</code>) is R4 territory.</strong>
+      Row clicks navigate cleanly; the target may 404 until TICKET-040 ships. That's
+      acceptable — don't try to fix the destination here.
+    </li>
+    <li>
+      <strong>Mood-dot keyframes go in <code>globals.css</code> as
+      <code>@utility</code> blocks.</strong> CLAUDE.md's CSS rule: no inline
+      <code>style={{ animation: … }}</code> for decorative CSS. Match the
+      <code>hero-glow-urgent</code> / <code>toast-progress</code> precedent.
+    </li>
+    <li>
+      <strong>Filter-chip state: pick URL OR local, not both.</strong> URL via
+      <code>useSearchParams</code> survives refresh + deep-links nicely; local state
+      is simpler. Recommendation: URL. R3a left the chip stubbed — wire whichever
+      pattern you pick consistently.
+    </li>
+    <li>
+      <strong>Don't half-implement R3c.</strong> Search input + filter chip + plant
+      rows are R3b. The mobile floating drawer that overlays MobileTopBar with the
+      search input is R3c — a separate ticket.
+    </li>
+    <li>
+      <strong>Pair-programming pace.</strong> Memory
+      <code>feedback_pair_programming_style.md</code>: split into ~3 small steps,
+      review at end of each before staging. Suggested split:
+      <ol style="margin-top: 8px;">
+        <li>Step 1: PlantRow primitive + globals.css mood keyframes + test.</li>
+        <li>Step 2: ListView wired into House.jsx with grouping + search input + Rooms→List jump + filter chip + Add-a-space row.</li>
+        <li>Step 3: Reviews + Playwright happy path + lint + PR.</li>
+      </ol>
+    </li>
+    <li>
+      <strong>Reviews:</strong> run <code>/vercel-react-best-practices</code> +
+      <code>/accessibility</code> per memory
+      <code>feedback_rework_review_skills.md</code>.
+      <code>/dhh-rails-reviewer</code> is N/A — backend untouched.
+    </li>
+    <li>
+      <strong>Closing checklist:</strong> run <code>./scripts/lint.sh &amp;&amp;
+      ./scripts/run_tests.sh client</code>, commit on the
+      <code>ticket-039b-house-list-view</code> branch, then open a PR with
+      <code>feat(v2):</code> prefix per memory
+      <code>feedback_pr_title_v2_prefix.md</code>. No Claude footer in the PR body
+      or commit messages per memory <code>feedback_pr_body_no_claude_footer.md</code>.
+    </li>
+  </ul>
+</section>
+
+</div>
+</body>
+</html>

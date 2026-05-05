@@ -2,14 +2,14 @@ import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useToast } from '../context/ToastContext'
-import { useLogCare } from '../hooks/usePlants'
-import { PLANT_ACTION_SPOKES } from './PlantActionWheel'
-import PlantAvatar from './PlantAvatar'
-import Action from './ui/Action'
-import Dialog from './ui/Dialog'
-import Heading from './ui/Heading'
-import RadialWheel from './ui/RadialWheel'
+import { useToast } from '../../context/ToastContext'
+import { useLogCare } from '../../hooks/usePlants'
+import Action from '../ui/Action'
+import Dialog from '../ui/Dialog'
+import Heading from '../ui/Heading'
+import RadialWheel from '../ui/RadialWheel'
+import { PLANT_ACTION_SPOKES } from './ActionWheel'
+import Avatar from './Avatar'
 
 const RELATIVE = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
 
@@ -24,7 +24,7 @@ function formatLastCare(timestamp) {
 // open this; ritual rows + plant tiles still use RadialWheel for the
 // in-place action affordance. The dialog is the "I want context" path
 // — surface why a plant's flagged before acting on it.
-export default function PlantQuickDialog({ plant, open, onClose }) {
+export default function QuickDialog({ plant, open, onClose }) {
   const navigate = useNavigate()
   const toast = useToast()
   // Hold the last opened plant so the Dialog's exit animation can run
@@ -94,7 +94,7 @@ export default function PlantQuickDialog({ plant, open, onClose }) {
       <div className="flex items-center gap-3 mb-4">
         <span className="relative w-[72px] h-[72px] rounded-full plant-portrait flex items-center justify-center shrink-0">
           <span className="relative z-[2]">
-            <PlantAvatar species={display.species} size="xl" shape="circle" />
+            <Avatar species={display.species} size="xl" shape="circle" />
           </span>
         </span>
         <div className="flex-1 min-w-0">
@@ -134,7 +134,7 @@ export default function PlantQuickDialog({ plant, open, onClose }) {
           centreLabel={display.nickname}
           centreSlot={
             <span className="relative w-[64px] h-[64px] rounded-full overflow-hidden flex items-center justify-center">
-              <PlantAvatar species={display.species} size="xl" shape="circle" />
+              <Avatar species={display.species} size="xl" shape="circle" />
             </span>
           }
         />

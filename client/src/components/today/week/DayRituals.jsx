@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useToast } from '../../../context/ToastContext'
 import { useMediaQuery } from '../../../hooks/useMediaQuery'
 import { useLogCare } from '../../../hooks/usePlants'
-import PlantActionWheel from '../../PlantActionWheel'
+import PlantActionWheel from '../../plants/ActionWheel'
 import Action from '../../ui/Action'
 
 const KIND_LABEL = { water: 'Water', feed: 'Feed' }

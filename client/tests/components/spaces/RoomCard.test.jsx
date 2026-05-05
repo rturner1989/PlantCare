@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import RoomCard from '../../src/components/RoomCard'
+import RoomCard from '../../../src/components/spaces/RoomCard'
 
 const baseProps = {
   icon: '🛋️',

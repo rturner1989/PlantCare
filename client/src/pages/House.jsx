@@ -2,7 +2,7 @@ import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useMemo, useState } from 'react'
 import SegmentedControl from '../components/form/SegmentedControl'
-import RoomCard from '../components/RoomCard'
+import RoomCard from '../components/spaces/RoomCard'
 import AddCustomSpaceForm from '../components/spaces/AddCustomSpaceForm'
 import Action from '../components/ui/Action'
 import EmptyState from '../components/ui/EmptyState'
@@ -128,7 +128,7 @@ export default function House() {
       : null
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 gap-5 lg:gap-7 px-3 lg:px-6 py-4 lg:py-6">
+    <div className="flex flex-col gap-5 lg:gap-7 px-3 lg:px-6 py-4 lg:py-6 overflow-x-hidden">
       <PageHeader
         eyebrow="Your greenhouse"
         meta={meta}
@@ -138,8 +138,6 @@ export default function House() {
       >
         Browse your <em className="text-emerald">plants</em>
       </PageHeader>
-
-      <main className="flex-1 min-h-0">
         {isLoading && (
           <div role="status" aria-label="Loading your house" className="flex items-center justify-center py-16">
             <Spinner />
@@ -179,7 +177,6 @@ export default function House() {
             List view ships in TICKET-039b (R3b).
           </div>
         )}
-      </main>
 
       <AddCustomSpaceForm
         key={dialogState.space?.id ?? 'new'}
