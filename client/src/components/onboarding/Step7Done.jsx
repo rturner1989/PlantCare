@@ -36,16 +36,15 @@ export default function Step7Done({ createdPlants = [], onFinish, finishing = fa
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 gap-4 relative">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        {SPARKLES.map((sparkle) => (
-          <span key={sparkle.id} className="absolute text-sunshine-deep text-2xl opacity-60" style={sparkle.position}>
-            {sparkle.glyph}
-          </span>
-        ))}
-      </div>
-
-      <Card.Body className="flex flex-col items-center justify-center text-center gap-5">
+    <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 gap-4">
+      <Card.Body className="relative flex flex-col items-center justify-center text-center gap-5">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          {SPARKLES.map((sparkle) => (
+            <span key={sparkle.id} className="absolute text-sunshine-deep text-2xl opacity-60" style={sparkle.position}>
+              {sparkle.glyph}
+            </span>
+          ))}
+        </div>
         <span className="text-7xl" aria-hidden="true">
           🌿
         </span>

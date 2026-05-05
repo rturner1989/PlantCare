@@ -18,7 +18,7 @@ import Emphasis from '../ui/Emphasis'
 import Heading from '../ui/Heading'
 import StepTip from './shared/StepTip'
 import WizardActions from './shared/WizardActions'
-import AddCustomSpaceForm from './spaces/AddCustomSpaceForm'
+import AddCustomSpaceForm from '../spaces/AddCustomSpaceForm'
 
 const CATEGORY_LABELS = {
   indoor: { emoji: '🏠', label: 'Indoor' },
@@ -89,9 +89,9 @@ export default function Step2Spaces({ onBack, onComplete }) {
     )
   }
 
-  function handleAddCustom(name, category) {
+  function handleAddCustom(name, category, icon) {
     setSelectedSpaces((prev) => [...prev, name])
-    setPendingCustom((prev) => [...prev, { name, category }])
+    setPendingCustom((prev) => [...prev, { name, category, icon }])
   }
 
   const pendingCustomNames = useMemo(() => new Set(pendingCustom.map((entry) => entry.name)), [pendingCustom])
@@ -138,9 +138,10 @@ export default function Step2Spaces({ onBack, onComplete }) {
           const preset = presets.find((entry) => entry.name === spaceName)
           const pending = pendingByName.get(spaceName)
           const category = preset?.category ?? pending?.category ?? 'indoor'
+          const icon = preset?.icon ?? pending?.icon ?? null
           return createSpace.mutateAsync({
             name: spaceName,
-            icon: preset?.icon || null,
+            icon,
             category,
           })
         })

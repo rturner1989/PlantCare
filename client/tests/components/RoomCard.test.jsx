@@ -71,4 +71,16 @@ describe('RoomCard', () => {
     fireEvent.click(screen.getByRole('button'))
     expect(onClick).toHaveBeenCalledTimes(1)
   })
+
+  it('renders the weather pill instead of the env hint when weatherPill is provided', () => {
+    render(
+      <RoomCard
+        {...baseProps}
+        envHint="Bright · average humidity"
+        weatherPill={{ icon: '🌧', label: 'Rain Sun · skip water', scheme: 'rain' }}
+      />,
+    )
+    expect(screen.getByText('Rain Sun · skip water')).toBeInTheDocument()
+    expect(screen.queryByText('Bright · average humidity')).not.toBeInTheDocument()
+  })
 })

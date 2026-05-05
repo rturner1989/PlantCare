@@ -35,16 +35,16 @@ export default function WeekCard({ tasks, plants, tasksByDay, selectedDate, onSe
         </Heading>
       </Card.Header>
 
-      <WeekStrip tasksByDay={tasksByDay} selectedDate={selectedDate} onSelectDate={onSelectDate} />
+      <Card.Body className="!overflow-visible !flex-none flex flex-col gap-3">
+        <WeekStrip tasksByDay={tasksByDay} selectedDate={selectedDate} onSelectDate={onSelectDate} />
 
-      <div className="flex items-center justify-between border-t border-paper-edge/60 pt-3">
-        <Heading as="h3" variant="panel" className="text-ink">
-          {heading}
-        </Heading>
-        {remaining === 0 ? <Card.Meta>all done</Card.Meta> : <Card.Meta count={remaining}>to go</Card.Meta>}
-      </div>
+        <div className="flex items-center justify-between border-t border-paper-edge/60 pt-3">
+          <Heading as="h3" variant="panel" className="text-ink">
+            {heading}
+          </Heading>
+          {remaining === 0 ? <Card.Meta>all done</Card.Meta> : <Card.Meta count={remaining}>to go</Card.Meta>}
+        </div>
 
-      <Card.Body className="!overflow-visible !flex-none">
         <DayRituals tasks={tasks} plants={plants} selectedDate={selectedDate} isLoading={isLoading} isToday={isToday} />
       </Card.Body>
 

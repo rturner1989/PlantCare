@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
 import RoomCard from '../components/RoomCard'
 import SegmentedControl from '../components/form/SegmentedControl'
+import AddCustomSpaceForm from '../components/spaces/AddCustomSpaceForm'
 import Action from '../components/ui/Action'
 import EmptyState from '../components/ui/EmptyState'
 import PageHeader from '../components/ui/PageHeader'
 import Spinner from '../components/ui/Spinner'
 import { usePlants } from '../hooks/usePlants'
-import { useSpaces } from '../hooks/useSpaces'
+import { useCreateSpace, useSpaces, useUpdateSpace } from '../hooks/useSpaces'
+import { useWeather } from '../hooks/useWeather'
 import { getSpaceEmoji } from '../utils/spaceIcons'
 import { pluralize } from '../utils/pluralize'
 
@@ -63,8 +65,12 @@ function attentionCountFor(plants) {
 
 export default function House() {
   const [view, setView] = useState('rooms')
+  const [dialogState, setDialogState] = useState({ open: false, space: null })
   const { data: spaces, isLoading: spacesLoading, error: spacesError, refetch: refetchSpaces } = useSpaces()
   const { data: plants, isLoading: plantsLoading, error: plantsError, refetch: refetchPlants } = usePlants()
+  const { today: weatherToday } = useWeather()
+  const createSpace = useCreateSpace()
+  const updateSpace = useUpdateSpace()
 
   const isLoading = spacesLoading || plantsLoading
   const error = spacesError || plantsError
@@ -86,6 +92,27 @@ export default function House() {
   const totalSpaces = spaces?.length ?? 0
   const totalPlants = plants?.length ?? 0
   const overdueCount = spaceCards.reduce((acc, card) => acc + card.attention, 0)
+  const existingNames = useMemo(() => new Set(spaces?.map((space) => space.name) ?? []), [spaces])
+
+  function handleAddSpace(name, category, icon) {
+    createSpace.mutate({ name, icon, category })
+  }
+
+  function handleEditSpace(id, name, category, icon) {
+    updateSpace.mutate({ id, name, category, icon })
+  }
+
+  function openAddDialog() {
+    setDialogState({ open: true, space: null })
+  }
+
+  function openEditDialog(space) {
+    setDialogState({ open: true, space })
+  }
+
+  function closeDialog() {
+    setDialogState((prev) => ({ ...prev, open: false }))
+  }
 
   const meta =
     totalSpaces > 0
@@ -142,7 +169,13 @@ export default function House() {
         )}
 
         {!isLoading && !error && view === 'rooms' && (
-          <RoomsView cards={spaceCards} totalSpaces={totalSpaces} />
+          <RoomsView
+            cards={spaceCards}
+            totalSpaces={totalSpaces}
+            weatherToday={weatherToday}
+            onAddSpace={openAddDialog}
+            onEditSpace={openEditDialog}
+          />
         )}
 
         {!isLoading && !error && view === 'list' && (
@@ -151,11 +184,20 @@ export default function House() {
           </div>
         )}
       </main>
+
+      <AddCustomSpaceForm
+        open={dialogState.open}
+        onClose={closeDialog}
+        onAdd={handleAddSpace}
+        onEdit={handleEditSpace}
+        space={dialogState.space}
+        existingNames={existingNames}
+      />
     </div>
   )
 }
 
-function RoomsView({ cards, totalSpaces }) {
+function RoomsView({ cards, totalSpaces, weatherToday, onAddSpace, onEditSpace }) {
   if (totalSpaces === 0) {
     return (
       <EmptyState
@@ -174,33 +216,45 @@ function RoomsView({ cards, totalSpaces }) {
   return (
     <ul className="grid grid-cols-2 lg:grid-cols-3 gap-3.5 list-none p-0">
       <li>
-        <AddSpaceTile />
+        <AddSpaceTile onClick={onAddSpace} />
       </li>
-      {cards.map(({ space, peek, nextCare }) => (
-        <li key={space.id}>
-          <RoomCard
-            icon={getSpaceEmoji(space.icon)}
-            name={space.name}
-            count={`${pluralize(space.plants_count, 'plant')} · ${space.category}`}
-            variant={space.category === 'outdoor' ? 'outdoor' : 'indoor'}
-            peek={peek}
-            nextCare={nextCare}
-            envHint={envHintFor(space)}
-          />
-        </li>
-      ))}
+      {cards.map(({ space, peek, nextCare }) => {
+        const isOutdoor = space.category === 'outdoor'
+        return (
+          <li key={space.id}>
+            <RoomCard
+              icon={getSpaceEmoji(space.icon)}
+              name={space.name}
+              count={`${pluralize(space.plants_count, 'plant')} · ${space.category}`}
+              variant={isOutdoor ? 'outdoor' : 'indoor'}
+              peek={peek}
+              nextCare={nextCare}
+              envHint={envHintFor(space)}
+              weatherPill={isOutdoor ? weatherPillFor(weatherToday) : null}
+              onEdit={() => onEditSpace(space)}
+            />
+          </li>
+        )
+      })}
     </ul>
   )
 }
 
-function AddSpaceTile() {
+function weatherPillFor(today) {
+  if (!today) return null
+  return {
+    icon: today.icon ?? '☀',
+    label: today.detail ?? today.label,
+    scheme: today.scheme,
+  }
+}
+
+function AddSpaceTile({ onClick }) {
   return (
     <Action
       variant="unstyled"
-      onClick={() => {
-        // R3a step 3: open AddSpaceDialog (extracted from onboarding's AddCustomSpaceForm).
-      }}
-      className="w-full h-full min-h-[140px] flex flex-col items-center justify-center gap-1.5 p-4 rounded-md border-2 border-dashed border-emerald/30 hover:border-leaf hover:bg-lime/10 transition-colors"
+      onClick={onClick}
+      className="w-full h-full min-h-[200px] flex flex-col items-center justify-center gap-1.5 p-4 rounded-md border-2 border-dashed border-emerald/30 hover:border-leaf hover:bg-lime/10 transition-colors"
       aria-label="Add a space"
     >
       <span

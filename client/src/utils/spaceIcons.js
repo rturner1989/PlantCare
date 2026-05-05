@@ -42,6 +42,27 @@ const SPACE_EMOJI = {
   greenhouse: '🌿',
 }
 
+const SPACE_LABELS = {
+  couch: 'Living room',
+  kitchen: 'Kitchen',
+  bed: 'Bedroom',
+  bath: 'Bathroom',
+  desk: 'Office',
+  hallway: 'Hallway',
+  study: 'Study',
+  conservatory: 'Conservatory',
+  patio: 'Patio',
+  balcony: 'Balcony',
+  garden_bed: 'Garden',
+  greenhouse: 'Greenhouse',
+}
+
+export const SPACE_ICON_OPTIONS = Object.keys(SPACE_EMOJI).map((slug) => ({
+  slug,
+  emoji: SPACE_EMOJI[slug],
+  label: SPACE_LABELS[slug],
+}))
+
 export function getSpaceIcon(slug) {
   return SPACE_ICONS[slug]
 }
