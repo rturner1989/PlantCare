@@ -4,6 +4,8 @@ import Action from './Action'
 import Card from './Card'
 import Heading from './Heading'
 
+const MotionCard = motion.create(Card)
+
 // Two-phase view-all choreography:
 // 1. View-all button swooshes out (180ms left-slide + fade)
 // 2. Once exit-complete fires, parent triggers the real expand
@@ -64,14 +66,13 @@ export default function DialogCard({
   }
 
   return (
-    <motion.section
+    <MotionCard
+      variant="paper-warm"
       initial={false}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={SECTION_TRANSITION}
-      className={`rounded-md bg-paper shadow-warm-sm ${
-        expanded ? 'flex-1 min-h-0 flex flex-col overflow-hidden' : 'shrink-0'
-      } ${className}`}
+      className={`${expanded ? 'flex-1 min-h-0 overflow-hidden' : ''} ${className}`}
     >
       <Card.Header divider={false} className="flex items-center justify-between px-4 pt-3.5 pb-2 shrink-0">
         <Heading as="h3" variant={headingVariant} className="text-ink flex items-center gap-2">
@@ -81,16 +82,16 @@ export default function DialogCard({
         {badge}
       </Card.Header>
       <Card.Body className={`px-2 pb-2 ${expanded ? '' : '!overflow-visible'} ${bodyClassName}`}>{children}</Card.Body>
-      <AnimatePresence initial={false} onExitComplete={handleViewAllExitComplete}>
-        {showViewAll && (
-          <motion.div
-            key="view-all"
-            initial={{ opacity: 0, height: 0 }}
-            animate={VIEW_ALL_ENTER}
-            exit={VIEW_ALL_EXIT}
-            className="overflow-hidden"
-          >
-            <Card.Footer divider={false} className="px-4 pb-3 pt-1">
+      <Card.Footer divider={false}>
+        <AnimatePresence initial={false} onExitComplete={handleViewAllExitComplete}>
+          {showViewAll && (
+            <motion.div
+              key="view-all"
+              initial={{ opacity: 0, height: 0 }}
+              animate={VIEW_ALL_ENTER}
+              exit={VIEW_ALL_EXIT}
+              className="overflow-hidden px-4 pb-3 pt-1"
+            >
               <Action
                 variant="unstyled"
                 onClick={handleViewAllClick}
@@ -100,10 +101,10 @@ export default function DialogCard({
               >
                 View all ({viewAll.count})
               </Action>
-            </Card.Footer>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.section>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Card.Footer>
+    </MotionCard>
   )
 }

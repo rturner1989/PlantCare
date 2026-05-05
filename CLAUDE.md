@@ -138,6 +138,43 @@ docs/
 
 ## Code Style
 
+### Accountability for visual work
+
+**When a ticket references a mockup, read the mockup's CSS before writing JSX — not just the rendered iframe.** Eyeballing the iframe loses class names, custom properties, exact spacing, and shared styles between mockups. Open the HTML, grep for the relevant section (`.house-head`, `.t-head`, `.eyebrow`, etc.), read the rule blocks, and use them as the source of truth.
+
+**Before extracting or implementing a UI primitive, check if a sibling page already has the same shape.** Today + House + Plant Detail all use the same page-header shape (eyebrow + display heading + meta + actions). Today + House list views both use a search row + filter chip pattern. Don't roll a one-off in House if Today already has the same chrome — extract once, share.
+
+**The work has to pass a mid-level dev's reading test.** A reader who hasn't seen this codebase before should:
+- Recognise primitive names from their job (`PageHeader`, `ViewToggle`) without needing to open the file.
+- Find the slot/prop API on the primitive obvious within 30 seconds.
+- See the consumer site (`House.jsx`) reading like a layout, not like CSS.
+
+If the answer to any of those is "no", the abstraction is wrong — fix it before moving to the next step.
+
+**Pre-flight checklist before writing JSX for any page-level rewrite:**
+1. Open the mockup HTML for this page.
+2. Grep for the head/chrome/section CSS classes.
+3. Cross-reference any other mockup that shares the same section (Today + House headers, etc.).
+4. Identify shared shape → primitive name → slot API.
+5. Only then write the JSX.
+
+This rule is hard-won (TICKET-039a step 1 first-pass) — don't relearn it.
+
+### Reuse existing primitives before building new ones
+
+**Before creating a new component, grep the codebase for an existing primitive that does the same job.** A pill control with a sliding active state + radio semantics is `SegmentedControl` — don't build `ViewToggle` to do the same thing. A bordered card with header + body + footer slots is `Card` — don't roll a divider-padded `<div>`. A modal shell is `Dialog` — don't build a one-off overlay.
+
+**If an existing primitive is 80% there, EXTEND it.** Add a new prop (`density="auto"`, `option.icon`, `option.phase`) instead of forking. Two primitives doing the same job means two test files, two style drifts, and a future reader asking "why are there two?".
+
+**The bar for a NEW primitive:** the existing one can't be extended without breaking its API or polluting its purpose. `SegmentedControl` taking per-option `icon` + `phase` chip extends cleanly. `SegmentedControl` taking a `style="auth-marketing"` prop pollutes — that's a sign to fork.
+
+**Pre-flight before creating any new `components/ui/*.jsx` file:**
+1. Grep the existing `components/ui/` and `components/form/` folders for similar names + similar shapes.
+2. If found: extend the existing one. Add a prop, add a variant, add a slot.
+3. If genuinely no overlap: build new.
+
+This rule is hard-won (TICKET-039a step 1 — built `ViewToggle` when `SegmentedControl` already existed). Don't relearn it.
+
 ### Comments
 
 **Code should speak for itself. Comments exist to reinforce, not to narrate.** A comment has to carry weight the code can't — a hidden constraint, a subtle invariant, a bug-specific workaround, a surprising behaviour, a cross-system coupling. If a better identifier name or a small refactor would make the comment redundant, that's the fix — not a comment.

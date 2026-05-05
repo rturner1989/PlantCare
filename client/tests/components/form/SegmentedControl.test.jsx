@@ -120,4 +120,52 @@ describe('SegmentedControl', () => {
       expect(handleChange).not.toHaveBeenCalled()
     })
   })
+
+  describe('per-option icon and phase chip', () => {
+    it('renders the per-option icon as a glyph', () => {
+      render(
+        <SegmentedControl
+          label="View as"
+          value="rooms"
+          onChange={() => {}}
+          options={[
+            { value: 'rooms', label: 'Rooms', icon: '⊞' },
+            { value: 'list', label: 'List', icon: '☰' },
+          ]}
+        />,
+      )
+      expect(screen.getByText('⊞')).toBeInTheDocument()
+      expect(screen.getByText('☰')).toBeInTheDocument()
+    })
+
+    it('renders the phase chip when option.phase is provided', () => {
+      render(
+        <SegmentedControl
+          label="View as"
+          value="rooms"
+          onChange={() => {}}
+          options={[
+            { value: 'rooms', label: 'Rooms' },
+            { value: 'habitat', label: 'Habitat', disabled: true, phase: 'P3' },
+          ]}
+        />,
+      )
+      expect(screen.getByText('P3')).toBeInTheDocument()
+    })
+  })
+
+  describe('label visibility', () => {
+    it('renders the visible label by default', () => {
+      render(<SegmentedControl label="Light" value="low" onChange={() => {}} options={['low', 'high']} />)
+      expect(screen.getByText('Light')).toBeInTheDocument()
+    })
+
+    it('hides the visible label when labelHidden is true but keeps the radiogroup name', () => {
+      render(
+        <SegmentedControl label="View as" labelHidden value="rooms" onChange={() => {}} options={['rooms', 'list']} />,
+      )
+      expect(screen.queryByText('View as')).not.toBeInTheDocument()
+      expect(screen.getByRole('radiogroup', { name: 'View as' })).toBeInTheDocument()
+    })
+  })
 })

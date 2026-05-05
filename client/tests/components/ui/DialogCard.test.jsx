@@ -8,6 +8,11 @@ vi.mock('motion/react', () => ({
       <section {...kwargs}>{children}</section>
     ),
     div: ({ children, initial, animate, exit, transition, ...kwargs }) => <div {...kwargs}>{children}</div>,
+    create:
+      (Component) =>
+      ({ children, layout, initial, animate, exit, transition, ...kwargs }) => (
+        <Component {...kwargs}>{children}</Component>
+      ),
   },
   AnimatePresence: ({ children }) => <>{children}</>,
 }))
@@ -101,9 +106,9 @@ describe('DialogCard', () => {
           <p>body</p>
         </DialogCard>,
       )
-      const section = container.querySelector('section')
-      expect(section.className).toContain('flex-1')
-      expect(section.className).toContain('min-h-0')
+      const root = container.firstChild
+      expect(root.className).toContain('flex-1')
+      expect(root.className).toContain('min-h-0')
     })
 
     it('skips flex chrome when expanded=false', () => {
@@ -112,8 +117,8 @@ describe('DialogCard', () => {
           <p>body</p>
         </DialogCard>,
       )
-      const section = container.querySelector('section')
-      expect(section.className).not.toContain('flex-1')
+      const root = container.firstChild
+      expect(root.className).not.toContain('flex-1')
     })
   })
 })

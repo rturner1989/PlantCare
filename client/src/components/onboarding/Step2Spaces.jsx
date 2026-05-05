@@ -13,12 +13,12 @@ import {
 } from '../../hooks/useSpaces'
 import { getSpaceEmoji } from '../../utils/spaceIcons'
 import Tile from '../form/Tile'
+import AddCustomSpaceForm from '../spaces/AddCustomSpaceForm'
 import Card from '../ui/Card'
 import Emphasis from '../ui/Emphasis'
 import Heading from '../ui/Heading'
 import StepTip from './shared/StepTip'
 import WizardActions from './shared/WizardActions'
-import AddCustomSpaceForm from './spaces/AddCustomSpaceForm'
 
 const CATEGORY_LABELS = {
   indoor: { emoji: '🏠', label: 'Indoor' },
@@ -81,6 +81,13 @@ export default function Step2Spaces({ onBack, onComplete }) {
     return Array.from(new Set([...serverCustomNames, ...pendingNames]))
   }, [allSpaces, pendingCustom, presets, presetsLoaded])
 
+  const customIconByName = useMemo(() => {
+    const map = new Map()
+    for (const space of allSpaces) map.set(space.name, space.icon)
+    for (const entry of pendingCustom) map.set(entry.name, entry.icon)
+    return map
+  }, [allSpaces, pendingCustom])
+
   const selectedSpaceSet = useMemo(() => new Set(selectedSpaces), [selectedSpaces])
 
   function toggleSpace(spaceName) {
@@ -89,9 +96,9 @@ export default function Step2Spaces({ onBack, onComplete }) {
     )
   }
 
-  function handleAddCustom(name, category) {
+  function handleAddCustom(name, category, icon) {
     setSelectedSpaces((prev) => [...prev, name])
-    setPendingCustom((prev) => [...prev, { name, category }])
+    setPendingCustom((prev) => [...prev, { name, category, icon }])
   }
 
   const pendingCustomNames = useMemo(() => new Set(pendingCustom.map((entry) => entry.name)), [pendingCustom])
@@ -138,9 +145,10 @@ export default function Step2Spaces({ onBack, onComplete }) {
           const preset = presets.find((entry) => entry.name === spaceName)
           const pending = pendingByName.get(spaceName)
           const category = preset?.category ?? pending?.category ?? 'indoor'
+          const icon = preset?.icon ?? pending?.icon ?? null
           return createSpace.mutateAsync({
             name: spaceName,
-            icon: preset?.icon || null,
+            icon,
             category,
           })
         })
@@ -209,7 +217,7 @@ export default function Step2Spaces({ onBack, onComplete }) {
                       transition={{ duration: shouldReduceMotion ? 0 : 0.2, ease: [0.33, 1, 0.68, 1] }}
                     >
                       <Tile
-                        icon="✨"
+                        icon={getSpaceEmoji(customIconByName.get(space)) ?? '✨'}
                         selected={selectedSpaces.includes(space)}
                         onClick={() => toggleSpace(space)}
                         onRemove={canRemoveCustom(space) ? () => handleRemoveCustom(space) : undefined}

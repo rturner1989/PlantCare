@@ -1,298 +1,273 @@
-import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import SegmentedControl from '../components/form/SegmentedControl'
-import TextInput from '../components/form/TextInput'
-import PlantAvatar from '../components/PlantAvatar'
-import SpaceCard from '../components/SpaceCard'
+import RoomCard from '../components/RoomCard'
+import AddCustomSpaceForm from '../components/spaces/AddCustomSpaceForm'
 import Action from '../components/ui/Action'
 import EmptyState from '../components/ui/EmptyState'
+import PageHeader from '../components/ui/PageHeader'
 import Spinner from '../components/ui/Spinner'
 import { usePlants } from '../hooks/usePlants'
-import { useSpaces } from '../hooks/useSpaces'
+import { useCreateSpace, useSpaces, useUpdateSpace } from '../hooks/useSpaces'
+import { useWeather } from '../hooks/useWeather'
 import { pluralize } from '../utils/pluralize'
+import { getSpaceEmoji } from '../utils/spaceIcons'
 
 const VIEW_OPTIONS = [
-  { value: 'spaces', label: 'Spaces' },
-  { value: 'list', label: 'List' },
-  { value: 'greenhouse', label: 'Greenhouse', disabled: true, hint: 'Coming in Phase 3' },
+  { value: 'rooms', label: 'Rooms', icon: '⊞' },
+  { value: 'list', label: 'List', icon: '☰' },
+  { value: 'habitat', label: 'Habitat', icon: '🏠', disabled: true, phase: 'P3' },
 ]
 
 function needsCare(plant) {
   return plant.water_status === 'overdue' || plant.feed_status === 'overdue'
 }
 
-function isWaterDue(plant) {
-  return plant.water_status === 'overdue' || plant.water_status === 'due_today'
+function envHintFor(space) {
+  if (!space.light_level || !space.humidity_level) return null
+  const light = space.light_level.charAt(0).toUpperCase() + space.light_level.slice(1)
+  return `${light} · ${space.humidity_level} humidity`
 }
 
-function isFeedDue(plant) {
-  return plant.feed_status === 'overdue' || plant.feed_status === 'due_today'
+function nextCareFor(plants) {
+  let best = null
+  for (const plant of plants) {
+    if (plant.days_until_water != null && (best === null || plant.days_until_water < best.days)) {
+      best = { kind: 'water', icon: '💧', plant, days: plant.days_until_water }
+    }
+    if (plant.days_until_feed != null && (best === null || plant.days_until_feed < best.days)) {
+      best = { kind: 'feed', icon: '🌱', plant, days: plant.days_until_feed }
+    }
+  }
+  if (!best) return null
+
+  const { days, plant, icon } = best
+  let label
+  if (days < 0) {
+    const overdue = Math.abs(days)
+    label = `${plant.nickname} · ${pluralize(overdue, 'day')} overdue`
+  } else if (days === 0) {
+    label = `${plant.nickname} · due today`
+  } else {
+    label = `${plant.nickname} · in ${days}d`
+  }
+  return { icon, label, overdue: days < 0 }
+}
+
+function peekFor(plants) {
+  return [...plants]
+    .sort((a, b) => (needsCare(a) ? 0 : 1) - (needsCare(b) ? 0 : 1))
+    .map((plant) => ({ id: plant.id, species: plant.species, urgent: needsCare(plant) }))
+}
+
+function attentionCountFor(plants) {
+  return plants.reduce((acc, plant) => acc + (needsCare(plant) ? 1 : 0), 0)
 }
 
 export default function House() {
-  const [viewMode, setViewMode] = useState('spaces')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [filteredSpaceId, setFilteredSpaceId] = useState(null)
+  const [view, setView] = useState('rooms')
+  const [dialogState, setDialogState] = useState({ open: false, space: null })
   const { data: spaces, isLoading: spacesLoading, error: spacesError, refetch: refetchSpaces } = useSpaces()
   const { data: plants, isLoading: plantsLoading, error: plantsError, refetch: refetchPlants } = usePlants()
-  const navigate = useNavigate()
+  const { today: weatherToday } = useWeather()
+  const createSpace = useCreateSpace()
+  const updateSpace = useUpdateSpace()
 
   const isLoading = spacesLoading || plantsLoading
   const error = spacesError || plantsError
 
-  const spaceAttention = useMemo(() => {
-    if (!plants) return {}
-    const counts = {}
-    for (const plant of plants) {
-      if (needsCare(plant)) {
-        const spaceId = plant.space?.id
-        if (spaceId != null) counts[spaceId] = (counts[spaceId] || 0) + 1
+  const spaceCards = useMemo(() => {
+    if (!spaces || !plants) return []
+    return spaces.map((space) => {
+      const spacePlants = plants.filter((plant) => plant.space?.id === space.id)
+      return {
+        space,
+        plants: spacePlants,
+        peek: peekFor(spacePlants),
+        nextCare: nextCareFor(spacePlants),
+        attention: attentionCountFor(spacePlants),
       }
-    }
-    return counts
-  }, [plants])
-
-  const filteredSpace = useMemo(() => {
-    if (!filteredSpaceId || !spaces) return null
-    return spaces.find((space) => space.id === filteredSpaceId) ?? null
-  }, [filteredSpaceId, spaces])
-
-  const filteredPlants = useMemo(() => {
-    if (!plants) return []
-    const query = searchQuery.trim().toLowerCase()
-
-    return plants.filter((plant) => {
-      if (filteredSpaceId && plant.space?.id !== filteredSpaceId) return false
-      if (!query) return true
-
-      return plant.nickname?.toLowerCase().includes(query) || plant.species?.common_name?.toLowerCase().includes(query)
     })
-  }, [plants, searchQuery, filteredSpaceId])
+  }, [spaces, plants])
 
-  const totalPlants = plants?.length ?? 0
   const totalSpaces = spaces?.length ?? 0
-  const overdueCount = Object.values(spaceAttention).reduce((sum, n) => sum + n, 0)
+  const totalPlants = plants?.length ?? 0
+  const overdueCount = spaceCards.reduce((acc, card) => acc + card.attention, 0)
+  const existingNames = useMemo(() => new Set(spaces?.map((space) => space.name) ?? []), [spaces])
 
-  function handleSpaceTap(spaceId) {
-    setFilteredSpaceId(spaceId)
-    setSearchQuery('')
-    setViewMode('list')
+  function handleAddSpace(name, category, icon) {
+    createSpace.mutate({ name, icon, category })
   }
 
-  function clearSpaceFilter() {
-    setFilteredSpaceId(null)
+  function handleEditSpace(id, name, category, icon) {
+    updateSpace.mutate({ id, name, category, icon })
   }
 
-  function handleViewChange(nextMode) {
-    setViewMode(nextMode)
-    if (nextMode === 'spaces') {
-      setFilteredSpaceId(null)
-      setSearchQuery('')
-    }
+  function openAddDialog() {
+    setDialogState({ open: true, space: null })
   }
+
+  function openEditDialog(space) {
+    setDialogState({ open: true, space })
+  }
+
+  function closeDialog() {
+    setDialogState((prev) => ({ ...prev, open: false }))
+  }
+
+  const meta =
+    totalSpaces > 0
+      ? [
+          pluralize(totalPlants, 'plant'),
+          pluralize(totalSpaces, 'space'),
+          overdueCount > 0 && `${overdueCount} ${overdueCount === 1 ? 'needs' : 'need'} attention`,
+        ]
+          .filter(Boolean)
+          .join(' · ')
+      : null
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 gap-3 lg:gap-4 px-3 lg:px-4 lg:pt-4 lg:pb-4">
-      <header className="bg-card rounded-md shadow-[var(--shadow-sm)] p-4">
-        <p className="text-[13px] font-semibold text-ink-soft">Your collection</p>
-        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-ink lg:font-display lg:text-5xl lg:italic lg:font-medium">
-          House
-        </h1>
-        {totalSpaces > 0 && (
-          <p className="mt-2 text-sm text-ink-soft">
-            {pluralize(totalSpaces, 'space')}, {pluralize(totalPlants, 'plant')}
-            {overdueCount > 0 && (
-              <>
-                {' · '}
-                <span className="font-bold text-coral-deep">{overdueCount} need attention</span>
-              </>
-            )}
-          </p>
+    <div className="flex flex-col flex-1 min-h-0 gap-5 lg:gap-7 px-3 lg:px-6 py-4 lg:py-6">
+      <PageHeader
+        eyebrow="Your greenhouse"
+        meta={meta}
+        actions={
+          <SegmentedControl label="View as" labelHidden value={view} onChange={setView} options={VIEW_OPTIONS} />
+        }
+      >
+        Browse your <em className="text-emerald">plants</em>
+      </PageHeader>
+
+      <main className="flex-1 min-h-0">
+        {isLoading && (
+          <div role="status" aria-label="Loading your house" className="flex items-center justify-center py-16">
+            <Spinner />
+          </div>
         )}
-        <SegmentedControl
-          label="View as"
-          value={viewMode}
-          onChange={handleViewChange}
-          options={VIEW_OPTIONS}
-          className="mb-0"
-        />
-      </header>
 
-      <div className="relative flex flex-col flex-1 min-h-0 bg-card rounded-md shadow-[var(--shadow-sm)] overflow-hidden">
-        <div className="flex flex-col flex-1 min-h-0 overflow-y-auto p-4 lg:p-6">
-          {isLoading && (
-            <div
-              role="status"
-              aria-live="polite"
-              aria-label="Loading your house"
-              className="flex-1 flex items-center justify-center"
-            >
-              <Spinner />
-            </div>
-          )}
-
-          {!isLoading && error && (
-            <div className="flex-1 flex items-center justify-center">
-              <EmptyState
-                title="We couldn't load your house"
-                description="Something went wrong fetching your spaces and plants."
-                action={
-                  <Action
-                    variant="secondary"
-                    onClick={() => {
-                      refetchSpaces()
-                      refetchPlants()
-                    }}
-                  >
-                    Try again
-                  </Action>
-                }
-              />
-            </div>
-          )}
-
-          {!isLoading && !error && viewMode === 'spaces' && (
-            <SpacesView spaces={spaces} spaceAttention={spaceAttention} onSpaceTap={handleSpaceTap} />
-          )}
-
-          {!isLoading && !error && viewMode === 'list' && (
-            <ListView
-              plants={filteredPlants}
-              totalPlants={totalPlants}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              filteredSpace={filteredSpace}
-              onClearSpaceFilter={clearSpaceFilter}
-              onPlantTap={(plantId) => navigate(`/plants/${plantId}`)}
-            />
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function SpacesView({ spaces, spaceAttention, onSpaceTap }) {
-  if (!spaces || spaces.length === 0) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <EmptyState
-          icon={<span>🏡</span>}
-          title="No spaces yet"
-          description="Spaces keep your plants grouped by where they live. Add one to get started."
-          action={
-            <Action to="/welcome" variant="primary">
-              Set up spaces
-            </Action>
-          }
-        />
-      </div>
-    )
-  }
-
-  return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-      {spaces.map((space) => (
-        <SpaceCard
-          key={space.id}
-          space={space}
-          attentionCount={spaceAttention[space.id] || 0}
-          onClick={() => onSpaceTap(space.id)}
-        />
-      ))}
-    </div>
-  )
-}
-
-function ListView({ plants, totalPlants, searchQuery, onSearchChange, filteredSpace, onClearSpaceFilter, onPlantTap }) {
-  if (totalPlants === 0 && !filteredSpace) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <EmptyState
-          icon={<span>🌱</span>}
-          title="Your jungle starts here"
-          description="Add a plant to see it come alive."
-          action={
-            <Action to="/add-plant" variant="primary">
-              Add a plant
-            </Action>
-          }
-        />
-      </div>
-    )
-  }
-
-  return (
-    <div className="flex flex-col gap-3">
-      {filteredSpace && (
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-soft">
-          <span>Filtered by</span>
-          <Action
-            variant="unstyled"
-            onClick={onClearSpaceFilter}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mint text-emerald normal-case tracking-normal text-[12px]"
-            aria-label={`Clear ${filteredSpace.name} filter`}
-          >
-            {filteredSpace.name}
-            <FontAwesomeIcon icon={faXmark} aria-hidden="true" />
-          </Action>
-        </div>
-      )}
-
-      <TextInput
-        label="Search plants"
-        type="search"
-        value={searchQuery}
-        onChange={(event) => onSearchChange(event.target.value)}
-        placeholder="Search by name or species"
-      />
-
-      {plants.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center py-8">
+        {!isLoading && error && (
           <EmptyState
-            title="Nothing matches"
-            description={searchQuery ? `No plants match "${searchQuery}".` : 'This space has no plants yet.'}
+            title="We couldn't load your house"
+            description="Something went wrong fetching your spaces and plants."
+            action={
+              <Action
+                variant="secondary"
+                onClick={() => {
+                  refetchSpaces()
+                  refetchPlants()
+                }}
+              >
+                Try again
+              </Action>
+            }
           />
-        </div>
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {plants.map((plant) => (
-            <li key={plant.id}>
-              <PlantTile plant={plant} onTap={() => onPlantTap(plant.id)} />
-            </li>
-          ))}
-        </ul>
-      )}
+        )}
+
+        {!isLoading && !error && view === 'rooms' && (
+          <RoomsView
+            cards={spaceCards}
+            totalSpaces={totalSpaces}
+            weatherToday={weatherToday}
+            onAddSpace={openAddDialog}
+            onEditSpace={openEditDialog}
+          />
+        )}
+
+        {!isLoading && !error && view === 'list' && (
+          <div className="flex items-center justify-center min-h-[200px] text-sm text-ink-soft">
+            List view ships in TICKET-039b (R3b).
+          </div>
+        )}
+      </main>
+
+      <AddCustomSpaceForm
+        key={dialogState.space?.id ?? 'new'}
+        open={dialogState.open}
+        onClose={closeDialog}
+        onAdd={handleAddSpace}
+        onEdit={handleEditSpace}
+        space={dialogState.space}
+        existingNames={existingNames}
+      />
     </div>
   )
 }
 
-function PlantTile({ plant, onTap }) {
-  const waterDue = isWaterDue(plant)
-  const feedDue = isFeedDue(plant)
+function RoomsView({ cards, totalSpaces, weatherToday, onAddSpace, onEditSpace }) {
+  if (totalSpaces === 0) {
+    return (
+      <EmptyState
+        icon={<span>🏡</span>}
+        title="No spaces yet"
+        description="Spaces keep your plants grouped by where they live. Add one to get started."
+        action={
+          <Action to="/welcome" variant="primary">
+            Set up spaces
+          </Action>
+        }
+      />
+    )
+  }
 
+  return (
+    <ul className="grid grid-cols-2 lg:grid-cols-3 gap-3.5 list-none p-0">
+      <li>
+        <AddSpaceTile onClick={onAddSpace} />
+      </li>
+      {cards.map(({ space, peek, nextCare }) => {
+        const isOutdoor = space.category === 'outdoor'
+        return (
+          <li key={space.id} className="relative">
+            <RoomCard
+              icon={getSpaceEmoji(space.icon)}
+              name={space.name}
+              count={`${pluralize(space.plants_count, 'plant')} · ${space.category}`}
+              variant={isOutdoor ? 'outdoor' : 'indoor'}
+              peek={peek}
+              nextCare={nextCare}
+              envHint={envHintFor(space)}
+              weatherPill={isOutdoor ? weatherPillFor(weatherToday) : null}
+            />
+            <Action
+              variant="unstyled"
+              onClick={() => onEditSpace(space)}
+              aria-label={`Edit ${space.name}`}
+              className="absolute top-3 right-3 w-7 h-7 rounded-full bg-ink/[0.04] text-ink-soft hover:bg-ink/[0.08] hover:text-ink transition-colors flex items-center justify-center cursor-pointer"
+            >
+              <FontAwesomeIcon icon={faPenToSquare} className="w-3 h-3" />
+            </Action>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+function weatherPillFor(today) {
+  if (!today) return null
+  return {
+    icon: today.icon ?? '☀',
+    label: today.detail ?? today.label,
+    scheme: today.scheme,
+  }
+}
+
+function AddSpaceTile({ onClick }) {
   return (
     <Action
       variant="unstyled"
-      onClick={onTap}
-      className="w-full flex items-center gap-3 p-3 rounded-md bg-card border border-mint text-left transition-colors hover:border-leaf/50"
+      onClick={onClick}
+      className="w-full h-full min-h-[200px] flex flex-col items-center justify-center gap-1.5 p-4 rounded-md border-2 border-dashed border-emerald/30 hover:border-leaf hover:bg-lime/10 transition-colors"
     >
-      <PlantAvatar species={plant.species} size="md" />
-      <div className="flex-1 min-w-0">
-        <p className="text-[15px] font-extrabold text-ink truncate">{plant.nickname}</p>
-        <p className="text-[13px] text-ink-soft truncate">
-          {plant.species?.common_name ?? 'Unknown species'}
-          {plant.space?.name && ` · ${plant.space.name}`}
-        </p>
-      </div>
-      {(waterDue || feedDue) && (
-        <span role="img" aria-label="Needs care" className="flex items-center gap-1 shrink-0">
-          {waterDue && <span aria-hidden="true">💧</span>}
-          {feedDue && <span aria-hidden="true">🌱</span>}
-        </span>
-      )}
+      <span
+        aria-hidden="true"
+        className="w-11 h-11 rounded-full bg-mint text-emerald flex items-center justify-center text-[22px] font-bold"
+      >
+        +
+      </span>
+      <span className="font-display italic text-[17px] text-emerald leading-none">Add a space</span>
+      <span className="text-[11px] font-semibold tracking-[0.04em] text-ink-softer">Indoor or outdoor</span>
     </Action>
   )
 }
