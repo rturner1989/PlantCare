@@ -69,15 +69,17 @@ test.describe('Today dashboard', () => {
   test('week strip renders seven day chips and selecting a future day swaps the rituals heading', async ({ page }) => {
     await registerWithOnePlant(page)
 
+    // Wait for the dashboard query to land before reaching for the
+    // WeekStrip chips — Today renders a Spinner while isLoading, and
+    // CI cold-starts can keep that up past Playwright's 5s default.
+    await expect(page.getByRole('heading', { name: /Today's rituals/ })).toBeVisible({ timeout: 15000 })
+
     // WeekStrip exposes each day as a button with an aria-label that
     // includes the weekday + date + count summary. "today" appears on
     // exactly one chip.
     const todayChip = page.getByRole('button', { name: /today/ })
     await expect(todayChip).toBeVisible()
     await expect(todayChip).toHaveAttribute('aria-pressed', 'true')
-
-    // Default heading on the rituals slab is "Today's rituals".
-    await expect(page.getByRole('heading', { name: /Today's rituals/ })).toBeVisible()
 
     // Pick a future day — the chip whose aria-label contains a weekday
     // but NOT "today". WeekStrip renders today + 6 forward days, so any

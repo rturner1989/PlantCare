@@ -126,7 +126,10 @@ plant = user.plants.first || user.spaces.first.plants.create!(
 plant.care_logs.create!(care_type: 'watering', performed_at: Time.current)
 `)
 
+    // 5s wasn't enough on CI: care_log create → CheckAchievementsJob enqueue
+    // → Sidekiq pickup → Achievement.unlock! → cable broadcast → subscriber
+    // → toast can race a cold Sidekiq worker. Local hits ~2s, CI hits 5–8s.
     const toast = page.getByText('First care logged')
-    await expect(toast).toBeVisible({ timeout: 5000 })
+    await expect(toast).toBeVisible({ timeout: 15000 })
   })
 })
