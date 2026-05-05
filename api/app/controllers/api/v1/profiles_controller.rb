@@ -16,7 +16,10 @@ module Api
       end
 
       private def profile_params
-        params.expect(user: [:name, :email, :timezone, :onboarding_intent, :onboarding_step_reached])
+        params.expect(
+          user: [:name, :email, :timezone, :onboarding_intent, :onboarding_step_reached,
+                 :latitude, :longitude, :location_label]
+        )
       end
     end
   end

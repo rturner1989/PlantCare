@@ -65,4 +65,15 @@ class Api::V1::ProfilesControllerTest < ActionDispatch::IntegrationTest
     json = response.parsed_body
     assert_includes json['errors']['onboarding_intent'], 'is not included in the list'
   end
+
+  test 'update persists latitude, longitude, and location_label' do
+    patch api_v1_profile_path, headers: auth_headers(@user),
+      params: { user: { latitude: 53.4808, longitude: -2.2426, location_label: 'Manchester' } }, as: :json
+
+    assert_response :ok
+    json = response.parsed_body
+    assert_in_delta 53.4808, json['latitude'], 0.0001
+    assert_in_delta(-2.2426, json['longitude'], 0.0001)
+    assert_equal 'Manchester', json['location_label']
+  end
 end

@@ -2,7 +2,10 @@
 
 require 'test_helper'
 
+# rubocop:disable Rails/SkipsModelValidations -- update_columns seeds cached aggregate counters under test
 class CareLogTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   setup do
     @plant = plants(:sir_plantalot)
   end
@@ -48,4 +51,42 @@ class CareLogTest < ActiveSupport::TestCase
     logs = @plant.care_logs.chronological
     assert logs.first.performed_at > logs.last.performed_at
   end
+
+  test 'create unlocks streak_7 achievement when streak hits 7 days' do
+    user = @plant.space.user
+    Achievement.where(user: user).destroy_all
+    CareLog.where(plant: user.plants).destroy_all
+    user.update_columns(current_care_streak_days: 0, longest_care_streak_days: 0, last_care_logged_on: nil)
+
+    perform_enqueued_jobs do
+      (1..6).each do |offset|
+        @plant.care_logs.create!(care_type: 'watering', performed_at: (Date.current - offset).to_time + 9.hours)
+      end
+    end
+    # Streak update logic from CareLog uses Date.current, not performed_at,
+    # so the dated rows above don't actually grow the cached streak counter.
+    # Drive it directly to the threshold-1 state for the assertion.
+    user.update_columns(current_care_streak_days: 6, last_care_logged_on: Date.current - 1)
+    assert_equal 0, user.achievements.where(kind: 'care_streak_7').count
+
+    perform_enqueued_jobs do
+      @plant.care_logs.create!(care_type: 'watering', performed_at: Time.current)
+    end
+    assert_equal 1, user.achievements.where(kind: 'care_streak_7').count
+  end
+
+  test 'create does not duplicate streak_7 on subsequent same-day logs' do
+    user = @plant.space.user
+    Achievement.where(user: user).destroy_all
+    CareLog.where(plant: user.plants).destroy_all
+    user.update_columns(current_care_streak_days: 6, longest_care_streak_days: 6, last_care_logged_on: Date.current - 1)
+
+    perform_enqueued_jobs do
+      @plant.care_logs.create!(care_type: 'watering', performed_at: Time.current)
+      @plant.care_logs.create!(care_type: 'feeding', performed_at: Time.current)
+    end
+
+    assert_equal 1, user.achievements.where(kind: 'care_streak_7').count
+  end
 end
+# rubocop:enable Rails/SkipsModelValidations

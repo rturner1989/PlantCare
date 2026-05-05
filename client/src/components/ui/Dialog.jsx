@@ -1,6 +1,9 @@
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useDragControls, useReducedMotion } from 'motion/react'
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import Action from './Action'
 import Card from './Card'
 
 const MotionCard = motion.create(Card)
@@ -134,7 +137,7 @@ export default function Dialog({
               aria-labelledby={title ? titleId : undefined}
               tabIndex={-1}
               variant={cardVariant}
-              className={`shadow-[var(--shadow-md)] flex flex-col min-h-0 px-6 pt-2 pb-6 gap-4 sm:pt-6 ${className}`}
+              className={`relative shadow-[var(--shadow-md)] flex flex-col min-h-0 px-6 pt-2 pb-6 gap-4 sm:pt-6 ${className}`}
               drag={allowDrag ? 'y' : false}
               dragListener={false}
               dragControls={dragControls}
@@ -158,6 +161,17 @@ export default function Dialog({
                   {title}
                 </h2>
               )}
+              {/* Close button rendered before children so it lands first
+                  in the focus-trap tab order — keyboard users escape
+                  with one Tab + Enter, no full content cycle. */}
+              <Action
+                variant="unstyled"
+                onClick={() => onCloseRef.current?.()}
+                aria-label={title ? `Close ${title}` : 'Close'}
+                className="absolute top-3 right-3 w-7 h-7 rounded-full bg-ink/[0.08] text-ink-soft hover:text-ink hover:bg-ink/[0.12] transition-colors flex items-center justify-center z-10"
+              >
+                <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
+              </Action>
               {children}
             </MotionCard>
           </div>

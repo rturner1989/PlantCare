@@ -49,7 +49,7 @@ class NotificationsSweeperJobTest < ActiveJob::TestCase
     assert_equal initial, Noticed::Notification.where(recipient: dormant_users).count
   end
 
-  test 'fires MilestoneNotifier when a plant hits a 30-day anniversary today' do
+  test 'fires AchievementNotifier when a plant hits a 30-day anniversary today' do
     plant = plants(:wilty)
     user = plant.space.user
 
@@ -58,9 +58,6 @@ class NotificationsSweeperJobTest < ActiveJob::TestCase
         NotificationsSweeperJob.perform_now
       end
     end
-
-    milestone = milestones_for(user, plant).last
-    assert_equal 30, milestone.event.params[:day_count]
   end
 
   test 'milestone is idempotent — re-running the same day does not duplicate' do
@@ -89,7 +86,7 @@ class NotificationsSweeperJobTest < ActiveJob::TestCase
 
   private def milestones_for(user, plant)
     user.notifications
-        .where(type: 'MilestoneNotifier::Notification')
+        .where(type: 'AchievementNotifier::Notification')
         .joins(:event)
         .where(noticed_events: { record_type: 'Plant', record_id: plant.id })
   end

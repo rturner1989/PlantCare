@@ -41,6 +41,11 @@ Rails.application.routes.draw do
       resources :species, only: [:index, :show]
 
       resource :dashboard, only: [:show], controller: 'dashboard'
+      resource :weather, only: [:show], controller: 'weather'
+      resources :achievements, only: [:index, :update]
+      namespace :achievements do
+        resource :unseen, only: [:show], controller: 'unseen'
+      end
 
       resource :profile, only: [:show, :update], controller: 'profiles' do
         scope module: :profile do

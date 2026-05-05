@@ -92,6 +92,11 @@ jobs:
       DB_PASSWORD: plantcare_dev
       JWT_SECRET: test_jwt_secret_for_ci_only
       VITE_API_URL: http://localhost:3000
+      # cable.yml + sidekiq initializer default to docker-compose hostnames.
+      # Override both so Rails + Sidekiq + ActionCable hit the localhost
+      # Redis service instead of attempting `redis:6379` DNS lookups.
+      REDIS_URL: redis://localhost:6379/0
+      REDIS_CABLE_URL: redis://localhost:6379/1
 
     steps:
       - name: Checkout code
@@ -148,10 +153,33 @@ jobs:
           cat /tmp/rails.log
           exit 1
 
+      # Achievements + notifications specs need CheckAchievementsJob to run.
+      # Without Sidekiq the job sits in the Redis queue forever, the cable
+      # broadcast never fires, and the toast never renders.
+      - name: Start Sidekiq
+        working-directory: api
+        run: |
+          bundle exec sidekiq > /tmp/sidekiq.log 2>&1 &
+          echo $! > /tmp/sidekiq.pid
+          for i in {1..30}; do
+            if grep -qE "Starting processing|Booted Rails" /tmp/sidekiq.log 2>/dev/null; then
+              echo "Sidekiq ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Sidekiq failed to start"
+          cat /tmp/sidekiq.log
+          exit 1
+
       - name: Run Playwright tests
         run: npm test
         env:
           CI: true
+
+      - name: Stop Sidekiq
+        if: always()
+        run: kill "$(cat /tmp/sidekiq.pid)" 2>/dev/null || true
 
       - name: Stop Rails API
         if: always()
@@ -166,4 +194,5 @@ jobs:
             client/test-results/
             client/playwright-report/
             /tmp/rails.log
+            /tmp/sidekiq.log
           retention-days: 7

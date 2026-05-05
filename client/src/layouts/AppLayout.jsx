@@ -1,9 +1,12 @@
 import { motion, useReducedMotion } from 'motion/react'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
+import AchievementSplash from '../components/AchievementSplash'
+import AchievementsListener from '../components/AchievementsListener'
 import Dock from '../components/Dock'
 import MobileTopBar from '../components/MobileTopBar'
-import NotificationsDrawer from '../components/notifications/NotificationsDrawer'
+import NotificationsDrawer from '../components/NotificationsDrawer'
+import OrganiserDrawer from '../components/OrganiserDrawer'
 import Sidebar from '../components/Sidebar'
 import ProgressBar from '../components/ui/ProgressBar'
 import Spinner from '../components/ui/Spinner'
@@ -76,7 +79,7 @@ export default function AppLayout() {
           ref={mainRef}
           id="main-content"
           tabIndex={-1}
-          className="md:ml-[64px] desktop:ml-[260px] pt-[calc(env(safe-area-inset-top)+74px)] md:pt-0 pb-[calc(74px+clamp(2px,env(safe-area-inset-bottom),12px))] xs:pb-0 flex flex-col flex-1 min-h-0 focus:outline-none"
+          className="md:ml-[64px] desktop:ml-[260px] pt-[calc(env(safe-area-inset-top)+74px)] md:pt-0 pb-[calc(74px+clamp(2px,env(safe-area-inset-bottom),12px))] xs:pb-0 flex flex-col flex-1 min-h-0 overflow-y-auto focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald/40 focus-visible:ring-inset"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut', delay: 0.15 }}
@@ -90,7 +93,7 @@ export default function AppLayout() {
           ref={mainRef}
           id="main-content"
           tabIndex={-1}
-          className="md:ml-[64px] desktop:ml-[260px] pt-[calc(env(safe-area-inset-top)+74px)] md:pt-0 pb-[calc(74px+clamp(2px,env(safe-area-inset-bottom),12px))] xs:pb-0 flex flex-col flex-1 min-h-0 focus:outline-none"
+          className="md:ml-[64px] desktop:ml-[260px] pt-[calc(env(safe-area-inset-top)+74px)] md:pt-0 pb-[calc(74px+clamp(2px,env(safe-area-inset-bottom),12px))] xs:pb-0 flex flex-col flex-1 min-h-0 overflow-y-auto focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald/40 focus-visible:ring-inset"
         >
           <Suspense fallback={<RouteFallback />}>
             <Outlet />
@@ -100,6 +103,9 @@ export default function AppLayout() {
 
       <Dock isFirstRun={isFirstRun} />
       <NotificationsDrawer />
+      <OrganiserDrawer />
+      <AchievementsListener />
+      <AchievementSplash />
     </div>
   )
 }

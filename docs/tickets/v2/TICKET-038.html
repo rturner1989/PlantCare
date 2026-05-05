@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-038 — R2 Today rewrite + F3/F4/F8 primitives + GroupCard extraction</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #f5f5f0;
+  color: #1a1a1a;
+  padding: 40px;
+  line-height: 1.6;
+}
+.ticket {
+  max-width: 960px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 32px 40px;
+}
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #666;
+  margin-bottom: 16px;
+}
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+
+.plan-strip {
+  display: flex;
+  gap: 4px;
+  margin: 16px 0 20px;
+  flex-wrap: wrap;
+}
+.plan-step {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 8px;
+  text-align: center;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f0f0ea;
+  color: #888;
+  border: 1px solid transparent;
+}
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+.artifact-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+.artifact {
+  padding: 14px 18px;
+  background: #f8faf8;
+  border-left: 3px solid #2d6a4f;
+  border-radius: 0 8px 8px 0;
+}
+.artifact .name {
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.artifact .role {
+  font-size: 14px;
+  color: #444;
+  margin-top: 4px;
+}
+.artifact .kind {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: #1a1a2e;
+  color: #fff;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.artifact .kind.page { background: #2d6a4f; }
+.artifact .kind.component { background: #1a1a2e; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.hook { background: #4a6fa5; }
+.artifact .kind.util { background: #6a4a8f; }
+.artifact .kind.refactor { background: #c25450; color: #fff; }
+
+.shape {
+  background: #1a1a2e;
+  color: #d4d4d4;
+  border-radius: 8px;
+  padding: 20px 24px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  margin-top: 12px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box {
+  width: 18px; height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.criterion span { font-size: 15px; }
+
+.mockup-preview {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+.mockup-preview iframe {
+  width: 100%;
+  height: 360px;
+  border: none;
+  background: #fff;
+}
+.mockup-preview .label {
+  padding: 10px 14px;
+  background: #f5f5f0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+.mockup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 720px) { .mockup-grid { grid-template-columns: 1fr; } }
+
+blockquote {
+  border-left: 3px solid #2d6a4f;
+  padding: 12px 16px;
+  margin: 12px 0;
+  background: #f8faf8;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  color: #444;
+}
+code {
+  background: #f0f0ea;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'SF Mono', Consolas, monospace;
+}
+
+.learn {
+  background: #fff8e8;
+  border-left: 3px solid #f4a261;
+  padding: 14px 18px;
+  border-radius: 0 8px 8px 0;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #4a3a1a;
+}
+.learn strong { color: #7a5a1a; }
+
+.rails-map {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 8px;
+}
+.rails-map th {
+  text-align: left;
+  padding: 10px 12px;
+  background: #1a1a2e;
+  color: #fff;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+.rails-map td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+
+.plan-link {
+  display: inline-block;
+  padding: 8px 14px;
+  background: #f0f0ea;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #444;
+  text-decoration: none;
+  margin-top: 8px;
+}
+.plan-link:hover { background: #e6e6de; }
+
+.file-list { list-style: none; padding: 0; }
+.file-list li {
+  padding: 10px 14px;
+  background: #f8f8f5;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}
+.file-list .action {
+  font-family: inherit;
+  font-size: 11px;
+  color: #888;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.scope-callout {
+  background: #fdf2e9;
+  border: 1px solid #f4a261;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 16px 0;
+}
+.scope-callout strong { color: #b85c00; }
+
+.step-list {
+  list-style: none;
+  padding: 0;
+  counter-reset: step;
+}
+.step-list li {
+  counter-increment: step;
+  padding: 14px 18px 14px 56px;
+  background: #f8faf8;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  position: relative;
+  font-size: 14px;
+}
+.step-list li::before {
+  content: counter(step);
+  position: absolute;
+  left: 18px;
+  top: 14px;
+  width: 26px;
+  height: 26px;
+  background: #1a1a2e;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+}
+.step-list li strong { display: block; margin-bottom: 4px; color: #1a1a2e; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<div class="header">
+  <div class="id">TICKET-038 · R2 (bundles F3 + F4 + F8 + GroupCard extraction)</div>
+  <h1>Today rewrite — collection-first hero, organiser column, radial wheel + weather pill primitives</h1>
+  <div class="badges">
+    <span class="badge status">OPEN</span>
+    <span class="badge priority-high">HIGH</span>
+  </div>
+</div>
+
+<section>
+  <h2>Summary</h2>
+  <p>Rewrite <code>pages/Today.jsx</code> to the v2 mockups (17 desktop + 18 mobile) — collection-first plant strip, jobs rail, weekly weather calendar, 56px ritual rows with swipe-to-complete on mobile and a radial action wheel on urgent rows, plus a persistent organiser column on desktop / bottom-sheet drawer on mobile.</p>
+  <p>This ticket is a <strong>bundle</strong>: it absorbs three F-tier primitives that R2 needs (RadialWheel, WeatherPill, Organiser) and extracts the <code>GroupCard</code> pattern out of <code>NotificationsDrawer.jsx</code> so both surfaces share one implementation. Future R-tickets (House, Plant Detail, Journal) consume the primitives unchanged.</p>
+  <p>In one sentence: <strong>Today gets its v2 shape, and the four shared primitives it depends on land in <code>components/ui/</code> alongside the rewrite.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+  <div class="plan-strip">
+    <div class="plan-step done"><span class="num">B1–B7</span>Backend</div>
+    <div class="plan-step done"><span class="num">F1</span>Tokens</div>
+    <div class="plan-step done"><span class="num">F6</span>Slab</div>
+    <div class="plan-step done"><span class="num">037</span>R1 Nav</div>
+    <div class="plan-step done"><span class="num">044</span>R8 Notif</div>
+    <div class="plan-step done"><span class="num">045</span>R9 Onboard</div>
+    <div class="plan-step done"><span class="num">051</span>R15 Auth</div>
+    <div class="plan-step current"><span class="num">038</span>R2 Today</div>
+    <div class="plan-step"><span class="num">039</span>R3 House</div>
+    <div class="plan-step"><span class="num">040</span>R4 Plant</div>
+    <div class="plan-step"><span class="num">041–049</span>R5–R14</div>
+  </div>
+
+  <p><strong>What came before:</strong> R1 (TICKET-037) built the nav spine that frames every region. R8 (TICKET-044) shipped the Drawer primitive, NotificationsContext, and the GroupCard pattern — three of which this ticket reuses. R9 (TICKET-045) finished onboarding so users now land on Today expecting the v2 shape. F1 + F6 already provide the design tokens and SummarySlab primitive that ritual rows sit on.</p>
+
+  <p><strong>What this unlocks:</strong> R3 House (TICKET-039) needs WeatherPill on space cards. R4 Plant Detail (TICKET-040) needs RadialWheel as its always-open hero. R5 Journal (TICKET-041) needs WeatherPill in calendar variant. Once those primitives are in <code>components/ui/</code>, the next three R-tickets can pull them in directly without re-litigating the API.</p>
+
+  <p><strong>Mental model:</strong> this is the v2 equivalent of <em>"Rails 7 → 8 upgrade for the Today screen"</em> — the data shape mostly stays the same (dashboard payload), but the view layer and the surrounding primitives all rebuild together. The existing <code>useDashboard</code> hook keeps its job but the JSX it powers is unrecognisable.</p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <p>Five pieces — three <code>ui/</code> primitives, one root-level domain component, and the rewrite of <code>pages/Today.jsx</code> that consumes them.</p>
+
+  <div class="artifact-list">
+
+    <div class="artifact">
+      <div><span class="kind component">Component</span><span class="name">components/ui/WeatherPill.jsx</span></div>
+      <p class="role">A pill-shaped status surface with a circular icon medallion + label + optional detail line. Comes in three layout variants (<code>strip</code> for Today's full-width band, <code>calendar</code> for 7-day cells, <code>group</code> for House space-group headers) and three colour schemes (<code>sky</code> default, <code>frost</code>, <code>heat</code>). Pulses via <code>motion/react</code> when <code>urgent</code> — reduced-motion respected. Lands first because it's the smallest primitive and the calendar inside Organiser depends on it.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind refactor">Refactor</span><span class="name">components/ui/GroupCard.jsx</span></div>
+      <p class="role">Pulled inline-out-of <code>NotificationsDrawer.jsx</code> into a shared primitive. Owns the <code>Card.Header / Card.Body / Card.Footer</code> chrome, the optional <code>viewAll={{ count, onClick }}</code> expand affordance, and the sequenced expand-animation state machine (view-all swoosh → sibling exit → card layout move → items reveal → header swap). NotificationsDrawer becomes a consumer of this primitive in the same PR. Today's Organiser uses it for "Jobs queue" + "Weather forecast" + "This week's calendar" + "Streak".</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind component">Component</span><span class="name">components/ui/RadialWheel.jsx</span></div>
+      <p class="role">Six action spokes (Water · Feed · Photo · Note · Doctor · Move) fanning around a centre medallion that holds the plant's avatar. Long-press on a Today urgent ritual row opens the wheel; pointer-up closes it; tapping a spoke fires the action. Open animation staggers spokes outward via <code>motion/react</code>; the primary spoke gets a 2.2s ease-in-out coral-glow pulse when <code>urgent</code>. Sized 300px on mobile, 420px on desktop (R4 Plant Detail will use it always-open at the larger size). Keyboard nav: Tab into centre, Arrow keys cycle spokes, Enter fires, Esc closes.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind component">Component</span><span class="name">components/Organiser.jsx</span></div>
+      <p class="role">Today's "context companion" — a column on desktop, a bottom-sheet drawer on mobile (the same <code>Drawer</code> primitive R8 already ships). Holds <strong>state-snapshot widgets</strong>: weather forecast (WeatherPill strip variant), this week's care calendar (7 cells with weather + care dots), current streak, jobs queue. Triggered by the ✎ pencil button on Today's mobile top bar. <strong>Does not duplicate Notifications</strong> — no journal preview card, no event list, no read state. Per <code>project_organiser_vs_notifications_scope.md</code>: Organiser is "what's true right now", Notifications is "what just happened".</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind rewrite">Rewrite</span><span class="name">pages/Today.jsx</span></div>
+      <p class="role">Ground-up rebuild. Order top-to-bottom: <strong>collection strip</strong> (every plant as a small mood-decorated avatar, coral ring on those needing care — not a hero, just a presence), <strong>jobs rail</strong> (named-verb cards from the dashboard payload), <strong>weekly calendar</strong> (7-day strip with weather + care dots), <strong>ritual rows</strong> (56px SummarySlab height — swipe-right on mobile to mark complete, long-press on urgent rows to open RadialWheel). Desktop adds the Organiser as a right-side column; mobile reaches it via the ✎ button. The current <code>HeroCard</code> is demoted to "rescue mission" surface that conditionally renders only when there's a genuinely urgent overdue plant; it stops being the page hero.</p>
+    </div>
+
+  </div>
+
+  <h3 style="margin-top:24px;font-size:14px;color:#444;">Structure</h3>
+  <div class="shape">pages/Today.jsx
+├── CollectionStrip          — plant avatars, mood-decorated
+├── JobsRail                 — named-verb cards
+├── WeeklyCalendar           — 7-day strip (uses WeatherPill calendar variant)
+├── RitualList
+│   └── RitualRow            — 56px slab, swipe-to-complete
+│       └── RadialWheel      — long-press opens (urgent rows only)
+└── (desktop only)
+    └── Organiser            — right column, state-snapshot widgets
+        ├── GroupCard "Weather"   — WeatherPill strip
+        ├── GroupCard "This week" — calendar grid
+        ├── GroupCard "Jobs"      — overflow from main rail
+        └── GroupCard "Streak"    — current count
+
+(mobile)
+TopBar ✎ button → Drawer (placement="right") → Organiser content</div>
+
+  <div class="scope-callout">
+    <strong>Scope-limit:</strong> the mockups show full-fat Today with placeholder data for streak, weather, and jobs queue. Backend payloads for <strong>weather</strong> and <strong>streak</strong> aren't shipped yet — render those widgets with hardcoded sample data behind a small adapter so the layout is real but the numbers are static. Real data lights up in a follow-up ticket once the backend lands. Don't block this PR on it.
+  </div>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+  <ol>
+    <li><strong>Today is collection-first.</strong> A user opening Today sees every plant they own at a glance via small mood-decorated avatars, not a single hero card. Plants needing care wear a coral ring; the rest are calm. The HeroCard surface only appears when there's a genuinely overdue rescue scenario.</li>
+
+    <li><strong>Rituals are completable inline.</strong> Each ritual row is a 56px slab with the plant's avatar, the action verb, and a relative-time pill. On mobile, swiping the row right marks the action complete (logs care + animates the row out). On desktop, an explicit complete button does the same. Keyboard users get Space/Enter as the swipe equivalent.</li>
+
+    <li><strong>Urgent ritual rows expose the RadialWheel.</strong> Long-press (or right-click on desktop) on an urgent row opens the wheel anchored to the row's avatar. Tapping a spoke fires the chosen action; the wheel closes on pointer-up, Esc, or selecting a spoke. Reduced-motion users get a non-animated reveal.</li>
+
+    <li><strong>Weather is consistent across surfaces.</strong> The same WeatherPill primitive renders the Today weather strip, the calendar cells inside Organiser, and (in future tickets) House outdoor cards + Journal calendar. No four-variant drift like v1.</li>
+
+    <li><strong>Organiser is state, not events.</strong> The Organiser column holds present-tense widgets: weather, this week's calendar, current streak, jobs queue. It does not show recent activity (that's Notifications) or historical entries (that's Journal). The split is enforced by the content, not just the trigger.</li>
+
+    <li><strong>Notifications drawer continues to work.</strong> R8's NotificationsDrawer keeps its visual + functional behaviour after the GroupCard extraction — same animation, same expand-back flow, same a11y semantics. The PR includes a regression test that proves it.</li>
+
+    <li><strong>Both Today and the primitives respect reduced-motion.</strong> Swipe-row exit animation, RadialWheel open stagger + urgent pulse, WeatherPill urgent pulse, Organiser open transition — all gated on <code>useReducedMotion()</code>.</li>
+
+    <li><strong>The collection grid stays responsive even with a big plant list.</strong> A user with 60+ plants doesn't see the search/filter UI lag while typing. Use <code>useDeferredValue</code> on any expensive derived list (mood-grouping, filter results) so input stays snappy.</li>
+
+    <li><strong>Tests cover the new surfaces.</strong> WeatherPill, RadialWheel, GroupCard, Organiser each get a Vitest test file. Today gets a Playwright spec covering: page load, complete-a-ritual flow, open-the-wheel flow, open-the-organiser flow.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+
+  <div class="criterion"><div class="box"></div><span>Loading <code>/</code> renders the collection strip + jobs rail + weekly calendar + ritual list. No full-page spinner — header is synchronous, only data-dependent regions wait.</span></div>
+
+  <div class="criterion"><div class="box"></div><span>Resizing the viewport from desktop to mobile collapses the Organiser column off-screen and exposes the ✎ button in the top bar. Tapping ✎ opens the Drawer with the Organiser content inside it. Esc + scrim-tap + ✕ all close.</span></div>
+
+  <div class="criterion"><div class="box"></div><span>Swiping a ritual row right past ~40% of its width fires the complete action, the row animates out, and a toast confirms. Swiping less than that snaps back without firing.</span></div>
+
+  <div class="criterion"><div class="box"></div><span>Long-pressing an urgent ritual row opens the RadialWheel anchored to the row's avatar. Releasing pointer or tapping outside closes it. Tapping a spoke fires the action and closes the wheel.</span></div>
+
+  <div class="criterion"><div class="box"></div><span>Keyboard-only: tabbing through Today reaches every ritual row, the Esc-key closes any open wheel, the Enter-key on a ritual row triggers complete, and the ✎ button + Organiser drawer keep their focus trap from R8.</span></div>
+
+  <div class="criterion"><div class="box"></div><span>The Notifications drawer (bell click) still opens, groups, expands, marks-read, and closes exactly as it did before this PR. Existing Playwright drawer specs all pass without modification.</span></div>
+
+  <div class="criterion"><div class="box"></div><span>DevTools → Performance: scrolling the collection strip with 60 plants doesn't drop frames; React Profiler shows no avatar re-renders when an unrelated cell updates.</span></div>
+
+  <div class="criterion"><div class="box"></div><span><code>prefers-reduced-motion: reduce</code> in DevTools: swipe completion is instant, RadialWheel reveal is instant, WeatherPill stops pulsing, Organiser open is instant.</span></div>
+
+  <div class="criterion"><div class="box"></div><span><code>/vercel-react-best-practices</code> + <code>/accessibility</code> reviews both pass — blocking findings addressed in the same branch.</span></div>
+
+  <div class="criterion"><div class="box"></div><span><code>./scripts/lint.sh && ./scripts/run_tests.sh client</code> both green.</span></div>
+
+</section>
+
+<section>
+  <h2>Suggested step order</h2>
+  <p>This is a heavy ticket — pace it like R9. Each step lands cleanly on its own and unblocks the next. Stage as you go.</p>
+
+  <ol class="step-list">
+    <li><strong>WeatherPill primitive</strong> — smallest piece, no consumer changes elsewhere. Build the component + Vitest test, drop it in <code>components/ui/</code>. The Organiser will import it in step 4.</li>
+    <li><strong>GroupCard extraction</strong> — pull the inline GroupCard from <code>NotificationsDrawer.jsx</code> into <code>components/ui/GroupCard.jsx</code>. NotificationsDrawer becomes a consumer in the same commit. Run the existing R8 Playwright drawer spec — it should pass unchanged. This locks down the regression net before adding a second consumer.</li>
+    <li><strong>RadialWheel primitive</strong> — the heaviest UI primitive in the bundle. Build component + Vitest test (rendering, keyboard nav, spoke callback, urgent state, reduced-motion). Don't wire it to Today yet — ship as a standalone primitive first.</li>
+    <li><strong>Organiser shell + content widgets</strong> — <code>components/Organiser.jsx</code> with two render modes (column for desktop, content-only for embedding inside the existing Drawer on mobile). Wire up the four GroupCard widgets (weather, calendar, streak, jobs) with placeholder data adapters.</li>
+    <li><strong>Today page rewrite</strong> — replace <code>pages/Today.jsx</code>. Build top-to-bottom: collection strip → jobs rail → weekly calendar → ritual rows. Wire RadialWheel to urgent ritual rows. Demote HeroCard to conditional rescue surface.</li>
+    <li><strong>Mobile pass</strong> — swipe-to-complete gesture on ritual rows, ✎ button on MobileTopBar opens Organiser-in-Drawer, vertical-rhythm + safe-area sweep across the page.</li>
+    <li><strong>Reviews + Playwright catch-up</strong> — run <code>/vercel-react-best-practices</code> + <code>/accessibility</code>, address blocking findings, write the Today Playwright spec (load, complete ritual, open wheel, open organiser), run <code>/pre-commit</code> + <code>/comment-audit</code>, ship the PR.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Design references</h2>
+
+  <div class="mockup-grid">
+    <div class="mockup-preview">
+      <div class="label"><span>17 — Today desktop</span><a href="../../mockups/plantcare-ui/v2/17-today-density-v1.html" target="_blank">Open ↗</a></div>
+      <iframe src="../../mockups/plantcare-ui/v2/17-today-density-v1.html"></iframe>
+    </div>
+    <div class="mockup-preview">
+      <div class="label"><span>18 — Today mobile</span><a href="../../mockups/plantcare-ui/v2/18-today-mobile-v1.html" target="_blank">Open ↗</a></div>
+      <iframe src="../../mockups/plantcare-ui/v2/18-today-mobile-v1.html"></iframe>
+    </div>
+  </div>
+
+  <p><strong>Spec excerpt — collection-first framing</strong> (from <code>docs/specs/2026-04-23-plantcare-design-v2.md</code>):</p>
+  <blockquote>Today's job is not "what's overdue right now" — it's "your jungle, with attention prompts where they're needed". The collection strip surfaces every plant; the ritual list surfaces the actions; the wheel reveals the per-plant menu. The HeroCard becomes a conditional rescue surface, not the page hero.</blockquote>
+
+  <p><strong>Spec excerpt — Organiser vs Notifications</strong> (from <code>docs/specs/2026-04-23-plantcare-design-v2.md</code>, also in memory <code>project_organiser_vs_notifications_scope.md</code>):</p>
+  <blockquote>Organiser widgets are <em>state snapshots</em>. Present-tense, persistent. Notifications drawer is the <em>event inbox</em>. Past-tense, read/unread, dismissible. Journal is the permanent archive. The Organiser does not include a recent-activity card — that's Notifications' job.</blockquote>
+
+  <a class="plan-link" href="../../plans/2026-04-24-plantcare-frontend-v2.md">Plan: docs/plans/2026-04-24-plantcare-frontend-v2.md (TICKET-038, R2)</a>
+  <p style="margin-top:8px;font-size:13px;color:#888;">The plan keeps F3/F4/F8 as separate ticket entries (TICKET-029, 030, 034). This bundle absorbs all three. Treat the plan's per-primitive sections as <em>API hints, not scripts to transcribe</em> — and update the plan after the PR merges to mark them as "absorbed into TICKET-038".</p>
+</section>
+
+<section>
+  <h2>React concepts worth looking up</h2>
+
+  <div class="learn">
+    <strong>useDeferredValue for big lists.</strong> When the collection strip filters or re-groups based on user input (or a derived computation runs over 60+ plants), you can wrap the input/dep in <code>useDeferredValue</code> so React keeps the typing responsive and runs the expensive render in the background. It's the React 18+ idiom — newer than your hobby learning. <em>Rails analogy: like marking a query as "low priority" so the controller doesn't block on it before responding to the page render.</em>
+  </div>
+
+  <div class="learn">
+    <strong>Framer Motion drag gestures + popLayout.</strong> Swipe-to-complete is a <code>motion/react</code> drag handler with a threshold check (offset.x > N px or velocity > Y). On exit, the row animates with <code>AnimatePresence mode="popLayout"</code> so the rows below close the gap smoothly. The same library powers the RadialWheel stagger reveal — you've used Framer in R8 and R9, this is more of the same.
+  </div>
+
+  <div class="learn">
+    <strong>Long-press vs click on touch.</strong> Pointer events fire <em>before</em> touch gestures resolve — building a "long-press opens, tap completes" interaction means tracking pointer-down time + cancelling the long-press timer if pointer-up comes first. Don't conflate it with React's synthetic <code>onClick</code>; pointer events give you the timing primitives you need.
+  </div>
+
+  <div class="learn">
+    <strong>useReducedMotion is a hook, not a CSS rule.</strong> <code>motion/react</code> exposes <code>useReducedMotion()</code> which reads the OS preference; pass <code>{ duration: 0 }</code> as the transition when it's true. Already used across R8/R9 — same pattern. The CSS <code>@media (prefers-reduced-motion)</code> approach works for pure-CSS animation, but Framer-driven motion needs the hook because the values come from JS.
+  </div>
+
+  <div class="learn">
+    <strong>When NOT to memoise.</strong> Vercel's <code>rerender-simple-expression-in-memo</code> rule says: if the computation is a primitive lookup or trivial expression, <code>useMemo</code> costs more than it saves. The collection strip's per-avatar style derivation (mood → ring colour) is exactly that. Do not wrap it. <em>The React Compiler is doing the work for you when it makes sense.</em>
+  </div>
+
+  <div class="learn">
+    <strong>The "compound child" slot pattern.</strong> WeatherPill has a single, paired-with-parent slot shape (icon + label + detail) — that's a <strong>props</strong> contract (<code>renders_one</code> in ViewComponent terms). GroupCard takes a body of variable items — that's <strong>children</strong> (<code>content</code>). Don't mix patterns within a primitive. CLAUDE.md "Slot patterns" section is canonical; default to props for single+paired, children for variable+freeform.
+  </div>
+</section>
+
+<section>
+  <h2>Rails ↔ React mental map</h2>
+  <table class="rails-map">
+    <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Instance vars (<code>@plants</code>, <code>@dashboard</code>)</td>
+        <td><code>useDashboard()</code> + <code>usePlants()</code> at the top of <code>Today.jsx</code></td>
+        <td>Same role: hydrate the page's data dependencies once.</td>
+      </tr>
+      <tr>
+        <td>View partial (<code>_ritual_row.html.erb</code>)</td>
+        <td><code>RitualRow.jsx</code> imported into <code>Today.jsx</code></td>
+        <td>Reusable view chunk, but a real component — not a string template.</td>
+      </tr>
+      <tr>
+        <td>Helper (<code>format_relative_time</code>)</td>
+        <td>Plain function in <code>utils/timeAgo.js</code></td>
+        <td>No ApplicationHelper; just import where needed.</td>
+      </tr>
+      <tr>
+        <td><code>turbo_frame</code> for inline updates</td>
+        <td><code>queryClient.invalidateQueries(['dashboard'])</code> after a care log mutation</td>
+        <td>TanStack refetches; the row's parent re-renders with fresh data.</td>
+      </tr>
+      <tr>
+        <td><code>button_to</code> with <code>method: :post</code></td>
+        <td><code>useLogCare</code> mutation + onClick / drag handler</td>
+        <td>You wire the gesture-to-mutation explicitly; no framework sugar.</td>
+      </tr>
+      <tr>
+        <td><code>responders</code> / mobile vs desktop view paths</td>
+        <td>One JSX tree + Tailwind responsive classes</td>
+        <td>Don't render twice; gate visibility/style with breakpoint utilities.</td>
+      </tr>
+      <tr>
+        <td><code>concerns/</code> shared module</td>
+        <td>Primitive in <code>components/ui/</code></td>
+        <td>WeatherPill / RadialWheel / GroupCard are the primitives; pages/sections compose them.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Related files</h2>
+  <ul class="file-list">
+    <li><span>client/src/pages/Today.jsx</span><span class="action">Rewrite</span></li>
+    <li><span>client/src/components/ui/WeatherPill.jsx</span><span class="action">Create</span></li>
+    <li><span>client/src/components/ui/RadialWheel.jsx</span><span class="action">Create</span></li>
+    <li><span>client/src/components/ui/GroupCard.jsx</span><span class="action">Create (extract)</span></li>
+    <li><span>client/src/components/Organiser.jsx</span><span class="action">Create</span></li>
+    <li><span>client/src/components/notifications/NotificationsDrawer.jsx</span><span class="action">Refactor (consume GroupCard)</span></li>
+    <li><span>client/src/components/HeroCard.jsx</span><span class="action">Demote</span></li>
+    <li><span>client/src/components/TaskRow.jsx</span><span class="action">Modify (→ RitualRow shape, swipe gesture)</span></li>
+    <li><span>client/src/components/MobileTopBar.jsx</span><span class="action">Extend (✎ button)</span></li>
+    <li><span>client/src/hooks/useDashboard.js</span><span class="action">Modify (collection-first reshape)</span></li>
+    <li><span>client/tests/components/ui/WeatherPill.test.jsx</span><span class="action">Create</span></li>
+    <li><span>client/tests/components/ui/RadialWheel.test.jsx</span><span class="action">Create</span></li>
+    <li><span>client/tests/components/ui/GroupCard.test.jsx</span><span class="action">Create</span></li>
+    <li><span>client/tests/components/Organiser.test.jsx</span><span class="action">Create</span></li>
+    <li><span>client/tests/pages/today.spec.js</span><span class="action">Create (Playwright)</span></li>
+    <li><span>client/tests/pages/notifications.spec.js</span><span class="action">Verify still green</span></li>
+  </ul>
+  <p style="margin-top:8px;font-size:13px;color:#888;">This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose.</p>
+</section>
+
+<section>
+  <h2>Notes & gotchas</h2>
+
+  <ul>
+    <li><strong>Don't introduce a new Drawer primitive.</strong> R8 already shipped <code>components/ui/Drawer.jsx</code> (composes Dialog with <code>placement="right"</code>). The Organiser's mobile sheet rides on it. Mode toggle (column vs drawer) lives on Organiser itself, not on a new primitive.</li>
+
+    <li><strong>NotificationsDrawer must keep working.</strong> The GroupCard extraction is a refactor — visual + animation behaviour identical. The R8 Playwright drawer spec is your regression net. Run it after the extraction commit and before any other change touches GroupCard.</li>
+
+    <li><strong>The <code>.weather-strip / .sum-row.weather / .weather-alert / .sg-weather</code> drift</strong> from v1 mockups is the explicit known-debt cleanup F4 was created for. Fold all four shapes into WeatherPill variants from day one — don't ship the primitive without the <code>group</code> variant just because R3 (House) hasn't started yet.</li>
+
+    <li><strong>Weather + Streak are placeholder data.</strong> Build a small adapter (<code>hooks/useWeather.js</code> returning hardcoded <code>{ today, week }</code>) so the swap to real data later is one file, not a sweep across components. Don't block this PR on backend work.</li>
+
+    <li><strong>RadialWheel positioning is anchored to the row, not the viewport.</strong> Use a portal-rendered wheel positioned via the row's <code>getBoundingClientRect</code> (or a popper-style anchor lib if it gets messy). Don't try to make it a child of the row — overflow + z-index will fight you.</li>
+
+    <li><strong>Long-press + swipe-to-complete share the same pointer surface.</strong> Resolve the gesture priority: <em>swipe wins if horizontal movement exceeds N px before the long-press timer fires; long-press wins if pointer stays still past 500ms</em>. Test on mobile viewport with a touch emulator.</li>
+
+    <li><strong>StrictMode double-fire on the long-press timer effect.</strong> If you use <code>useEffect</code> to set up pointer listeners, the cleanup must clear the timer + remove listeners cleanly. R8's cable subscription effect pattern is a good reference.</li>
+
+    <li><strong>Per pair-programming style memo</strong> (<code>feedback_pair_programming_style.md</code>) — work each step through together. Don't batch the whole ticket to an agent. Rob drives learning + spots pivot/cleanup. Test-only steps stage + advance without pause; production-code steps get reviewed.</li>
+
+    <li><strong>Per <code>feedback_rework_review_skills.md</code></strong> — bake <code>/vercel-react-best-practices</code> + <code>/accessibility</code> into AC. <code>/dhh-rails-reviewer</code> is N/A — this is frontend-only. Reviews run before opening the PR, blocking findings fixed in the same branch.</li>
+
+    <li><strong>When you're done:</strong> run <code>./scripts/lint.sh && ./scripts/run_tests.sh client</code>, commit on a feature branch (<code>ticket-038-today-v2</code>), then open a PR. PR title gets the <code>feat(v2):</code> prefix per <code>feedback_pr_title_v2_prefix.md</code>; no Claude attribution per <code>feedback_pr_body_no_claude_footer.md</code>.</li>
+  </ul>
+</section>
+
+</div>
+</body>
+</html>

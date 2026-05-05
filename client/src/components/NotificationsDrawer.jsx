@@ -1,15 +1,15 @@
-import { faArrowLeft, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
-import { useMarkNotificationRead, useNotifications, useNotificationsSeen } from '../../hooks/useNotifications'
-import { useNotificationsContext } from '../../hooks/useNotificationsContext'
-import Action from '../ui/Action'
-import Card from '../ui/Card'
-import Drawer from '../ui/Drawer'
-import EmptyState from '../ui/EmptyState'
-import Heading from '../ui/Heading'
-import NotificationItem from './NotificationItem'
+import { useMarkNotificationRead, useNotifications, useNotificationsSeen } from '../hooks/useNotifications'
+import { useNotificationsContext } from '../hooks/useNotificationsContext'
+import NotificationItem from './notifications/NotificationItem'
+import Action from './ui/Action'
+import DialogCard from './ui/DialogCard'
+import Drawer from './ui/Drawer'
+import EmptyState from './ui/EmptyState'
+import Heading from './ui/Heading'
 
 const MAIN_VIEW_CAP = 5
 
@@ -22,11 +22,11 @@ const GROUPS = [
     kinds: new Set(['care_due_water', 'care_due_feed']),
   },
   {
-    key: 'milestone',
-    label: 'Milestone',
+    key: 'achievement',
+    label: 'Achievements',
     icon: '🏆',
     iconClass: 'bg-sunshine/20 text-sunshine-deep',
-    kinds: new Set(['milestone']),
+    kinds: new Set(['achievement']),
   },
 ]
 
@@ -65,7 +65,7 @@ function weekCount(notifications) {
   return notifications.filter((notification) => new Date(notification.created_at).getTime() >= cutoff).length
 }
 
-function GroupCard({ group, items, onViewAll, onClose, capped }) {
+function NotificationGroup({ group, items, onViewAll, onClose, capped }) {
   const groupUnread = items.filter((item) => !item.read_at).length
   const visibleItems = capped ? items.slice(0, MAIN_VIEW_CAP) : items
   const hasHiddenInCapped = items.length > MAIN_VIEW_CAP
@@ -73,127 +73,65 @@ function GroupCard({ group, items, onViewAll, onClose, capped }) {
   // many items the per-item gap shrinks; with few it stays generous.
   const hiddenItemCount = Math.max(items.length - MAIN_VIEW_CAP, 0)
   const itemStaggerGap = hiddenItemCount > 0 ? Math.min(0.06, 0.5 / hiddenItemCount) : 0.06
-  // Two-phase expand: view-all swooshes out first, then the parent
-  // expand kicks off. Decoupling these lets the eye land on the
-  // disappearing button before the sibling exits + card moves.
-  const [viewAllLeaving, setViewAllLeaving] = useState(false)
-  // viewAllReady gates re-entry on collapse. On Back, the view-all
-  // waits for siblings + card to settle before fading back in — so the
-  // user sees the chrome restore before the affordance reappears.
-  const [viewAllReady, setViewAllReady] = useState(capped && hasHiddenInCapped)
-  const showViewAll = viewAllReady && !viewAllLeaving
 
-  useEffect(() => {
-    if (capped) {
-      setViewAllLeaving(false)
-      if (!hasHiddenInCapped) {
-        setViewAllReady(false)
-        return
-      }
-      const handle = setTimeout(() => setViewAllReady(true), 600)
-      return () => clearTimeout(handle)
-    }
-    setViewAllReady(false)
-  }, [capped, hasHiddenInCapped])
+  const icon = (
+    <span
+      aria-hidden="true"
+      className={`w-[22px] h-[22px] rounded-full flex items-center justify-center text-[12px] ${group.iconClass}`}
+    >
+      {group.icon}
+    </span>
+  )
 
-  function handleViewAllClick() {
-    setViewAllLeaving(true)
-  }
-
-  function handleViewAllExitComplete() {
-    if (viewAllLeaving) {
-      onViewAll()
-      setViewAllLeaving(false)
-    }
-  }
+  const badge = groupUnread > 0 && (
+    <>
+      <span className="sr-only">{groupUnread} unread</span>
+      <span
+        aria-hidden="true"
+        className="px-1.5 py-px rounded-full bg-coral text-paper text-[9px] font-extrabold tracking-[0.06em]"
+      >
+        {groupUnread} NEW
+      </span>
+    </>
+  )
 
   return (
-    <motion.section
-      layout="position"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2, ease: 'easeOut', layout: { duration: 0.2, ease: 'easeOut', delay: 0.2 } }}
-      className={`rounded-md overflow-hidden bg-paper border border-paper-edge/50 ${
-        capped ? '' : 'flex-1 min-h-0 flex flex-col'
-      }`}
+    <DialogCard
+      icon={icon}
+      label={group.label}
+      badge={badge}
+      expanded={!capped}
+      viewAll={hasHiddenInCapped ? { count: items.length, onClick: onViewAll } : null}
     >
-      <Card.Header divider={false} className="flex items-center justify-between px-4 pt-3.5 pb-2 shrink-0">
-        <Heading as="h3" variant="card" className="text-ink flex items-center gap-2">
-          <span
-            aria-hidden="true"
-            className={`w-[22px] h-[22px] rounded-full flex items-center justify-center text-[12px] ${group.iconClass}`}
-          >
-            {group.icon}
-          </span>
-          {group.label}
-        </Heading>
-        {groupUnread > 0 && (
-          <>
-            <span className="sr-only">{groupUnread} unread</span>
-            <span
-              aria-hidden="true"
-              className="px-1.5 py-px rounded-full bg-coral text-paper text-[9px] font-extrabold tracking-[0.06em]"
-            >
-              {groupUnread} NEW
-            </span>
-          </>
-        )}
-      </Card.Header>
-      <Card.Body className={`px-2 pb-2 ${capped ? 'overflow-visible' : ''}`}>
-        <ul className="flex flex-col gap-0.5">
-          <AnimatePresence initial={false}>
-            {visibleItems.map((notification, index) => {
-              const isNewlyRevealed = index >= MAIN_VIEW_CAP
-              return (
-                <motion.li
-                  key={notification.id}
-                  initial={isNewlyRevealed ? { opacity: 0, y: 8 } : false}
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                    transition: {
-                      duration: 0.18,
-                      ease: 'easeOut',
-                      delay: 0.4 + (index - MAIN_VIEW_CAP) * itemStaggerGap,
-                    },
-                  }}
-                  exit={{
-                    opacity: 0,
-                    transition: { duration: 0.12, ease: 'easeOut' },
-                  }}
-                >
-                  <NotificationItem notification={notification} onClose={onClose} />
-                </motion.li>
-              )
-            })}
-          </AnimatePresence>
-        </ul>
-      </Card.Body>
-      <AnimatePresence initial={false} onExitComplete={handleViewAllExitComplete}>
-        {showViewAll && (
-          <motion.div
-            key="view-all"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto', x: 0, transition: { duration: 0.2, ease: 'easeOut' } }}
-            exit={{ opacity: 0, x: -120, transition: { duration: 0.18, ease: [0.4, 0, 0.2, 1] } }}
-            className="overflow-hidden"
-          >
-            <Card.Footer divider={false} className="px-4 pb-3 pt-1">
-              <Action
-                variant="unstyled"
-                onClick={handleViewAllClick}
-                disabled={!capped || viewAllLeaving}
-                aria-expanded={!capped}
-                className="text-emerald text-xs font-bold underline decoration-dotted"
+      <ul className="flex flex-col gap-0.5">
+        <AnimatePresence initial={false}>
+          {visibleItems.map((notification, index) => {
+            const isNewlyRevealed = index >= MAIN_VIEW_CAP
+            return (
+              <motion.li
+                key={notification.id}
+                initial={isNewlyRevealed ? { opacity: 0, y: 8 } : false}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  transition: {
+                    duration: 0.18,
+                    ease: 'easeOut',
+                    delay: 0.4 + (index - MAIN_VIEW_CAP) * itemStaggerGap,
+                  },
+                }}
+                exit={{
+                  opacity: 0,
+                  transition: { duration: 0.12, ease: 'easeOut' },
+                }}
               >
-                View all ({items.length})
-              </Action>
-            </Card.Footer>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.section>
+                <NotificationItem notification={notification} onClose={onClose} />
+              </motion.li>
+            )
+          })}
+        </AnimatePresence>
+      </ul>
+    </DialogCard>
   )
 }
 
@@ -287,14 +225,6 @@ export default function NotificationsDrawer() {
             </motion.div>
           </AnimatePresence>
         </div>
-        <Action
-          variant="unstyled"
-          onClick={closeDrawer}
-          aria-label="Close notifications"
-          className="w-7 h-7 rounded-full bg-ink/[0.08] text-ink-soft hover:text-ink hover:bg-ink/[0.12] transition-colors flex items-center justify-center"
-        >
-          <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
-        </Action>
       </header>
 
       <p aria-live="polite" className="sr-only">
@@ -334,7 +264,7 @@ export default function NotificationsDrawer() {
         ) : (
           <AnimatePresence mode="popLayout" initial={false}>
             {(expandedGroup ? [expandedGroup] : grouped).map(({ group, items }) => (
-              <GroupCard
+              <NotificationGroup
                 key={group.key}
                 group={group}
                 items={items}

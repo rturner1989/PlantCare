@@ -33,6 +33,8 @@ class CareLog < ApplicationRecord
 
   before_validation :set_performed_at, on: :create
   after_create :update_plant_timestamps
+  after_create_commit :update_user_aggregates
+  after_create_commit :check_care_logged_achievements
 
   scope :chronological, -> { order(performed_at: :desc) }
 
@@ -56,4 +58,25 @@ class CareLog < ApplicationRecord
     when FEEDING then plant.update!(last_fed_at: performed_at)
     end
   end
+
+  private def check_care_logged_achievements
+    CheckAchievementsJob.perform_later(
+      event: 'care_logged',
+      user_id: plant.user.id,
+      source_type: 'CareLog',
+      source_id: id
+    )
+  end
+
+  # increment_counter is the atomic SQL op Rails' built-in counter_cache
+  # uses — Plant -> Space -> User is a through-association so direct
+  # counter_cache: true wouldn't work. Streak update is custom logic
+  # (not a simple counter), runs after the increment.
+  # rubocop:disable Rails/SkipsModelValidations -- atomic counter, no validations needed
+  private def update_user_aggregates
+    user = plant.user
+    User.increment_counter(:care_logs_count, user.id)
+    user.reload.bump_care_streak_for_today!
+  end
+  # rubocop:enable Rails/SkipsModelValidations
 end
