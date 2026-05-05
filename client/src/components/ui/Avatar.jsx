@@ -20,6 +20,7 @@ import { useState } from 'react'
  */
 
 const SIZE_CLASSES = {
+  xs: 'w-8 h-8 text-base',
   sm: 'w-[38px] h-[38px] text-base',
   md: 'w-12 h-12 text-xl',
   lg: 'w-[52px] h-[52px] text-2xl',

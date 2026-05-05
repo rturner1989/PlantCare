@@ -1,4 +1,4 @@
-import Heading from '../ui/Heading'
+import PageHeader from '../ui/PageHeader'
 import StreakStat from './StreakStat'
 
 function getGreeting() {
@@ -18,16 +18,12 @@ function formatToday() {
 
 export default function TodayHeader({ firstName }) {
   return (
-    <header className="flex items-end justify-between gap-4 flex-wrap">
-      <div>
-        <p className="text-[13px] font-semibold text-ink-soft mb-1">
-          {getGreeting()} · {formatToday()}
-        </p>
-        <Heading as="h1" variant="display-lg" className="text-ink">
-          Hi, <span className="text-leaf">{firstName ?? 'there'}</span>
-        </Heading>
-      </div>
-      <StreakStat />
-    </header>
+    <PageHeader
+      eyebrow={`${getGreeting()} · ${formatToday()}`}
+      headingVariant="display-lg"
+      actions={<StreakStat />}
+    >
+      Hi, <span className="text-leaf">{firstName ?? 'there'}</span>
+    </PageHeader>
   )
 }
