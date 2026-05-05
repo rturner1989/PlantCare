@@ -92,6 +92,11 @@ jobs:
       DB_PASSWORD: plantcare_dev
       JWT_SECRET: test_jwt_secret_for_ci_only
       VITE_API_URL: http://localhost:3000
+      # cable.yml + sidekiq initializer default to docker-compose hostnames.
+      # Override both so Rails + Sidekiq + ActionCable hit the localhost
+      # Redis service instead of attempting `redis:6379` DNS lookups.
+      REDIS_URL: redis://localhost:6379/0
+      REDIS_CABLE_URL: redis://localhost:6379/1
 
     steps:
       - name: Checkout code
