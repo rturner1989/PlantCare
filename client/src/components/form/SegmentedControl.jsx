@@ -99,10 +99,10 @@ export default function SegmentedControl({
               <span className="relative">{option.label}</span>
               {option.phase && (
                 <span
-                  aria-hidden="true"
                   className="relative ml-0.5 px-1 rounded-sm bg-sunshine text-ink text-[8px] font-extrabold tracking-wide"
+                  aria-label={`${option.label} (${option.phase}, coming soon)`}
                 >
-                  {option.phase}
+                  <span aria-hidden="true">{option.phase}</span>
                 </span>
               )}
             </label>

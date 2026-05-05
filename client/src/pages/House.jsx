@@ -1,3 +1,5 @@
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useMemo, useState } from 'react'
 import RoomCard from '../components/RoomCard'
 import SegmentedControl from '../components/form/SegmentedControl'
@@ -186,6 +188,7 @@ export default function House() {
       </main>
 
       <AddCustomSpaceForm
+        key={dialogState.space?.id ?? 'new'}
         open={dialogState.open}
         onClose={closeDialog}
         onAdd={handleAddSpace}
@@ -221,7 +224,7 @@ function RoomsView({ cards, totalSpaces, weatherToday, onAddSpace, onEditSpace }
       {cards.map(({ space, peek, nextCare }) => {
         const isOutdoor = space.category === 'outdoor'
         return (
-          <li key={space.id}>
+          <li key={space.id} className="relative">
             <RoomCard
               icon={getSpaceEmoji(space.icon)}
               name={space.name}
@@ -231,8 +234,15 @@ function RoomsView({ cards, totalSpaces, weatherToday, onAddSpace, onEditSpace }
               nextCare={nextCare}
               envHint={envHintFor(space)}
               weatherPill={isOutdoor ? weatherPillFor(weatherToday) : null}
-              onEdit={() => onEditSpace(space)}
             />
+            <Action
+              variant="unstyled"
+              onClick={() => onEditSpace(space)}
+              aria-label={`Edit ${space.name}`}
+              className="absolute top-3 right-3 w-7 h-7 rounded-full bg-ink/[0.04] text-ink-soft hover:bg-ink/[0.08] hover:text-ink transition-colors flex items-center justify-center cursor-pointer"
+            >
+              <FontAwesomeIcon icon={faPenToSquare} className="w-3 h-3" />
+            </Action>
           </li>
         )
       })}
@@ -255,7 +265,6 @@ function AddSpaceTile({ onClick }) {
       variant="unstyled"
       onClick={onClick}
       className="w-full h-full min-h-[200px] flex flex-col items-center justify-center gap-1.5 p-4 rounded-md border-2 border-dashed border-emerald/30 hover:border-leaf hover:bg-lime/10 transition-colors"
-      aria-label="Add a space"
     >
       <span
         aria-hidden="true"

@@ -23,7 +23,7 @@ export default function TodayHeader({ firstName }) {
       headingVariant="display-lg"
       actions={<StreakStat />}
     >
-      Hi, <span className="text-leaf">{firstName ?? 'there'}</span>
+      Hi, <span className="text-emerald">{firstName ?? 'there'}</span>
     </PageHeader>
   )
 }

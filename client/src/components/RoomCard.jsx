@@ -1,5 +1,3 @@
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import PlantAvatar from './PlantAvatar'
 import Action from './ui/Action'
 import Card from './ui/Card'
@@ -11,6 +9,10 @@ const ICON_VARIANT = {
   outdoor: 'bg-sunshine/20 text-sunshine-deep',
 }
 
+// The card itself is one button; an "edit pencil" affordance lives as
+// a sibling in the parent `<li>` (positioned absolutely over the card)
+// rather than nested inside this Action — nested interactive elements
+// are invalid HTML and confuse assistive tech.
 export default function RoomCard({
   icon,
   name,
@@ -21,7 +23,6 @@ export default function RoomCard({
   envHint,
   weatherPill,
   onClick,
-  onEdit,
 }) {
   const visiblePeek = peek.slice(0, PEEK_LIMIT)
   const hiddenCount = Math.max(0, peek.length - PEEK_LIMIT)
@@ -43,19 +44,10 @@ export default function RoomCard({
             <p className="text-sm font-extrabold text-ink tracking-tight truncate">{name}</p>
             <p className="text-[10px] font-bold uppercase tracking-wider text-ink-softer">{count}</p>
           </div>
-          {onEdit && (
-            <Action
-              variant="unstyled"
-              onClick={(event) => {
-                event.stopPropagation()
-                onEdit()
-              }}
-              aria-label={`Edit ${name}`}
-              className="shrink-0 w-7 h-7 rounded-full bg-ink/[0.04] text-ink-soft hover:bg-ink/[0.08] hover:text-ink transition-colors flex items-center justify-center cursor-pointer"
-            >
-              <FontAwesomeIcon icon={faPenToSquare} className="w-3 h-3" />
-            </Action>
-          )}
+          {/* Reserves space for the sibling edit button that the consumer
+              positions absolutely over the card. Keeps the title block
+              from running into the pencil. */}
+          <span aria-hidden="true" className="shrink-0 w-7 h-7" />
         </Card.Header>
 
         <Card.Body className="!overflow-visible !flex-none">
