@@ -1,11 +1,8 @@
-import { faXmark } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useLocation } from 'react-router-dom'
 import { useOrganiserContext } from '../hooks/useOrganiserContext'
 import GoalsWidget from './organiser/GoalsWidget'
 import StreakStat from './today/StreakStat'
 import WeatherWidget from './today/WeatherWidget'
-import Action from './ui/Action'
 import DialogCard from './ui/DialogCard'
 import Drawer from './ui/Drawer'
 import Heading from './ui/Heading'
@@ -47,18 +44,10 @@ export default function OrganiserDrawer() {
 
   return (
     <Drawer open={open} onClose={closeDrawer} title="Organiser">
-      <header className="flex items-center justify-between gap-2 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2.5 shrink-0">
+      <header className="px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2.5 shrink-0">
         <Heading as="h2" variant="panel">
           Organiser
         </Heading>
-        <Action
-          variant="unstyled"
-          onClick={closeDrawer}
-          aria-label="Close organiser"
-          className="w-7 h-7 rounded-full bg-ink/[0.08] text-ink-soft hover:text-ink hover:bg-ink/[0.12] transition-colors flex items-center justify-center"
-        >
-          <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
-        </Action>
       </header>
 
       <div className="flex-1 min-h-0 overflow-y-auto px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex flex-col gap-3">

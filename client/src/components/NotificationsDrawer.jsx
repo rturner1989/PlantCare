@@ -1,4 +1,4 @@
-import { faArrowLeft, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
@@ -225,14 +225,6 @@ export default function NotificationsDrawer() {
             </motion.div>
           </AnimatePresence>
         </div>
-        <Action
-          variant="unstyled"
-          onClick={closeDrawer}
-          aria-label="Close notifications"
-          className="w-7 h-7 rounded-full bg-ink/[0.08] text-ink-soft hover:text-ink hover:bg-ink/[0.12] transition-colors flex items-center justify-center"
-        >
-          <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
-        </Action>
       </header>
 
       <p aria-live="polite" className="sr-only">

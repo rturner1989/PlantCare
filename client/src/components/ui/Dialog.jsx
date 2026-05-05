@@ -167,7 +167,7 @@ export default function Dialog({
               <Action
                 variant="unstyled"
                 onClick={() => onCloseRef.current?.()}
-                aria-label="Close"
+                aria-label={title ? `Close ${title}` : 'Close'}
                 className="absolute top-3 right-3 w-7 h-7 rounded-full bg-ink/[0.08] text-ink-soft hover:text-ink hover:bg-ink/[0.12] transition-colors flex items-center justify-center z-10"
               >
                 <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />

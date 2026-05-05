@@ -1,5 +1,3 @@
-import { faXmark } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import Select from '../../form/Select'
 import TextInput from '../../form/TextInput'
@@ -67,16 +65,8 @@ export default function AddPlantForm({
 
   return (
     <Dialog open={open} onClose={onClose} title={TITLE}>
-      <Card.Header divider={false} className="flex items-center justify-between gap-3">
+      <Card.Header divider={false}>
         <p className="text-lg font-extrabold text-ink">{TITLE}</p>
-        <Action
-          variant="unstyled"
-          onClick={onClose}
-          aria-label="Close"
-          className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-ink-soft hover:text-ink hover:bg-mint/60 transition-colors"
-        >
-          <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
-        </Action>
       </Card.Header>
 
       <Card.Body className="!flex-none flex flex-col gap-4">

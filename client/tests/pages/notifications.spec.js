@@ -76,7 +76,7 @@ test.describe('Notifications drawer', () => {
     // dispatchEvent bypasses Playwright's hit-test (the page background
     // blob's SVG ellipse intercepts clicks even though the close button
     // is at a higher z-index — Framer's animation tweens overlap timing).
-    await page.getByRole('button', { name: 'Close notifications' }).dispatchEvent('click')
+    await page.getByRole('button', { name: 'Close Notifications' }).dispatchEvent('click')
     await expect(drawer).toBeHidden()
   })
 
