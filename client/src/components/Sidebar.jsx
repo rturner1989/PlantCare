@@ -19,6 +19,7 @@ import NotificationsTrigger from './notifications/NotificationsTrigger'
 import OrganiserTrigger from './organiser/OrganiserTrigger'
 import Action from './ui/Action'
 import Avatar from './ui/Avatar'
+import Tooltip from './ui/Tooltip'
 
 const navItems = [
   { to: '/', label: 'Today', icon: faSun, end: true },
@@ -118,12 +119,7 @@ function NavLinkRail({ to, label, icon, end = false }) {
           >
             <FontAwesomeIcon icon={icon} className="w-[14px] h-[14px]" />
           </span>
-          <span
-            role="tooltip"
-            className="absolute left-full top-1/2 -translate-y-1/2 translate-x-1.5 px-2.5 py-1 rounded-full bg-ink text-paper text-[11px] font-bold whitespace-nowrap shadow-md opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 pointer-events-none transition-opacity duration-150 z-30"
-          >
-            {label}
-          </span>
+          <Tooltip placement="right">{label}</Tooltip>
         </>
       )}
     </NavLink>
