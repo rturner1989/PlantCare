@@ -300,7 +300,9 @@ body {
  * the pseudo-element at all, so this is a no-op there.
  */
 input[type="search"]::-webkit-search-cancel-button {
-  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
 }
 
 /* Card-surface reveal: used anywhere a panel replaces another panel in
