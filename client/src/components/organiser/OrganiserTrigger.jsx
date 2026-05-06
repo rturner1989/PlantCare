@@ -1,4 +1,4 @@
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import { faLayerGroup } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useOrganiserContext } from '../../hooks/useOrganiserContext'
 import Action from '../ui/Action'
@@ -16,7 +16,7 @@ export default function OrganiserTrigger({ size = 'sm' }) {
       aria-label="Open organiser"
       className={`${dimensions} rounded-full bg-paper-deep text-ink-soft hover:text-ink hover:bg-mint/60 transition-colors flex items-center justify-center shrink-0`}
     >
-      <FontAwesomeIcon icon={faPenToSquare} className={iconSize} />
+      <FontAwesomeIcon icon={faLayerGroup} className={iconSize} />
     </Action>
   )
 }
