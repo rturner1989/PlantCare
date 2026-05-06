@@ -111,6 +111,12 @@ test.describe('In-app achievement toast', () => {
     const { email } = await registerUser(page, 'Toast User')
     await completeOnboarding(page, { spaces: ['Living Room'] })
 
+    // Wait for AchievementsChannel to be confirmed by the server before
+    // triggering the unlock — Action Cable doesn't replay missed
+    // broadcasts, so a CI worker that processes Sidekiq before the
+    // subscribe round-trip lands would lose the toast forever.
+    await expect(page.getByTestId('achievements-cable-ready')).toBeAttached({ timeout: 15000 })
+
     seedFirstCareLogReady(email)
 
     // Trigger a care log via rails runner — the cable broadcast then
@@ -126,9 +132,9 @@ plant = user.plants.first || user.spaces.first.plants.create!(
 plant.care_logs.create!(care_type: 'watering', performed_at: Time.current)
 `)
 
-    // 5s wasn't enough on CI: care_log create → CheckAchievementsJob enqueue
-    // → Sidekiq pickup → Achievement.unlock! → cable broadcast → subscriber
-    // → toast can race a cold Sidekiq worker. Local hits ~2s, CI hits 5–8s.
+    // care_log create → CheckAchievementsJob enqueue → Sidekiq pickup →
+    // Achievement.unlock! → cable broadcast → subscriber → toast. Local
+    // hits ~2s, CI cold-starts hit 5–8s.
     const toast = page.getByText('First care logged')
     await expect(toast).toBeVisible({ timeout: 15000 })
   })
