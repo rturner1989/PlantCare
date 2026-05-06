@@ -1,7 +1,8 @@
-import { faBars } from '@fortawesome/free-solid-svg-icons'
+import { faBars, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { motion, useReducedMotion } from 'motion/react'
 import { useAuth } from '../hooks/useAuth'
+import { useSearchActions } from '../hooks/useSearch'
 import Logo from './Logo'
 import NotificationsTrigger from './notifications/NotificationsTrigger'
 import OrganiserTrigger from './organiser/OrganiserTrigger'
@@ -24,6 +25,7 @@ const itemVariants = {
 
 export default function MobileTopBar({ isFirstRun = false, onMenuOpen }) {
   const { user } = useAuth()
+  const search = useSearchActions()
   const shouldReduceMotion = useReducedMotion()
   const shouldAnimate = isFirstRun && !shouldReduceMotion
 
@@ -55,6 +57,19 @@ export default function MobileTopBar({ isFirstRun = false, onMenuOpen }) {
         </div>
 
         <div className="flex items-center gap-2">
+          {search.isActive && (
+            <motion.div variants={itemVariants}>
+              <Action
+                variant="unstyled"
+                onClick={search.openMobileDrawer}
+                aria-label="Open search"
+                className="w-9 h-9 relative group rounded-full flex items-center justify-center text-ink-soft hover:text-ink hover:bg-mint/60 transition-colors"
+              >
+                <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+                <Tooltip placement="bottom">Search</Tooltip>
+              </Action>
+            </motion.div>
+          )}
           <motion.div variants={itemVariants}>
             <OrganiserTrigger size="lg" />
           </motion.div>

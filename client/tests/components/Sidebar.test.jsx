@@ -6,6 +6,7 @@ import Sidebar from '../../src/components/Sidebar'
 import { AuthProvider } from '../../src/context/AuthContext'
 import { NotificationsProvider } from '../../src/context/NotificationsContext'
 import { OrganiserProvider } from '../../src/context/OrganiserContext'
+import { SearchProvider } from '../../src/context/SearchContext'
 import { ToastProvider } from '../../src/context/ToastContext'
 
 vi.mock('../../src/api/client', () => ({
@@ -30,9 +31,11 @@ function wrapper({ children }) {
       <AuthProvider>
         <NotificationsProvider>
           <OrganiserProvider>
-            <ToastProvider>
-              <MemoryRouter>{children}</MemoryRouter>
-            </ToastProvider>
+            <SearchProvider>
+              <ToastProvider>
+                <MemoryRouter>{children}</MemoryRouter>
+              </ToastProvider>
+            </SearchProvider>
           </OrganiserProvider>
         </NotificationsProvider>
       </AuthProvider>

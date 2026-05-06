@@ -6,6 +6,7 @@ import MobileTopBar from '../../src/components/MobileTopBar'
 import { AuthProvider } from '../../src/context/AuthContext'
 import { NotificationsProvider } from '../../src/context/NotificationsContext'
 import { OrganiserProvider } from '../../src/context/OrganiserContext'
+import { SearchProvider } from '../../src/context/SearchContext'
 
 vi.mock('../../src/api/client', () => ({
   apiGet: vi.fn().mockResolvedValue({ unread_count: 0, notifications: [] }),
@@ -29,7 +30,9 @@ function wrapper({ children }) {
       <AuthProvider>
         <NotificationsProvider>
           <OrganiserProvider>
-            <MemoryRouter>{children}</MemoryRouter>
+            <SearchProvider>
+              <MemoryRouter>{children}</MemoryRouter>
+            </SearchProvider>
           </OrganiserProvider>
         </NotificationsProvider>
       </AuthProvider>

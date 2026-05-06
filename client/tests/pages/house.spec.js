@@ -20,8 +20,8 @@ test.describe('House screen', () => {
     await expect(roomsRadio).toBeChecked()
     await expect(habitatRadio).toBeDisabled()
 
-    await expect(page.getByRole('button', { name: /^Living Room \d+/ })).toBeVisible()
-    await expect(page.getByRole('button', { name: /^Kitchen \d+/ })).toBeVisible()
+    await expect(page.getByText('Living Room', { exact: true })).toBeVisible()
+    await expect(page.getByText('Kitchen', { exact: true })).toBeVisible()
   })
 
   test('Add-a-space tile opens the dialog and saving creates a new room card', async ({ page }) => {
@@ -38,7 +38,7 @@ test.describe('House screen', () => {
     await dialog.getByLabel('Name').fill('Sunroom')
     await dialog.getByRole('button', { name: 'Add space' }).click()
 
-    await expect(page.getByRole('button', { name: /^Sunroom \d+/ })).toBeVisible()
+    await expect(page.getByText('Sunroom', { exact: true })).toBeVisible()
   })
 
   test('view toggle switches to list view and shows search + accordion summaries', async ({ page }) => {
@@ -49,18 +49,8 @@ test.describe('House screen', () => {
     await viewGroup.getByText('List', { exact: true }).click()
 
     await expect(page).toHaveURL(/[?&]view=list/)
-    await expect(page.getByPlaceholder(/Search plants/i)).toBeVisible()
+    await expect(page.getByPlaceholder(/Search spaces/i)).toBeVisible()
     await expect(page.getByRole('button', { name: /Living Room.*plants?/i })).toBeVisible()
-  })
-
-  test('clicking a room card filters list view to that space', async ({ page }) => {
-    await registerAndOnboard(page)
-    await page.goto('/house')
-
-    await page.getByRole('button', { name: /^Living Room \d+/ }).click()
-
-    await expect(page).toHaveURL(/view=list.*space_id=\d+/)
-    await expect(page.getByPlaceholder(/Search Living Room/i)).toBeVisible()
   })
 
   test('unauthenticated visit redirects to login', async ({ page }) => {

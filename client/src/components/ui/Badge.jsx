@@ -1,11 +1,22 @@
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import Action from './Action'
+import Tooltip from './Tooltip'
+
 const SIZES = {
   sm: {
     wrapper: 'text-[10px] px-2 py-0.5 gap-1 font-extrabold',
+    wrapperWithClear: 'text-[10px] pl-2 pr-0.5 py-0.5 gap-1 font-extrabold',
     icon: '',
+    clearButton: 'w-4 h-4',
+    clearIcon: 'w-2 h-2',
   },
   md: {
     wrapper: 'text-xs pl-2 pr-3.5 py-2 gap-2.5 font-semibold',
+    wrapperWithClear: 'text-xs pl-2 pr-1 py-1 gap-1.5 font-semibold',
     icon: 'w-7 h-7 rounded-full inline-flex items-center justify-center text-sm flex-shrink-0',
+    clearButton: 'w-5 h-5',
+    clearIcon: 'w-2.5 h-2.5',
   },
 }
 
@@ -95,6 +106,8 @@ export default function Badge({
   icon,
   as: Tag = 'span',
   className = '',
+  onClear,
+  clearLabel = 'Remove',
   children,
   ...kwargs
 }) {
@@ -105,7 +118,7 @@ export default function Badge({
 
   const wrapperClasses = [
     'inline-flex items-center w-fit rounded-full',
-    sizeRecipe.wrapper,
+    onClear ? sizeRecipe.wrapperWithClear : sizeRecipe.wrapper,
     schemeClasses(variant, schemeRecipe),
     className,
   ]
@@ -116,6 +129,17 @@ export default function Badge({
     <Tag className={wrapperClasses} {...kwargs}>
       {icon && <span className={`${sizeRecipe.icon} ${schemeRecipe.iconBg} ${schemeRecipe.iconText}`}>{icon}</span>}
       {children}
+      {onClear && (
+        <Action
+          variant="unstyled"
+          onClick={onClear}
+          aria-label={clearLabel}
+          className={`relative group shrink-0 rounded-full hover:bg-black/10 flex items-center justify-center ${sizeRecipe.clearButton}`}
+        >
+          <FontAwesomeIcon icon={faXmark} className={sizeRecipe.clearIcon} />
+          <Tooltip placement="top">{clearLabel}</Tooltip>
+        </Action>
+      )}
     </Tag>
   )
 }

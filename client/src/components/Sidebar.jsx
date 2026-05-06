@@ -14,10 +14,13 @@ import { useEffect, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
+import { useSearch } from '../hooks/useSearch'
 import Logo from './Logo'
 import NotificationsTrigger from './notifications/NotificationsTrigger'
 import OrganiserTrigger from './organiser/OrganiserTrigger'
+import SearchInput from './search/SearchInput'
 import Action from './ui/Action'
+import ActionIcon from './ui/ActionIcon'
 import Avatar from './ui/Avatar'
 import Tooltip from './ui/Tooltip'
 
@@ -144,21 +147,15 @@ function UserCard({ user, onLogout, onNavigate }) {
             <p className="text-xs text-ink-softer truncate">{user.email}</p>
           </div>
         </Action>
-        <Action
-          onClick={onLogout}
-          variant="unstyled"
-          aria-label="Log out"
-          className="relative group text-ink-soft hover:text-coral-deep transition-colors p-1 rounded-md shrink-0"
-        >
-          <FontAwesomeIcon icon={faArrowRightFromBracket} className="w-4 h-4" />
-          <Tooltip placement="top">Log out</Tooltip>
-        </Action>
+        <ActionIcon icon={faArrowRightFromBracket} label="Log out" onClick={onLogout} scheme="ghost-danger" />
       </div>
     </div>
   )
 }
 
 function Body({ user, onLogout, onClose }) {
+  const search = useSearch()
+
   return (
     <>
       <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-4">
@@ -180,18 +177,18 @@ function Body({ user, onLogout, onClose }) {
         )}
       </div>
 
-      <Action
-        variant="unstyled"
-        disabled
-        aria-label="Search (coming soon)"
-        className="mx-3 flex items-center gap-2 px-3 py-[7px] rounded-full bg-paper-deep text-xs font-semibold text-ink-soft"
-      >
-        <FontAwesomeIcon icon={faMagnifyingGlass} className="w-3 h-3 text-emerald" />
-        <span>Search…</span>
-        <span className="ml-auto px-[5px] py-[1px] rounded-sm border border-paper-edge bg-paper text-[9px] text-ink-soft font-mono">
-          {SHORTCUT_LABEL}
-        </span>
-      </Action>
+      <SearchInput
+        variant="compact"
+        value={search.isActive ? search.query : ''}
+        onChange={search.setQuery}
+        onClear={search.clearAll}
+        hasFilterToClear={search.hasFilterToClear}
+        placeholder={search.isActive ? search.placeholder : 'Search… (coming soon)'}
+        disabled={!search.isActive}
+        shortcutHint={SHORTCUT_LABEL}
+        inputRef={search.sidebarInputRef}
+        className="mx-3"
+      />
 
       <nav aria-label="Primary" className="flex flex-col gap-0.5 mt-3">
         {navItems.map((item) => (
@@ -247,15 +244,14 @@ function RailBody({ user, onLogout }) {
             <UserAvatar user={user} />
             <Tooltip placement="right">Profile</Tooltip>
           </Action>
-          <Action
+          <ActionIcon
+            icon={faArrowRightFromBracket}
+            label="Log out"
             onClick={onLogout}
-            variant="unstyled"
-            aria-label="Log out"
-            className="relative group ml-1 text-ink-soft hover:text-coral-deep transition-colors p-2 rounded-md"
-          >
-            <FontAwesomeIcon icon={faArrowRightFromBracket} className="w-3 h-3" />
-            <Tooltip placement="right">Log out</Tooltip>
-          </Action>
+            scheme="ghost-danger"
+            tooltipPlacement="right"
+            className="ml-1"
+          />
         </div>
       )}
     </>
