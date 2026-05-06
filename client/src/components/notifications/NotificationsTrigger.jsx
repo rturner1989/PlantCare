@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useNotificationsContext } from '../../hooks/useNotificationsContext'
 import Action from '../ui/Action'
+import Tooltip from '../ui/Tooltip'
 
 export default function NotificationsTrigger({ size = 'sm' }) {
   const { openDrawer } = useNotificationsContext()
@@ -17,7 +18,7 @@ export default function NotificationsTrigger({ size = 'sm' }) {
       variant="unstyled"
       onClick={openDrawer}
       aria-label={unread > 0 ? `Notifications (${unread} unread)` : 'Notifications'}
-      className={`${dimensions} rounded-full bg-paper-deep text-ink-soft hover:text-ink hover:bg-mint/60 transition-colors flex items-center justify-center shrink-0 relative`}
+      className={`${dimensions} relative group rounded-full bg-paper-deep text-ink-soft hover:text-ink hover:bg-mint/60 transition-colors flex items-center justify-center shrink-0`}
     >
       <FontAwesomeIcon icon={faBell} className={iconSize} />
       {unread > 0 && (
@@ -28,6 +29,7 @@ export default function NotificationsTrigger({ size = 'sm' }) {
           {unread > 9 ? '9+' : unread}
         </span>
       )}
+      <Tooltip placement="bottom">Notifications</Tooltip>
     </Action>
   )
 }

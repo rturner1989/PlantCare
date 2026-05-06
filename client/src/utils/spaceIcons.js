@@ -70,3 +70,8 @@ export function getSpaceIcon(slug) {
 export function getSpaceEmoji(slug) {
   return SPACE_EMOJI[slug]
 }
+
+export function formatSpaceName(name) {
+  if (!name) return name
+  return name.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())
+}

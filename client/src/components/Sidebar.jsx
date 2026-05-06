@@ -19,6 +19,7 @@ import NotificationsTrigger from './notifications/NotificationsTrigger'
 import OrganiserTrigger from './organiser/OrganiserTrigger'
 import Action from './ui/Action'
 import Avatar from './ui/Avatar'
+import Tooltip from './ui/Tooltip'
 
 const navItems = [
   { to: '/', label: 'Today', icon: faSun, end: true },
@@ -118,12 +119,7 @@ function NavLinkRail({ to, label, icon, end = false }) {
           >
             <FontAwesomeIcon icon={icon} className="w-[14px] h-[14px]" />
           </span>
-          <span
-            role="tooltip"
-            className="absolute left-full top-1/2 -translate-y-1/2 translate-x-1.5 px-2.5 py-1 rounded-full bg-ink text-paper text-[11px] font-bold whitespace-nowrap shadow-md opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 pointer-events-none transition-opacity duration-150 z-30"
-          >
-            {label}
-          </span>
+          <Tooltip placement="right">{label}</Tooltip>
         </>
       )}
     </NavLink>
@@ -152,9 +148,10 @@ function UserCard({ user, onLogout, onNavigate }) {
           onClick={onLogout}
           variant="unstyled"
           aria-label="Log out"
-          className="text-ink-soft hover:text-coral-deep transition-colors p-1 rounded-md shrink-0"
+          className="relative group text-ink-soft hover:text-coral-deep transition-colors p-1 rounded-md shrink-0"
         >
           <FontAwesomeIcon icon={faArrowRightFromBracket} className="w-4 h-4" />
+          <Tooltip placement="top">Log out</Tooltip>
         </Action>
       </div>
     </div>
@@ -245,17 +242,19 @@ function RailBody({ user, onLogout }) {
             to="/me"
             variant="unstyled"
             aria-label="View profile"
-            className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-mint transition-shadow"
+            className="relative group w-11 h-11 rounded-full overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-mint transition-shadow"
           >
             <UserAvatar user={user} />
+            <Tooltip placement="right">Profile</Tooltip>
           </Action>
           <Action
             onClick={onLogout}
             variant="unstyled"
             aria-label="Log out"
-            className="ml-1 text-ink-soft hover:text-coral-deep transition-colors p-2 rounded-md"
+            className="relative group ml-1 text-ink-soft hover:text-coral-deep transition-colors p-2 rounded-md"
           >
             <FontAwesomeIcon icon={faArrowRightFromBracket} className="w-3 h-3" />
+            <Tooltip placement="right">Log out</Tooltip>
           </Action>
         </div>
       )}

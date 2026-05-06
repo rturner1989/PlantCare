@@ -2,10 +2,10 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
-import { useToast } from '../context/ToastContext'
-import { useMediaQuery } from '../hooks/useMediaQuery'
-import { useLogCare } from '../hooks/usePlants'
-import RadialWheel from './ui/RadialWheel'
+import { useToast } from '../../context/ToastContext'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
+import { useLogCare } from '../../hooks/usePlants'
+import RadialWheel from '../ui/RadialWheel'
 
 // Six-spoke layout matches the RadialWheel SIX_SPOKE_SWEEPS preset
 // (12/6 + 2/4/8/10). The two `disabled` slots are placeholders for
@@ -28,7 +28,7 @@ export const PLANT_ACTION_SPOKES = [
 // centres on the anchor's bounding rect. Page scroll closes the wheel
 // rather than tracking — anchored elements moving under it would feel
 // unstable.
-export default function PlantActionWheel({
+export default function ActionWheel({
   plant,
   open,
   onOpenChange,
