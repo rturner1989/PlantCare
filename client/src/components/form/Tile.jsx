@@ -1,6 +1,7 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Action from '../ui/Action'
+import Tooltip from '../ui/Tooltip'
 
 const CONTAINER = 'flex items-center rounded-md border-[1.5px] transition-colors duration-200'
 
@@ -38,7 +39,7 @@ const ICON_BY_SIZE = {
 }
 
 const REMOVE_BUTTON =
-  'shrink-0 w-7 h-7 mr-1.5 rounded-full flex items-center justify-center text-ink-soft hover:bg-ink/10 cursor-pointer'
+  'relative group shrink-0 w-7 h-7 mr-1.5 rounded-full flex items-center justify-center text-ink-soft hover:bg-ink/10 cursor-pointer'
 
 const DASHED =
   'flex items-center gap-2 px-3 py-2.5 rounded-md border-[1.5px] text-sm font-bold border-dashed bg-transparent text-ink-soft hover:text-emerald hover:border-emerald/40 justify-center transition-colors duration-200 cursor-pointer'
@@ -96,6 +97,7 @@ export default function Tile({
           className={REMOVE_BUTTON}
         >
           <FontAwesomeIcon icon={faXmark} className="w-2.5 h-2.5" />
+          <Tooltip placement="top">Remove</Tooltip>
         </Action>
       )}
     </div>

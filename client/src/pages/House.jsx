@@ -8,6 +8,7 @@ import Action from '../components/ui/Action'
 import EmptyState from '../components/ui/EmptyState'
 import PageHeader from '../components/ui/PageHeader'
 import Spinner from '../components/ui/Spinner'
+import Tooltip from '../components/ui/Tooltip'
 import { usePlants } from '../hooks/usePlants'
 import { useCreateSpace, useSpaces, useUpdateSpace } from '../hooks/useSpaces'
 import { useWeather } from '../hooks/useWeather'
@@ -230,9 +231,10 @@ function RoomsView({ cards, totalSpaces, weatherToday, onAddSpace, onEditSpace }
               variant="unstyled"
               onClick={() => onEditSpace(space)}
               aria-label={`Edit ${space.name}`}
-              className="absolute top-3 right-3 w-7 h-7 rounded-full bg-ink/[0.04] text-ink-soft hover:bg-ink/[0.08] hover:text-ink transition-colors flex items-center justify-center cursor-pointer"
+              className="absolute top-3 right-3 w-7 h-7 rounded-full bg-ink/[0.04] text-ink-soft hover:bg-ink/[0.08] hover:text-ink transition-colors flex items-center justify-center cursor-pointer group"
             >
               <FontAwesomeIcon icon={faPenToSquare} className="w-3 h-3" />
+              <Tooltip placement="left">Edit</Tooltip>
             </Action>
           </li>
         )

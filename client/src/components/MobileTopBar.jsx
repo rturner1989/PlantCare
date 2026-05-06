@@ -7,6 +7,7 @@ import NotificationsTrigger from './notifications/NotificationsTrigger'
 import OrganiserTrigger from './organiser/OrganiserTrigger'
 import Action from './ui/Action'
 import Avatar from './ui/Avatar'
+import Tooltip from './ui/Tooltip'
 
 const barVariants = {
   hidden: { y: -100 },
@@ -41,9 +42,10 @@ export default function MobileTopBar({ isFirstRun = false, onMenuOpen }) {
                 variant="unstyled"
                 onClick={onMenuOpen}
                 aria-label="Open menu"
-                className="w-9 h-9 rounded-full flex items-center justify-center text-ink-soft hover:text-ink hover:bg-mint/60 transition-colors"
+                className="w-9 h-9 relative group rounded-full flex items-center justify-center text-ink-soft hover:text-ink hover:bg-mint/60 transition-colors"
               >
                 <FontAwesomeIcon icon={faBars} className="w-4 h-4" />
+                <Tooltip placement="bottom">Menu</Tooltip>
               </Action>
             </motion.div>
           )}
@@ -62,13 +64,14 @@ export default function MobileTopBar({ isFirstRun = false, onMenuOpen }) {
 
           {user && (
             <motion.div variants={itemVariants}>
-              <Action to="/me" variant="unstyled" aria-label="View profile">
+              <Action to="/me" variant="unstyled" aria-label="View profile" className="relative group">
                 <Avatar
                   src={user.avatar_url}
                   fallback={<span className="text-emerald font-bold">{user.name?.[0]?.toUpperCase() ?? '?'}</span>}
                   size="sm"
                   shape="circle"
                 />
+                <Tooltip placement="bottom">Profile</Tooltip>
               </Action>
             </motion.div>
           )}

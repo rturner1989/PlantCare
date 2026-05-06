@@ -148,9 +148,10 @@ function UserCard({ user, onLogout, onNavigate }) {
           onClick={onLogout}
           variant="unstyled"
           aria-label="Log out"
-          className="text-ink-soft hover:text-coral-deep transition-colors p-1 rounded-md shrink-0"
+          className="relative group text-ink-soft hover:text-coral-deep transition-colors p-1 rounded-md shrink-0"
         >
           <FontAwesomeIcon icon={faArrowRightFromBracket} className="w-4 h-4" />
+          <Tooltip placement="top">Log out</Tooltip>
         </Action>
       </div>
     </div>
@@ -241,17 +242,19 @@ function RailBody({ user, onLogout }) {
             to="/me"
             variant="unstyled"
             aria-label="View profile"
-            className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-mint transition-shadow"
+            className="relative group w-11 h-11 rounded-full overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-mint transition-shadow"
           >
             <UserAvatar user={user} />
+            <Tooltip placement="right">Profile</Tooltip>
           </Action>
           <Action
             onClick={onLogout}
             variant="unstyled"
             aria-label="Log out"
-            className="ml-1 text-ink-soft hover:text-coral-deep transition-colors p-2 rounded-md"
+            className="relative group ml-1 text-ink-soft hover:text-coral-deep transition-colors p-2 rounded-md"
           >
             <FontAwesomeIcon icon={faArrowRightFromBracket} className="w-3 h-3" />
+            <Tooltip placement="right">Log out</Tooltip>
           </Action>
         </div>
       )}
