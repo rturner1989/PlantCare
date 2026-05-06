@@ -1,5 +1,5 @@
-import Action from '../ui/Action'
 import { pluralize } from '../../utils/pluralize'
+import Action from '../ui/Action'
 import Avatar from './Avatar'
 
 const MOOD_VARIANT = {
@@ -69,9 +69,7 @@ export default function Row({ plant }) {
 
       <span className="flex flex-col min-w-0">
         <span className="text-sm font-extrabold text-ink truncate">{plant.nickname}</span>
-        {speciesName && (
-          <span className="font-display italic text-xs text-ink-soft truncate">{speciesName}</span>
-        )}
+        {speciesName && <span className="font-display italic text-xs text-ink-soft truncate">{speciesName}</span>}
       </span>
 
       <span className="text-[11px] text-ink-soft truncate">

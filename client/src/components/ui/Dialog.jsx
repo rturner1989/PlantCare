@@ -1,7 +1,7 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useDragControls, useReducedMotion } from 'motion/react'
-import { useEffect, useId, useRef } from 'react'
+import { useCallback, useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Action from './Action'
 import Card from './Card'
@@ -71,6 +71,22 @@ export default function Dialog({
     onCloseRef.current = onClose
   })
 
+  // Blur the focused element BEFORE flipping `open` to false. On iOS
+  // the keyboard belongs to whichever input has focus; closing the
+  // dialog while a text input is focused makes the keyboard flicker
+  // open/closed during the unmount. Blurring first dismisses the
+  // keyboard cleanly, then we run the consumer's onClose.
+  const requestClose = useCallback(() => {
+    if (
+      typeof document !== 'undefined' &&
+      document.activeElement instanceof HTMLElement &&
+      typeof document.activeElement.blur === 'function'
+    ) {
+      document.activeElement.blur()
+    }
+    onCloseRef.current?.()
+  }, [])
+
   useEffect(() => {
     if (!open) return
     previouslyFocusedRef.current = document.activeElement
@@ -121,23 +137,7 @@ export default function Dialog({
         target.focus()
       }
     }
-  }, [open])
-
-  // Blur the focused element BEFORE flipping `open` to false. On iOS
-  // the keyboard belongs to whichever input has focus; closing the
-  // dialog while a text input is focused makes the keyboard flicker
-  // open/closed during the unmount. Blurring first dismisses the
-  // keyboard cleanly, then we run the consumer's onClose.
-  function requestClose() {
-    if (
-      typeof document !== 'undefined' &&
-      document.activeElement instanceof HTMLElement &&
-      typeof document.activeElement.blur === 'function'
-    ) {
-      document.activeElement.blur()
-    }
-    onCloseRef.current?.()
-  }
+  }, [open, requestClose])
 
   function handleDragEnd(_event, info) {
     if (info.offset.y > 100 || info.velocity.y > 500) {

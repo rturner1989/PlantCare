@@ -56,21 +56,6 @@ export default function ListView({
     setOpenSpaceId((current) => (current === spaceId ? null : spaceId))
   }
 
-  if (plants.length === 0) {
-    return (
-      <EmptyState
-        icon={<span>🌱</span>}
-        title="No plants yet"
-        description="Add your first plant to start tracking its care."
-        action={
-          <Action to="/add-plant" variant="primary">
-            Add a plant
-          </Action>
-        }
-      />
-    )
-  }
-
   return (
     <div className="flex flex-col gap-3.5">
       <SearchBar
@@ -96,7 +81,7 @@ export default function ListView({
         </Card.Header>
         <Card.Body className="!overflow-visible !flex-none">
           <AddSpaceRow onClick={onAddSpace} />
-          {filtered.length === 0 ? (
+          {hasActiveFilter && filtered.length === 0 ? (
             <p className="px-[18px] py-10 text-center text-sm text-ink-soft">
               No plants match {searchQuery ? `“${searchQuery}”` : 'these filters'}.
             </p>

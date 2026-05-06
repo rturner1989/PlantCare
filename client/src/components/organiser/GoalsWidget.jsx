@@ -19,9 +19,7 @@ export default function GoalsWidget() {
     <DialogCard icon={HEADER_ICON} label="Goals">
       <div className="px-3 pb-3 pt-1 text-center">
         <p className="text-sm font-semibold text-ink">Goals coming soon</p>
-        <p className="text-xs text-ink-soft mt-1">
-          Track streaks, milestones, and the shape of your plant collection.
-        </p>
+        <p className="text-xs text-ink-soft mt-1">Track streaks, milestones, and the shape of your plant collection.</p>
       </div>
     </DialogCard>
   )
