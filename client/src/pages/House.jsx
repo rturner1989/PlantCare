@@ -187,6 +187,7 @@ export default function House() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onAddSpace={openAddDialog}
+          onEditSpace={openEditDialog}
         />
       )}
 

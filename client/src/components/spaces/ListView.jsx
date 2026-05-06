@@ -17,6 +17,7 @@ export default function ListView({
   searchQuery,
   onSearchChange,
   onAddSpace,
+  onEditSpace,
 }) {
   const [openSpaceId, setOpenSpaceId] = useState(() => {
     const firstNonEmpty = spaces.find((space) => plants.some((plant) => plant.space?.id === space.id))
@@ -95,6 +96,7 @@ export default function ListView({
                   weatherToday={weatherToday}
                   isOpen={isOpen}
                   onToggle={() => toggleSpace(space.id)}
+                  onEdit={onEditSpace}
                 >
                   {spacePlants.length === 0 ? (
                     <EmptyState
