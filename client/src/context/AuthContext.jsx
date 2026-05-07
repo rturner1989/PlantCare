@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { disconnectCable } from '../api/cable'
 import { apiDelete, apiPatch, apiPost, setAccessToken } from '../api/client'
 
 export const AuthContext = createContext(null)
@@ -121,6 +122,7 @@ export function AuthProvider({ children }) {
       setUser(null)
       setSessionHint(false)
       queryClient.clear()
+      disconnectCable()
     }
   }, [queryClient])
 
