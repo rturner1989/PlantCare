@@ -1,38 +1,36 @@
 import { Link } from 'react-router-dom'
 
+// Icon stays compact; wordmark sits next to it at a larger optical
+// height so the brand reads at glance — typography cap-height is shorter
+// than the icon's bounding box, so matching pixel heights makes the name
+// look small relative to the mark. The wordmark height multiplier here
+// brings them into perceptual balance.
 const SIZES = {
-  sm: { mark: 'w-8 h-8 text-sm rounded', word: 'text-base' },
-  md: { mark: 'w-[38px] h-[38px] text-lg rounded-md', word: 'text-lg' },
-  lg: { mark: 'w-12 h-12 text-2xl rounded-lg', word: 'text-2xl' },
+  sm: { icon: 'h-9', word: 'h-5' },
+  md: { icon: 'h-11', word: 'h-7' },
+  lg: { icon: 'h-14', word: 'h-9' },
 }
 
 export default function Logo({ size = 'md', markOnly = false, className = '', to }) {
-  const { mark: markClasses, word: wordClasses } = SIZES[size]
-  const baseClasses = `flex items-center gap-2 ${className}`
+  const recipe = SIZES[size] ?? SIZES.md
+  const baseClasses = `inline-flex items-center gap-2 ${className}`
 
-  const children = (
+  const content = markOnly ? (
+    <img src="/branding/icon-192.png" alt="Rootine" className={`${recipe.icon} w-auto object-contain`} />
+  ) : (
     <>
-      {/* Decorative "P" mark — the adjacent wordmark is the accessible
-          name, so hide the letter from assistive tech. When markOnly is
-          true the caller MUST provide the name via aria-label on the
-          parent (currently unused, but guarded for future usage). */}
-      <div
-        aria-hidden="true"
-        className={`${markClasses} flex items-center justify-center text-white font-extrabold bg-[image:var(--gradient-brand)]`}
-      >
-        P
-      </div>
-      {!markOnly && <span className={`${wordClasses} font-extrabold text-ink`}>PlantCare</span>}
+      <img src="/branding/icon-192.png" alt="" aria-hidden="true" className={`${recipe.icon} w-auto object-contain`} />
+      <img src="/branding/wordmark.png" alt="Rootine" className={`${recipe.word} w-auto object-contain`} />
     </>
   )
 
   if (to) {
     return (
-      <Link to={to} className={`${baseClasses} no-underline`}>
-        {children}
+      <Link to={to} className={`${baseClasses} no-underline`} aria-label={markOnly ? 'Rootine — home' : undefined}>
+        {content}
       </Link>
     )
   }
 
-  return <div className={baseClasses}>{children}</div>
+  return <div className={baseClasses}>{content}</div>
 }

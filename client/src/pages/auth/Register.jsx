@@ -23,7 +23,7 @@ export default function Register() {
   // instead of a short-circuited subset.
   const { submitting, handleSubmit, fieldErrors, formRef } = useFormSubmit({
     action: () => register(name, email, password, passwordConfirmation),
-    successMessage: 'Account created — welcome to PlantCare!',
+    successMessage: 'Account created — welcome to Rootine!',
     errorMessage: 'Registration failed',
     onSuccess: () => navigate('/welcome', { replace: true }),
   })
@@ -31,13 +31,13 @@ export default function Register() {
   return (
     <AuthBody
       showProviders={false}
-      preheading="Join PlantCare"
+      preheading="Join Rootine"
       heading={
         <>
           Adopt your <Emphasis>first friend</Emphasis>
         </>
       }
-      subtitle="Takes about a minute. Next you'll tell us why you're here — it shapes how PlantCare treats you."
+      subtitle="Takes about a minute. Next you'll tell us why you're here — it shapes how Rootine treats you."
     >
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-3">
         <TextInput

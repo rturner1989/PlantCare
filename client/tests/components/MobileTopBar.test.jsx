@@ -95,7 +95,7 @@ describe('MobileTopBar', () => {
   describe('logo', () => {
     it('renders the home-link logo', () => {
       render(<MobileTopBar />, { wrapper })
-      expect(screen.getByRole('link', { name: /plantcare/i })).toHaveAttribute('href', '/')
+      expect(screen.getByRole('link', { name: /rootine/i })).toHaveAttribute('href', '/')
     })
   })
 })
