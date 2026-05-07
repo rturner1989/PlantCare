@@ -111,6 +111,12 @@ test.describe('In-app achievement toast', () => {
     const { email } = await registerUser(page, 'Toast User')
     await completeOnboarding(page, { spaces: ['Living Room'] })
 
+    // Wait for AchievementsChannel to be confirmed by the server before
+    // triggering the unlock — Action Cable doesn't replay missed
+    // broadcasts, so a CI worker that processes Sidekiq before the
+    // subscribe round-trip lands would lose the toast forever.
+    await expect(page.getByTestId('achievements-cable-ready')).toBeAttached({ timeout: 15000 })
+
     seedFirstCareLogReady(email)
 
     // Wait for AppLayout to settle — AchievementsListener subscribes to

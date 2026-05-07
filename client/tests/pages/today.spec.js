@@ -76,9 +76,11 @@ test.describe('Today dashboard', () => {
 
     // WeekStrip exposes each day as a button with an aria-label that
     // includes the weekday + date + count summary. "today" appears on
-    // exactly one chip.
+    // exactly one chip. The "Today's rituals" heading above isn't a
+    // sufficient gate — chips depend on a separate /weather query, so
+    // the heading can render while the strip is still empty.
     const todayChip = page.getByRole('button', { name: /today/ })
-    await expect(todayChip).toBeVisible()
+    await expect(todayChip).toBeVisible({ timeout: 15000 })
     await expect(todayChip).toHaveAttribute('aria-pressed', 'true')
 
     // Pick a future day — the chip whose aria-label contains a weekday
