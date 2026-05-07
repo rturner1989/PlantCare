@@ -37,8 +37,9 @@ describe('Dock', () => {
       render_(<Dock />)
       const nav = screen.getByRole('navigation', { name: 'Bottom navigation' })
       const links = within(nav).getAllByRole('link')
-      const labels = links.map((link) => link.textContent.trim())
-      expect(labels[2]).toBe('')
+      // The FAB is index 2; it has no visible label (icon + tooltip only),
+      // so its accessible name comes from aria-label, not textContent.
+      expect(links[2]).toHaveAttribute('aria-label', 'Add plant')
     })
   })
 

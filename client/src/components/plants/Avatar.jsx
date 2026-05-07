@@ -1,10 +1,10 @@
-import Avatar from './ui/Avatar'
+import UiAvatar from '../ui/Avatar'
 
 const FALLBACK_EMOJI = '🌱'
 
-export default function PlantAvatar({ species, size = 'md', shape = 'tile', className = '', ...kwargs }) {
+export default function Avatar({ species, size = 'md', shape = 'tile', className = '', ...kwargs }) {
   return (
-    <Avatar
+    <UiAvatar
       src={species?.image_url}
       fallback={<span>{FALLBACK_EMOJI}</span>}
       size={size}

@@ -1,6 +1,6 @@
-import PlantAvatar from './PlantAvatar'
-import Action from './ui/Action'
-import Card from './ui/Card'
+import PlantAvatar from '../../plants/Avatar'
+import Action from '../../ui/Action'
+import Card from '../../ui/Card'
 
 const PEEK_LIMIT = 3
 

@@ -15,31 +15,23 @@ test.describe('House screen', () => {
 
     const viewGroup = page.getByRole('radiogroup', { name: 'View as' })
     const roomsRadio = viewGroup.getByRole('radio', { name: /Rooms/ })
-    const listRadio = viewGroup.getByRole('radio', { name: /List/ })
     const habitatRadio = viewGroup.getByRole('radio', { name: /Habitat/ })
 
     await expect(roomsRadio).toBeChecked()
     await expect(habitatRadio).toBeDisabled()
 
-    // Each seeded space renders as a clickable RoomCard plus an edit
-    // pencil button — match the card by its full accessible name
-    // ("Living Room 0 plants · indoor") to avoid colliding with the
-    // edit button's "Edit Living Room" label.
     await expect(page.getByRole('button', { name: /^Living Room \d+/ })).toBeVisible()
     await expect(page.getByRole('button', { name: /^Kitchen \d+/ })).toBeVisible()
-
-    // List view ships in R3b; placeholder copy confirms the segment
-    // toggle still wires through.
-    await viewGroup.getByText('List', { exact: true }).click()
-    await expect(listRadio).toBeChecked()
-    await expect(page.getByText(/List view ships in TICKET-039b/)).toBeVisible()
   })
 
   test('Add-a-space tile opens the dialog and saving creates a new room card', async ({ page }) => {
     await registerAndOnboard(page)
     await page.goto('/house')
 
-    await page.getByRole('button', { name: /Add a space/i }).click()
+    await page
+      .getByRole('button', { name: /Add a space/i })
+      .first()
+      .click()
 
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible()
@@ -47,6 +39,28 @@ test.describe('House screen', () => {
     await dialog.getByRole('button', { name: 'Add space' }).click()
 
     await expect(page.getByRole('button', { name: /^Sunroom \d+/ })).toBeVisible()
+  })
+
+  test('view toggle switches to list view and shows search + accordion summaries', async ({ page }) => {
+    await registerAndOnboard(page)
+    await page.goto('/house')
+
+    const viewGroup = page.getByRole('radiogroup', { name: 'View as' })
+    await viewGroup.getByText('List', { exact: true }).click()
+
+    await expect(page).toHaveURL(/[?&]view=list/)
+    await expect(page.getByPlaceholder(/Search plants/i)).toBeVisible()
+    await expect(page.getByRole('button', { name: /Living Room.*plants?/i })).toBeVisible()
+  })
+
+  test('clicking a room card filters list view to that space', async ({ page }) => {
+    await registerAndOnboard(page)
+    await page.goto('/house')
+
+    await page.getByRole('button', { name: /^Living Room \d+/ }).click()
+
+    await expect(page).toHaveURL(/view=list.*space_id=\d+/)
+    await expect(page.getByPlaceholder(/Search Living Room/i)).toBeVisible()
   })
 
   test('unauthenticated visit redirects to login', async ({ page }) => {

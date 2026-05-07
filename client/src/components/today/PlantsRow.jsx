@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import PlantActionWheel from '../PlantActionWheel'
-import PlantAvatar from '../PlantAvatar'
+import PlantActionWheel from '../plants/ActionWheel'
+import PlantAvatar from '../plants/Avatar'
 import Action from '../ui/Action'
 import Card from '../ui/Card'
 import Heading from '../ui/Heading'

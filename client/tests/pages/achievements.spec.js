@@ -119,22 +119,20 @@ test.describe('In-app achievement toast', () => {
 
     seedFirstCareLogReady(email)
 
-    // Trigger a care log via rails runner — the cable broadcast then
-    // arrives at the in-app subscriber and the toast renders. Going
-    // through the UI would require RadialWheel + plant-card wiring
-    // that's still in flight; this isolates the toast surface.
+    // Trigger a care log via rails runner, then run the achievement job
+    // synchronously instead of letting Sidekiq pick it up. Cold-start
+    // Sidekiq on CI added 5–8s of variance and still missed the toast
+    // window even at 15s. Calling perform_now removes the queue entirely.
     runRails(`
 user = User.find_by(email: '${email}')
 plant = user.plants.first || user.spaces.first.plants.create!(
   nickname: 'Wilty',
   species: Species.first || Species.create!(common_name: 'Test', watering_frequency_days: 7, feeding_frequency_days: 30, personality: 'chill')
 )
-plant.care_logs.create!(care_type: 'watering', performed_at: Time.current)
+care_log = plant.care_logs.create!(care_type: 'watering', performed_at: Time.current)
+CheckAchievementsJob.new.perform(event: 'care_logged', user_id: user.id, source_type: 'CareLog', source_id: care_log.id)
 `)
 
-    // care_log create → CheckAchievementsJob enqueue → Sidekiq pickup →
-    // Achievement.unlock! → cable broadcast → subscriber → toast. Local
-    // hits ~2s, CI cold-starts hit 5–8s.
     const toast = page.getByText('First care logged')
     await expect(toast).toBeVisible({ timeout: 15000 })
   })

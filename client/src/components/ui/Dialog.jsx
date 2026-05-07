@@ -1,7 +1,7 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useDragControls, useReducedMotion } from 'motion/react'
-import { useEffect, useId, useRef } from 'react'
+import { useCallback, useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Action from './Action'
 import Card from './Card'
@@ -71,6 +71,22 @@ export default function Dialog({
     onCloseRef.current = onClose
   })
 
+  // Blur the focused element BEFORE flipping `open` to false. On iOS
+  // the keyboard belongs to whichever input has focus; closing the
+  // dialog while a text input is focused makes the keyboard flicker
+  // open/closed during the unmount. Blurring first dismisses the
+  // keyboard cleanly, then we run the consumer's onClose.
+  const requestClose = useCallback(() => {
+    if (
+      typeof document !== 'undefined' &&
+      document.activeElement instanceof HTMLElement &&
+      typeof document.activeElement.blur === 'function'
+    ) {
+      document.activeElement.blur()
+    }
+    onCloseRef.current?.()
+  }, [])
+
   useEffect(() => {
     if (!open) return
     previouslyFocusedRef.current = document.activeElement
@@ -81,7 +97,7 @@ export default function Dialog({
     // WCAG 2.4.3 + WAI-ARIA APG modal pattern.
     function handleKey(event) {
       if (event.key === 'Escape') {
-        onCloseRef.current?.()
+        requestClose()
         return
       }
       if (event.key !== 'Tab') return
@@ -108,13 +124,24 @@ export default function Dialog({
     document.addEventListener('keydown', handleKey)
     return () => {
       document.removeEventListener('keydown', handleKey)
-      previouslyFocusedRef.current?.focus?.()
+      // Restoring focus to a text input would re-open the iOS keyboard
+      // mid-close — skip those targets and let the next interaction
+      // place focus naturally.
+      const target = previouslyFocusedRef.current
+      if (
+        target &&
+        typeof target.focus === 'function' &&
+        !(target instanceof HTMLInputElement) &&
+        !(target instanceof HTMLTextAreaElement)
+      ) {
+        target.focus()
+      }
     }
-  }, [open])
+  }, [open, requestClose])
 
   function handleDragEnd(_event, info) {
     if (info.offset.y > 100 || info.velocity.y > 500) {
-      onCloseRef.current?.()
+      requestClose()
     }
   }
 
@@ -126,7 +153,7 @@ export default function Dialog({
             type="button"
             aria-label="Close dialog"
             className={showScrim ? 'dialog-overlay' : 'dialog-overlay dialog-overlay-transparent'}
-            onClick={() => onCloseRef.current?.()}
+            onClick={requestClose}
             {...overlayMotion}
           />
           <div className={isRight ? 'dialog-content dialog-content-right' : 'dialog-content'}>
@@ -166,9 +193,11 @@ export default function Dialog({
                   with one Tab + Enter, no full content cycle. */}
               <Action
                 variant="unstyled"
-                onClick={() => onCloseRef.current?.()}
+                onClick={requestClose}
                 aria-label={title ? `Close ${title}` : 'Close'}
-                className="absolute top-3 right-3 w-7 h-7 rounded-full bg-ink/[0.08] text-ink-soft hover:text-ink hover:bg-ink/[0.12] transition-colors flex items-center justify-center z-10"
+                className={`absolute right-3 w-7 h-7 rounded-full bg-ink/[0.08] text-ink-soft hover:text-ink hover:bg-ink/[0.12] transition-colors flex items-center justify-center z-10 ${
+                  isRight ? 'top-[max(0.75rem,env(safe-area-inset-top))]' : 'top-3'
+                }`}
               >
                 <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
               </Action>

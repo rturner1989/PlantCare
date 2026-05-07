@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { motion, useReducedMotion } from 'motion/react'
 import { NavLink } from 'react-router-dom'
 import Action from './ui/Action'
+import Tooltip from './ui/Tooltip'
 
 const navItems = [
   { to: '/', label: 'Today', icon: faSun, end: true },
@@ -62,8 +63,9 @@ export default function Dock({ isFirstRun = false }) {
         ))}
 
         <motion.div variants={itemVariants}>
-          <Action to="/add-plant" variant="fab" aria-label="Add plant" className="relative -top-3.5">
+          <Action to="/add-plant" variant="fab" aria-label="Add plant" className="relative group -top-3.5">
             <FontAwesomeIcon icon={faPlus} className="w-6 h-6" />
+            <Tooltip placement="top">Add plant</Tooltip>
           </Action>
         </motion.div>
 

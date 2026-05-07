@@ -1,7 +1,7 @@
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState } from 'react'
-import PlantQuickDialog from '../PlantQuickDialog'
+import PlantQuickDialog from '../plants/QuickDialog'
 import Action from '../ui/Action'
 import Card from '../ui/Card'
 import Heading from '../ui/Heading'

@@ -8,6 +8,7 @@ const DEFAULT_LOCATION_LABEL = 'Greenwich (default)'
 const HEADER_ICON = <WeatherIcon scheme="heat" iconName="sun" size={22} className="!shadow-none" />
 
 const DAY_FORMATTER = new Intl.DateTimeFormat(undefined, { weekday: 'short' })
+const TODAY_FORMATTER = new Intl.DateTimeFormat(undefined, { weekday: 'long' })
 const TOMORROW_FORMATTER = new Intl.DateTimeFormat(undefined, { weekday: 'long' })
 
 function parseLocalDate(isoDate) {
@@ -18,6 +19,7 @@ function parseLocalDate(isoDate) {
 function StripVariant({ today, locationLabel, week }) {
   const tomorrow = week[1]
   const tomorrowLabel = tomorrow ? TOMORROW_FORMATTER.format(parseLocalDate(tomorrow.date)) : null
+  const todayLabel = TODAY_FORMATTER.format(new Date())
   const isDefaultLocation = locationLabel === DEFAULT_LOCATION_LABEL
 
   return (
@@ -25,6 +27,9 @@ function StripVariant({ today, locationLabel, week }) {
       <WeatherIcon scheme={today.scheme} iconName={today.icon_name} size={56} />
 
       <div className="flex-1 min-w-0 flex flex-col justify-center">
+        <span className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-emerald mb-0.5">
+          Today · {todayLabel}
+        </span>
         <div className="flex items-baseline gap-2 flex-wrap">
           <span className="font-display italic font-medium text-3xl text-ink leading-none">{today.temperature}°</span>
           <span className="text-sm font-bold text-ink">{today.label}</span>
