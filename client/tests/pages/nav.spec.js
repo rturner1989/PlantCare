@@ -36,11 +36,11 @@ test.describe('Primary navigation — sidebar (≥1200px)', () => {
     await expect(bell).toBeEnabled()
   })
 
-  test('search pill is disabled until cmd-K dialog ticket lands', async ({ page }) => {
+  test('sidebar search input is disabled on pages that have not registered a search scope', async ({ page }) => {
     await registerUser(page, 'Robin')
     await completeOnboarding(page)
 
-    const search = page.getByRole('button', { name: 'Search (coming soon)' }).first()
+    const search = page.getByPlaceholder(/Search.*coming soon/i).first()
     await expect(search).toBeDisabled()
   })
 

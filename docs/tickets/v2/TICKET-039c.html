@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-039c — Unified page-aware search system</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 80px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.component { background: #1a1a2e; }
+.artifact .kind.hook { background: #4a6fa5; }
+.artifact .kind.context { background: #2d6a4f; }
+.artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 360px; border: none; background: #fff; }
+.mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<div class="header">
+  <div class="id">TICKET-039c · R3c</div>
+  <h1>Unified page-aware search system</h1>
+  <div class="badges">
+    <span class="badge status">Open</span>
+    <span class="badge priority-high">High</span>
+  </div>
+</div>
+
+<section>
+  <h2>Summary</h2>
+  <p>One search system shared across the app. A new <code>SearchContext</code> holds the current page's search scope (placeholder, query, setter, optional results renderer). Each page declares its scope on mount via <code>useRegisterSearchScope</code>; the sidebar (desktop) and mobile top-bar both read from the same context so a single keystroke flows wherever it's relevant.</p>
+  <p>The desktop sidebar's currently-disabled "Search…" pill becomes a real, focusable input. On mobile, the top-bar's disabled magnifier becomes a trigger that opens a full-screen search drawer per the v2 mockup. House is the first consumer — its existing <code>ListView</code> SearchBar is dropped in favour of the shared context, but the URL-driven <code>?space_id=N</code> filter behaviour is unchanged.</p>
+  <p>In one sentence: <strong>page-aware search anywhere, owned by a context, with sidebar + mobile drawer chrome and House wired through as the first consumer.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+
+  <div class="plan-strip">
+    <div class="plan-step done"><span class="num">020–026</span>B prereqs</div>
+    <div class="plan-step done"><span class="num">027–036</span>F primitives</div>
+    <div class="plan-step done"><span class="num">037</span>R1 Auth</div>
+    <div class="plan-step done"><span class="num">038</span>R2 Today</div>
+    <div class="plan-step done"><span class="num">039a</span>R3a Rooms</div>
+    <div class="plan-step done"><span class="num">039b</span>R3b List</div>
+    <div class="plan-step current"><span class="num">039c</span>R3c Search</div>
+    <div class="plan-step"><span class="num">040–051</span>R4–R15</div>
+  </div>
+
+  <p><strong>What came before.</strong> R3a (TICKET-039a) shipped the House Rooms grid + chrome (PageHeader, SegmentedControl extensions, RoomCard, AddCustomSpaceForm). R3b (TICKET-039b) added the List view with a per-list <code>SearchBar</code>, <code>Accordion</code> per space, URL-driven view + filter via <code>useSearchParams</code>, and sessionStorage view persistence. The List view's local SearchBar was always understood to be temporary chrome until this ticket lifts search to the app shell.</p>
+
+  <p><strong>What this unlocks.</strong> Any future page can plug into the same search surface by registering a scope on mount: Today (search tasks), Encyclopedia (search articles), Plant Detail (search care logs). Today + Encyclopedia don't get search added in this ticket — only the plumbing is built so they can wire in cheaply later. The mobile drawer becomes the search affordance for the entire app once it ships.</p>
+
+  <p><strong>Mental model.</strong> Like <code>before_action :set_breadcrumb</code> in a Rails controller — pages declare what the chrome should show on their watch, the chrome reads it. The page is the source of truth for what's searchable; the chrome is dumb.</p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <p>Cross-cutting infrastructure (one context, one hook, one drawer overlay) plus the consumers that wire it up.</p>
+
+  <div class="artifact-list">
+    <div class="artifact">
+      <div><span class="kind context">Context</span><span class="name">client/src/context/SearchContext.jsx</span></div>
+      <div class="role">Holds the current scope: <code>{ placeholder, query, setQuery, isActive }</code>. Pages register/unregister via the provider's <code>registerScope(scope)</code> method. When no page has registered, <code>isActive</code> is false and the chrome renders a disabled "Search… (coming soon-ish)" placeholder. Mounted under <code>AuthProvider</code> in <code>App.jsx</code> so authenticated pages share one source of truth.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind hook">Hook</span><span class="name">client/src/hooks/useSearch.js</span></div>
+      <div class="role">Reader hook for chrome. Returns <code>{ placeholder, query, setQuery, isActive, openMobileDrawer, closeMobileDrawer, isMobileDrawerOpen }</code>. Sidebar input + mobile trigger + drawer all consume this.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind hook">Hook</span><span class="name">client/src/hooks/useRegisterSearchScope.js</span></div>
+      <div class="role">Writer hook for pages. Call once with the scope object on mount; effect cleanup unregisters on unmount. Accepts <code>{ placeholder, query, setQuery }</code>. Stable identity expected — pass <code>useState</code>'s setter directly so the effect doesn't churn.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind component">Component</span><span class="name">client/src/components/search/SearchInput.jsx</span></div>
+      <div class="role">Lifted from <code>spaces/list/SearchBar.jsx</code> verbatim — the pill-shaped input with magnifying-glass icon, sr-only label, conditional Clear-X (clears query + any registered <code>onClearAll</code>). Thin generic primitive; no domain knowledge.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind component">Component</span><span class="name">client/src/components/search/MobileSearchDrawer.jsx</span></div>
+      <div class="role">Full-screen overlay that slides down from the top-bar (per mockup 21's <code>.search-floating-bar</code> + <code>.search-results-overlay</code>). Contains <code>SearchInput</code> + a results pane that just renders <code>{children}</code> — pages can supply a results renderer later, but for R3c the results pane shows the live page's filtered output (House's accordion) underneath the floating input.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind extend">Extend</span><span class="name">client/src/components/Sidebar.jsx</span></div>
+      <div class="role">Replace the <code>disabled</code> "Search…" pill in <code>Body</code> + <code>RailBody</code> with a live <code>SearchInput</code> when <code>useSearch().isActive</code>. When inactive, keep a disabled placeholder. Cmd/Ctrl+K shortcut focuses the input.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind extend">Extend</span><span class="name">client/src/components/MobileTopBar.jsx</span></div>
+      <div class="role">Replace the disabled magnifier with an Action that calls <code>openMobileDrawer()</code> when <code>isActive</code>. When inactive, keep a disabled icon. Drawer mounts at App level so it floats over the page.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind rewrite">Rewrite</span><span class="name">client/src/components/spaces/ListView.jsx</span></div>
+      <div class="role">Drop the local <code>SearchBar</code> import + render. Replace local <code>searchQuery</code> state with <code>useRegisterSearchScope</code>. Filter logic on <code>filteredSpaceId + searchQuery</code> stays. <code>onClearFilter</code> still wired through the URL handler in House.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind extend">Extend</span><span class="name">client/src/pages/House.jsx</span></div>
+      <div class="role">Drop <code>searchQuery</code> + <code>setSearchQuery</code> useState (now lives in ListView via the registration hook). Pass-through props update accordingly.</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 20px; font-size: 14px; font-weight: 700; color: #444;">Provider tree</h3>
+  <div class="shape">App.jsx
+└── QueryClientProvider
+    └── AuthProvider
+        └── NotificationsProvider
+            └── OrganiserProvider
+                └── SearchProvider          ← NEW
+                    └── ToastProvider
+                        └── &lt;Routes /&gt;</div>
+
+  <p style="margin-top: 12px; font-size: 14px; color: #666;"><strong>Placeholder note.</strong> Today, Encyclopedia, and Plant Detail don't register scopes in this ticket — the sidebar/drawer just show inactive state when those pages are open. The plumbing is the deliverable; consumers come page by page later.</p>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+  <ol>
+    <li>When the user is on a page that has registered a search scope (House List view in this ticket), the sidebar's search pill is a focusable input whose placeholder + value reflect that scope. Typing updates the page's search results live.</li>
+    <li>When the user is on a page that has NOT registered a scope (Today, Encyclopedia, Plant Detail), the sidebar's search pill shows a muted "Search… (coming soon)" state and is non-interactive.</li>
+    <li>On mobile, tapping the top-bar magnifier on an active-scope page opens a full-screen drawer with the same input + the page's results visible underneath. The drawer closes via Escape, an X button, or tapping outside.</li>
+    <li>Cmd+K (Ctrl+K on non-Mac) focuses the sidebar search input when a scope is active. The shortcut is a no-op when inactive.</li>
+    <li>House List view's existing search behaviour is identical to before from the user's perspective — query filters plants live, clear-X clears query, scope-aware placeholder shows "Search Living Room…" when filtered to a space.</li>
+    <li>Switching between pages cleans up correctly: leaving House (the only consumer) reverts the chrome to inactive state. No stale query bleeds across pages.</li>
+    <li>The cross-cutting code is reviewed via <code>/vercel-react-best-practices</code> + <code>/accessibility</code>. <code>/dhh-rails-reviewer</code> is N/A — no backend changes.</li>
+    <li>Lint and tests pass.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+  <div class="criterion"><div class="box"></div><span>On <code>/house?view=list</code>, the sidebar search pill is a real input. Typing "rose" filters the accordion live. The local SearchBar above the list is gone.</span></div>
+  <div class="criterion"><div class="box"></div><span>On <code>/</code> (Today), the sidebar search pill is muted/disabled and shows "Search… (coming soon)".</span></div>
+  <div class="criterion"><div class="box"></div><span>On mobile (&lt;480px) at <code>/house?view=list</code>, tapping the top-bar search icon opens a drawer with input focused. Typing updates the list underneath. Tapping X / pressing Escape / tapping outside closes the drawer.</span></div>
+  <div class="criterion"><div class="box"></div><span>Cmd/Ctrl+K on House List view focuses the sidebar input.</span></div>
+  <div class="criterion"><div class="box"></div><span>Navigate Rooms grid → click a space card → URL becomes <code>?view=list&space_id=N</code>; sidebar placeholder reads "Search Living Room…". Clearing via the X clears both query + filter.</span></div>
+  <div class="criterion"><div class="box"></div><span>Navigate /house → /me → /house: persisted view restored from sessionStorage (R3b behaviour preserved). No stale query in the sidebar.</span></div>
+  <div class="criterion"><div class="box"></div><span>DevTools React tree: only one <code>SearchProvider</code> mounted. Sidebar input, mobile trigger, drawer, and ListView all read from it.</span></div>
+  <div class="criterion"><div class="box"></div><span>Keyboard: Tab from page content reaches the sidebar input. Inside the drawer, Tab cycles within drawer (focus trap). Escape closes drawer.</span></div>
+  <div class="criterion"><div class="box"></div><span>Screen reader: sidebar input is announced as "Search Living Room, edit text" (or generic "Search plants" when no filter). Drawer is announced as a dialog when opened.</span></div>
+  <div class="criterion"><div class="box"></div><span>Lint and tests pass (<code>./scripts/lint.sh && ./scripts/run_tests.sh client</code>).</span></div>
+</section>
+
+<section>
+  <h2>Design references</h2>
+
+  <div class="mockup-preview">
+    <div class="label"><span>Mockup 21 — House (mobile search drawer at bottom)</span><a href="../mockups/plantcare-ui/v2/21-house-v1.html" target="_blank">Open ↗</a></div>
+    <iframe src="../mockups/plantcare-ui/v2/21-house-v1.html"></iframe>
+  </div>
+
+  <p style="font-size: 13px; color: #666; margin-top: 4px;">Mobile mode shows the <code>.search-floating-bar</code> sliding in below the top-bar plus <code>.search-results-overlay</code> beneath. Lift the visual treatment from there. The desktop sidebar input is the same pill we already have in <code>list/SearchBar.jsx</code> — moving it, not redesigning it.</p>
+
+  <div class="mockup-preview">
+    <div class="label"><span>Mockup 26 — Sidebar states (desktop search input position)</span><a href="../mockups/plantcare-ui/v2/26-sidebar-states-v1.html" target="_blank">Open ↗</a></div>
+    <iframe src="../mockups/plantcare-ui/v2/26-sidebar-states-v1.html"></iframe>
+  </div>
+
+  <p><strong>Plan reference.</strong></p>
+  <a class="plan-link" href="../plans/2026-04-24-plantcare-frontend-v2.md">docs/plans/2026-04-24-plantcare-frontend-v2.md — R3 House region</a>
+  <p style="font-size: 13px; color: #666; margin-top: 6px;">One worked example, not a script to transcribe. R3c was originally scoped as "mobile search drawer" only; this ticket bundles in the cross-cutting context because the drawer can't function without it.</p>
+
+  <p style="margin-top: 16px;"><strong>Out of scope.</strong> Today / Encyclopedia / Plant Detail scope registration. Search-result page renderers (the drawer just shows the live page underneath in R3c). Cross-page search ("search everything"). Server-side search APIs.</p>
+</section>
+
+<section>
+  <h2>React concepts worth looking up</h2>
+
+  <div class="learn">
+    <strong>Modern context patterns + when context is enough vs when you need a store.</strong> For low-frequency state shared across a few siblings (sidebar, mobile bar, drawer, page), Context is fine. The "every consumer re-renders on every change" gotcha applies — but search query updates are user-driven keystrokes, not high-frequency animations, so it's not a real cost. If this grew into a global store with many independent slices (theme + auth + search + …), you'd reach for Zustand or similar — not yet.
+  </div>
+
+  <div class="learn">
+    <strong>Effect cleanup + unmount semantics.</strong> <code>useRegisterSearchScope</code> registers on mount and unregisters on cleanup. StrictMode runs effects twice in dev — your register/unregister has to be idempotent. Returning the unregister function from the effect is the standard pattern, same shape as adding/removing a DOM event listener.
+  </div>
+
+  <div class="learn">
+    <strong>Ref vs state for callback identity.</strong> <code>setQuery</code> passed into <code>useRegisterSearchScope</code> needs stable identity, otherwise the effect re-runs every render. <code>useState</code>'s setter is already stable — pass it directly without wrapping. If you ever need to wrap, <code>useCallback([])</code> or a ref are the tools, but neither is needed here.
+  </div>
+
+  <div class="learn">
+    <strong>Focus trap + the WAI-ARIA modal pattern.</strong> The mobile drawer is a modal. Tab/Shift+Tab must cycle within it, Escape must close it, focus must go to the input on open and back to the trigger on close. Same shape as <code>Dialog.jsx</code> already implements — copy that pattern, don't reinvent.
+  </div>
+
+  <div class="learn">
+    <strong>Keyboard shortcuts inside an SPA.</strong> A global Cmd/Ctrl+K listener attaches in a <code>useEffect</code> on mount of the provider (or a small hook below it). Watch out for conflicts: if the user is typing in a regular input and presses Cmd+K, you still want it to focus the sidebar. <code>preventDefault</code> on the keydown event blocks browser default (Chrome address bar focus on Cmd+K).
+  </div>
+</section>
+
+<section>
+  <h2>Rails ↔ React mental map</h2>
+
+  <table class="rails-map">
+    <thead>
+      <tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>before_action :set_breadcrumb, only: [:show]</code></td>
+        <td><code>useRegisterSearchScope</code> on mount</td>
+        <td>Page declares per-page chrome state</td>
+      </tr>
+      <tr>
+        <td><code>content_for :sidebar do …</code></td>
+        <td><code>SearchContext</code> with a setter exposed as <code>registerScope</code></td>
+        <td>Pages write into a shared slot the layout reads from</td>
+      </tr>
+      <tr>
+        <td>Layout reads <code>yield(:sidebar)</code></td>
+        <td>Sidebar reads <code>useSearch()</code></td>
+        <td>Chrome is dumb; pages drive content</td>
+      </tr>
+      <tr>
+        <td><code>flash[:notice]</code></td>
+        <td>Existing <code>ToastContext</code></td>
+        <td>Same context-as-flash-channel shape — different domain</td>
+      </tr>
+      <tr>
+        <td><code>params[:q]</code></td>
+        <td>Local page state OR URL param (this ticket: local state, lifted to context)</td>
+        <td>Search query lives in page state today; URL-driven later if deep-link wanted</td>
+      </tr>
+      <tr>
+        <td><code>helper_method :current_search</code></td>
+        <td><code>useSearch()</code> hook</td>
+        <td>Read-only access to shared state from anywhere in the tree</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Related files</h2>
+
+  <ul class="file-list">
+    <li><span>client/src/context/SearchContext.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/hooks/useSearch.js</span><span class="action">create</span></li>
+    <li><span>client/src/hooks/useRegisterSearchScope.js</span><span class="action">create</span></li>
+    <li><span>client/src/components/search/SearchInput.jsx</span><span class="action">create (lift from list/SearchBar)</span></li>
+    <li><span>client/src/components/search/MobileSearchDrawer.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/App.jsx</span><span class="action">extend (mount provider)</span></li>
+    <li><span>client/src/components/Sidebar.jsx</span><span class="action">extend (active input + Cmd+K)</span></li>
+    <li><span>client/src/components/MobileTopBar.jsx</span><span class="action">extend (drawer trigger)</span></li>
+    <li><span>client/src/components/spaces/ListView.jsx</span><span class="action">rewrite (drop local SearchBar)</span></li>
+    <li><span>client/src/pages/House.jsx</span><span class="action">extend (drop searchQuery state)</span></li>
+    <li><span>client/src/components/spaces/list/SearchBar.jsx</span><span class="action">delete (replaced by search/SearchInput)</span></li>
+    <li><span>client/tests/pages/house.spec.js</span><span class="action">extend (sidebar input + drawer paths)</span></li>
+  </ul>
+
+  <p style="font-size: 13px; color: #666; margin-top: 12px;">This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose.</p>
+</section>
+
+<section>
+  <h2>Notes &amp; gotchas</h2>
+
+  <ul>
+    <li><strong>One provider, one source of truth.</strong> Don't fork into desktop-only and mobile-only contexts — both consume the same <code>SearchContext</code>. The drawer is just chrome, not a separate state owner.</li>
+    <li><strong>Effect cleanup.</strong> <code>useRegisterSearchScope</code> must unregister on unmount. StrictMode dev-mode double-invokes effects, so the unregister has to leave the registry in a clean state if called with a stale scope. Use a key (e.g. random id) or check identity before unregistering.</li>
+    <li><strong>Cmd+K conflicts with the browser.</strong> Chrome focuses the address bar on Cmd+K by default. <code>event.preventDefault()</code> in the handler blocks it, but only when our handler runs first — attach to <code>document</code> in capture phase if you see drift.</li>
+    <li><strong>Don't add scope to Today/Encyclopedia/Plant Detail in this ticket.</strong> Those are separate tickets so the search context can be reviewed in isolation. Scope creep here means a sprawling PR that's harder to review.</li>
+    <li><strong>Don't wire backend search.</strong> R3c is client-side filtering of already-loaded data. Cross-page search and server-side search are future work.</li>
+    <li><strong>Step 1 reorg risk.</strong> Lifting <code>list/SearchBar.jsx</code> to <code>search/SearchInput.jsx</code> means deleting the old file. Make sure ListView's import is updated <em>and</em> you didn't have any dead consumers (grep first).</li>
+    <li><strong>Mobile drawer is a Dialog.</strong> Reuse the existing <code>Dialog</code> primitive's focus-trap + Escape pattern; don't roll a new one.</li>
+    <li><strong>Three-tier review pass before merge.</strong> Run <code>/vercel-react-best-practices</code> + <code>/accessibility</code> on the cross-cutting code (context, hook, drawer, sidebar wiring). DHH n/a — no backend.</li>
+    <li><strong>When you're done:</strong> run <code>./scripts/lint.sh && ./scripts/run_tests.sh client</code>, commit on branch <code>ticket-039c-unified-search</code>, then open a PR with title <code>feat(v2): R3c unified page-aware search (TICKET-039c)</code>. No Claude footer in body or commit messages.</li>
+  </ul>
+</section>
+
+</div>
+</body>
+</html>

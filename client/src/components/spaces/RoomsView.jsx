@@ -1,11 +1,12 @@
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { useMemo } from 'react'
+import { useSearchState } from '../../hooks/useSearch'
 import { pluralize } from '../../utils/pluralize'
 import { formatSpaceName, getSpaceEmoji } from '../../utils/spaceIcons'
+import { spaceMatchesQuery } from '../../utils/spaceSearch'
 import Action from '../ui/Action'
+import ActionIcon from '../ui/ActionIcon'
 import EmptyState from '../ui/EmptyState'
-import Tooltip from '../ui/Tooltip'
 import AddSpaceTile from './rooms/AddSpaceTile'
 import RoomCard from './rooms/RoomCard'
 
@@ -59,10 +60,16 @@ function weatherPillFor(today) {
   }
 }
 
-export default function RoomsView({ spaces, plants, weatherToday, onAddSpace, onEditSpace, onSelectSpace }) {
+export default function RoomsView({ spaces, plants, weatherToday, onAddSpace, onEditSpace, onDeleteSpace }) {
+  const { query, isMobileDrawerOpen } = useSearchState()
+  const trimmedQuery = isMobileDrawerOpen ? '' : query.trim().toLowerCase()
+
   const cards = useMemo(() => {
     if (!spaces || !plants) return []
-    return spaces.map((space) => {
+    const visibleSpaces = trimmedQuery
+      ? spaces.filter((space) => spaceMatchesQuery(space, plants, trimmedQuery))
+      : spaces
+    return visibleSpaces.map((space) => {
       const spacePlants = plants.filter((plant) => plant.space?.id === space.id)
       return {
         space,
@@ -70,7 +77,7 @@ export default function RoomsView({ spaces, plants, weatherToday, onAddSpace, on
         nextCare: nextCareFor(spacePlants),
       }
     })
-  }, [spaces, plants])
+  }, [spaces, plants, trimmedQuery])
 
   if (spaces.length === 0) {
     return (
@@ -106,17 +113,23 @@ export default function RoomsView({ spaces, plants, weatherToday, onAddSpace, on
               nextCare={nextCare}
               envHint={envHintFor(space)}
               weatherPill={isOutdoor ? weatherPillFor(weatherToday) : null}
-              onClick={() => onSelectSpace(space)}
             />
-            <Action
-              variant="unstyled"
-              onClick={() => onEditSpace(space)}
-              aria-label={`Edit ${displayName}`}
-              className="absolute top-3 right-3 w-7 h-7 rounded-full bg-ink/[0.04] text-ink-soft hover:bg-ink/[0.08] hover:text-ink transition-colors flex items-center justify-center cursor-pointer group"
-            >
-              <FontAwesomeIcon icon={faPenToSquare} className="w-3 h-3" />
-              <Tooltip placement="left">Edit</Tooltip>
-            </Action>
+            <div className="absolute top-3 right-3 flex items-center gap-1.5">
+              <ActionIcon
+                icon={faPenToSquare}
+                label={`Edit ${displayName}`}
+                onClick={() => onEditSpace(space)}
+                scheme="warning"
+              />
+              {onDeleteSpace && (
+                <ActionIcon
+                  icon={faTrash}
+                  label={`Delete ${displayName}`}
+                  onClick={() => onDeleteSpace(space)}
+                  scheme="danger"
+                />
+              )}
+            </div>
           </li>
         )
       })}

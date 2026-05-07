@@ -8,6 +8,7 @@ import Spinner from './components/ui/Spinner'
 import { AuthProvider } from './context/AuthContext'
 import { NotificationsProvider } from './context/NotificationsContext'
 import { OrganiserProvider } from './context/OrganiserContext'
+import { SearchProvider } from './context/SearchContext'
 import { ToastProvider, useToast } from './context/ToastContext'
 import { useAuth } from './hooks/useAuth'
 import AppLayout from './layouts/AppLayout'
@@ -81,45 +82,47 @@ export default function App() {
       <AuthProvider>
         <NotificationsProvider>
           <OrganiserProvider>
-            <ToastProvider>
-              <BrowserRouter>
-                <Suspense fallback={<RouteFallback />}>
-                  <Routes>
-                    <Route element={<AuthLayout />}>
-                      <Route path="/login" element={<Login />} />
-                      <Route path="/register" element={<Register />} />
-                      <Route path="/forgot-password" element={<ForgotPassword />} />
-                      <Route path="/reset-password/:token" element={<ResetPassword />} />
-                    </Route>
+            <SearchProvider>
+              <ToastProvider>
+                <BrowserRouter>
+                  <Suspense fallback={<RouteFallback />}>
+                    <Routes>
+                      <Route element={<AuthLayout />}>
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/reset-password/:token" element={<ResetPassword />} />
+                      </Route>
 
-                    <Route element={<OnboardingLayout />}>
-                      <Route
-                        path="/welcome/:step?"
-                        element={
-                          <ProtectedRoute requireOnboarded={false}>
-                            <Welcome />
-                          </ProtectedRoute>
-                        }
-                      />
-                    </Route>
+                      <Route element={<OnboardingLayout />}>
+                        <Route
+                          path="/welcome/:step?"
+                          element={
+                            <ProtectedRoute requireOnboarded={false}>
+                              <Welcome />
+                            </ProtectedRoute>
+                          }
+                        />
+                      </Route>
 
-                    <Route element={<ProtectedAppLayout />}>
-                      <Route index element={<Today />} />
+                      <Route element={<ProtectedAppLayout />}>
+                        <Route index element={<Today />} />
 
-                      <Route path="house" element={<House />} />
-                      <Route path="plants/:id" element={<PlaceholderPage title="Plant Detail" />} />
-                      <Route path="journal" element={<PlaceholderPage title="Journal" />} />
-                      <Route path="encyclopedia" element={<PlaceholderPage title="Encyclopedia" />} />
-                      <Route path="notifications" element={<PlaceholderPage title="Notifications" />} />
-                      <Route path="me" element={<PlaceholderPage title="Me" />} />
-                      <Route path="add-plant" element={<PlaceholderPage title="Add Plant" />} />
-                    </Route>
+                        <Route path="house" element={<House />} />
+                        <Route path="plants/:id" element={<PlaceholderPage title="Plant Detail" />} />
+                        <Route path="journal" element={<PlaceholderPage title="Journal" />} />
+                        <Route path="encyclopedia" element={<PlaceholderPage title="Encyclopedia" />} />
+                        <Route path="notifications" element={<PlaceholderPage title="Notifications" />} />
+                        <Route path="me" element={<PlaceholderPage title="Me" />} />
+                        <Route path="add-plant" element={<PlaceholderPage title="Add Plant" />} />
+                      </Route>
 
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
-              </BrowserRouter>
-            </ToastProvider>
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
+                </BrowserRouter>
+              </ToastProvider>
+            </SearchProvider>
           </OrganiserProvider>
         </NotificationsProvider>
       </AuthProvider>

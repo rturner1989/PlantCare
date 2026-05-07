@@ -1,12 +1,12 @@
-import { faChevronRight, faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import { faChevronRight, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useId } from 'react'
 import { pluralize } from '../../../utils/pluralize'
 import { formatSpaceName, getSpaceEmoji } from '../../../utils/spaceIcons'
 import Action from '../../ui/Action'
-import Tooltip from '../../ui/Tooltip'
+import ActionIcon from '../../ui/ActionIcon'
 
-export default function Accordion({ space, weatherToday, isOpen, onToggle, onEdit, children }) {
+export default function Accordion({ space, weatherToday, isOpen, onToggle, onEdit, onDelete, children }) {
   const bodyId = useId()
   const isOutdoor = space.category === 'outdoor'
   const displayName = formatSpaceName(space.name)
@@ -19,7 +19,7 @@ export default function Accordion({ space, weatherToday, isOpen, onToggle, onEdi
           aria-expanded={isOpen}
           aria-controls={bodyId}
           onClick={onToggle}
-          className="w-full flex items-center gap-2.5 pl-4 sm:pl-[18px] pr-16 py-3 bg-paper-deep border-t border-paper-edge font-display italic text-[17px] text-ink text-left cursor-pointer hover:bg-paper-edge/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald/60"
+          className="w-full flex items-center gap-2.5 pl-4 sm:pl-[18px] pr-[88px] py-3 bg-paper-deep border-t border-paper-edge font-display italic text-[17px] text-ink text-left cursor-pointer hover:bg-paper-edge/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald/60"
         >
           <FontAwesomeIcon
             icon={faChevronRight}
@@ -39,17 +39,24 @@ export default function Accordion({ space, weatherToday, isOpen, onToggle, onEdi
           </span>
         </Action>
 
-        {onEdit && (
-          <Action
-            variant="unstyled"
-            onClick={() => onEdit(space)}
-            aria-label={`Edit ${displayName}`}
-            className="absolute top-1/2 right-3 -translate-y-1/2 w-7 h-7 rounded-full bg-ink/[0.04] text-ink-soft hover:bg-ink/[0.08] hover:text-ink transition-colors flex items-center justify-center cursor-pointer group"
-          >
-            <FontAwesomeIcon icon={faPenToSquare} className="w-3 h-3" />
-            <Tooltip placement="left">Edit</Tooltip>
-          </Action>
-        )}
+        <div className="absolute top-1/2 right-3 -translate-y-1/2 flex items-center gap-1.5">
+          {onEdit && (
+            <ActionIcon
+              icon={faPenToSquare}
+              label={`Edit ${displayName}`}
+              onClick={() => onEdit(space)}
+              scheme="warning"
+            />
+          )}
+          {onDelete && (
+            <ActionIcon
+              icon={faTrash}
+              label={`Delete ${displayName}`}
+              onClick={() => onDelete(space)}
+              scheme="danger"
+            />
+          )}
+        </div>
       </div>
 
       <div

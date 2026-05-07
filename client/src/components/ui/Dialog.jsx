@@ -45,6 +45,7 @@ export default function Dialog({
   open,
   onClose,
   title,
+  ariaLabelledBy,
   children,
   className = '',
   placement = 'center',
@@ -161,7 +162,7 @@ export default function Dialog({
               ref={cardRef}
               role="dialog"
               aria-modal="true"
-              aria-labelledby={title ? titleId : undefined}
+              aria-labelledby={ariaLabelledBy ?? (title ? titleId : undefined)}
               tabIndex={-1}
               variant={cardVariant}
               className={`relative shadow-[var(--shadow-md)] flex flex-col min-h-0 px-6 pt-2 pb-6 gap-4 sm:pt-6 ${className}`}

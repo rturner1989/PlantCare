@@ -60,11 +60,9 @@ describe('RoomCard', () => {
     expect(screen.queryByText(/humidity/i)).not.toBeInTheDocument()
   })
 
-  it('calls onClick when the card is clicked', () => {
-    const onClick = vi.fn()
-    render(<RoomCard {...baseProps} onClick={onClick} />)
-    fireEvent.click(screen.getByRole('button'))
-    expect(onClick).toHaveBeenCalledTimes(1)
+  it('renders as display-only — no button role on the card itself', () => {
+    render(<RoomCard {...baseProps} />)
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 
   it('renders the weather pill instead of the env hint when weatherPill is provided', () => {

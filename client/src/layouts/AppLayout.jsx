@@ -8,11 +8,13 @@ import MobileTopBar from '../components/MobileTopBar'
 import NotificationsDrawer from '../components/NotificationsDrawer'
 import OrganiserDrawer from '../components/OrganiserDrawer'
 import Sidebar from '../components/Sidebar'
+import MobileSearchDrawer from '../components/search/MobileSearchDrawer'
 import ProgressBar from '../components/ui/ProgressBar'
 import Spinner from '../components/ui/Spinner'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../hooks/useAuth'
 import { useFirstRunReveal } from '../hooks/useFirstRunReveal'
+import { useSearchActions } from '../hooks/useSearch'
 
 function RouteFallback() {
   return (
@@ -36,6 +38,7 @@ export default function AppLayout() {
   // fires against the same mount.
   const welcomeToastFiredRef = useRef(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const { closeMobileDrawer: closeSearchDrawer } = useSearchActions()
 
   // Move focus to <main> on every route change so screen-reader users hear
   // the new page's context instead of dead silence after a NavLink click.
@@ -47,7 +50,8 @@ export default function AppLayout() {
     previousPathRef.current = location.pathname
     mainRef.current?.focus()
     setDrawerOpen(false)
-  }, [location.pathname])
+    closeSearchDrawer()
+  }, [location.pathname, closeSearchDrawer])
 
   useEffect(() => {
     if (!isFirstRun || !user || welcomeToastFiredRef.current) return
@@ -104,6 +108,7 @@ export default function AppLayout() {
       <Dock isFirstRun={isFirstRun} />
       <NotificationsDrawer />
       <OrganiserDrawer />
+      <MobileSearchDrawer />
       <AchievementsListener />
       <AchievementSplash />
     </div>
