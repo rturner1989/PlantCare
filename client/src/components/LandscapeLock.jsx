@@ -18,9 +18,7 @@ export default function LandscapeLock() {
         <h2 id="landscape-lock-title" className="font-display text-2xl italic text-forest leading-tight">
           Rotate your device
         </h2>
-        <p className="mt-2 text-sm text-ink-soft leading-snug">
-          PlantCare is designed for portrait — please flip back.
-        </p>
+        <p className="mt-2 text-sm text-ink-soft leading-snug">Rootine is designed for portrait — please flip back.</p>
       </div>
     </div>
   )
