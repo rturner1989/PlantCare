@@ -113,6 +113,13 @@ test.describe('In-app achievement toast', () => {
 
     seedFirstCareLogReady(email)
 
+    // Wait for AppLayout to settle — AchievementsListener subscribes to
+    // ActionCable on mount, and the broadcast we fire below is only
+    // received if the subscription is established first. Network-idle
+    // is a reliable signal that the dashboard fetch + cable handshake
+    // have completed.
+    await page.waitForLoadState('networkidle')
+
     // Trigger a care log via rails runner, then run the achievement job
     // synchronously instead of letting Sidekiq pick it up. Cold-start
     // Sidekiq on CI added 5–8s of variance and still missed the toast
