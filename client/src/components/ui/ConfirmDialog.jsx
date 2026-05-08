@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import Action from './Action'
 import Card from './Card'
 import Dialog from './Dialog'
@@ -19,6 +20,8 @@ export default function ConfirmDialog({
   cancelLabel = 'Cancel',
   destructive = false,
 }) {
+  const titleId = useId()
+
   function handleConfirm() {
     onConfirm()
     onClose()
@@ -31,9 +34,11 @@ export default function ConfirmDialog({
     : 'inline-flex items-center justify-center rounded-md gap-2 px-6 py-3 text-sm font-extrabold text-paper bg-emerald hover:bg-forest transition-colors active:scale-[0.98]'
 
   return (
-    <Dialog open={open} onClose={onClose} title={title}>
+    <Dialog open={open} onClose={onClose} title={title} ariaLabelledBy={titleId}>
       <Card.Header divider={false}>
-        <p className="text-lg font-extrabold text-ink pr-10">{title}</p>
+        <p id={titleId} className="text-lg font-extrabold text-ink pr-10">
+          {title}
+        </p>
       </Card.Header>
 
       <Card.Body className="!flex-none">

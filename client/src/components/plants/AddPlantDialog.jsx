@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../context/ToastContext'
 import { useAddPlant } from '../../hooks/useAddPlant'
@@ -13,6 +13,7 @@ export default function AddPlantDialog() {
   const { isOpen, defaultSpaceId, close } = useAddPlant()
   const navigate = useNavigate()
   const toast = useToast()
+  const titleId = useId()
   const [pendingSpecies, setPendingSpecies] = useState(null)
 
   // Reset wizard state every time dialog reopens — stale species from a
@@ -34,9 +35,11 @@ export default function AddPlantDialog() {
   }
 
   return (
-    <Dialog open={isOpen} onClose={close} title={TITLE}>
+    <Dialog open={isOpen} onClose={close} title={TITLE} ariaLabelledBy={titleId}>
       <Card.Header divider={false}>
-        <p className="text-lg font-extrabold text-ink">{TITLE}</p>
+        <p id={titleId} className="text-lg font-extrabold text-ink">
+          {TITLE}
+        </p>
       </Card.Header>
 
       {pendingSpecies ? (

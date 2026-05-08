@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { ValidationError } from '../../../errors/ValidationError'
 import { useFormSubmit } from '../../../hooks/useFormSubmit'
 import Select from '../../form/Select'
@@ -23,6 +23,7 @@ export default function PlantFormDialog({
   availableSpaces = [],
   existingNicknames = EMPTY_SET,
 }) {
+  const titleId = useId()
   const autoPickedSpaceId = availableSpaces.length === 1 ? availableSpaces[0].id : null
   const [nickname, setNickname] = useState(species?.common_name ?? '')
   const [chosenSpaceId, setChosenSpaceId] = useState(autoPickedSpaceId)
@@ -44,10 +45,12 @@ export default function PlantFormDialog({
   })
 
   return (
-    <Dialog open={open} onClose={onClose} title={TITLE}>
+    <Dialog open={open} onClose={onClose} title={TITLE} ariaLabelledBy={titleId}>
       <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-4 min-h-0">
         <Card.Header divider={false}>
-          <p className="text-lg font-extrabold text-ink">{TITLE}</p>
+          <p id={titleId} className="text-lg font-extrabold text-ink">
+            {TITLE}
+          </p>
         </Card.Header>
 
         <Card.Body className="!flex-none flex flex-col gap-4">

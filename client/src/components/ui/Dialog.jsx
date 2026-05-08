@@ -185,7 +185,7 @@ export default function Dialog({
                   <span aria-hidden="true" className="dialog-handle" />
                 </Action>
               )}
-              {title && (
+              {title && !ariaLabelledBy && (
                 <Heading as="h2" variant="card" id={titleId} className="sr-only">
                   {title}
                 </Heading>

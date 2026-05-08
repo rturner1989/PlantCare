@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
 import { SPACE_ICON_OPTIONS } from '../../utils/spaceIcons'
@@ -19,6 +19,7 @@ export default function SpaceFormDialog({ open, onClose, onAdd, onEdit, space = 
   const title = isEdit ? 'Edit space' : 'Add a custom space'
   const submitLabel = isEdit ? 'Save' : 'Add space'
 
+  const titleId = useId()
   const [name, setName] = useState(space?.name ?? '')
   const [category, setCategory] = useState(space?.category ?? 'indoor')
   const [icon, setIcon] = useState(space?.icon ?? SPACE_ICON_OPTIONS[0].slug)
@@ -44,10 +45,12 @@ export default function SpaceFormDialog({ open, onClose, onAdd, onEdit, space = 
   })
 
   return (
-    <Dialog open={open} onClose={onClose} title={title}>
+    <Dialog open={open} onClose={onClose} title={title} ariaLabelledBy={titleId}>
       <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-4 min-h-0">
         <Card.Header divider={false}>
-          <p className="text-lg font-extrabold text-ink">{title}</p>
+          <p id={titleId} className="text-lg font-extrabold text-ink">
+            {title}
+          </p>
         </Card.Header>
 
         <Card.Body className="!flex-none flex flex-col gap-4">

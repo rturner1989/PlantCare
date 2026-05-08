@@ -1,7 +1,7 @@
 import { faBars } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import ActionIcon from './ActionIcon'
 
@@ -83,7 +83,10 @@ export default function Menu({ label, children }) {
     }
   }, [open])
 
-  const value = { open, setOpen, triggerRef, panelRef, panelId, label }
+  // triggerRef + panelRef are stable; setOpen is a stable setter. Memo
+  // on (open, panelId, label) so item subcomponents don't re-render on
+  // every Menu render.
+  const value = useMemo(() => ({ open, setOpen, triggerRef, panelRef, panelId, label }), [open, panelId, label])
 
   return (
     <MenuContext.Provider value={value}>

@@ -25,14 +25,18 @@ export default function StepDetails({ species, defaultSpaceId = null, onBack, on
   const [nickname, setNickname] = useState(species?.common_name ?? '')
   const [chosenSpaceId, setChosenSpaceId] = useState(initialSpaceId)
 
-  // Auto-pick the only available space once it loads (the initial useState
-  // ran with an empty list when StepDetails mounted before useSpaces
-  // settled).
+  // Auto-pick the only available space once it loads. The initial
+  // useState ran with an empty list when StepDetails mounted before
+  // useSpaces settled — this effect catches the post-mount arrival.
+  // Don't list `chosenSpaceId` as a dep: the inner condition guards
+  // against re-set, and including it would re-fire the effect on every
+  // user change to the picker (the read is fine stale).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: chosenSpaceId read is intentionally stale — see comment above
   useEffect(() => {
     if (chosenSpaceId == null && initialSpaceId != null) {
       setChosenSpaceId(initialSpaceId)
     }
-  }, [chosenSpaceId, initialSpaceId])
+  }, [initialSpaceId])
 
   const lockedSpace = defaultSpaceId == null ? null : activeSpaces.find((space) => space.id === defaultSpaceId)
 
@@ -80,7 +84,7 @@ export default function StepDetails({ species, defaultSpaceId = null, onBack, on
         </div>
 
         {lockedSpace && (
-          <p className="text-xs font-bold uppercase tracking-[0.08em] text-ink-softer">
+          <p className="text-xs font-bold uppercase tracking-[0.08em] text-ink-soft">
             Adding to <span aria-hidden="true">{getSpaceEmoji(lockedSpace.icon)}</span>{' '}
             <span className="text-ink normal-case tracking-normal font-display italic text-sm">
               {formatSpaceName(lockedSpace.name)}
