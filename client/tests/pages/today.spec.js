@@ -58,7 +58,7 @@ test.describe('Today dashboard', () => {
     // Zero-plants empty state: inviting copy + CTA routing to /add-plant.
     await expect(page.getByRole('heading', { name: /Your jungle starts here/ })).toBeVisible()
     await expect(page.getByText(/Add a plant to see it come alive/)).toBeVisible()
-    await expect(page.getByRole('link', { name: /Add a plant/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Add a plant/ })).toBeVisible()
   })
 
   test('unauthenticated visit redirects to login', async ({ page }) => {
@@ -99,6 +99,6 @@ test.describe('Today dashboard', () => {
     await registerWithOnePlant(page)
 
     await expect(page.getByText(/^Spike$/)).toBeVisible()
-    await expect(page.getByRole('link', { name: /Add plant/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Add plant/i })).toBeVisible()
   })
 })

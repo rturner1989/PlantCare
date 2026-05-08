@@ -27,9 +27,9 @@ export default function RoomCard({ icon, name, count, variant = 'indoor', peek =
           <p className="text-sm font-extrabold text-ink tracking-tight truncate">{name}</p>
           <p className="text-[10px] font-bold uppercase tracking-wider text-ink-softer">{count}</p>
         </div>
-        {/* Reserves space for the absolute-positioned edit + delete cluster
-            (parent <li>). Keeps the title block from running into them. */}
-        <span aria-hidden="true" className="shrink-0 w-[64px] h-7" />
+        {/* Reserves space for the absolute-positioned actions menu
+            (parent <li>). Keeps the title block from running into it. */}
+        <span aria-hidden="true" className="shrink-0 w-[32px] h-7" />
       </Card.Header>
 
       <Card.Body className="!overflow-visible !flex-none">

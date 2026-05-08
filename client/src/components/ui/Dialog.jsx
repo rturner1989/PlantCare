@@ -5,6 +5,7 @@ import { useCallback, useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Action from './Action'
 import Card from './Card'
+import Heading from './Heading'
 
 const MotionCard = motion.create(Card)
 
@@ -165,7 +166,7 @@ export default function Dialog({
               aria-labelledby={ariaLabelledBy ?? (title ? titleId : undefined)}
               tabIndex={-1}
               variant={cardVariant}
-              className={`relative shadow-[var(--shadow-md)] flex flex-col min-h-0 px-6 pt-2 pb-6 gap-4 sm:pt-6 ${className}`}
+              className={`relative shadow-[var(--shadow-md)] flex flex-col min-h-0 px-6 pt-2 pb-6 gap-4 sm:pt-6 outline-none ${className}`}
               drag={allowDrag ? 'y' : false}
               dragListener={false}
               dragControls={dragControls}
@@ -175,19 +176,19 @@ export default function Dialog({
               {...cardMotion}
             >
               {allowDrag && (
-                <button
-                  type="button"
+                <Action
+                  variant="unstyled"
                   aria-label="Drag to dismiss"
                   className="dialog-handle-wrapper"
                   onPointerDown={(event) => dragControls.start(event)}
                 >
                   <span aria-hidden="true" className="dialog-handle" />
-                </button>
+                </Action>
               )}
               {title && (
-                <h2 id={titleId} className="sr-only">
+                <Heading as="h2" variant="card" id={titleId} className="sr-only">
                   {title}
-                </h2>
+                </Heading>
               )}
               {/* Close button rendered before children so it lands first
                   in the focus-trap tab order — keyboard users escape

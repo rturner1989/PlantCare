@@ -83,12 +83,14 @@ test.describe('Primary navigation — mobile dock (<480px)', () => {
     await expect(dock.getByText('Encyclopedia')).toHaveCount(0)
   })
 
-  test('Add plant FAB is reachable from the dock', async ({ page }) => {
+  test('dock no longer renders an Add plant FAB — Add Plant is contextual (Today empty state, plants row, House per-space CTA)', async ({
+    page,
+  }) => {
     await registerUser(page, 'Robin')
     await completeOnboarding(page)
 
     const dock = page.getByRole('navigation', { name: 'Bottom navigation' })
-    await dock.getByRole('link', { name: 'Add plant' }).click()
-    await expect(page).toHaveURL(/\/add-plant$/)
+    await expect(dock.getByRole('link', { name: 'Add plant' })).toHaveCount(0)
+    await expect(dock.getByRole('button', { name: 'Add plant' })).toHaveCount(0)
   })
 })

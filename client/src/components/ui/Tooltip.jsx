@@ -1,30 +1,115 @@
-// Hover/focus tooltip span for icon-only triggers. Anchors to the
-// nearest `relative` parent that also carries the `group` class —
-// caller is responsible for both. The bubble fades in via Tailwind's
-// `group-hover:` and `group-focus-visible:` modifiers, then auto-hides
-// when the parent loses hover/focus. `pointer-events-none` so the
-// bubble itself is never the click target.
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+
+// Portal-based tooltip. Anchors to the parent of the rendered <Tooltip>
+// (so callers still drop `<Tooltip>` as the last child of the trigger
+// element — same authoring API as the old CSS-only version) but the
+// bubble itself is rendered into <body> via a portal.
 //
-//   <Action variant="unstyled" className="… relative group" aria-label="Open organiser">
+// Why portal: the tooltip needs to escape any ancestor with
+// `overflow: hidden` and any sibling that paints later in DOM order.
+// In-tree absolute positioning could be clipped or occluded depending
+// on context (Card lists, accordions, etc.); portals dodge both.
+//
+//   <Action variant="unstyled" className="… relative" aria-label="Organiser">
 //     <FontAwesomeIcon … />
-//     <Tooltip placement="bottom">Organiser</Tooltip>
+//     <Tooltip placement="bottom-end">Organiser</Tooltip>
 //   </Action>
 
-const PLACEMENT = {
-  right: 'left-full top-1/2 -translate-y-1/2 translate-x-1.5',
-  bottom: 'top-full left-1/2 -translate-x-1/2 translate-y-1.5',
-  left: 'right-full top-1/2 -translate-y-1/2 -translate-x-1.5',
-  top: 'bottom-full left-1/2 -translate-x-1/2 -translate-y-1.5',
+const OFFSET = 6
+
+function positionFor(placement, rect) {
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const cx = rect.left + rect.width / 2
+  const cy = rect.top + rect.height / 2
+
+  switch (placement) {
+    case 'top':
+      return { bottom: vh - rect.top + OFFSET, left: cx, transform: 'translateX(-50%)' }
+    case 'top-start':
+      return { bottom: vh - rect.top + OFFSET, left: rect.left }
+    case 'top-end':
+      return { bottom: vh - rect.top + OFFSET, right: vw - rect.right }
+    case 'bottom':
+      return { top: rect.bottom + OFFSET, left: cx, transform: 'translateX(-50%)' }
+    case 'bottom-start':
+      return { top: rect.bottom + OFFSET, left: rect.left }
+    case 'bottom-end':
+      return { top: rect.bottom + OFFSET, right: vw - rect.right }
+    case 'left':
+      return { right: vw - rect.left + OFFSET, top: cy, transform: 'translateY(-50%)' }
+    case 'right':
+      return { left: rect.right + OFFSET, top: cy, transform: 'translateY(-50%)' }
+    default:
+      return { top: rect.bottom + OFFSET, left: cx, transform: 'translateX(-50%)' }
+  }
 }
 
 export default function Tooltip({ placement = 'bottom', className = '', children }) {
-  const placementClass = PLACEMENT[placement] ?? PLACEMENT.bottom
+  const anchorRef = useRef(null)
+  const [open, setOpen] = useState(false)
+  const [position, setPosition] = useState(null)
+
+  // Hook into the parent element's hover/focus events. `focusin`/
+  // `focusout` (not `focus`/`blur`) so child focus inside the trigger
+  // also reveals the tooltip — and they bubble, which `focus` doesn't.
+  useEffect(() => {
+    const trigger = anchorRef.current?.parentElement
+    if (!trigger) return
+
+    const show = () => setOpen(true)
+    const hide = () => setOpen(false)
+
+    trigger.addEventListener('mouseenter', show)
+    trigger.addEventListener('mouseleave', hide)
+    trigger.addEventListener('focusin', show)
+    trigger.addEventListener('focusout', hide)
+    return () => {
+      trigger.removeEventListener('mouseenter', show)
+      trigger.removeEventListener('mouseleave', hide)
+      trigger.removeEventListener('focusin', show)
+      trigger.removeEventListener('focusout', hide)
+    }
+  }, [])
+
+  // Recompute position on open + on scroll/resize while open.
+  // useLayoutEffect avoids the one-frame flash of tooltip-at-(0,0).
+  useLayoutEffect(() => {
+    if (!open) {
+      setPosition(null)
+      return
+    }
+    const trigger = anchorRef.current?.parentElement
+    if (!trigger) return
+
+    const update = () => setPosition(positionFor(placement, trigger.getBoundingClientRect()))
+    update()
+
+    // `true` for capture so nested scroll containers also fire.
+    window.addEventListener('scroll', update, true)
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update, true)
+      window.removeEventListener('resize', update)
+    }
+  }, [open, placement])
+
   return (
-    <span
-      role="tooltip"
-      className={`absolute ${placementClass} px-2.5 py-1 rounded-full bg-ink text-paper text-[11px] font-bold whitespace-nowrap shadow-md opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 pointer-events-none transition-opacity duration-150 z-30 ${className}`}
-    >
-      {children}
-    </span>
+    <>
+      <span ref={anchorRef} aria-hidden="true" style={{ display: 'none' }} />
+      {open &&
+        position &&
+        createPortal(
+          <span
+            role="tooltip"
+            style={{ position: 'fixed', zIndex: 9999, ...position }}
+            className={`px-2.5 py-1 rounded-full bg-ink text-paper text-[11px] font-bold whitespace-nowrap shadow-md pointer-events-none ${className}`}
+          >
+            {children}
+          </span>,
+          document.body,
+        )}
+    </>
   )
 }

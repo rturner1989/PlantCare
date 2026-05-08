@@ -4,7 +4,7 @@ import { useId } from 'react'
 import { pluralize } from '../../../utils/pluralize'
 import { formatSpaceName, getSpaceEmoji } from '../../../utils/spaceIcons'
 import Action from '../../ui/Action'
-import ActionIcon from '../../ui/ActionIcon'
+import Menu from '../../ui/Menu'
 
 export default function Accordion({ space, weatherToday, isOpen, onToggle, onEdit, onDelete, children }) {
   const bodyId = useId()
@@ -19,7 +19,7 @@ export default function Accordion({ space, weatherToday, isOpen, onToggle, onEdi
           aria-expanded={isOpen}
           aria-controls={bodyId}
           onClick={onToggle}
-          className="w-full flex items-center gap-2.5 pl-4 sm:pl-[18px] pr-[88px] py-3 bg-paper-deep border-t border-paper-edge font-display italic text-[17px] text-ink text-left cursor-pointer hover:bg-paper-edge/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald/60"
+          className="w-full flex items-center gap-2.5 pl-4 sm:pl-[18px] pr-[52px] py-3 bg-paper-deep border-t border-paper-edge font-display italic text-[17px] text-ink text-left cursor-pointer hover:bg-paper-edge/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald/60"
         >
           <FontAwesomeIcon
             icon={faChevronRight}
@@ -35,27 +35,29 @@ export default function Accordion({ space, weatherToday, isOpen, onToggle, onEdi
           <span className="truncate">{displayName}</span>
           {isOutdoor && weatherToday && <WeatherBadge weather={weatherToday} />}
           <span className="ml-auto text-[10px] font-bold uppercase tracking-[0.08em] text-ink-softer not-italic font-sans">
-            {pluralize(space.plants_count ?? 0, 'plant')}
+            {pluralize(space.plants_count ?? 0, 'plant')} · {space.category}
           </span>
         </Action>
 
-        <div className="absolute top-1/2 right-3 -translate-y-1/2 flex items-center gap-1.5">
-          {onEdit && (
-            <ActionIcon
-              icon={faPenToSquare}
-              label={`Edit ${displayName}`}
-              onClick={() => onEdit(space)}
-              scheme="warning"
-            />
-          )}
-          {onDelete && (
-            <ActionIcon
-              icon={faTrash}
-              label={`Delete ${displayName}`}
-              onClick={() => onDelete(space)}
-              scheme="danger"
-            />
-          )}
+        <div className="absolute top-1/2 right-3 -translate-y-1/2">
+          <Menu label={`${displayName} actions`}>
+            <Menu.Trigger />
+            <Menu.Items>
+              {onEdit && (
+                <Menu.Item icon={faPenToSquare} onClick={() => onEdit(space)}>
+                  Edit space
+                </Menu.Item>
+              )}
+              {onDelete && (
+                <>
+                  {onEdit && <Menu.Divider />}
+                  <Menu.Item icon={faTrash} variant="danger" onClick={() => onDelete(space)}>
+                    Delete space
+                  </Menu.Item>
+                </>
+              )}
+            </Menu.Items>
+          </Menu>
         </div>
       </div>
 

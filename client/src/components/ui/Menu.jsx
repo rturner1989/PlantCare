@@ -1,0 +1,163 @@
+import { faBars } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { createContext, useContext, useEffect, useId, useRef, useState } from 'react'
+import Action from './Action'
+import Tooltip from './Tooltip'
+
+const MenuContext = createContext(null)
+
+function useMenuContext() {
+  const value = useContext(MenuContext)
+  if (!value) throw new Error('Menu subcomponents must be inside <Menu>')
+  return value
+}
+
+const ITEM_VARIANTS = {
+  default: 'text-ink hover:bg-mint/50',
+  danger: 'text-coral-deep hover:bg-coral/10',
+}
+
+// Anchor + transform-origin per placement. Origin matches the anchor
+// corner so the open/close scale animates outward from the trigger.
+const PLACEMENT_CLASSES = {
+  'bottom-right': 'top-full mt-1.5 right-0 origin-top-right',
+  'bottom-left': 'top-full mt-1.5 left-0 origin-top-left',
+  'top-right': 'bottom-full mb-1.5 right-0 origin-bottom-right',
+  'top-left': 'bottom-full mb-1.5 left-0 origin-bottom-left',
+}
+
+// Reusable kebab-style menu (hamburger icon → popover with menuitems).
+// Compound API: <Menu> owns open state, <Menu.Trigger> renders the
+// button, <Menu.Items> renders the panel, <Menu.Item> renders rows.
+//
+// a11y: trigger has aria-haspopup + aria-expanded + aria-controls,
+// panel has role="menu", items have role="menuitem". Esc + outside
+// click close the panel. Arrow-key nav not implemented yet — fine for
+// 2-4 item menus; revisit if menus grow.
+export default function Menu({ label, children }) {
+  const [open, setOpen] = useState(false)
+  const triggerRef = useRef(null)
+  const panelRef = useRef(null)
+  const panelId = useId()
+
+  useEffect(() => {
+    if (!open) return
+
+    function handleDown(event) {
+      if (panelRef.current?.contains(event.target)) return
+      if (triggerRef.current?.contains(event.target)) return
+      setOpen(false)
+    }
+    function handleKey(event) {
+      if (event.key === 'Escape') {
+        setOpen(false)
+        triggerRef.current?.focus()
+      }
+    }
+    document.addEventListener('mousedown', handleDown)
+    document.addEventListener('keydown', handleKey)
+    return () => {
+      document.removeEventListener('mousedown', handleDown)
+      document.removeEventListener('keydown', handleKey)
+    }
+  }, [open])
+
+  const value = { open, setOpen, triggerRef, panelRef, panelId, label }
+
+  return (
+    <MenuContext.Provider value={value}>
+      <div className="relative inline-flex">{children}</div>
+    </MenuContext.Provider>
+  )
+}
+
+function Trigger({ className = '', tooltipPlacement = 'bottom-end' }) {
+  const { open, setOpen, triggerRef, panelId, label } = useMenuContext()
+  return (
+    <Action
+      ref={triggerRef}
+      variant="unstyled"
+      onClick={() => setOpen((current) => !current)}
+      aria-label={label}
+      aria-haspopup="menu"
+      aria-expanded={open}
+      aria-controls={panelId}
+      className={`relative group w-7 h-7 rounded-full bg-ink/[0.04] hover:bg-ink/[0.08] text-ink-soft hover:text-ink transition-colors flex items-center justify-center ${className}`}
+    >
+      <FontAwesomeIcon icon={faBars} className="w-3 h-3" />
+      {!open && <Tooltip placement={tooltipPlacement}>{label}</Tooltip>}
+    </Action>
+  )
+}
+
+function Items({ placement = 'bottom-right', className = '', children }) {
+  const { open, panelRef, panelId, label } = useMenuContext()
+  const shouldReduceMotion = useReducedMotion()
+  const placementClass = PLACEMENT_CLASSES[placement] ?? PLACEMENT_CLASSES['bottom-right']
+  const isTop = placement.startsWith('top')
+
+  const motionProps = shouldReduceMotion
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0 } }
+    : {
+        initial: { opacity: 0, scale: 0.95, y: isTop ? 4 : -4 },
+        animate: { opacity: 1, scale: 1, y: 0 },
+        exit: { opacity: 0, scale: 0.95, y: isTop ? 4 : -4 },
+        transition: { duration: 0.14, ease: [0.33, 1, 0.68, 1] },
+      }
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          ref={panelRef}
+          id={panelId}
+          role="menu"
+          aria-label={label}
+          className={`absolute ${placementClass} z-20 min-w-[180px] rounded-md bg-paper shadow-warm-md ring-1 ring-paper-edge p-1 ${className}`}
+          {...motionProps}
+        >
+          <ul className="list-none m-0 p-0 flex flex-col">{children}</ul>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+
+function Item({ icon, onClick, variant = 'default', children }) {
+  const { setOpen } = useMenuContext()
+  const variantClass = ITEM_VARIANTS[variant] ?? ITEM_VARIANTS.default
+  return (
+    <li className="list-none">
+      <button
+        type="button"
+        role="menuitem"
+        onClick={() => {
+          onClick?.()
+          setOpen(false)
+        }}
+        className={`w-full flex items-center gap-2 py-[7px] px-[10px] rounded-md text-left text-sm font-semibold cursor-pointer transition-colors ${variantClass}`}
+      >
+        {icon && (
+          <span aria-hidden="true" className="shrink-0 w-4 h-4 flex items-center justify-center">
+            <FontAwesomeIcon icon={icon} className="w-3 h-3" />
+          </span>
+        )}
+        <span className="truncate">{children}</span>
+      </button>
+    </li>
+  )
+}
+
+function Divider() {
+  return (
+    <li role="presentation" className="list-none">
+      <hr className="my-1 border-0 border-t border-paper-edge" />
+    </li>
+  )
+}
+
+Menu.Trigger = Trigger
+Menu.Items = Items
+Menu.Item = Item
+Menu.Divider = Divider
