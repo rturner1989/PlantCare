@@ -8,8 +8,9 @@ import { ToastProvider } from '../../../src/context/ToastContext'
 import { useAddPlant } from '../../../src/hooks/useAddPlant'
 
 const SPECIES = [
-  { id: 1, common_name: 'Snake Plant', scientific_name: 'Dracaena trifasciata' },
-  { id: 2, common_name: 'Monstera', scientific_name: 'Monstera deliciosa' },
+  { id: 1, common_name: 'Snake Plant', scientific_name: 'Dracaena trifasciata', feeding_frequency_days: 60 },
+  { id: 2, common_name: 'Monstera', scientific_name: 'Monstera deliciosa', feeding_frequency_days: 30 },
+  { id: 3, common_name: 'Air Plant', scientific_name: 'Tillandsia', feeding_frequency_days: null },
 ]
 
 const SPACES = [
@@ -107,5 +108,40 @@ describe('AddPlantDialog', () => {
     // Adding-to context line should appear with the locked space.
     await waitFor(() => expect(screen.getByText(/Adding to/)).toBeInTheDocument())
     expect(screen.getByText(/Living Room/)).toBeInTheDocument()
+  })
+
+  it('renders both date pickers (water + feed) when species has a feeding cycle', async () => {
+    renderWithProviders(<Harness />)
+    fireEvent.click(screen.getByRole('button', { name: 'open dialog' }))
+    fireEvent.click(await screen.findByRole('button', { name: /Snake Plant/ }))
+    await screen.findByLabelText('Nickname')
+
+    expect(screen.getByText('When did you last water?')).toBeInTheDocument()
+    expect(screen.getByText('When did you last feed?')).toBeInTheDocument()
+  })
+
+  it('hides the feed picker when species has no feeding cycle', async () => {
+    renderWithProviders(<Harness />)
+    fireEvent.click(screen.getByRole('button', { name: 'open dialog' }))
+    fireEvent.click(await screen.findByRole('button', { name: /Air Plant/ }))
+    await screen.findByLabelText('Nickname')
+
+    expect(screen.getByText('When did you last water?')).toBeInTheDocument()
+    expect(screen.queryByText('When did you last feed?')).toBeNull()
+  })
+
+  it("defaults the date pickers to today's date", async () => {
+    renderWithProviders(<Harness />)
+    fireEvent.click(screen.getByRole('button', { name: 'open dialog' }))
+    fireEvent.click(await screen.findByRole('button', { name: /Snake Plant/ }))
+    await screen.findByLabelText('Nickname')
+
+    const today = new Date()
+    const expected = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+
+    const wateredInput = document.querySelectorAll('input[type="date"]')[0]
+    const fedInput = document.querySelectorAll('input[type="date"]')[1]
+    expect(wateredInput.value).toBe(expected)
+    expect(fedInput.value).toBe(expected)
   })
 })

@@ -34,7 +34,7 @@ export default function Step3Plants({ availableSpaces = [], onBack, onComplete }
     setDialogOpen(true)
   }
 
-  async function handleConfirmAdd({ species, nickname, spaceId }) {
+  async function handleConfirmAdd({ species, nickname, spaceId, lastWateredAt, lastFedAt }) {
     // Perenual results arrive with id=null. Hydrate via the show endpoint
     // first — the controller persists the Perenual row on first call.
     let resolvedSpecies = species
@@ -51,6 +51,8 @@ export default function Step3Plants({ availableSpaces = [], onBack, onComplete }
       species_id: resolvedSpecies.id,
       space_id: spaceId,
       nickname,
+      last_watered_at: lastWateredAt,
+      last_fed_at: lastFedAt,
     })
   }
 
