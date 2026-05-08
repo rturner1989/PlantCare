@@ -98,6 +98,76 @@ class Api::V1::PlantsControllerTest < ActionDispatch::IntegrationTest
     assert json['last_watered_at'].present?
   end
 
+  test 'create accepts client-provided last_watered_at + last_fed_at' do
+    watered = 3.days.ago.iso8601
+    fed = 10.days.ago.iso8601
+
+    post api_v1_plants_path, headers: auth_headers(@user),
+      params: {
+        plant: {
+          space_id: @space.id,
+          species_id: @species.id,
+          nickname: 'Anchored Plant',
+          last_watered_at: watered,
+          last_fed_at: fed
+        }
+      }, as: :json
+
+    assert_response :created
+    json = response.parsed_body
+    assert_in_delta Time.zone.parse(watered).to_i, Time.zone.parse(json['last_watered_at']).to_i, 1
+    assert_in_delta Time.zone.parse(fed).to_i, Time.zone.parse(json['last_fed_at']).to_i, 1
+  end
+
+  test 'create rejects future-dated last_watered_at' do
+    post api_v1_plants_path, headers: auth_headers(@user),
+      params: {
+        plant: {
+          space_id: @space.id,
+          species_id: @species.id,
+          nickname: 'Time Traveller',
+          last_watered_at: 1.day.from_now.iso8601
+        }
+      }, as: :json
+
+    assert_response :unprocessable_content
+    assert response.parsed_body['errors']['last_watered_at'].present?
+  end
+
+  test 'create rejects last_watered_at older than 12 months' do
+    post api_v1_plants_path, headers: auth_headers(@user),
+      params: {
+        plant: {
+          space_id: @space.id,
+          species_id: @species.id,
+          nickname: 'Ancient Plant',
+          last_watered_at: 13.months.ago.iso8601
+        }
+      }, as: :json
+
+    assert_response :unprocessable_content
+    assert response.parsed_body['errors']['last_watered_at'].present?
+  end
+
+  test 'create accepts nil last_fed_at for non-feeding species' do
+    air_plant = species(:air_plant)
+
+    post api_v1_plants_path, headers: auth_headers(@user),
+      params: {
+        plant: {
+          space_id: @space.id,
+          species_id: air_plant.id,
+          nickname: 'Tilly',
+          last_watered_at: 1.day.ago.iso8601
+          # no last_fed_at — air_plant has no feeding cycle
+        }
+      }, as: :json
+
+    assert_response :created
+    json = response.parsed_body
+    assert_nil json['last_fed_at']
+  end
+
   test 'create with invalid space returns not found' do
     post api_v1_plants_path, headers: auth_headers(@user),
       params: { plant: { space_id: 999_999, nickname: 'Lost Plant' } }, as: :json

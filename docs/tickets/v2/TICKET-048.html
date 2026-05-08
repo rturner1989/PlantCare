@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-048 — Care anchor on plant create</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #f5f5f0;
+  color: #1a1a1a;
+  padding: 40px;
+  line-height: 1.6;
+}
+.ticket {
+  max-width: 960px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 32px 40px;
+}
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 80px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.component { background: #1a1a2e; }
+.artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.backend { background: #722f37; }
+.artifact .kind.tests { background: #4a6fa5; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+  <div class="header">
+    <div class="id">TICKET-048 · R11 Follow-up</div>
+    <h1>Care anchor on plant create</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Add Plant currently leaves <code>last_watered_at</code> + <code>last_fed_at</code> empty when a plant is created. The schedule has no real anchor, so mature plants joining the platform get silently-wrong "next water in N days" until the user logs a real care action. This ticket adds mandatory date pickers to the Add Plant flow (cross-cutting dialog + onboarding parity) and the backend validation to back them up.</p>
+    <p>In one sentence: <strong>every new plant tells the system when it was last watered and fed, so the schedule starts in the right place.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <span class="plan-step done"><span class="num">047</span>R11 Dialog</span>
+      <span class="plan-step current"><span class="num">048</span>Care anchor</span>
+      <span class="plan-step"><span class="num">049</span>Overdue sweep</span>
+      <span class="plan-step"><span class="num">050+</span>Plan continues</span>
+    </div>
+    <p><strong>What came before:</strong> TICKET-047 (R11) shipped the cross-cutting Add Plant dialog — species pick → details (nickname + space). Wiring landed but the model still sets last_watered_at / last_fed_at to nil on create. TICKET-021 (B2) earlier shipped onboarding intent columns; the onboarding wizard already walks species + space + nickname via PlantFormDialog.</p>
+    <p><strong>What this unlocks:</strong> TICKET-049 (overdue visual sweep) becomes meaningful — the overdue state is now correct from day 1, so the affordances we add for it will fire on real signal, not noise. Plant Doctor (R13) gains accurate "this one's been overdue for 6 days" stories. Adaptive scheduling (Phase 2) can use the anchor as a baseline for measuring user cadence drift.</p>
+    <p><strong>Mental model:</strong> Rails analogy — <code>has_one :anchor</code>. Right now the anchor is nil, so every <code>plant.next_water_at</code> calculation reads off a missing baseline. Same way you'd never let a record save with a required association unset, we shouldn't let a Plant land without these timestamps.</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <div class="artifact-list">
+      <div class="artifact">
+        <div><span class="kind component">component</span><span class="name">client/src/components/form/DateInput.jsx</span></div>
+        <div class="role">New form primitive — wraps the native <code>&lt;input type="date"&gt;</code> with the same label / hint / error / focus-ring conventions TextInput already encodes. Mirrors TextInput's API so the consumer site reads the same. Native picker on every browser; date-string value (ISO 8601 <code>YYYY-MM-DD</code>) for Rails-friendly serialization.</div>
+      </div>
+      <div class="artifact">
+        <div><span class="kind extend">extend</span><span class="name">client/src/components/plants/StepDetails.jsx</span></div>
+        <div class="role">Cross-cutting dialog's details step gains "When did you last water?" (always rendered) and "When did you last feed?" (only when <code>species.feeding_frequency_days</code> is set). Both default to today. Submit shape adds the two ISO date strings to the createPlant mutation payload.</div>
+      </div>
+      <div class="artifact">
+        <div><span class="kind extend">extend</span><span class="name">client/src/components/onboarding/plants/PlantFormDialog.jsx</span></div>
+        <div class="role">Onboarding parity — same two pickers, same default-today, same conditional feed picker. Onboarding doesn't get a watered-down version because the data quality matters from first plant onwards.</div>
+      </div>
+      <div class="artifact">
+        <div><span class="kind backend">backend</span><span class="name">api/app/controllers/api/v1/plants_controller.rb</span></div>
+        <div class="role">Extend <code>params.expect(plant: [...])</code> to accept <code>last_watered_at</code> + <code>last_fed_at</code>. Active Record will parse the ISO 8601 strings into datetime columns automatically.</div>
+      </div>
+      <div class="artifact">
+        <div><span class="kind backend">backend</span><span class="name">api/app/models/plant.rb</span></div>
+        <div class="role">Add validations: both timestamps must be <code>&lt;= Time.current</code> (no future dates) and <code>&gt;= 12.months.ago</code> (clamp absurd input). Skip <code>last_fed_at</code> validation when the species has nil <code>feeding_frequency_days</code> — non-feeding species gracefully accept nil.</div>
+      </div>
+      <div class="artifact">
+        <div><span class="kind tests">tests</span><span class="name">api/test/controllers/api/v1/plants_controller_test.rb + plant_test.rb</span></div>
+        <div class="role">Controller cases: happy path with both timestamps, future-date rejection (422), too-old-date rejection (422), non-feeding-species accepts nil last_fed_at. Model cases: validation logic in isolation.</div>
+      </div>
+      <div class="artifact">
+        <div><span class="kind tests">tests</span><span class="name">client/tests/components/form/DateInput.test.jsx + plants/AddPlantDialog.test.jsx</span></div>
+        <div class="role">DateInput primitive coverage (label association, error rendering, value contract). AddPlantDialog test extends to assert the pickers render with today's default and the submit payload includes both fields. Playwright happy-path test covers picker → submit.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li>Adding a new plant requires the user to pick when it was last watered. Default value is today's date so the common case (just-bought plant) is one tap to submit.</li>
+      <li>If the picked species has a feeding cycle, the user also picks when it was last fed. Same default-today behaviour. If the species has no feeding cycle, no feed picker renders and the plant saves with <code>last_fed_at</code> nil.</li>
+      <li>The server rejects future-dated anchors with a 422 + field-level validation error. The client surfaces the error inline on the appropriate picker via the existing useFormSubmit + ValidationError pattern.</li>
+      <li>The server rejects anchors older than 12 months with the same 422 + field error pattern.</li>
+      <li>Onboarding's plant-add path (PlantFormDialog inside Step3Plants) shows the same pickers with the same defaults — no shortcut for first-run users.</li>
+      <li>Existing plants are unaffected — the migration / model change only validates writes; reads stay backward-compatible. (No migration needed; columns already exist.)</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><span class="box"></span><span>Open the Add Plant dialog from Today's empty state. After picking a species, the details step shows a "When did you last water?" date input pre-filled with today's date. If the species feeds, a second "When did you last feed?" picker also shows.</span></div>
+    <div class="criterion"><span class="box"></span><span>Pick a species with no feeding cycle (e.g. Snake Plant if seeded as non-feeding, or check via DevTools that <code>species.feeding_frequency_days</code> is null). Only the watering picker renders.</span></div>
+    <div class="criterion"><span class="box"></span><span>Try to set the watering date to tomorrow → server returns 422, picker shows red border + inline error, focus returns to the picker.</span></div>
+    <div class="criterion"><span class="box"></span><span>Try to set the watering date to 2 years ago → same 422 + inline error pattern.</span></div>
+    <div class="criterion"><span class="box"></span><span>Submit a valid plant with last-watered = today, last-fed = 3 days ago. Open Plant Detail → "Watered today" and "Last fed 3 days ago" read correctly. Next-water countdown calculates from today, not from the absent anchor.</span></div>
+    <div class="criterion"><span class="box"></span><span>In onboarding Step 3, picking a species + filling nickname now also requires the date pickers. Going Back → Forward through the wizard preserves the picked dates.</span></div>
+    <div class="criterion"><span class="box"></span><span>DevTools → Network on submit: the POST /api/v1/plants payload includes <code>plant[last_watered_at]</code> and (when applicable) <code>plant[last_fed_at]</code> as ISO 8601 strings.</span></div>
+    <div class="criterion"><span class="box"></span><span>Lint and tests pass.</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+    <p>No new mockup — this slots into the existing Add Plant dialog (mockup 27). Pickers follow the form primitive convention TextInput already establishes. Native browser date pickers (<code>&lt;input type="date"&gt;</code>) — no custom calendar UI in this ticket; if Rob wants a styled custom calendar later, it's a separate visual ticket.</p>
+    <blockquote>From <code>project_care_schedule_anchor_followups.md</code>: "Adaptive frequency (system slides calculated_watering_days toward user's actual cadence) is Phase 2 territory in CLAUDE.md long-term vision. Not blocking launch. Today's behaviour: re-anchor on every CareLog. Good enough."</blockquote>
+    <p>Adaptive scheduling stays Phase 2. This ticket is anchor-on-create only — no learning, no smoothing, no "we noticed you're always 2 days late" logic.</p>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+    <div class="learn">
+      <strong>Native form controls vs custom widgets.</strong> <code>&lt;input type="date"&gt;</code> uses each browser's native date picker — works on iOS, Android, Chrome, Safari, Firefox without any library. The downside is you can't restyle the picker UI. We trade visual control for zero JS, full keyboard support, and consistent OS UX. If you find yourself reaching for <code>react-datepicker</code> or similar, ask whether the visual win is worth the bundle cost first.
+    </div>
+    <div class="learn">
+      <strong>Date strings vs Date objects in JSON payloads.</strong> Rails' <code>datetime</code> columns parse ISO 8601 strings (<code>"2026-05-08"</code> or <code>"2026-05-08T00:00:00Z"</code>) automatically. The native date input gives you <code>"YYYY-MM-DD"</code> on its <code>value</code>. Don't bother with <code>new Date()</code> + <code>toISOString()</code> — pass the string straight through. Less code, no timezone ambiguity from JS implicit conversions.
+    </div>
+    <div class="learn">
+      <strong>useFormSubmit + ValidationError, again.</strong> Same pattern StepDetails already uses — throw <code>new ValidationError({ last_watered_at: 'Date is in the future' })</code> from the action, the hook routes it into <code>fieldErrors</code>, the picker reads <code>error={fieldErrors.last_watered_at}</code>. No new mechanism. Server-side 422 lands in the same shape (the api client translates Rails' field-keyed errors).
+    </div>
+    <div class="learn">
+      <strong>Conditional rendering driven by data shape, not by user role.</strong> The feeding picker shows when <code>species.feeding_frequency_days</code> is present. Don't introduce a feature flag or "edit mode" prop — the data tells you whether the question applies. Same shape as how StepDetails already conditionally hides the space picker when defaultSpaceId is set.
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <table class="rails-map">
+      <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>params.expect(plant: [..., :last_watered_at, :last_fed_at])</code></td>
+          <td>Submit handler picks the same fields onto the mutation payload</td>
+          <td>Strong-params on the server; client manually picks. Same intent, two layers.</td>
+        </tr>
+        <tr>
+          <td><code>validates :last_watered_at, presence: true, comparison: { less_than_or_equal_to: -&gt; { Time.current } }</code></td>
+          <td><code>throw new ValidationError({ last_watered_at: '…' })</code> from useFormSubmit's action</td>
+          <td>Server still validates. Client validation is UX — fail fast before round-trip.</td>
+        </tr>
+        <tr>
+          <td><code>form_with model: @plant</code> + <code>f.date_field :last_watered_at</code></td>
+          <td><code>&lt;DateInput label="When did you last water?" value={value} onChange={setValue} /&gt;</code></td>
+          <td>Controlled input. You own the state via useState; no form helper does it for you.</td>
+        </tr>
+        <tr>
+          <td><code>conditional_validate :last_fed_at, if: -&gt; { species.feeding_frequency_days }</code></td>
+          <td>Conditional render: <code>{species.feeding_frequency_days &amp;&amp; &lt;DateInput … /&gt;}</code></td>
+          <td>The picker only exists when the data shape demands it.</td>
+        </tr>
+        <tr>
+          <td>Rails default 422 response shape: <code>{ errors: { field: [&quot;message&quot;] } }</code></td>
+          <td><code>api/client.js</code> translates this into a thrown <code>ValidationError</code> with <code>fields</code> object</td>
+          <td>Already happens for nickname/space; same pipe handles new fields.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li><span>client/src/components/form/DateInput.jsx</span><span class="action">create</span></li>
+      <li><span>client/src/components/plants/StepDetails.jsx</span><span class="action">extend</span></li>
+      <li><span>client/src/components/onboarding/plants/PlantFormDialog.jsx</span><span class="action">extend</span></li>
+      <li><span>api/app/controllers/api/v1/plants_controller.rb</span><span class="action">extend</span></li>
+      <li><span>api/app/models/plant.rb</span><span class="action">extend</span></li>
+      <li><span>api/test/controllers/api/v1/plants_controller_test.rb</span><span class="action">extend</span></li>
+      <li><span>api/test/models/plant_test.rb</span><span class="action">extend</span></li>
+      <li><span>client/tests/components/form/DateInput.test.jsx</span><span class="action">create</span></li>
+      <li><span>client/tests/components/plants/AddPlantDialog.test.jsx</span><span class="action">extend</span></li>
+      <li><span>client/tests/pages/today.spec.js</span><span class="action">extend</span></li>
+    </ul>
+    <p>This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose.</p>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li><strong>Don't bundle TICKET-049 into this.</strong> 049 is the overdue visual sweep — different concern (input vs output), different review shape (frontend-only). Stay scoped.</li>
+      <li><strong>Don't touch adaptive scheduling.</strong> Phase 2 territory. This ticket adds the anchor; it doesn't learn from user behaviour.</li>
+      <li><strong>Watch out for timezone slippage.</strong> The native picker emits a date string in the user's local calendar. Rails parses it as midnight UTC. For "last watered yesterday" semantics this is fine; if you ever surface "X hours ago" you'll need to think harder about TZs.</li>
+      <li><strong>Don't introduce a Date object in the payload.</strong> Pass the string straight through to the mutation. Date objects + JSON.stringify produce ISO timestamps with implicit UTC midnight, which is what you want — but mixing string vs Date in the same field causes confusion downstream.</li>
+      <li><strong>onboarding's submit lifecycle is split between PlantFormDialog and Step3Plants.</strong> The dialog owns the pickers + validation; Step3Plants's <code>handleConfirmAdd</code> stays the species hydration + create call. Don't re-route mutation logic through the dialog.</li>
+      <li><strong>Run the review skills before PR.</strong> /vercel-react-best-practices + /accessibility (date inputs need label association — DateInput should handle it). DHH-style review for the backend params + validation change.</li>
+      <li><strong>Closing checklist:</strong> <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh</code>, commit on <code>ticket-048-care-anchor-on-create</code>, then open a PR with <code>feat(v2):</code> prefix.</li>
+    </ul>
+  </section>
+</div>
+</body>
+</html>

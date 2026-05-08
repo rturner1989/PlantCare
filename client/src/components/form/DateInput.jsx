@@ -1,20 +1,14 @@
 import { useId } from 'react'
 import FormField, { FIELD_INPUT_BASE, FIELD_INPUT_INVALID, FIELD_INPUT_VALID } from './FormField'
 
-// Labelled single-line text input. Wraps <input> via FormField for the
-// label / asterisk / hint / error slots; this file owns the <input>
-// element + its type-specific props (autoComplete, minLength, etc.).
-//
-// `id` is auto-generated via useId so browsers' autofill machinery has
-// something to anchor — Chrome/Brave warn otherwise. Consumers can
-// override via name/id in kwargs.
-
-export default function TextInput({
+export default function DateInput({
   label,
   labelHidden = false,
   hint,
   error,
   required = false,
+  min,
+  max,
   className = '',
   ...kwargs
 }) {
@@ -34,7 +28,10 @@ export default function TextInput({
     >
       <input
         id={inputId}
+        type="date"
         required={required}
+        min={min}
+        max={max}
         className={`${FIELD_INPUT_BASE} ${hasError ? FIELD_INPUT_INVALID : FIELD_INPUT_VALID}`}
         aria-invalid={hasError ? 'true' : undefined}
         aria-describedby={hasError ? errorId : undefined}
