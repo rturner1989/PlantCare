@@ -50,6 +50,8 @@ export default function QuickDialog({ plant, open, onClose }) {
     navigate(`/plants/${display.id}`)
   }
 
+  const isUrgent = display.water_status === 'overdue' || display.feed_status === 'overdue'
+
   const primaryAction =
     display.water_status === 'overdue'
       ? 'water'
@@ -86,9 +88,11 @@ export default function QuickDialog({ plant, open, onClose }) {
   return (
     <Dialog open={open} onClose={onClose} title={display.nickname} cardVariant="paper-warm">
       <Card.Header divider={false} className="flex items-center gap-3">
-        <span className="relative w-[72px] h-[72px] rounded-full plant-portrait flex items-center justify-center shrink-0">
+        <span
+          className={`relative w-[62px] h-[62px] rounded-full plant-portrait ${isUrgent ? 'plant-portrait-urgent' : ''} flex items-center justify-center shrink-0`}
+        >
           <span className="relative z-[2]">
-            <Avatar species={display.species} size="xl" shape="circle" />
+            <Avatar species={display.species} size="lg" shape="circle" />
           </span>
         </span>
         <div className="flex-1 min-w-0">
@@ -128,8 +132,12 @@ export default function QuickDialog({ plant, open, onClose }) {
             onOpenChange={() => {}}
             centreLabel={display.nickname}
             centreSlot={
-              <span className="relative w-[64px] h-[64px] rounded-full overflow-hidden flex items-center justify-center">
-                <Avatar species={display.species} size="xl" shape="circle" />
+              <span
+                className={`relative w-[100px] h-[100px] rounded-full plant-portrait ${isUrgent ? 'plant-portrait-urgent' : ''} flex items-center justify-center`}
+              >
+                <span className="relative z-[2]">
+                  <Avatar species={display.species} size="2xl" shape="circle" />
+                </span>
               </span>
             }
           />

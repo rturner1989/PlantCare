@@ -4,6 +4,7 @@ import { useToast } from '../../../context/ToastContext'
 import { useMediaQuery } from '../../../hooks/useMediaQuery'
 import { useLogCare } from '../../../hooks/usePlants'
 import PlantActionWheel from '../../plants/ActionWheel'
+import PlantAvatar from '../../plants/Avatar'
 import Action from '../../ui/Action'
 
 const KIND_LABEL = { water: 'Water', feed: 'Feed' }
@@ -138,14 +139,14 @@ function RitualRow({ task, plant, actionable = true }) {
               aria-expanded={wheelOpen}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-md cursor-pointer hover:bg-paper-deep/30"
             >
-              <RowContent task={task} verb={verb} stateClass={stateClass} stateLabel={stateLabel} />
+              <RowContent task={task} plant={plant} verb={verb} stateClass={stateClass} stateLabel={stateLabel} />
             </Action>
           ) : (
             // Future-day preview: read-only data row, not a button.
             // SR users hear the row's content as a list item, not
             // "button, unavailable, Water Spike".
             <div className="w-full flex items-center gap-3 px-3 py-3 rounded-md">
-              <RowContent task={task} verb={verb} stateClass={stateClass} stateLabel={stateLabel} />
+              <RowContent task={task} plant={plant} verb={verb} stateClass={stateClass} stateLabel={stateLabel} />
             </div>
           )}
         </motion.div>
@@ -159,8 +160,10 @@ function RitualRow({ task, plant, actionable = true }) {
         size="md"
         primaryAction={task.kind === 'feed' ? 'feed' : 'water'}
         centreSlot={
-          <span aria-hidden="true" className="text-2xl">
-            {FALLBACK_EMOJI}
+          <span className="relative w-[100px] h-[100px] rounded-full plant-portrait flex items-center justify-center">
+            <span className="relative z-[2]">
+              <PlantAvatar species={plant?.species} size="2xl" shape="circle" />
+            </span>
           </span>
         }
       />
@@ -168,15 +171,10 @@ function RitualRow({ task, plant, actionable = true }) {
   )
 }
 
-function RowContent({ task, verb, stateClass, stateLabel }) {
+function RowContent({ task, plant, verb, stateClass, stateLabel }) {
   return (
     <>
-      <span
-        aria-hidden="true"
-        className="shrink-0 w-10 h-10 rounded-full bg-emerald/15 flex items-center justify-center text-xl"
-      >
-        {FALLBACK_EMOJI}
-      </span>
+      <PlantAvatar species={plant?.species} size="sm" shape="circle" className="shrink-0" />
       <span className="flex-1 min-w-0 text-left">
         <span className="block text-base font-bold text-ink">
           {verb} {task.plant_nickname}
