@@ -8,12 +8,6 @@ import Action from '../ui/Action'
 import Card from '../ui/Card'
 import Heading from '../ui/Heading'
 
-// Direct port of the v2 mockup `.plant-card` (docs/mockups/plantcare-ui/v2/17-today-density-v1.html).
-// Tile = paper-cream surface with warm shadow; portrait = round
-// gradient-paper cradle with a soft top-left highlight; mood dot is
-// a small white pill with a coloured icon top-right; coral inset
-// shadow on the portrait for urgent plants.
-
 function plantStatus(plant) {
   const states = [plant.water_status, plant.feed_status]
   if (states.includes('overdue')) return 'wilting'
@@ -142,9 +136,6 @@ function PlantTile({ plant }) {
   )
 }
 
-// Direct port of mockup 21's `.room-card.add-space` — dashed-border CTA
-// tile that drops in as the first cell of the plant strip. Same w-40
-// width as PlantTile so it sits flush with the rest of the row.
 function AddPlantTile() {
   const { open } = useAddPlant()
   return (

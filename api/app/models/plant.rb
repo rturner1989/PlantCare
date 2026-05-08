@@ -37,11 +37,9 @@ class Plant < ApplicationRecord
 
   validates :nickname, presence: true
 
-  # Care anchors. Both nullable at the model layer — last_watered_at has
-  # a before_create fallback, last_fed_at is genuinely optional (some
-  # species don't feed). Range validation runs whenever a value is set
-  # so client-side input gets bounds-checked even though absence falls
-  # through to the fallback.
+  # last_watered_at is allow_nil because set_initial_watered_at fills it
+  # at create time; last_fed_at is allow_nil because some species don't
+  # feed. Range bounds still apply when a value IS set.
   validates :last_watered_at,
             comparison: { less_than_or_equal_to: -> { Time.current }, greater_than_or_equal_to: -> { 12.months.ago } },
             allow_nil: true

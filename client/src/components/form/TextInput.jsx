@@ -1,14 +1,9 @@
 import { useId } from 'react'
 import FormField, { FIELD_INPUT_BASE, FIELD_INPUT_INVALID, FIELD_INPUT_VALID } from './FormField'
 
-// Labelled single-line text input. Wraps <input> via FormField for the
-// label / asterisk / hint / error slots; this file owns the <input>
-// element + its type-specific props (autoComplete, minLength, etc.).
-//
-// `id` is auto-generated via useId so browsers' autofill machinery has
-// something to anchor — Chrome/Brave warn otherwise. Consumers can
-// override via name/id in kwargs.
-
+// useId for the input id so Chrome/Brave's autofill machinery has
+// something to anchor against — without it they warn "form field
+// element has neither an id nor a name attribute".
 export default function TextInput({
   label,
   labelHidden = false,
