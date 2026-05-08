@@ -1,6 +1,8 @@
 import { useId, useState } from 'react'
 import { ValidationError } from '../../../errors/ValidationError'
 import { useFormSubmit } from '../../../hooks/useFormSubmit'
+import { todayISO } from '../../../utils/dateInput'
+import DateInput from '../../form/DateInput'
 import Select from '../../form/Select'
 import TextInput from '../../form/TextInput'
 import Action from '../../ui/Action'
@@ -24,9 +26,13 @@ export default function PlantFormDialog({
   existingNicknames = EMPTY_SET,
 }) {
   const titleId = useId()
+  const today = todayISO()
+  const speciesFeeds = Boolean(species?.feeding_frequency_days)
   const autoPickedSpaceId = availableSpaces.length === 1 ? availableSpaces[0].id : null
   const [nickname, setNickname] = useState(species?.common_name ?? '')
   const [chosenSpaceId, setChosenSpaceId] = useState(autoPickedSpaceId)
+  const [lastWateredAt, setLastWateredAt] = useState(today)
+  const [lastFedAt, setLastFedAt] = useState(today)
 
   const { submitting, handleSubmit, fieldErrors, formRef } = useFormSubmit({
     action: async () => {
@@ -37,8 +43,16 @@ export default function PlantFormDialog({
         throw new ValidationError({ nickname: `"${trimmed}" is already in your list — pick a different name.` })
       }
       if (!chosenSpaceId) throw new ValidationError({ space: 'Pick a space for this plant.' })
+      if (!lastWateredAt) throw new ValidationError({ last_watered_at: 'Pick when you last watered.' })
+      if (speciesFeeds && !lastFedAt) throw new ValidationError({ last_fed_at: 'Pick when you last fed.' })
 
-      await onAdd({ species, nickname: trimmed, spaceId: chosenSpaceId })
+      await onAdd({
+        species,
+        nickname: trimmed,
+        spaceId: chosenSpaceId,
+        lastWateredAt,
+        lastFedAt: speciesFeeds ? lastFedAt : null,
+      })
       onClose()
     },
     errorMessage: "Couldn't add that plant",
@@ -92,6 +106,26 @@ export default function PlantFormDialog({
                 </option>
               ))}
             </Select>
+          )}
+
+          <DateInput
+            label="When did you last water?"
+            value={lastWateredAt}
+            onChange={(event) => setLastWateredAt(event.target.value)}
+            max={today}
+            required
+            error={fieldErrors.last_watered_at}
+          />
+
+          {speciesFeeds && (
+            <DateInput
+              label="When did you last feed?"
+              value={lastFedAt}
+              onChange={(event) => setLastFedAt(event.target.value)}
+              max={today}
+              required
+              error={fieldErrors.last_fed_at}
+            />
           )}
         </Card.Body>
 

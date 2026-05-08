@@ -4,7 +4,9 @@ import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
 import { useCreatePlant } from '../../hooks/usePlants'
 import { useSpaces } from '../../hooks/useSpaces'
+import { todayISO } from '../../utils/dateInput'
 import { formatSpaceName, getSpaceEmoji } from '../../utils/spaceIcons'
+import DateInput from '../form/DateInput'
 import Select from '../form/Select'
 import TextInput from '../form/TextInput'
 import Action from '../ui/Action'
@@ -22,8 +24,13 @@ export default function StepDetails({ species, defaultSpaceId = null, onBack, on
     return null
   }, [defaultSpaceId, activeSpaces])
 
+  const today = todayISO()
+  const speciesFeeds = Boolean(species?.feeding_frequency_days)
+
   const [nickname, setNickname] = useState(species?.common_name ?? '')
   const [chosenSpaceId, setChosenSpaceId] = useState(initialSpaceId)
+  const [lastWateredAt, setLastWateredAt] = useState(today)
+  const [lastFedAt, setLastFedAt] = useState(today)
 
   // Auto-pick the only available space once it loads. The initial
   // useState ran with an empty list when StepDetails mounted before
@@ -45,6 +52,8 @@ export default function StepDetails({ species, defaultSpaceId = null, onBack, on
       const trimmed = nickname.trim()
       if (!trimmed) throw new ValidationError({ nickname: 'Pick a nickname for your plant.' })
       if (!chosenSpaceId) throw new ValidationError({ space: 'Pick a space for this plant.' })
+      if (!lastWateredAt) throw new ValidationError({ last_watered_at: 'Pick when you last watered.' })
+      if (speciesFeeds && !lastFedAt) throw new ValidationError({ last_fed_at: 'Pick when you last fed.' })
 
       // Perenual results arrive with id=null. Hydrate via the show endpoint
       // first — the controller persists the Perenual row on first call.
@@ -62,6 +71,8 @@ export default function StepDetails({ species, defaultSpaceId = null, onBack, on
         species_id: resolvedSpecies.id,
         space_id: chosenSpaceId,
         nickname: trimmed,
+        last_watered_at: lastWateredAt,
+        last_fed_at: speciesFeeds ? lastFedAt : null,
       })
       onSubmitSuccess(plant)
     },
@@ -118,6 +129,26 @@ export default function StepDetails({ species, defaultSpaceId = null, onBack, on
               </option>
             ))}
           </Select>
+        )}
+
+        <DateInput
+          label="When did you last water?"
+          value={lastWateredAt}
+          onChange={(event) => setLastWateredAt(event.target.value)}
+          max={today}
+          required
+          error={fieldErrors.last_watered_at}
+        />
+
+        {speciesFeeds && (
+          <DateInput
+            label="When did you last feed?"
+            value={lastFedAt}
+            onChange={(event) => setLastFedAt(event.target.value)}
+            max={today}
+            required
+            error={fieldErrors.last_fed_at}
+          />
         )}
       </Card.Body>
 

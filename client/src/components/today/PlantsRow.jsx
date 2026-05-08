@@ -2,17 +2,11 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useRef, useState } from 'react'
 import { useAddPlant } from '../../hooks/useAddPlant'
-import PlantActionWheel from '../plants/ActionWheel'
 import PlantAvatar from '../plants/Avatar'
+import QuickDialog from '../plants/QuickDialog'
 import Action from '../ui/Action'
 import Card from '../ui/Card'
 import Heading from '../ui/Heading'
-
-// Direct port of the v2 mockup `.plant-card` (docs/mockups/plantcare-ui/v2/17-today-density-v1.html).
-// Tile = paper-cream surface with warm shadow; portrait = round
-// gradient-paper cradle with a soft top-left highlight; mood dot is
-// a small white pill with a coloured icon top-right; coral inset
-// shadow on the portrait for urgent plants.
 
 function plantStatus(plant) {
   const states = [plant.water_status, plant.feed_status]
@@ -89,9 +83,8 @@ function PlantTile({ plant }) {
   const mood = plantStatus(plant)
   const moodIcon = MOOD_ICON[mood]
   const isUrgent = mood === 'wilting'
-  const [wheelOpen, setWheelOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
   const [celebrate, setCelebrate] = useState(false)
-  const portraitRef = useRef(null)
   const prevMoodRef = useRef(mood)
 
   // Trigger the celebrate pulse when the plant transitions out of a
@@ -107,24 +100,13 @@ function PlantTile({ plant }) {
     }
   }, [mood])
 
-  const portrait = (
-    <span
-      ref={portraitRef}
-      className={`relative mx-auto mb-2.5 w-[100px] h-[100px] rounded-full plant-portrait ${isUrgent ? 'plant-portrait-urgent' : ''} ${celebrate ? 'plant-portrait-celebrate' : ''} flex items-center justify-center`}
-    >
-      <span className="relative z-[2]">
-        <PlantAvatar species={plant.species} size="2xl" shape="circle" />
-      </span>
-    </span>
-  )
-
   return (
     <>
       <Action
         variant="unstyled"
-        onClick={() => setWheelOpen(true)}
-        aria-haspopup="menu"
-        aria-expanded={wheelOpen}
+        onClick={() => setDialogOpen(true)}
+        aria-haspopup="dialog"
+        aria-expanded={dialogOpen}
         className="relative block w-40 px-3 pt-4 pb-3 rounded-md bg-paper shadow-warm-sm text-center"
         aria-label={`${plant.nickname} — ${MOOD_LABEL[mood]}`}
       >
@@ -134,7 +116,13 @@ function PlantTile({ plant }) {
         >
           {moodIcon.glyph}
         </span>
-        {portrait}
+        <span
+          className={`relative mx-auto mb-2.5 w-[100px] h-[100px] rounded-full plant-portrait ${isUrgent ? 'plant-portrait-urgent' : ''} ${celebrate ? 'plant-portrait-celebrate' : ''} flex items-center justify-center`}
+        >
+          <span className="relative z-[2]">
+            <PlantAvatar species={plant.species} size="2xl" shape="circle" />
+          </span>
+        </span>
         <span className="block text-[13px] font-bold tracking-tight text-ink truncate">{plant.nickname}</span>
         {plant.species?.common_name ? (
           <span className="block font-display italic text-[11px] text-ink-soft truncate">
@@ -143,25 +131,11 @@ function PlantTile({ plant }) {
         ) : null}
       </Action>
 
-      <PlantActionWheel
-        plant={plant}
-        open={wheelOpen}
-        onOpenChange={setWheelOpen}
-        anchor={portraitRef.current}
-        size="md"
-        centreSlot={
-          <span className="relative w-[88px] h-[88px] rounded-full overflow-hidden flex items-center justify-center">
-            <PlantAvatar species={plant.species} size="2xl" shape="circle" />
-          </span>
-        }
-      />
+      <QuickDialog plant={plant} open={dialogOpen} onClose={() => setDialogOpen(false)} />
     </>
   )
 }
 
-// Direct port of mockup 21's `.room-card.add-space` — dashed-border CTA
-// tile that drops in as the first cell of the plant strip. Same w-40
-// width as PlantTile so it sits flush with the rest of the row.
 function AddPlantTile() {
   const { open } = useAddPlant()
   return (

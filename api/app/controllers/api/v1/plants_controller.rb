@@ -50,7 +50,7 @@ module Api
       end
 
       private def plant_params
-        params.expect(plant: [:species_id, :nickname, :notes, :acquired_at])
+        params.expect(plant: [:species_id, :nickname, :notes, :acquired_at, :last_watered_at, :last_fed_at])
       end
     end
   end

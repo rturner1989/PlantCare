@@ -116,10 +116,15 @@ test.describe('Today dashboard', () => {
       .first()
       .click()
 
-    // Step 2 — details. Nickname + space picker. Hit submit.
+    // Step 2 — details. Nickname + care anchor pickers. Hit submit.
     const nickname = page.getByLabel('Nickname')
     await expect(nickname).toBeVisible()
     await nickname.fill('Hisser')
+
+    // Care anchor pickers — both default to today, no further interaction needed.
+    await expect(page.getByLabel('When did you last water?')).toBeVisible()
+    await expect(page.getByLabel('When did you last feed?')).toBeVisible()
+
     await page
       .getByRole('button', { name: /^Add plant$/i })
       .last()

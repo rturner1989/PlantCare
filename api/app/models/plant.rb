@@ -37,6 +37,16 @@ class Plant < ApplicationRecord
 
   validates :nickname, presence: true
 
+  # last_watered_at is allow_nil because set_initial_watered_at fills it
+  # at create time; last_fed_at is allow_nil because some species don't
+  # feed. Range bounds still apply when a value IS set.
+  validates :last_watered_at,
+            comparison: { less_than_or_equal_to: -> { Time.current }, greater_than_or_equal_to: -> { 12.months.ago } },
+            allow_nil: true
+  validates :last_fed_at,
+            comparison: { less_than_or_equal_to: -> { Time.current }, greater_than_or_equal_to: -> { 12.months.ago } },
+            allow_nil: true
+
   scope :in_space, ->(space_id) { where(space_id: space_id) if space_id.present? }
 
   before_save :calculate_schedule, if: :should_recalculate?

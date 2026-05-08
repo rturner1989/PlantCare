@@ -80,3 +80,19 @@ cactus:
   personality: prickly
   description: Desert-adapted plants that store water in their stems.
   care_tips: Water only when soil is completely dry.
+
+air_plant:
+  common_name: Air Plant
+  scientific_name: Tillandsia
+  watering_frequency_days: 7
+  # no feeding cycle — air plants absorb nutrients through their leaves
+  light_requirement: bright_indirect
+  humidity_preference: high
+  temperature_min: 15.0
+  temperature_max: 32.0
+  toxicity: Non-toxic
+  difficulty: beginner
+  growth_rate: slow
+  personality: chill
+  description: Soil-free epiphyte that lives on humidity and the occasional misting.
+  care_tips: Mist twice a week or soak briefly. No feeding required.

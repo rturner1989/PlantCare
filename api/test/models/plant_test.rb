@@ -22,6 +22,35 @@ class PlantTest < ActiveSupport::TestCase
     assert_includes plant.errors[:nickname], "can't be blank"
   end
 
+  test 'rejects future-dated last_watered_at' do
+    plant = @space.plants.new(nickname: 'Time Traveller', species: @species, last_watered_at: 1.day.from_now)
+    assert_not plant.valid?
+    assert plant.errors[:last_watered_at].any?
+  end
+
+  test 'rejects last_watered_at older than 12 months' do
+    plant = @space.plants.new(nickname: 'Ancient', species: @species, last_watered_at: 13.months.ago)
+    assert_not plant.valid?
+    assert plant.errors[:last_watered_at].any?
+  end
+
+  test 'rejects future-dated last_fed_at' do
+    plant = @space.plants.new(nickname: 'Future Feed', species: @species, last_fed_at: 1.day.from_now)
+    assert_not plant.valid?
+    assert plant.errors[:last_fed_at].any?
+  end
+
+  test 'rejects last_fed_at older than 12 months' do
+    plant = @space.plants.new(nickname: 'Stale Feed', species: @species, last_fed_at: 13.months.ago)
+    assert_not plant.valid?
+    assert plant.errors[:last_fed_at].any?
+  end
+
+  test 'accepts nil last_fed_at (non-feeding species)' do
+    plant = @space.plants.new(nickname: 'Cactus Like', species: @species, last_fed_at: nil)
+    assert plant.valid?
+  end
+
   test 'calculates schedule on create when species is set' do
     plant = @space.plants.create!(nickname: 'New Plant', species: @species)
 

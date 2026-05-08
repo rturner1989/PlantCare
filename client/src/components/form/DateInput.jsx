@@ -1,15 +1,14 @@
 import { useId } from 'react'
 import FormField, { FIELD_INPUT_BASE, FIELD_INPUT_INVALID, FIELD_INPUT_VALID } from './FormField'
 
-// useId for the input id so Chrome/Brave's autofill machinery has
-// something to anchor against — without it they warn "form field
-// element has neither an id nor a name attribute".
-export default function TextInput({
+export default function DateInput({
   label,
   labelHidden = false,
   hint,
   error,
   required = false,
+  min,
+  max,
   className = '',
   ...kwargs
 }) {
@@ -29,7 +28,10 @@ export default function TextInput({
     >
       <input
         id={inputId}
+        type="date"
         required={required}
+        min={min}
+        max={max}
         className={`${FIELD_INPUT_BASE} ${hasError ? FIELD_INPUT_INVALID : FIELD_INPUT_VALID}`}
         aria-invalid={hasError ? 'true' : undefined}
         aria-describedby={hasError ? errorId : undefined}
