@@ -14,7 +14,7 @@ import Emphasis from '../ui/Emphasis'
 import EmptyState from '../ui/EmptyState'
 import Heading from '../ui/Heading'
 import Spinner from '../ui/Spinner'
-import AddPlantForm from './plants/AddPlantForm'
+import PlantFormDialog from './plants/PlantFormDialog'
 import StepTip from './shared/StepTip'
 import WizardActions from './shared/WizardActions'
 
@@ -29,7 +29,6 @@ export default function Step3Plants({ availableSpaces = [], onBack, onComplete }
   const [query, setQuery] = useState('')
   const [pendingSpecies, setPendingSpecies] = useState(null)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [adding, setAdding] = useState(false)
 
   const debouncedQuery = useDebouncedValue(query, 300)
   const isSearching = isSearchQuery(debouncedQuery)
@@ -46,7 +45,7 @@ export default function Step3Plants({ availableSpaces = [], onBack, onComplete }
   const createPlant = useCreatePlant()
   const deletePlant = useDeletePlant()
 
-  // Memoised so AddPlantForm gets a stable Set ref when the plant list
+  // Memoised so PlantFormDialog gets a stable Set ref when the plant list
   // hasn't changed — keeps its useEffect deps tight + dup check is O(1).
   const existingNicknames = useMemo(() => new Set(addedPlants.map((plant) => plant.nickname)), [addedPlants])
 
@@ -56,32 +55,24 @@ export default function Step3Plants({ availableSpaces = [], onBack, onComplete }
   }
 
   async function handleConfirmAdd({ species, nickname, spaceId }) {
-    setAdding(true)
-    try {
-      // Perenual results arrive with id=null. Hydrate via the show endpoint
-      // first — the controller persists the Perenual row on first call.
-      let resolvedSpecies = species
-      if (!resolvedSpecies.id && resolvedSpecies.perenual_id) {
-        const params = new URLSearchParams({
-          perenual_id: resolvedSpecies.perenual_id,
-          common_name: resolvedSpecies.common_name ?? '',
-          scientific_name: resolvedSpecies.scientific_name ?? '',
-          image_url: resolvedSpecies.image_url ?? '',
-        })
-        resolvedSpecies = await apiGet(`/api/v1/species/${resolvedSpecies.perenual_id}?${params}`)
-      }
-      await createPlant.mutateAsync({
-        species_id: resolvedSpecies.id,
-        space_id: spaceId,
-        nickname,
+    // Perenual results arrive with id=null. Hydrate via the show endpoint
+    // first — the controller persists the Perenual row on first call.
+    let resolvedSpecies = species
+    if (!resolvedSpecies.id && resolvedSpecies.perenual_id) {
+      const params = new URLSearchParams({
+        perenual_id: resolvedSpecies.perenual_id,
+        common_name: resolvedSpecies.common_name ?? '',
+        scientific_name: resolvedSpecies.scientific_name ?? '',
+        image_url: resolvedSpecies.image_url ?? '',
       })
-      setDialogOpen(false)
-      setQuery('')
-    } catch (err) {
-      toast.error(err.message ?? "Couldn't add that plant")
-    } finally {
-      setAdding(false)
+      resolvedSpecies = await apiGet(`/api/v1/species/${resolvedSpecies.perenual_id}?${params}`)
     }
+    await createPlant.mutateAsync({
+      species_id: resolvedSpecies.id,
+      space_id: spaceId,
+      nickname,
+    })
+    setQuery('')
   }
 
   function handleRemove(plantId) {
@@ -203,12 +194,12 @@ export default function Step3Plants({ availableSpaces = [], onBack, onComplete }
         <WizardActions onBack={onBack} continueLabel={continueLabel} />
       </form>
 
-      <AddPlantForm
+      <PlantFormDialog
+        key={pendingSpecies?.id ?? pendingSpecies?.perenual_id ?? pendingSpecies?.common_name ?? 'none'}
         open={dialogOpen}
         species={pendingSpecies}
         availableSpaces={availableSpaces}
         existingNicknames={existingNicknames}
-        submitting={adding}
         onClose={() => setDialogOpen(false)}
         onAdd={handleConfirmAdd}
       />

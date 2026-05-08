@@ -1,7 +1,8 @@
 import { faBars } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { createContext, useContext, useEffect, useId, useRef, useState } from 'react'
+import { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Action from './Action'
 import Tooltip from './Tooltip'
 
@@ -18,13 +19,33 @@ const ITEM_VARIANTS = {
   danger: 'text-coral-deep hover:bg-coral/10',
 }
 
-// Anchor + transform-origin per placement. Origin matches the anchor
-// corner so the open/close scale animates outward from the trigger.
-const PLACEMENT_CLASSES = {
-  'bottom-right': 'top-full mt-1.5 right-0 origin-top-right',
-  'bottom-left': 'top-full mt-1.5 left-0 origin-top-left',
-  'top-right': 'bottom-full mb-1.5 right-0 origin-bottom-right',
-  'top-left': 'bottom-full mb-1.5 left-0 origin-bottom-left',
+const OFFSET = 6
+
+// Transform-origin per placement so the open/close scale animates
+// outward from the anchor corner.
+const PLACEMENT_ORIGIN = {
+  'bottom-right': 'origin-top-right',
+  'bottom-left': 'origin-top-left',
+  'top-right': 'origin-bottom-right',
+  'top-left': 'origin-bottom-left',
+}
+
+// Compute fixed-position coordinates from the trigger's bounding rect.
+// `right` / `bottom` values are measured from the viewport edge so the
+// panel's anchor corner aligns with the trigger's anchor corner.
+function positionFor(placement, rect) {
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  switch (placement) {
+    case 'bottom-left':
+      return { top: rect.bottom + OFFSET, left: rect.left }
+    case 'top-right':
+      return { bottom: vh - rect.top + OFFSET, right: vw - rect.right }
+    case 'top-left':
+      return { bottom: vh - rect.top + OFFSET, left: rect.left }
+    default:
+      return { top: rect.bottom + OFFSET, right: vw - rect.right }
+  }
 }
 
 // Reusable kebab-style menu (hamburger icon → popover with menuitems).
@@ -92,10 +113,32 @@ function Trigger({ className = '', tooltipPlacement = 'bottom-end' }) {
 }
 
 function Items({ placement = 'bottom-right', className = '', children }) {
-  const { open, panelRef, panelId, label } = useMenuContext()
+  const { open, panelRef, panelId, triggerRef, label } = useMenuContext()
   const shouldReduceMotion = useReducedMotion()
-  const placementClass = PLACEMENT_CLASSES[placement] ?? PLACEMENT_CLASSES['bottom-right']
+  const [position, setPosition] = useState(null)
+  const originClass = PLACEMENT_ORIGIN[placement] ?? PLACEMENT_ORIGIN['bottom-right']
   const isTop = placement.startsWith('top')
+
+  // Recompute position on open + scroll/resize while open. useLayoutEffect
+  // avoids the one-frame flash of panel-at-(0,0). Capture-phase scroll so
+  // nested scroll containers also re-anchor the panel.
+  useLayoutEffect(() => {
+    if (!open) {
+      setPosition(null)
+      return
+    }
+    const trigger = triggerRef.current
+    if (!trigger) return
+
+    const update = () => setPosition(positionFor(placement, trigger.getBoundingClientRect()))
+    update()
+    window.addEventListener('scroll', update, true)
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update, true)
+      window.removeEventListener('resize', update)
+    }
+  }, [open, placement, triggerRef])
 
   const motionProps = shouldReduceMotion
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0 } }
@@ -106,21 +149,23 @@ function Items({ placement = 'bottom-right', className = '', children }) {
         transition: { duration: 0.14, ease: [0.33, 1, 0.68, 1] },
       }
 
-  return (
+  return createPortal(
     <AnimatePresence>
-      {open && (
+      {open && position && (
         <motion.div
           ref={panelRef}
           id={panelId}
           role="menu"
           aria-label={label}
-          className={`absolute ${placementClass} z-20 min-w-[180px] rounded-md bg-paper shadow-warm-md ring-1 ring-paper-edge p-1 ${className}`}
+          style={{ position: 'fixed', zIndex: 50, ...position }}
+          className={`min-w-[180px] rounded-md bg-paper shadow-warm-md ring-1 ring-paper-edge p-1 ${originClass} ${className}`}
           {...motionProps}
         >
           <ul className="list-none m-0 p-0 flex flex-col">{children}</ul>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   )
 }
 

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../context/ToastContext'
 import { useLogCare } from '../../hooks/usePlants'
 import Action from '../ui/Action'
+import Card from '../ui/Card'
 import Dialog from '../ui/Dialog'
 import Heading from '../ui/Heading'
 import RadialWheel from '../ui/RadialWheel'
@@ -91,7 +92,7 @@ export default function QuickDialog({ plant, open, onClose }) {
 
   return (
     <Dialog open={open} onClose={onClose} title={display.nickname} cardVariant="paper-warm">
-      <div className="flex items-center gap-3 mb-4">
+      <Card.Header divider={false} className="flex items-center gap-3">
         <span className="relative w-[72px] h-[72px] rounded-full plant-portrait flex items-center justify-center shrink-0">
           <span className="relative z-[2]">
             <Avatar species={display.species} size="xl" shape="circle" />
@@ -105,48 +106,52 @@ export default function QuickDialog({ plant, open, onClose }) {
             {display.nickname}
           </Heading>
         </div>
-      </div>
+      </Card.Header>
 
-      <dl className="grid grid-cols-2 gap-2 mb-4 text-xs">
-        <StatusCell
-          label="Water"
-          status={display.water_status}
-          daysUntil={display.days_until_water}
-          lastAt={display.last_watered_at}
-        />
-        <StatusCell
-          label="Feed"
-          status={display.feed_status}
-          daysUntil={display.days_until_feed}
-          lastAt={display.last_fed_at}
-        />
-      </dl>
+      <Card.Body className="!flex-none flex flex-col gap-4">
+        <dl className="grid grid-cols-2 gap-2 text-xs">
+          <StatusCell
+            label="Water"
+            status={display.water_status}
+            daysUntil={display.days_until_water}
+            lastAt={display.last_watered_at}
+          />
+          <StatusCell
+            label="Feed"
+            status={display.feed_status}
+            daysUntil={display.days_until_feed}
+            lastAt={display.last_fed_at}
+          />
+        </dl>
 
-      <div className="flex justify-center mb-2">
-        <RadialWheel
-          size="md"
-          showOrbit
-          urgent={primaryAction === 'water' || primaryAction === 'feed'}
-          spokes={spokes}
-          onSpoke={handleSpoke}
-          open
-          onOpenChange={() => {}}
-          centreLabel={display.nickname}
-          centreSlot={
-            <span className="relative w-[64px] h-[64px] rounded-full overflow-hidden flex items-center justify-center">
-              <Avatar species={display.species} size="xl" shape="circle" />
-            </span>
-          }
-        />
-      </div>
+        <div className="flex justify-center">
+          <RadialWheel
+            size="md"
+            showOrbit
+            urgent={primaryAction === 'water' || primaryAction === 'feed'}
+            spokes={spokes}
+            onSpoke={handleSpoke}
+            open
+            onOpenChange={() => {}}
+            centreLabel={display.nickname}
+            centreSlot={
+              <span className="relative w-[64px] h-[64px] rounded-full overflow-hidden flex items-center justify-center">
+                <Avatar species={display.species} size="xl" shape="circle" />
+              </span>
+            }
+          />
+        </div>
+      </Card.Body>
 
-      <Action
-        variant="unstyled"
-        onClick={goToDetail}
-        className="block w-full text-center text-xs font-bold text-emerald"
-      >
-        Open full detail <FontAwesomeIcon icon={faArrowRight} className="w-2.5 h-2.5 ml-0.5" />
-      </Action>
+      <Card.Footer divider={false}>
+        <Action
+          variant="unstyled"
+          onClick={goToDetail}
+          className="block w-full text-center text-xs font-bold text-emerald"
+        >
+          Open full detail <FontAwesomeIcon icon={faArrowRight} className="w-2.5 h-2.5 ml-0.5" />
+        </Action>
+      </Card.Footer>
     </Dialog>
   )
 }

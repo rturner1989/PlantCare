@@ -252,6 +252,27 @@ Every cache in the app — server-side `Rails.cache`, client-side TanStack Query
 
 **Don't apply this pattern speculatively.** Audit shows most of our hooks (plant CRUD, care logs, photos, archive/unarchive, profile) correctly use plain invalidate because they either have wide cascades or stay subscribed during the mutation. Upgrade only when you can name the specific race or perf cost.
 
+### Server owns business calculations
+
+The client never duplicates backend business logic. If the server computes a value, it ships the answer via `as_json` and the client renders it. Mirroring constants or formulas client-side leads to silent drift the moment the server tweaks a number — CI never catches it because each side passes its own tests against its own values.
+
+**The rule:**
+
+- **Read, don't compute.** If the field exists on the model's `as_json`, the client reads it as-is. Examples we already have: `plant.days_until_water`, `plant.days_until_feed`, `plant.calculated_watering_days`, `plant.water_status`, `plant.feed_status`. All authoritative on the backend.
+- **Need a value before persistence (a preview)?** Add a server endpoint (`POST /plants/preview { species_id, space_id }` → `{ watering_days, feeding_days }`). The endpoint reuses the model's calculation method — single source of truth, network round-trip is cheap.
+- **Round-trip cost actually matters?** Expose the underlying constants via a small read-only endpoint (`GET /care_modifiers`), client fetches once and caches forever. Only do this if you can prove the round-trip cost. Default to round-trip.
+- **Pure presentation transforms stay client-side.** Formatting `daysUntil` → "In 3 days" / "Due today" / "1 day overdue" lives in `client/src/utils/careStatus.js`. Date formatting via `Intl.RelativeTimeFormat`, locale-aware week-boundary math (e.g. NotificationsDrawer's `startOfWeekMs`), and view-state filter/sort over server fields are all fine.
+
+**Pre-flight checklist before adding a util to `client/src/utils/`:**
+
+1. Does this util read backend constants (modifier tables, frequency formulas, threshold numbers)? **Stop. Move to backend.**
+2. Does this util format a value the server already computes? **Ship it.**
+3. Does this util compute something the server doesn't yet ship? **Add the field to the model's `as_json`, then read it on the client.**
+
+**Backend reference:** `api/app/models/plant.rb#calculate_schedule`, `api/app/models/space.rb#LIGHT_MODIFIERS / TEMPERATURE_MODIFIERS / HUMIDITY_MODIFIERS`. Both authoritative — never duplicated client-side.
+
+This rule is hard-won (TICKET-047 — `client/src/utils/scheduleEstimate.js` mirrored `Plant#calculate_schedule` for an Add Plant preview, deleted before merge). Don't relearn it.
+
 ### Naming
 
 - **Be explicit with variable names.** No single-letter or ultra-short abbreviations (`s`, `x`, `fn`, `cfg`, `tmp`) — even in tiny helper functions. Use `schemeRecipe` not `s`, `handleSubmit` not `fn`, `roomCount` not `rc`. A reader should understand what a variable holds without scrolling up to the declaration.
@@ -343,6 +364,42 @@ const [error, setError] = useState(null) // { field: 'nickname' | 'space', messa
 **No primitive for the field type you need? Build the primitive.** When you reach for a control that doesn't have a primitive yet (`<select>`, `<textarea>`, etc.), build the primitive in `components/form/` rather than hand-rolling the markup at the consumer. The "two-or-more" extraction rule still applies — if you're the *first* consumer, ship a thin component that encodes the same label/error/focus-ring shape as `TextInput` (so future consumers find it and the visual stays unified). Don't invent new error-styling or focus-ring rules per consumer.
 
 **Focus rings use `focus:ring-inset`.** A 4px outer ring gets clipped by `overflow-hidden` containers (Dialog, scrollable Card.Body). The inset variant lives inside the input border and is always visible. Auth surfaces have plenty of room either way, so the inset version is universally safe.
+
+### Dialogs
+
+The `<Dialog>` primitive *is* a Card under the hood (`MotionCard = motion.create(Card)`). Consumers drop `Card.Header / Card.Body / Card.Footer` as direct children — never wrap them in another `<Card>`. The Dialog owns the outer chrome (radius, padding, gap, shadow, drag handle, focus-trap, close-X).
+
+```jsx
+<Dialog open={open} onClose={onClose} title={title}>
+  <Card.Header divider={false}>
+    <p className="text-lg font-extrabold text-ink">{title}</p>
+  </Card.Header>
+  <Card.Body className="!flex-none flex flex-col gap-4">…</Card.Body>
+  <Card.Footer divider={false} className="flex gap-2.5">…</Card.Footer>
+</Dialog>
+```
+
+**Dialog title style — CRUD dialogs (Add/Edit space, Add plant):** plain bold paragraph, sans-serif, `text-lg font-extrabold text-ink`. Not `<Heading variant="display">` — that's the wizard/hero treatment and reads too large in a CRUD utility surface. Title text comes from a single const so the variants stay aligned (`Add a plant`, `Edit space`, etc.). Reference: `AddCustomSpaceForm`, `AddPlantForm` (onboarding), `AddPlantDialog`.
+
+**Wizard / hero dialogs (onboarding steps, marketing):** these CAN use `<Heading variant="display">` plus a subtitle — the surface is doing more storytelling than CRUD. Don't mix the two styles within a single dialog tree.
+
+**File naming — three flavours, distinguished by suffix:**
+
+| Pattern | Suffix | When | Today's examples |
+|---|---|---|---|
+| Record-form dialog (handles **add and edit** modes via `record` prop) | `*FormDialog` | Single CRUD form, mode driven by whether the prop is set. Mirrors Rails `form_with model: @space`. | `SpaceFormDialog` (handles new + edit), `PlantFormDialog` (onboarding's plant add — primed to handle edit if needed via the same prop pattern). |
+| Single-action dialog | `*Dialog` (action-Dialog) | Fixed intent — confirm, archive, delete, quick-status. No record-form behind it. | `ConfirmDialog`, `QuickDialog`. |
+| Multi-step wizard dialog | `*Dialog` (verb-noun-Dialog) | Multi-step flow with non-form chrome (species pick → details, etc.). The verb is the identity. | `AddPlantDialog` (cross-cutting wizard for picking species + entering details). |
+
+**Rule of thumb:**
+- Adding **and** editing a single record → `*FormDialog`. One file, one component, mode driven by the prop.
+- One-off action with confirm/cancel or pick-an-option → `*Dialog` (action-Dialog).
+- Multi-step orchestration → `*Dialog` (verb-noun-Dialog).
+- **Don't ship `EditFooDialog` alongside `AddFooDialog`** — that's the duplication trap. Promote to `FooFormDialog` and let the prop drive mode.
+
+`*Form` (without `Dialog`) is reserved for pure form components NOT wrapped in Dialog — for example a form designed to be embedded inline or in a custom container. None today. If a future use case demands one, name it `*Form` and the consumer wraps it in `<Dialog>` themselves.
+
+This rule is hard-won (TICKET-047 — `AddCustomSpaceForm` lived as a Form file but rendered `<Dialog>` itself; `PlantForm` (onboarding) same. Both were renamed mid-ticket once the convention shook out). Don't relearn it.
 
 ### Onboarding wizard structure
 
