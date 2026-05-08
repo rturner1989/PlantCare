@@ -94,13 +94,13 @@ describe('Action', () => {
 
     it('merges user-provided className with variant classes', () => {
       render(
-        <Action variant="fab" className="extra-class" aria-label="Test">
-          <span>+</span>
+        <Action variant="primary" className="extra-class" aria-label="Test">
+          Save
         </Action>,
       )
       const button = screen.getByRole('button', { name: 'Test' })
       expect(button).toHaveClass('extra-class')
-      expect(button.className).toContain('w-[54px]')
+      expect(button.className).toContain('rounded-md')
     })
 
     it('variant="unstyled" skips variant classes but keeps the focus-visible ring', () => {

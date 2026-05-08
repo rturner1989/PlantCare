@@ -7,6 +7,7 @@ import WeekCard from '../components/today/week/WeekCard'
 import Action from '../components/ui/Action'
 import EmptyState from '../components/ui/EmptyState'
 import Spinner from '../components/ui/Spinner'
+import { useAddPlant } from '../hooks/useAddPlant'
 import { useAuth } from '../hooks/useAuth'
 import { useDashboard } from '../hooks/useDashboard'
 import { usePlants } from '../hooks/usePlants'
@@ -18,6 +19,7 @@ function todayIso() {
 
 export default function Today() {
   const { user } = useAuth()
+  const { open: openAddPlant } = useAddPlant()
   const [selectedDate, setSelectedDate] = useState(todayIso())
   const isToday = selectedDate === todayIso()
 
@@ -73,7 +75,7 @@ export default function Today() {
             title="Your jungle starts here"
             description="Add a plant to see it come alive."
             action={
-              <Action to="/add-plant" variant="primary">
+              <Action onClick={() => openAddPlant()} variant="primary">
                 Add a plant
               </Action>
             }

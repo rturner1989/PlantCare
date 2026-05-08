@@ -1,37 +1,54 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import Tooltip from '../../../src/components/ui/Tooltip'
 
+function renderWithTrigger(ui) {
+  return render(<button type="button">Trigger{ui}</button>)
+}
+
 describe('Tooltip', () => {
-  it('renders the label inside a tooltip-role span', () => {
-    render(<Tooltip>Organiser</Tooltip>)
+  it('does not render the bubble until the trigger is hovered', () => {
+    renderWithTrigger(<Tooltip>Organiser</Tooltip>)
+    expect(screen.queryByRole('tooltip')).toBeNull()
+  })
+
+  it('renders into document.body on mouseenter and removes on mouseleave', () => {
+    renderWithTrigger(<Tooltip>Organiser</Tooltip>)
+    const trigger = screen.getByRole('button', { name: /Trigger/ })
+
+    fireEvent.mouseEnter(trigger)
     const tooltip = screen.getByRole('tooltip')
     expect(tooltip).toHaveTextContent('Organiser')
+    expect(tooltip.parentElement).toBe(document.body)
+
+    fireEvent.mouseLeave(trigger)
+    expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
-  it('uses the bottom placement by default', () => {
-    render(<Tooltip>Bell</Tooltip>)
-    const tooltip = screen.getByRole('tooltip')
-    expect(tooltip.className).toMatch(/top-full/)
-  })
+  it('reveals on focusin and hides on focusout', () => {
+    renderWithTrigger(<Tooltip>Bell</Tooltip>)
+    const trigger = screen.getByRole('button', { name: /Trigger/ })
 
-  it('honours an alternate placement prop', () => {
-    render(<Tooltip placement="right">Today</Tooltip>)
-    const tooltip = screen.getByRole('tooltip')
-    expect(tooltip.className).toMatch(/left-full/)
-  })
+    fireEvent.focusIn(trigger)
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Bell')
 
-  it('starts hidden via opacity-0 + reveals on group hover/focus', () => {
-    render(<Tooltip>Plants</Tooltip>)
-    const tooltip = screen.getByRole('tooltip')
-    expect(tooltip.className).toMatch(/opacity-0/)
-    expect(tooltip.className).toMatch(/group-hover:opacity-100/)
-    expect(tooltip.className).toMatch(/group-focus-visible:opacity-100/)
+    fireEvent.focusOut(trigger)
+    expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
   it('disables pointer-events so it never blocks the trigger', () => {
-    render(<Tooltip>Notifications</Tooltip>)
+    renderWithTrigger(<Tooltip>Notifications</Tooltip>)
+    fireEvent.mouseEnter(screen.getByRole('button', { name: /Trigger/ }))
+    expect(screen.getByRole('tooltip').className).toMatch(/pointer-events-none/)
+  })
+
+  it('positions via inline style for the requested placement', () => {
+    renderWithTrigger(<Tooltip placement="bottom-end">Today</Tooltip>)
+    fireEvent.mouseEnter(screen.getByRole('button', { name: /Trigger/ }))
     const tooltip = screen.getByRole('tooltip')
-    expect(tooltip.className).toMatch(/pointer-events-none/)
+    // bottom-end uses `top` + `right` — never `left`.
+    expect(tooltip.style.top).not.toBe('')
+    expect(tooltip.style.right).not.toBe('')
+    expect(tooltip.style.left).toBe('')
   })
 })

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../context/ToastContext'
 import { useLogCare } from '../../hooks/usePlants'
 import Action from '../ui/Action'
+import Card from '../ui/Card'
 import Dialog from '../ui/Dialog'
 import Heading from '../ui/Heading'
 import RadialWheel from '../ui/RadialWheel'
@@ -20,10 +21,6 @@ function formatLastCare(timestamp) {
   return RELATIVE.format(days, 'day')
 }
 
-// Plant details + quick care actions in one dialog. Heads up tiles
-// open this; ritual rows + plant tiles still use RadialWheel for the
-// in-place action affordance. The dialog is the "I want context" path
-// — surface why a plant's flagged before acting on it.
 export default function QuickDialog({ plant, open, onClose }) {
   const navigate = useNavigate()
   const toast = useToast()
@@ -53,9 +50,6 @@ export default function QuickDialog({ plant, open, onClose }) {
     navigate(`/plants/${display.id}`)
   }
 
-  // Highlight the most-overdue action as the wheel's primary spoke —
-  // matches mockup 22 where Water sits at 12 in coral when the plant
-  // needs watering most urgently.
   const primaryAction =
     display.water_status === 'overdue'
       ? 'water'
@@ -91,7 +85,7 @@ export default function QuickDialog({ plant, open, onClose }) {
 
   return (
     <Dialog open={open} onClose={onClose} title={display.nickname} cardVariant="paper-warm">
-      <div className="flex items-center gap-3 mb-4">
+      <Card.Header divider={false} className="flex items-center gap-3">
         <span className="relative w-[72px] h-[72px] rounded-full plant-portrait flex items-center justify-center shrink-0">
           <span className="relative z-[2]">
             <Avatar species={display.species} size="xl" shape="circle" />
@@ -105,48 +99,52 @@ export default function QuickDialog({ plant, open, onClose }) {
             {display.nickname}
           </Heading>
         </div>
-      </div>
+      </Card.Header>
 
-      <dl className="grid grid-cols-2 gap-2 mb-4 text-xs">
-        <StatusCell
-          label="Water"
-          status={display.water_status}
-          daysUntil={display.days_until_water}
-          lastAt={display.last_watered_at}
-        />
-        <StatusCell
-          label="Feed"
-          status={display.feed_status}
-          daysUntil={display.days_until_feed}
-          lastAt={display.last_fed_at}
-        />
-      </dl>
+      <Card.Body className="!flex-none flex flex-col gap-4">
+        <dl className="grid grid-cols-2 gap-2 text-xs">
+          <StatusCell
+            label="Water"
+            status={display.water_status}
+            daysUntil={display.days_until_water}
+            lastAt={display.last_watered_at}
+          />
+          <StatusCell
+            label="Feed"
+            status={display.feed_status}
+            daysUntil={display.days_until_feed}
+            lastAt={display.last_fed_at}
+          />
+        </dl>
 
-      <div className="flex justify-center mb-2">
-        <RadialWheel
-          size="md"
-          showOrbit
-          urgent={primaryAction === 'water' || primaryAction === 'feed'}
-          spokes={spokes}
-          onSpoke={handleSpoke}
-          open
-          onOpenChange={() => {}}
-          centreLabel={display.nickname}
-          centreSlot={
-            <span className="relative w-[64px] h-[64px] rounded-full overflow-hidden flex items-center justify-center">
-              <Avatar species={display.species} size="xl" shape="circle" />
-            </span>
-          }
-        />
-      </div>
+        <div className="flex justify-center">
+          <RadialWheel
+            size="md"
+            showOrbit
+            urgent={primaryAction === 'water' || primaryAction === 'feed'}
+            spokes={spokes}
+            onSpoke={handleSpoke}
+            open
+            onOpenChange={() => {}}
+            centreLabel={display.nickname}
+            centreSlot={
+              <span className="relative w-[64px] h-[64px] rounded-full overflow-hidden flex items-center justify-center">
+                <Avatar species={display.species} size="xl" shape="circle" />
+              </span>
+            }
+          />
+        </div>
+      </Card.Body>
 
-      <Action
-        variant="unstyled"
-        onClick={goToDetail}
-        className="block w-full text-center text-xs font-bold text-emerald"
-      >
-        Open full detail <FontAwesomeIcon icon={faArrowRight} className="w-2.5 h-2.5 ml-0.5" />
-      </Action>
+      <Card.Footer divider={false}>
+        <Action
+          variant="unstyled"
+          onClick={goToDetail}
+          className="block w-full text-center text-xs font-bold text-emerald"
+        >
+          Open full detail <FontAwesomeIcon icon={faArrowRight} className="w-2.5 h-2.5 ml-0.5" />
+        </Action>
+      </Card.Footer>
     </Dialog>
   )
 }

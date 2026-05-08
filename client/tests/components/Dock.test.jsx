@@ -11,9 +11,7 @@ describe('Dock', () => {
       render_(<Dock />)
       const nav = screen.getByRole('navigation', { name: 'Bottom navigation' })
       const links = within(nav).getAllByRole('link')
-      const fab = within(nav).getByRole('link', { name: 'Add plant' })
-      const navLinks = links.filter((link) => link !== fab)
-      expect(navLinks.map((link) => link.textContent)).toEqual(['Today', 'House', 'Journal', 'Me'])
+      expect(links.map((link) => link.textContent)).toEqual(['Today', 'House', 'Journal', 'Me'])
     })
 
     it('does not render an Encyclopedia item (sidebar-only on web)', () => {
@@ -25,21 +23,11 @@ describe('Dock', () => {
       render_(<Dock />)
       expect(screen.queryByText('Discover')).toBeNull()
     })
-  })
 
-  describe('add-plant FAB', () => {
-    it('renders an Add plant FAB with an accessible name', () => {
+    it('does not render an Add plant FAB — Add Plant lives on contextual CTAs (Today empty state, Today plants row, House per-space CTA)', () => {
       render_(<Dock />)
-      expect(screen.getByRole('link', { name: 'Add plant' })).toBeInTheDocument()
-    })
-
-    it('places the FAB centred between the second and third nav items (Today · House · FAB · Journal · Me)', () => {
-      render_(<Dock />)
-      const nav = screen.getByRole('navigation', { name: 'Bottom navigation' })
-      const links = within(nav).getAllByRole('link')
-      // The FAB is index 2; it has no visible label (icon + tooltip only),
-      // so its accessible name comes from aria-label, not textContent.
-      expect(links[2]).toHaveAttribute('aria-label', 'Add plant')
+      expect(screen.queryByRole('button', { name: 'Add plant' })).toBeNull()
+      expect(screen.queryByRole('link', { name: 'Add plant' })).toBeNull()
     })
   })
 
@@ -50,7 +38,6 @@ describe('Dock', () => {
       expect(screen.getByRole('link', { name: 'House' })).toHaveAttribute('href', '/house')
       expect(screen.getByRole('link', { name: 'Journal' })).toHaveAttribute('href', '/journal')
       expect(screen.getByRole('link', { name: 'Me' })).toHaveAttribute('href', '/me')
-      expect(screen.getByRole('link', { name: 'Add plant' })).toHaveAttribute('href', '/add-plant')
     })
   })
 

@@ -13,7 +13,7 @@ import {
 } from '../../hooks/useSpaces'
 import { getSpaceEmoji } from '../../utils/spaceIcons'
 import Tile from '../form/Tile'
-import AddCustomSpaceForm from '../spaces/AddCustomSpaceForm'
+import SpaceFormDialog from '../spaces/SpaceFormDialog'
 import Card from '../ui/Card'
 import Emphasis from '../ui/Emphasis'
 import Heading from '../ui/Heading'
@@ -245,7 +245,7 @@ export default function Step2Spaces({ onBack, onComplete }) {
         />
       </form>
 
-      <AddCustomSpaceForm
+      <SpaceFormDialog
         open={customDialogOpen}
         onClose={() => setCustomDialogOpen(false)}
         onAdd={handleAddCustom}

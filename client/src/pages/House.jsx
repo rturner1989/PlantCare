@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import SegmentedControl from '../components/form/SegmentedControl'
-import AddCustomSpaceForm from '../components/spaces/AddCustomSpaceForm'
 import FilterChip from '../components/spaces/FilterChip'
 import ListView from '../components/spaces/ListView'
 import QueryChip from '../components/spaces/QueryChip'
 import RoomsView from '../components/spaces/RoomsView'
+import SpaceFormDialog from '../components/spaces/SpaceFormDialog'
 import SpaceSearchResults from '../components/spaces/SpaceSearchResults'
 import Action from '../components/ui/Action'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
@@ -128,12 +128,12 @@ export default function House() {
     renderResults,
   })
 
-  function handleAddSpace(name, category, icon) {
-    createSpace.mutate({ name, icon, category })
+  async function handleAddSpace(name, category, icon) {
+    await createSpace.mutateAsync({ name, icon, category })
   }
 
-  function handleEditSpace(id, name, category, icon) {
-    updateSpace.mutate({ id, name, category, icon })
+  async function handleEditSpace(id, name, category, icon) {
+    await updateSpace.mutateAsync({ id, name, category, icon })
   }
 
   function requestDeleteSpace(space) {
@@ -249,7 +249,7 @@ export default function House() {
         />
       )}
 
-      <AddCustomSpaceForm
+      <SpaceFormDialog
         key={dialogState.space?.id ?? 'new'}
         open={dialogState.open}
         onClose={closeDialog}

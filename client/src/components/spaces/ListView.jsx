@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useAddPlant } from '../../hooks/useAddPlant'
 import { useSearchState } from '../../hooks/useSearch'
 import { formatSpaceName } from '../../utils/spaceIcons'
 import { spaceMatchesQuery } from '../../utils/spaceSearch'
@@ -7,6 +8,7 @@ import Action from '../ui/Action'
 import Card from '../ui/Card'
 import EmptyState from '../ui/EmptyState'
 import Accordion from './list/Accordion'
+import AddPlantRow from './list/AddPlantRow'
 import AddSpaceRow from './list/AddSpaceRow'
 
 export default function ListView({
@@ -18,6 +20,7 @@ export default function ListView({
   onEditSpace,
   onDeleteSpace,
 }) {
+  const { open: openAddPlant } = useAddPlant()
   const [openSpaceId, setOpenSpaceId] = useState(() => {
     const firstNonEmpty = spaces.find((space) => plants.some((plant) => plant.space?.id === space.id))
     return firstNonEmpty?.id ?? spaces[0]?.id ?? null
@@ -83,14 +86,19 @@ export default function ListView({
                     icon={<span>🌱</span>}
                     description={`No plants in ${formatSpaceName(space.name)} yet.`}
                     action={
-                      <Action to="/add-plant" variant="secondary">
+                      <Action onClick={() => openAddPlant({ defaultSpaceId: space.id })} variant="secondary">
                         Add one
                       </Action>
                     }
                     className="py-6"
                   />
                 ) : (
-                  spacePlants.map((plant) => <Row key={plant.id} plant={plant} />)
+                  <>
+                    <AddPlantRow onClick={() => openAddPlant({ defaultSpaceId: space.id })} spaceName={space.name} />
+                    {spacePlants.map((plant) => (
+                      <Row key={plant.id} plant={plant} />
+                    ))}
+                  </>
                 )}
               </Accordion>
             )

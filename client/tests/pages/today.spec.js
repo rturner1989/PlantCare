@@ -58,7 +58,7 @@ test.describe('Today dashboard', () => {
     // Zero-plants empty state: inviting copy + CTA routing to /add-plant.
     await expect(page.getByRole('heading', { name: /Your jungle starts here/ })).toBeVisible()
     await expect(page.getByText(/Add a plant to see it come alive/)).toBeVisible()
-    await expect(page.getByRole('link', { name: /Add a plant/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Add a plant/ })).toBeVisible()
   })
 
   test('unauthenticated visit redirects to login', async ({ page }) => {
@@ -99,6 +99,33 @@ test.describe('Today dashboard', () => {
     await registerWithOnePlant(page)
 
     await expect(page.getByText(/^Spike$/)).toBeVisible()
-    await expect(page.getByRole('link', { name: /Add plant/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Add plant/i })).toBeVisible()
+  })
+
+  test('Add Plant CTA on Today opens the dialog and submission lands on the plant detail page', async ({ page }) => {
+    await registerUser(page, 'Robin')
+    await completeOnboarding(page)
+
+    // Empty-state CTA — opens the dialog.
+    await page.getByRole('button', { name: /Add a plant/ }).click()
+    await expect(page.getByRole('dialog', { name: /Add a plant/ })).toBeVisible()
+
+    // Step 1 — pick a species.
+    await page
+      .getByRole('button', { name: /Snake Plant/i })
+      .first()
+      .click()
+
+    // Step 2 — details. Nickname + space picker. Hit submit.
+    const nickname = page.getByLabel('Nickname')
+    await expect(nickname).toBeVisible()
+    await nickname.fill('Hisser')
+    await page
+      .getByRole('button', { name: /^Add plant$/i })
+      .last()
+      .click()
+
+    // Generic CTA path → navigate to /plants/:id.
+    await expect(page).toHaveURL(/\/plants\/\d+$/)
   })
 })

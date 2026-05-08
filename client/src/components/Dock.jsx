@@ -1,9 +1,7 @@
-import { faHouse, faPenToSquare, faPlus, faSun, faUser } from '@fortawesome/free-solid-svg-icons'
+import { faHouse, faPenToSquare, faSun, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { motion, useReducedMotion } from 'motion/react'
 import { NavLink } from 'react-router-dom'
-import Action from './ui/Action'
-import Tooltip from './ui/Tooltip'
 
 const navItems = [
   { to: '/', label: 'Today', icon: faSun, end: true },
@@ -11,9 +9,6 @@ const navItems = [
   { to: '/journal', label: 'Journal', icon: faPenToSquare },
   { to: '/me', label: 'Me', icon: faUser },
 ]
-
-const LEFT_ITEMS = navItems.slice(0, 2)
-const RIGHT_ITEMS = navItems.slice(2)
 
 const dockVariants = {
   hidden: { y: 100 },
@@ -56,20 +51,7 @@ export default function Dock({ isFirstRun = false }) {
       animate={shouldAnimate ? 'visible' : false}
     >
       <div className="flex items-center justify-around px-4 h-[74px]">
-        {LEFT_ITEMS.map((item) => (
-          <motion.div key={item.to} variants={itemVariants}>
-            <DockNavLink {...item} />
-          </motion.div>
-        ))}
-
-        <motion.div variants={itemVariants}>
-          <Action to="/add-plant" variant="fab" aria-label="Add plant" className="relative group -top-3.5">
-            <FontAwesomeIcon icon={faPlus} className="w-6 h-6" />
-            <Tooltip placement="top">Add plant</Tooltip>
-          </Action>
-        </motion.div>
-
-        {RIGHT_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <motion.div key={item.to} variants={itemVariants}>
             <DockNavLink {...item} />
           </motion.div>

@@ -1,11 +1,11 @@
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import { useMarkNotificationRead, useNotifications, useNotificationsSeen } from '../hooks/useNotifications'
 import { useNotificationsContext } from '../hooks/useNotificationsContext'
 import NotificationItem from './notifications/NotificationItem'
 import Action from './ui/Action'
+import ActionIcon from './ui/ActionIcon'
 import DialogCard from './ui/DialogCard'
 import Drawer from './ui/Drawer'
 import EmptyState from './ui/EmptyState'
@@ -200,14 +200,13 @@ export default function NotificationsDrawer() {
                 transition={transition}
                 className="overflow-hidden"
               >
-                <Action
-                  variant="unstyled"
+                <ActionIcon
+                  icon={faArrowLeft}
+                  label="Back to all notifications"
                   onClick={() => setViewKey(null)}
-                  aria-label="Back to all notifications"
-                  className="w-7 h-7 rounded-full bg-ink/[0.08] text-ink-soft hover:text-ink hover:bg-ink/[0.12] transition-colors flex items-center justify-center shrink-0"
-                >
-                  <FontAwesomeIcon icon={faArrowLeft} className="w-3 h-3" />
-                </Action>
+                  scheme="ink"
+                  className="shrink-0"
+                />
               </motion.div>
             )}
           </AnimatePresence>

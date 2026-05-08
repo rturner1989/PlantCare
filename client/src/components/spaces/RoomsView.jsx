@@ -1,12 +1,13 @@
-import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faPenToSquare, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { useMemo } from 'react'
+import { useAddPlant } from '../../hooks/useAddPlant'
 import { useSearchState } from '../../hooks/useSearch'
 import { pluralize } from '../../utils/pluralize'
 import { formatSpaceName, getSpaceEmoji } from '../../utils/spaceIcons'
 import { spaceMatchesQuery } from '../../utils/spaceSearch'
 import Action from '../ui/Action'
-import ActionIcon from '../ui/ActionIcon'
 import EmptyState from '../ui/EmptyState'
+import Menu from '../ui/Menu'
 import AddSpaceTile from './rooms/AddSpaceTile'
 import RoomCard from './rooms/RoomCard'
 
@@ -53,6 +54,7 @@ function peekFor(plants) {
 
 function weatherPillFor(today) {
   if (!today) return null
+
   return {
     icon: today.icon ?? '☀',
     label: today.detail ?? today.label,
@@ -61,11 +63,13 @@ function weatherPillFor(today) {
 }
 
 export default function RoomsView({ spaces, plants, weatherToday, onAddSpace, onEditSpace, onDeleteSpace }) {
+  const { open: openAddPlant } = useAddPlant()
   const { query, isMobileDrawerOpen } = useSearchState()
   const trimmedQuery = isMobileDrawerOpen ? '' : query.trim().toLowerCase()
 
   const cards = useMemo(() => {
     if (!spaces || !plants) return []
+
     const visibleSpaces = trimmedQuery
       ? spaces.filter((space) => spaceMatchesQuery(space, plants, trimmedQuery))
       : spaces
@@ -114,21 +118,26 @@ export default function RoomsView({ spaces, plants, weatherToday, onAddSpace, on
               envHint={envHintFor(space)}
               weatherPill={isOutdoor ? weatherPillFor(weatherToday) : null}
             />
-            <div className="absolute top-3 right-3 flex items-center gap-1.5">
-              <ActionIcon
-                icon={faPenToSquare}
-                label={`Edit ${displayName}`}
-                onClick={() => onEditSpace(space)}
-                scheme="warning"
-              />
-              {onDeleteSpace && (
-                <ActionIcon
-                  icon={faTrash}
-                  label={`Delete ${displayName}`}
-                  onClick={() => onDeleteSpace(space)}
-                  scheme="danger"
-                />
-              )}
+            <div className="absolute top-3 right-3">
+              <Menu label={`${displayName} actions`}>
+                <Menu.Trigger />
+                <Menu.Items>
+                  <Menu.Item icon={faPlus} onClick={() => openAddPlant({ defaultSpaceId: space.id })}>
+                    Add a plant
+                  </Menu.Item>
+                  <Menu.Item icon={faPenToSquare} onClick={() => onEditSpace(space)}>
+                    Edit space
+                  </Menu.Item>
+                  {onDeleteSpace && (
+                    <>
+                      <Menu.Divider />
+                      <Menu.Item icon={faTrash} variant="danger" onClick={() => onDeleteSpace(space)}>
+                        Delete space
+                      </Menu.Item>
+                    </>
+                  )}
+                </Menu.Items>
+              </Menu>
             </div>
           </li>
         )

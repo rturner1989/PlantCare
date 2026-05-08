@@ -7,6 +7,7 @@ import Dock from '../components/Dock'
 import MobileTopBar from '../components/MobileTopBar'
 import NotificationsDrawer from '../components/NotificationsDrawer'
 import OrganiserDrawer from '../components/OrganiserDrawer'
+import AddPlantDialog from '../components/plants/AddPlantDialog'
 import Sidebar from '../components/Sidebar'
 import MobileSearchDrawer from '../components/search/MobileSearchDrawer'
 import ProgressBar from '../components/ui/ProgressBar'
@@ -109,6 +110,7 @@ export default function AppLayout() {
       <NotificationsDrawer />
       <OrganiserDrawer />
       <MobileSearchDrawer />
+      <AddPlantDialog />
       <AchievementsListener />
       <AchievementSplash />
     </div>

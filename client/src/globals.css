@@ -175,7 +175,6 @@
 
   /* Composite shadows — kept as :root vars because they read other tokens
    * and are consumed via inline style / arbitrary class. */
-  --shadow-fab: 0 0 0 4px var(--card), 0 10px 24px rgba(20, 144, 47, 0.4), 0 4px 10px rgba(11, 58, 26, 0.22);
   --shadow-dock: 0 12px 32px rgba(11, 58, 26, 0.14), 0 4px 12px rgba(11, 58, 26, 0.08);
   /* Primary CTA lift — emerald-tinted drop + a 1px white inset highlight
    * on the top edge. Gives Continue / Log in / Save the slight glossy

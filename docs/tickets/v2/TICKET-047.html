@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-047 — R11 Add Plant dialog</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 80px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.context { background: #2d6a4f; }
+.artifact .kind.component { background: #1a1a2e; }
+.artifact .kind.hook { background: #4a6fa5; }
+.artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+.shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 380px; border: none; background: #fff; }
+.mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<div class="header">
+  <div class="id">TICKET-047 · R11</div>
+  <h1>Add Plant dialog</h1>
+  <div class="badges">
+    <span class="badge status">Open</span>
+    <span class="badge priority-high">High</span>
+  </div>
+</div>
+
+<section>
+  <h2>Summary</h2>
+  <p>Replaces the placeholder <code>/add-plant</code> route with a real cross-page dialog that creates a plant scoped to a space. Two internal steps — species pick, then space + nickname + live schedule preview — wrapped in the Dialog primitive. Environment is NOT asked per plant; it lives on the space (R9 baseline) and the dialog reads it through. The Dock FAB, sidebar/topbar triggers, and per-space CTAs on House all open the same dialog via context, no full-page navigation.</p>
+  <p>In one sentence: <strong>Add Plant becomes a universal action available from anywhere, not a destination.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+
+  <div class="plan-strip">
+    <div class="plan-step done"><span class="num">020–026</span>B prereqs</div>
+    <div class="plan-step done"><span class="num">027–036</span>F primitives</div>
+    <div class="plan-step done"><span class="num">037</span>R1 Auth</div>
+    <div class="plan-step done"><span class="num">038</span>R2 Today</div>
+    <div class="plan-step done"><span class="num">039</span>R3 House</div>
+    <div class="plan-step"><span class="num">040</span>R4 Plant Detail</div>
+    <div class="plan-step"><span class="num">041–043</span>R5–R7</div>
+    <div class="plan-step done"><span class="num">044</span>R8 Notifs</div>
+    <div class="plan-step done"><span class="num">045</span>R9 Onboarding</div>
+    <div class="plan-step"><span class="num">046</span>R10 Tour</div>
+    <div class="plan-step current"><span class="num">047</span>R11 Add Plant</div>
+    <div class="plan-step"><span class="num">048–049</span>R12–R13</div>
+    <div class="plan-step done"><span class="num">050</span>R14 States</div>
+    <div class="plan-step done"><span class="num">051</span>R15 Auth viz</div>
+  </div>
+
+  <p><strong>What came before.</strong> R3c (TICKET-039c, merged) shipped the unified search system + space CRUD (edit pencil + delete trash + ConfirmDialog primitive). House now has full space CRUD but no per-space "Add a plant" affordance — flagged in memory <code>project_add_plant_flow_gap.md</code>. Onboarding Step 3 (TICKET-045) already includes a working species-pick + create-plant flow against <code>useCreatePlant</code>; this ticket lifts that flow into a reusable dialog.</p>
+
+  <p><strong>What this unlocks.</strong> R12 (TICKET-048: Edit / Log Care / Delete Plant dialogs) reuses the same Dialog + form primitives. R4 (TICKET-040: Plant Detail v2) becomes meaningful only once users can actually create plants — every <code>/plants/:id</code> link in the app currently dead-ends on a placeholder. The search drawer's empty state ("no plants match X") gets a future "Add plant called X" CTA once this dialog exists.</p>
+
+  <p><strong>Mental model.</strong> This ticket is Rails' "open-modal-from-anywhere" pattern: a single <code>AddPlantDialog</code> registered at app root, its open/close state lives in a context (think <code>flash[:open_modal]</code>), and any nav link or button can call <code>useAddPlant().open({ defaultSpaceId })</code> to invoke it — no route navigation, no prop drilling.</p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <p>One context, one dialog component (composed of two internal step components), one app-level shortcut, plus the consumer wiring on House.</p>
+
+  <div class="artifact-list">
+    <div class="artifact">
+      <div><span class="kind context">Context</span><span class="name">client/src/context/AddPlantContext.jsx</span></div>
+      <div class="role">Holds <code>{ isOpen, defaultSpaceId, open(opts), close() }</code>. <code>open({ defaultSpaceId })</code> sets state and the dialog mounts pre-filled. Mounted under <code>SearchProvider</code> in <code>App.jsx</code>. Same shape as <code>SearchContext</code> from R3c.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind hook">Hook</span><span class="name">client/src/hooks/useAddPlant.js</span></div>
+      <div class="role">Reader hook. Returns <code>{ open, close, isOpen, defaultSpaceId }</code>. Throws if used outside provider. Consumed by Dock FAB, House per-space CTAs, drawer search empty-state (future), and the dialog itself.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind component">Component</span><span class="name">client/src/components/plants/AddPlantDialog.jsx</span></div>
+      <div class="role">The dialog shell. Reads <code>isOpen</code> + <code>defaultSpaceId</code> from context, mounts the three-step body, manages step navigation + form state. Wraps the Dialog primitive (centred on desktop, bottom-sheet on mobile). Submit calls <code>useCreatePlant</code>; on success, fires toast + closes + navigates to <code>/plants/:id</code>.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind component">Component</span><span class="name">client/src/components/plants/add/StepSpecies.jsx</span></div>
+      <div class="role">Step 1 — search Perenual via <code>useSpeciesSearch</code> (already exists; powers onboarding Step 3). Popular species shown when search is empty. Picking a species advances to step 2. Same Tile-chip pattern as onboarding.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind component">Component</span><span class="name">client/src/components/plants/add/StepDetails.jsx</span></div>
+      <div class="role">Step 2 — nickname (required), space picker, live schedule badges. Space picker lists user's spaces (from <code>useSpaces</code>); pre-selects <code>defaultSpaceId</code> if provided. "Add a new space" inline option opens the existing <code>AddCustomSpaceForm</code>. Schedule badges (Badge primitive, scheme="emerald") render a preview of the plant's water + feed cadence — computed client-side from picked species + selected space's env (light/temp/humidity) using the same modifier hashes the server will apply on save. Updates live as the user changes the space pick. Save posts via <code>useCreatePlant</code>.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind extend">Extend</span><span class="name">client/src/components/Dock.jsx</span></div>
+      <div class="role">Drop the FAB's <code>to="/add-plant"</code>. Replace with <code>onClick={() =&gt; addPlant.open()}</code>. Remains a button visually identical to today.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind extend">Extend</span><span class="name">client/src/App.jsx</span></div>
+      <div class="role">Mount <code>AddPlantProvider</code>. Mount <code>AddPlantDialog</code> at <code>AppLayout</code> level (alongside MobileSearchDrawer + NotificationsDrawer + OrganiserDrawer). Drop the placeholder <code>/add-plant</code> route — the FAB no longer navigates.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind extend">Extend</span><span class="name">client/src/components/spaces/RoomsView.jsx + spaces/list/Accordion.jsx</span></div>
+      <div class="role">Per-space "Add a plant here" CTA. RoomCard cluster gets a third icon button (faPlus, scheme="success"-or-similar) next to edit/delete. Accordion empty body's existing "Add one" link should pre-fill space via context call instead of bare nav.</div>
+    </div>
+    <div class="artifact">
+      <div><span class="kind hook">Hook</span><span class="name">client/src/hooks/useKeyboardShortcut.js (optional new util)</span></div>
+      <div class="role">Single document-level keydown listener. Press <kbd>N</kbd> when no input is focused → calls <code>addPlant.open()</code>. Pattern mirrors the Cmd/Ctrl+K hoist that ships in SearchContext.</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 20px; font-size: 14px; font-weight: 700; color: #444;">Provider tree</h3>
+  <div class="shape">App.jsx
+└── QueryClientProvider
+    └── AuthProvider
+        └── NotificationsProvider
+            └── OrganiserProvider
+                └── SearchProvider
+                    └── AddPlantProvider          ← NEW
+                        └── ToastProvider
+                            └── &lt;Routes /&gt;</div>
+
+  <p style="margin-top: 12px; font-size: 14px; color: #666;"><strong>Photo upload note.</strong> Skip in this ticket. Photos are not blocking creation; <code>useUploadPhoto</code> already exists for the Plant Detail / Edit Plant flows in R12. Add Plant ships without a photo step; the user adds a photo from the plant page after creation.</p>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+  <ol>
+    <li>Add Plant is reachable from anywhere in the app — clicking the Dock FAB opens the dialog over the current page, no route navigation.</li>
+    <li>The dialog walks the user through species pick → details (space + nickname + schedule preview) in two internal steps. Back/Continue buttons in the footer move between steps; submitting on step 2 creates the plant.</li>
+    <li>When opened with a <code>defaultSpaceId</code> (e.g. House per-space "Add a plant" CTA), the space picker is pre-selected on step 2 and the schedule badges render immediately based on that space's environment.</li>
+    <li>Step 2 shows live schedule badges — "Water every 7 days", "Feed every 30 days" — calculated from the picked species' base cadence × the selected space's env modifiers. Changing the space updates the badges before save.</li>
+    <li>Saving fires a toast ("Added &lt;nickname&gt;"), closes the dialog, and lands the user on <code>/plants/:id</code> for the freshly-created plant.</li>
+    <li>House Rooms grid + List view both expose a per-space "Add a plant" affordance. Clicking it opens the dialog with that space pre-filled.</li>
+    <li>The placeholder <code>/add-plant</code> route is gone — visiting it directly redirects to the home page (or 404s gracefully).</li>
+    <li>Pressing <kbd>N</kbd> with no input focused opens the dialog. Typing <kbd>N</kbd> inside any input does NOT trigger the shortcut.</li>
+    <li>Closing the dialog mid-flow (Escape, X, backdrop click) discards in-progress state. Reopening starts fresh on step 1.</li>
+    <li>Keyboard navigation works inside the dialog: Tab cycles within the dialog (focus trap), Escape closes, the input on each step gets focus on enter.</li>
+    <li>Cross-cutting code is reviewed via <code>/vercel-react-best-practices</code> + <code>/accessibility</code>. <code>/dhh-rails-reviewer</code> is N/A — no backend changes.</li>
+    <li>Lint and tests pass.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+  <div class="criterion"><div class="box"></div><span>Dock FAB click opens the dialog. Pressing Escape closes it. The URL never changes during open or close.</span></div>
+  <div class="criterion"><div class="box"></div><span>On step 1, typing "rose" in the species search returns matching results from Perenual within ~300ms (debounced). Picking a species advances to step 2.</span></div>
+  <div class="criterion"><div class="box"></div><span>On step 2 with no <code>defaultSpaceId</code>, no space is pre-selected. With <code>defaultSpaceId</code>, that space is highlighted on render and schedule badges show immediately.</span></div>
+  <div class="criterion"><div class="box"></div><span>Picking different spaces on step 2 updates the schedule badges live (e.g. "Bright" space shows shorter water cadence than "Dim" for a thirsty species).</span></div>
+  <div class="criterion"><div class="box"></div><span>Nickname is required — submitting empty shows an inline error on the field. Filling it + clicking Save creates the plant + closes the dialog + lands on <code>/plants/&lt;id&gt;</code>.</span></div>
+  <div class="criterion"><div class="box"></div><span>House Rooms grid: each room card has a "+" icon button next to edit/delete. Clicking it opens Add Plant with that space pre-selected on step 2.</span></div>
+  <div class="criterion"><div class="box"></div><span>House List view: each accordion summary has the same "+" cluster. Empty accordion body's "Add one" CTA opens the dialog (replaces the bare <code>/add-plant</code> link) with the space pre-filled.</span></div>
+  <div class="criterion"><div class="box"></div><span>Visiting <code>/add-plant</code> directly redirects to <code>/</code> (or hits the 404 page gracefully). The route is no longer registered.</span></div>
+  <div class="criterion"><div class="box"></div><span>Pressing <kbd>N</kbd> on Today opens the dialog. Pressing <kbd>N</kbd> inside the search input on House does NOT.</span></div>
+  <div class="criterion"><div class="box"></div><span>DevTools React tree: only one <code>AddPlantProvider</code> mounted. Multiple consumers (Dock, Sidebar, House CTAs, drawer) all read the same context.</span></div>
+  <div class="criterion"><div class="box"></div><span>Closing mid-flow (e.g. on step 2 with a species picked) → reopening shows step 1 with no species selected.</span></div>
+  <div class="criterion"><div class="box"></div><span>Lint and tests pass (<code>./scripts/lint.sh && ./scripts/run_tests.sh client</code>).</span></div>
+</section>
+
+<section>
+  <h2>Design references</h2>
+
+  <div class="mockup-preview">
+    <div class="label"><span>Mockup 27 — Add Plant (desktop dialog + mobile bottom sheet)</span><a href="../mockups/plantcare-ui/v2/27-add-plant-v1.html" target="_blank">Open ↗</a></div>
+    <iframe src="../mockups/plantcare-ui/v2/27-add-plant-v1.html"></iframe>
+  </div>
+
+  <p style="font-size: 13px; color: #666;">Mockup shows both viewports side-by-side. Desktop = centred Dialog, mobile = bottom-sheet via Dialog's existing mobile-card variant. Reuse the existing Dialog primitive for both — placement is automatic.</p>
+
+  <blockquote>
+    <strong>Drift from mockup — intentional.</strong> Mockup 27 is laid out as <em>3 steps</em>: (1) species, (2) space + per-plant environment sliders, (3) name + commit + schedule preview. R9 (TICKET-045, merged) moved environment from per-plant to per-space — light/temperature/humidity now live on the Space record and apply to every plant in it. That collapses mockup steps 2 + 3 into one: pick the space (which carries the env), set the nickname, see the schedule preview update live, commit. Net result is <em>2 steps</em>: species pick → details. Mockup's photo-upload affordance on step 1 is also dropped (deferred to R12 Edit Plant). If you read the mockup and wonder where the env sliders went — they're gone, by design.
+  </blockquote>
+
+  <p><strong>Plan reference.</strong></p>
+  <a class="plan-link" href="../plans/2026-04-24-plantcare-frontend-v2.md">docs/plans/2026-04-24-plantcare-frontend-v2.md — TICKET-047 R11</a>
+  <p style="font-size: 13px; color: #666; margin-top: 6px;">Plan lists Steps 1-3 with the exact same shape (species → environment → confirm). One worked example, not a script to transcribe.</p>
+
+  <p style="margin-top: 16px;"><strong>Out of scope.</strong> Photo upload (deferred to R12 Edit Plant). Plant Detail page (R4). The drawer search "no results — add it" CTA (future, once Add Plant ships). Edit existing plant (R12). Care logging (R12).</p>
+</section>
+
+<section>
+  <h2>React concepts worth looking up</h2>
+
+  <div class="learn">
+    <strong>Modern context patterns + when to split.</strong> <code>AddPlantContext</code> follows the same shape as <code>SearchContext</code>: split into actions (open/close — stable refs) and state (isOpen, defaultSpaceId — changes on open) IF you find consumers re-rendering for no reason. For Add Plant, almost every consumer reads <code>open</code> only — they never need <code>isOpen</code>. So a single context is fine here; split if review flags fan-out.
+  </div>
+
+  <div class="learn">
+    <strong>Form state ownership across multi-step dialogs.</strong> Two reasonable approaches: (a) one <code>useState</code> object in <code>AddPlantDialog</code> holding all step values, drilled down to step components as props; (b) <code>useReducer</code> with action types per step (SET_SPECIES, SET_SPACE, SET_NICKNAME). For three steps with simple shape, (a) is fine. Reach for (b) only if validation cross-references multiple steps.
+  </div>
+
+  <div class="learn">
+    <strong>TanStack Query <code>useMutation</code> + cache invalidation.</strong> <code>useCreatePlant</code> already exists. Calling <code>.mutate(data)</code> fires the POST; <code>onSuccess</code> in the hook invalidates <code>['plants']</code>, <code>['spaces']</code>, <code>['dashboard']</code> so the new plant appears in House + Today without manual refetches. You don't have to do anything — TanStack handles the cascade.
+  </div>
+
+  <div class="learn">
+    <strong>Keyboard shortcuts inside an SPA.</strong> Document-level <code>keydown</code> listener attached in the provider's <code>useEffect</code>. Skip the handler when <code>document.activeElement</code> is an input / textarea / contenteditable, otherwise typing the letter into a search box would also open the dialog. Pattern mirrors the Cmd/Ctrl+K hoist in SearchContext.
+  </div>
+
+  <div class="learn">
+    <strong>Dialog primitive's mobile bottom-sheet behaviour.</strong> The existing <code>Dialog</code> auto-detects mobile viewport and switches to a bottom-sheet animation (drag-to-dismiss). Don't reinvent. Just pass the dialog's children — Dialog handles placement, focus trap, and focus return. The R3c MobileSearchDrawer reaffirmed the trap-and-return pattern.
+  </div>
+
+  <div class="learn">
+    <strong>StrictMode double-fire on provider mount.</strong> The provider's keydown listener attaches in dev twice in a row (StrictMode). Returning the cleanup from <code>useEffect</code> handles it — listener is removed and re-added between mount and the second pass, so you end up with one listener. Just make sure the cleanup runs.
+  </div>
+</section>
+
+<section>
+  <h2>Rails ↔ React mental map</h2>
+
+  <table class="rails-map">
+    <thead>
+      <tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>render 'shared/modal', open: @show_modal</code></td>
+        <td><code>&lt;AddPlantDialog /&gt;</code> mounted at AppLayout root, gated on <code>useAddPlant().isOpen</code></td>
+        <td>Single instance, opened/closed by context state</td>
+      </tr>
+      <tr>
+        <td><code>flash[:open_modal] = true</code></td>
+        <td><code>useAddPlant().open({ defaultSpaceId })</code></td>
+        <td>Imperative API for opening from anywhere</td>
+      </tr>
+      <tr>
+        <td><code>form_with model: @plant</code></td>
+        <td>Controlled state in <code>AddPlantDialog</code> + <code>useCreatePlant().mutate</code></td>
+        <td>You own the state; mutation handles the POST + cache</td>
+      </tr>
+      <tr>
+        <td><code>validates :nickname, presence: true</code> (client hint)</td>
+        <td>Local check on submit + inline error on TextInput</td>
+        <td>Server still validates; client UX only</td>
+      </tr>
+      <tr>
+        <td><code>redirect_to plant_path(@plant)</code></td>
+        <td><code>navigate(`/plants/${plant.id}`)</code> after mutate success</td>
+        <td>Programmatic nav after mutation</td>
+      </tr>
+      <tr>
+        <td><code>before_action :set_default_space</code></td>
+        <td><code>defaultSpaceId</code> passed via <code>open({ defaultSpaceId })</code></td>
+        <td>Pre-fill via opening API, not form state</td>
+      </tr>
+      <tr>
+        <td>Rails partial wizard (<code>step_1.html.erb</code>, etc.)</td>
+        <td>Step components rendered conditionally on <code>step</code> state</td>
+        <td>One file per step, parent owns step pointer</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Related files</h2>
+
+  <ul class="file-list">
+    <li><span>client/src/context/AddPlantContext.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/hooks/useAddPlant.js</span><span class="action">create</span></li>
+    <li><span>client/src/components/plants/AddPlantDialog.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/components/plants/add/StepSpecies.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/components/plants/add/StepEnvironment.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/components/plants/add/StepConfirm.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/App.jsx</span><span class="action">extend (mount provider + dialog, drop /add-plant route)</span></li>
+    <li><span>client/src/components/Dock.jsx</span><span class="action">extend (FAB → context.open)</span></li>
+    <li><span>client/src/components/spaces/RoomsView.jsx</span><span class="action">extend (per-card add-plant CTA)</span></li>
+    <li><span>client/src/components/spaces/list/Accordion.jsx</span><span class="action">extend (per-summary add-plant CTA)</span></li>
+    <li><span>client/src/components/spaces/ListView.jsx</span><span class="action">extend (empty-state Add CTA pre-fills space)</span></li>
+    <li><span>client/tests/components/plants/AddPlantDialog.test.jsx</span><span class="action">create (unit)</span></li>
+    <li><span>client/tests/pages/add-plant.spec.js</span><span class="action">create (Playwright)</span></li>
+  </ul>
+
+  <p style="font-size: 13px; color: #666; margin-top: 12px;">This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose.</p>
+</section>
+
+<section>
+  <h2>Notes &amp; gotchas</h2>
+
+  <ul>
+    <li><strong>Don't duplicate the species-pick logic from onboarding Step 3.</strong> If the search + popular-species code is already extracted to a reusable component, import it. If not, extract during this ticket so onboarding + dialog share one source of truth.</li>
+    <li><strong>Photo upload is OUT of scope.</strong> R12 (Edit Plant) handles it. Don't add a step for it here, even if mockup 27 shows one — defer to keep this ticket reviewable.</li>
+    <li><strong>Don't build Plant Detail v2 here.</strong> Saving navigates to <code>/plants/:id</code> which is still the placeholder until R4. The link works; the destination is bare. That's fine — R4 lands soon.</li>
+    <li><strong>Discard mid-flow state on close.</strong> No "draft" persistence. Closing the dialog wipes the form. Reopening = clean state. Mirrors the existing AddCustomSpaceForm + Dialog primitives' behaviour.</li>
+    <li><strong>Watch for nested Dialog when "Add new space" is invoked from step 2.</strong> AddCustomSpaceForm uses Dialog. Opening it on top of AddPlantDialog stacks two Dialogs. Either: (a) close AddPlantDialog before opening AddCustomSpaceForm and reopen on completion, or (b) accept stacking and verify focus trap behaves. Test both paths before merge.</li>
+    <li><strong>Three-tier review pass before merge.</strong> Run <code>/vercel-react-best-practices</code> + <code>/accessibility</code> on the new context, hook, dialog, and consumer wiring. DHH n/a.</li>
+    <li><strong>When you're done:</strong> run <code>./scripts/lint.sh && ./scripts/run_tests.sh client</code>, commit on branch <code>ticket-047-add-plant-dialog</code>, then open a PR with title <code>feat(v2): R11 Add Plant dialog (TICKET-047)</code>. No Claude footer in body or commit messages.</li>
+  </ul>
+</section>
+
+</div>
+</body>
+</html>

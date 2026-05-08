@@ -1,4 +1,7 @@
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useRef, useState } from 'react'
+import { useAddPlant } from '../../hooks/useAddPlant'
 import PlantActionWheel from '../plants/ActionWheel'
 import PlantAvatar from '../plants/Avatar'
 import Action from '../ui/Action'
@@ -160,18 +163,19 @@ function PlantTile({ plant }) {
 // tile that drops in as the first cell of the plant strip. Same w-40
 // width as PlantTile so it sits flush with the rest of the row.
 function AddPlantTile() {
+  const { open } = useAddPlant()
   return (
     <Action
-      to="/add-plant"
       variant="unstyled"
+      onClick={() => open()}
       aria-label="Add plant"
       className="flex flex-col items-center justify-center gap-1.5 w-40 h-full px-3 py-4 rounded-md border-2 border-dashed border-emerald/30 bg-paper hover:border-leaf hover:bg-lime/10 transition-colors text-center"
     >
       <span
         aria-hidden="true"
-        className="w-11 h-11 rounded-full bg-mint text-emerald flex items-center justify-center text-[22px] font-bold mb-1"
+        className="w-11 h-11 rounded-full bg-mint text-emerald flex items-center justify-center mb-1"
       >
-        +
+        <FontAwesomeIcon icon={faPlus} className="w-5 h-5" />
       </span>
       <span className="font-display italic text-[17px] text-emerald leading-none">Add a plant</span>
       <span className="text-[11px] font-semibold tracking-[0.04em] text-ink-softer">New roommate</span>
