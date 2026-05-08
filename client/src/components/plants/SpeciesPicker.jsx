@@ -12,10 +12,6 @@ function speciesKey(species) {
   return species.id ?? species.perenual_id ?? species.common_name
 }
 
-// Reusable species search + popular grid. Consumers own the surrounding
-// chrome (Card.Body wrapper, anything above the input). The picker
-// renders just the search field + the results grid (or popular list,
-// or empty state, or loading spinner depending on state).
 export default function SpeciesPicker({ onPick, actionLabel = 'pick', autoFocus = false }) {
   const [query, setQuery] = useState('')
   const debouncedQuery = useDebouncedValue(query, 300)

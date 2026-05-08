@@ -1,20 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-// Portal-based tooltip. Anchors to the parent of the rendered <Tooltip>
-// (so callers still drop `<Tooltip>` as the last child of the trigger
-// element — same authoring API as the old CSS-only version) but the
-// bubble itself is rendered into <body> via a portal.
-//
-// Why portal: the tooltip needs to escape any ancestor with
-// `overflow: hidden` and any sibling that paints later in DOM order.
-// In-tree absolute positioning could be clipped or occluded depending
-// on context (Card lists, accordions, etc.); portals dodge both.
-//
-//   <Action variant="unstyled" className="… relative" aria-label="Organiser">
-//     <FontAwesomeIcon … />
-//     <Tooltip placement="bottom-end">Organiser</Tooltip>
-//   </Action>
+// Portal-based bubble — escapes ancestor `overflow: hidden` and DOM
+// paint-order occlusion that an in-tree absolute element would hit.
+// Caller drops `<Tooltip>` as the last child of the trigger element;
+// the component hooks the parent's hover + focus events to show.
 
 const OFFSET = 6
 
@@ -48,12 +38,13 @@ function positionFor(placement, rect) {
 
 export default function Tooltip({ placement = 'bottom', className = '', children }) {
   const anchorRef = useRef(null)
+  const bubbleId = useId()
   const [open, setOpen] = useState(false)
   const [position, setPosition] = useState(null)
 
-  // Hook into the parent element's hover/focus events. `focusin`/
-  // `focusout` (not `focus`/`blur`) so child focus inside the trigger
-  // also reveals the tooltip — and they bubble, which `focus` doesn't.
+  // focusin / focusout (not focus / blur) so child focus inside the
+  // trigger also reveals the tooltip — and they bubble, which `focus`
+  // doesn't.
   useEffect(() => {
     const trigger = anchorRef.current?.parentElement
     if (!trigger) return
@@ -73,8 +64,18 @@ export default function Tooltip({ placement = 'bottom', className = '', children
     }
   }, [])
 
-  // Recompute position on open + on scroll/resize while open.
-  // useLayoutEffect avoids the one-frame flash of tooltip-at-(0,0).
+  // Wire aria-describedby on the trigger when the tooltip is open so
+  // SR users hear the bubble content. Removed on hide so closed
+  // tooltips don't leak descriptions onto the trigger.
+  useEffect(() => {
+    const trigger = anchorRef.current?.parentElement
+    if (!trigger) return
+    if (open) {
+      trigger.setAttribute('aria-describedby', bubbleId)
+      return () => trigger.removeAttribute('aria-describedby')
+    }
+  }, [open, bubbleId])
+
   useLayoutEffect(() => {
     if (!open) {
       setPosition(null)
@@ -102,6 +103,7 @@ export default function Tooltip({ placement = 'bottom', className = '', children
         position &&
         createPortal(
           <span
+            id={bubbleId}
             role="tooltip"
             style={{ position: 'fixed', zIndex: 9999, ...position }}
             className={`px-2.5 py-1 rounded-full bg-ink text-paper text-[11px] font-bold whitespace-nowrap shadow-md pointer-events-none ${className}`}

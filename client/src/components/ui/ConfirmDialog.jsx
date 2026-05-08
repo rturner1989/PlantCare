@@ -3,13 +3,6 @@ import Action from './Action'
 import Card from './Card'
 import Dialog from './Dialog'
 
-// Styled replacement for window.confirm. Renders a centred Dialog with
-// title + message + Cancel/Confirm row. `destructive` swaps the confirm
-// button's accent to coral for delete-style flows.
-//
-// Title styling matches SpaceFormDialog — visible <p>, not a heading.
-// Dialog's `title` prop already injects an sr-only h2 as the accessible
-// name, so the visible text doesn't need to be a heading element.
 export default function ConfirmDialog({
   open,
   onClose,
@@ -27,8 +20,6 @@ export default function ConfirmDialog({
     onClose()
   }
 
-  // TODO: fold this into Action as `variant="primary" scheme="danger"` —
-  // tracked alongside the action-surface visual consistency follow-up.
   const confirmClasses = destructive
     ? 'inline-flex items-center justify-center rounded-md gap-2 px-6 py-3 text-sm font-extrabold text-paper bg-coral-deep hover:bg-coral-deep/90 transition-colors active:scale-[0.98]'
     : 'inline-flex items-center justify-center rounded-md gap-2 px-6 py-3 text-sm font-extrabold text-paper bg-emerald hover:bg-forest transition-colors active:scale-[0.98]'

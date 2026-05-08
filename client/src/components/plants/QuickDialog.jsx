@@ -21,10 +21,6 @@ function formatLastCare(timestamp) {
   return RELATIVE.format(days, 'day')
 }
 
-// Plant details + quick care actions in one dialog. Heads up tiles
-// open this; ritual rows + plant tiles still use RadialWheel for the
-// in-place action affordance. The dialog is the "I want context" path
-// — surface why a plant's flagged before acting on it.
 export default function QuickDialog({ plant, open, onClose }) {
   const navigate = useNavigate()
   const toast = useToast()
@@ -54,9 +50,6 @@ export default function QuickDialog({ plant, open, onClose }) {
     navigate(`/plants/${display.id}`)
   }
 
-  // Highlight the most-overdue action as the wheel's primary spoke —
-  // matches mockup 22 where Water sits at 12 in coral when the plant
-  // needs watering most urgently.
   const primaryAction =
     display.water_status === 'overdue'
       ? 'water'

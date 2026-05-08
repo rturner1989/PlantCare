@@ -20,8 +20,6 @@ const ITEM_VARIANTS = {
 
 const OFFSET = 6
 
-// Transform-origin per placement so the open/close scale animates
-// outward from the anchor corner.
 const PLACEMENT_ORIGIN = {
   'bottom-right': 'origin-top-right',
   'bottom-left': 'origin-top-left',
@@ -29,9 +27,6 @@ const PLACEMENT_ORIGIN = {
   'top-left': 'origin-bottom-left',
 }
 
-// Compute fixed-position coordinates from the trigger's bounding rect.
-// `right` / `bottom` values are measured from the viewport edge so the
-// panel's anchor corner aligns with the trigger's anchor corner.
 function positionFor(placement, rect) {
   const vw = window.innerWidth
   const vh = window.innerHeight
@@ -47,14 +42,6 @@ function positionFor(placement, rect) {
   }
 }
 
-// Reusable kebab-style menu (hamburger icon → popover with menuitems).
-// Compound API: <Menu> owns open state, <Menu.Trigger> renders the
-// button, <Menu.Items> renders the panel, <Menu.Item> renders rows.
-//
-// a11y: trigger has aria-haspopup + aria-expanded + aria-controls,
-// panel has role="menu", items have role="menuitem". Esc + outside
-// click close the panel. Arrow-key nav not implemented yet — fine for
-// 2-4 item menus; revisit if menus grow.
 export default function Menu({ label, children }) {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef(null)
@@ -83,9 +70,6 @@ export default function Menu({ label, children }) {
     }
   }, [open])
 
-  // triggerRef + panelRef are stable; setOpen is a stable setter. Memo
-  // on (open, panelId, label) so item subcomponents don't re-render on
-  // every Menu render.
   const value = useMemo(() => ({ open, setOpen, triggerRef, panelRef, panelId, label }), [open, panelId, label])
 
   return (
@@ -121,9 +105,8 @@ function Items({ placement = 'bottom-right', className = '', children }) {
   const originClass = PLACEMENT_ORIGIN[placement] ?? PLACEMENT_ORIGIN['bottom-right']
   const isTop = placement.startsWith('top')
 
-  // Recompute position on open + scroll/resize while open. useLayoutEffect
-  // avoids the one-frame flash of panel-at-(0,0). Capture-phase scroll so
-  // nested scroll containers also re-anchor the panel.
+  // useLayoutEffect to avoid one-frame flash at (0,0). Capture-phase
+  // scroll listener so nested scroll containers also re-anchor.
   useLayoutEffect(() => {
     if (!open) {
       setPosition(null)
@@ -141,6 +124,36 @@ function Items({ placement = 'bottom-right', className = '', children }) {
       window.removeEventListener('resize', update)
     }
   }, [open, placement, triggerRef])
+
+  // WAI-ARIA APG menu pattern — focus first menuitem on open, then
+  // ArrowDown/Up/Home/End cycle. Roving tabindex skipped: with 2-4 item
+  // menus, all menuitems being Tabbable is acceptable.
+  useEffect(() => {
+    if (!open || !position) return
+    const panel = panelRef.current
+    if (!panel) return
+
+    const items = () => Array.from(panel.querySelectorAll('[role="menuitem"]'))
+    const first = items()[0]
+    first?.focus()
+
+    function handleKey(event) {
+      if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return
+      event.preventDefault()
+      const list = items()
+      if (list.length === 0) return
+      const current = list.indexOf(document.activeElement)
+      let next
+      if (event.key === 'ArrowDown') next = current === -1 ? 0 : (current + 1) % list.length
+      else if (event.key === 'ArrowUp')
+        next = current === -1 ? list.length - 1 : (current - 1 + list.length) % list.length
+      else if (event.key === 'Home') next = 0
+      else next = list.length - 1
+      list[next].focus()
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [open, position, panelRef])
 
   const motionProps = shouldReduceMotion
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0 } }
