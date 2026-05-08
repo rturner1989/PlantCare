@@ -4,6 +4,7 @@ import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
 import { useCreatePlant } from '../../hooks/usePlants'
 import { useSpaces } from '../../hooks/useSpaces'
+import { formatSpaceName, getSpaceEmoji } from '../../utils/spaceIcons'
 import Select from '../form/Select'
 import TextInput from '../form/TextInput'
 import Action from '../ui/Action'
@@ -32,6 +33,8 @@ export default function StepDetails({ species, defaultSpaceId = null, onBack, on
       setChosenSpaceId(initialSpaceId)
     }
   }, [chosenSpaceId, initialSpaceId])
+
+  const lockedSpace = defaultSpaceId == null ? null : activeSpaces.find((space) => space.id === defaultSpaceId)
 
   const { submitting, handleSubmit, fieldErrors, formRef } = useFormSubmit({
     action: async () => {
@@ -76,6 +79,15 @@ export default function StepDetails({ species, defaultSpaceId = null, onBack, on
           </div>
         </div>
 
+        {lockedSpace && (
+          <p className="text-xs font-bold uppercase tracking-[0.08em] text-ink-softer">
+            Adding to <span aria-hidden="true">{getSpaceEmoji(lockedSpace.icon)}</span>{' '}
+            <span className="text-ink normal-case tracking-normal font-display italic text-sm">
+              {formatSpaceName(lockedSpace.name)}
+            </span>
+          </p>
+        )}
+
         <TextInput
           label="Nickname"
           type="text"
@@ -86,7 +98,7 @@ export default function StepDetails({ species, defaultSpaceId = null, onBack, on
           autoFocus
         />
 
-        {activeSpaces.length > 1 && (
+        {defaultSpaceId == null && activeSpaces.length > 1 && (
           <Select
             label="Space"
             value={chosenSpaceId ?? ''}

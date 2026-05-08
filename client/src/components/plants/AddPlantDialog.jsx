@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useToast } from '../../context/ToastContext'
 import { useAddPlant } from '../../hooks/useAddPlant'
 import Card from '../ui/Card'
 import Dialog from '../ui/Dialog'
+import StepDetails from './StepDetails'
 import StepSpecies from './StepSpecies'
 
 const TITLE = 'Add a plant'
 
 export default function AddPlantDialog() {
-  const { isOpen, close } = useAddPlant()
+  const { isOpen, defaultSpaceId, close } = useAddPlant()
+  const navigate = useNavigate()
+  const toast = useToast()
   const [pendingSpecies, setPendingSpecies] = useState(null)
 
   // Reset wizard state every time dialog reopens — stale species from a
@@ -16,6 +21,18 @@ export default function AddPlantDialog() {
     if (isOpen) setPendingSpecies(null)
   }, [isOpen])
 
+  function handleSubmitSuccess(plant) {
+    close()
+    toast.success(`Added ${plant.nickname} 🌿`)
+    // Caller pre-picked a space → user was in a space-context flow
+    // (House per-space CTA, list-view AddPlantRow). Stay on the page.
+    // No pre-pick → generic CTA (Today empty state, plants row) →
+    // jump to the plant's detail page.
+    if (defaultSpaceId == null) {
+      navigate(`/plants/${plant.id}`)
+    }
+  }
+
   return (
     <Dialog open={isOpen} onClose={close} title={TITLE}>
       <Card.Header divider={false}>
@@ -23,11 +40,12 @@ export default function AddPlantDialog() {
       </Card.Header>
 
       {pendingSpecies ? (
-        <Card.Body className="flex flex-col gap-4">
-          <p className="text-sm text-ink-soft">
-            Picked: <strong className="text-ink">{pendingSpecies.common_name}</strong>. Step 3 (details) lands next.
-          </p>
-        </Card.Body>
+        <StepDetails
+          species={pendingSpecies}
+          defaultSpaceId={defaultSpaceId}
+          onBack={() => setPendingSpecies(null)}
+          onSubmitSuccess={handleSubmitSuccess}
+        />
       ) : (
         <StepSpecies onPick={setPendingSpecies} />
       )}

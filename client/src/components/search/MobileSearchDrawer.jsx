@@ -1,9 +1,8 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef } from 'react'
 import { useSearch } from '../../hooks/useSearch'
-import Action from '../ui/Action'
+import ActionIcon from '../ui/ActionIcon'
 import SearchInput from './SearchInput'
 
 const barMotion = {
@@ -102,14 +101,14 @@ export default function MobileSearchDrawer() {
                 inputRef={inputRef}
                 className="flex-1"
               />
-              <Action
-                variant="unstyled"
+              <ActionIcon
+                icon={faXmark}
+                label="Close search"
                 onClick={search.closeMobileDrawer}
-                aria-label="Close search"
-                className="shrink-0 w-9 h-9 rounded-full text-ink-soft hover:text-ink hover:bg-paper-deep flex items-center justify-center"
-              >
-                <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
-              </Action>
+                size="md"
+                scheme="ghost"
+                className="shrink-0"
+              />
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
               {search.renderResults ? (

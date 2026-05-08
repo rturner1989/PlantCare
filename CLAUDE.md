@@ -252,6 +252,124 @@ Every cache in the app — server-side `Rails.cache`, client-side TanStack Query
 
 **Don't apply this pattern speculatively.** Audit shows most of our hooks (plant CRUD, care logs, photos, archive/unarchive, profile) correctly use plain invalidate because they either have wide cascades or stay subscribed during the mutation. Upgrade only when you can name the specific race or perf cost.
 
+### Deferred rendering — `useDeferredValue` / `useTransition`
+
+React 18 added priority-based scheduling. We use it to keep urgent updates (typing, clicking) responsive while heavier renders run as low-priority work.
+
+**`useDeferredValue(value)`** — returns a deferred copy of a value. Consumers of the deferred copy render at low priority; the urgent input keeps using the live value. React can interrupt the deferred render if more urgent work arrives.
+
+```jsx
+const [query, setQuery] = useState('')
+const deferredQuery = useDeferredValue(query)
+
+return (
+  <>
+    <input value={query} onChange={(event) => setQuery(event.target.value)} />
+    <ExpensiveList items={filter(items, deferredQuery)} />
+  </>
+)
+```
+
+**`useTransition()`** — wraps a state setter so updates inside it are low-priority. `isPending` returns `true` while the transition is in flight, so we can show a spinner.
+
+```jsx
+const [isPending, startTransition] = useTransition()
+startTransition(() => setSelectedTab('heavy-tab'))
+```
+
+**vs. our existing `useDebouncedValue` (`client/src/hooks/useDebouncedValue.js`):**
+
+| Hook | Mechanism | Use when |
+|---|---|---|
+| `useDebouncedValue` | Time-based — waits N ms of stillness before updating. | Value change triggers a side effect: API request, navigation, expensive non-React work. We don't want to fire it per keystroke. |
+| `useDeferredValue` | Priority-based — scheduled around React's render work. No timer. | Pure render-only consumer of a value. We want instant response without an arbitrary debounce delay. |
+| `useTransition` | Same priority system, applied at the setState site. | We're about to call setState that triggers heavy renders, and want to flag the *next* render low-priority. |
+
+**Rule of thumb:**
+
+- Side effect on every value change (network, IO, navigation)? → `useDebouncedValue`.
+- Pure render-only consumer of a value? → `useDeferredValue`.
+- Wrapping a state setter that triggers heavy renders? → `useTransition`.
+
+**Don't reach for these speculatively.** Both `useDeferredValue` and `useTransition` are lipstick on a slow render — first ask "why is this render slow?" If it's already cheap, deferring just adds complexity. Use a profiler before reaching for the priority knob.
+
+**Concrete spots in our app:**
+
+- **SpeciesPicker** — keeps `useDebouncedValue` (network call). Don't switch.
+- **Future filter UIs** (long plant list by status/species/room, searchable encyclopedia, etc.) — client-side filter render → `useDeferredValue`.
+- **Tab swap to a heavy panel** (e.g. Plant Detail tab to a large care log) — wrap the tab-switch state set in `startTransition` so the click stays snappy.
+
+### Pagination — `useInfiniteQuery` + cursor-based backend
+
+We don't paginate any endpoint today. When list volume justifies it, this is the pattern.
+
+**Client — TanStack `useInfiniteQuery`:**
+
+```js
+import { useInfiniteQuery } from '@tanstack/react-query'
+
+export function usePlantsInfinite() {
+  return useInfiniteQuery({
+    queryKey: ['plants', 'infinite'],
+    queryFn: ({ pageParam }) => {
+      const params = new URLSearchParams({ limit: '50' })
+      if (pageParam) params.set('after', String(pageParam))
+      return apiGet(`/api/v1/plants?${params}`)
+    },
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => lastPage.next_cursor,
+  })
+}
+```
+
+Consumer flattens pages and renders a "Load more" button or an intersection-observer auto-load:
+
+```jsx
+const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = usePlantsInfinite()
+const plants = data?.pages.flatMap((page) => page.plants) ?? []
+```
+
+**Backend — cursor-based, not page-number:**
+
+```ruby
+def index
+  scope = current_user.plants.order(:id)
+  scope = scope.where('id > ?', params[:after]) if params[:after].present?
+  limit = params.fetch(:limit, 50).to_i.clamp(1, 100)
+  plants = scope.limit(limit + 1)
+  has_more = plants.size > limit
+  plants = plants.first(limit)
+
+  render json: {
+    plants:,
+    next_cursor: has_more ? plants.last.id : nil
+  }
+end
+```
+
+**Cursor over page-number** because:
+- Stable under inserts (page numbers shift records as new ones are added)
+- Better performance on large tables (no `OFFSET N` cost)
+- Maps cleanly onto TanStack's `pageParam` shape
+
+**Payload shape change:** existing endpoints return bare arrays; paginated endpoints return `{ records: [...], next_cursor }`. Migrate the client and server in the same change — don't ship a transitional shape.
+
+**When to paginate:**
+
+- Real user feedback surfaces slow page load — measured, not assumed.
+- Storage growth past 100+ records for a typical user.
+- Mobile data + render cost matters (Notifications drawer, plant care logs, photo lists).
+
+**When NOT to paginate:**
+
+- Spaces (typically <20 per user).
+- Plants for new and intermediate users (10-50 typical).
+- One-off lookups that complete in a single round-trip.
+
+**Don't paginate speculatively.** Adds API surface, mutation cache complexity (invalidating an infinite query is more involved than a flat one), and UI affordance work (load-more buttons, scroll restoration). Wait for the gap to be real.
+
+**Pairs with filtering UIs** — see the Deferred rendering section above. Filter narrows what's visible from already-loaded pages; pagination loads more pages. They sit in the same pipeline but solve different problems.
+
 ### Server owns business calculations
 
 The client never duplicates backend business logic. If the server computes a value, it ships the answer via `as_json` and the client renders it. Mirroring constants or formulas client-side leads to silent drift the moment the server tweaks a number — CI never catches it because each side passes its own tests against its own values.
@@ -344,6 +462,65 @@ Rules:
 Mirrors `components/onboarding/` (the wizard step components live in their own subfolder). The pattern formalises the same idea inside any feature module.
 
 **Card primitive (`Card.Header` / `Card.Body` / `Card.Footer`) slots have no default padding.** Padding is a concern of the *outer container* (the `<form>`, `<Dialog>`'s Card, `WizardCard`'s SHELL), and spacing between slots comes from `gap-*` on that flex parent. Subcomponents are pure layout slots — no `p-6` baked into Header/Body/Footer. `Card.Body` keeps `flex-1 min-h-0 overflow-y-auto` because the scroll behaviour is the slot's job, but everything else (padding, gap) lives on whoever wraps it. The two consumers today: onboarding step `<form>` (`p-6 gap-4` on the form) and `<Dialog>` (`p-6 gap-4` baked into the Dialog's MotionCard className).
+
+### Icon-only buttons — `ActionIcon` is the primitive
+
+**Don't hand-roll `<Action variant="unstyled" className="rounded-full bg-… hover:bg-…">` + `<FontAwesomeIcon>`.** That shape — round icon button with hover accent + tooltip + aria-label — is exactly what `components/ui/ActionIcon.jsx` exists to solve. Hand-rolling drifts visual + a11y across the app and forces the next reader to compare three slightly different button recipes to spot the conventions.
+
+**API:**
+
+```jsx
+<ActionIcon
+  icon={faXmark}                       // FontAwesome icon
+  label="Close"                         // aria-label + tooltip text
+  onClick={handleClose}
+  scheme="neutral"                      // see schemes table
+  size="sm"                             // xs | sm | md
+  tooltipPlacement="top"
+  tooltip={true}                        // pass false to suppress (e.g. tiny chip-internal X)
+/>
+```
+
+`ref` and `...kwargs` forward to the underlying `<Action>` so popover anchors and arbitrary aria attrs work without ceremony:
+
+```jsx
+<ActionIcon
+  ref={triggerRef}
+  icon={faBars}
+  label="Living Room actions"
+  aria-haspopup="menu"
+  aria-expanded={open}
+  aria-controls={panelId}
+/>
+```
+
+**Schemes (pick by *role*, not colour):**
+
+| `scheme` | Surface |
+|---|---|
+| `neutral` | Default. Soft ink wash on transparent. Most chrome-level affordances. |
+| `paper` | Paper-deep at-rest, mint hover. Sidebar/topbar chrome (organiser, notifications, mobile menu). |
+| `ink` | Ink-tinted at-rest, deeper-ink hover. In-card chip dismiss, drawer back/close. |
+| `warning` | Edit-style — sunshine warning tint on hover. |
+| `danger` | Delete-style — coral danger tint on hover. |
+| `ghost` | Transparent at-rest, paper-deep on hover. Use inside chrome strips where surrounding fill is already paper-deep. |
+| `ghost-danger` | Transparent + coral hover. Logout-flavour. |
+
+**Sizes:**
+
+- `xs` — 20px wrapper, 10px icon. Chip-internal close, clear-input X.
+- `sm` (default) — 28px wrapper, 12px icon. Most chrome triggers.
+- `md` — 36px wrapper, 16px icon. Mobile top bar, larger touch targets.
+
+**When to hand-roll instead:**
+
+- Genuinely unique chrome with no scheme match AND no future repeat (rare). Add a scheme to ActionIcon if the recipe will be reused.
+- Decorative non-interactive icon badges (the mint plus circles inside `AddSpaceTile` / `AddPlantTile` aren't ActionIcon — they're visual children of a larger interactive surface).
+- A button that needs a child element ActionIcon doesn't support (e.g. an unread-count badge floating over the bell icon — `NotificationsTrigger` keeps a hand-roll for this; could take a `badge` slot prop in future).
+
+**Pre-flight before reaching for `<Action variant="unstyled">` + a `rounded-full` className:** check the schemes table. If one fits, use ActionIcon. If not, ask whether a new scheme is worth codifying, then add it. Don't multiply hand-rolled variants.
+
+This rule is hard-won (TICKET-047 — sweep replaced ~6 hand-rolled icon buttons across Sidebar / MobileTopBar / NotificationsDrawer / Menu / MobileSearchDrawer with ActionIcon, after the same recipe was being copy-pasted around). Don't relearn it.
 
 ### Forms
 

@@ -3,8 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import Action from './Action'
-import Tooltip from './Tooltip'
+import ActionIcon from './ActionIcon'
 
 const MenuContext = createContext(null)
 
@@ -96,19 +95,19 @@ export default function Menu({ label, children }) {
 function Trigger({ className = '', tooltipPlacement = 'bottom-end' }) {
   const { open, setOpen, triggerRef, panelId, label } = useMenuContext()
   return (
-    <Action
+    <ActionIcon
       ref={triggerRef}
-      variant="unstyled"
+      icon={faBars}
+      label={label}
       onClick={() => setOpen((current) => !current)}
-      aria-label={label}
+      scheme="neutral"
+      tooltip={!open}
+      tooltipPlacement={tooltipPlacement}
       aria-haspopup="menu"
       aria-expanded={open}
       aria-controls={panelId}
-      className={`relative group w-7 h-7 rounded-full bg-ink/[0.04] hover:bg-ink/[0.08] text-ink-soft hover:text-ink transition-colors flex items-center justify-center ${className}`}
-    >
-      <FontAwesomeIcon icon={faBars} className="w-3 h-3" />
-      {!open && <Tooltip placement={tooltipPlacement}>{label}</Tooltip>}
-    </Action>
+      className={className}
+    />
   )
 }
 

@@ -3,40 +3,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useMemo, useState } from 'react'
 import { apiGet } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
-import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { useCreatePlant, useDeletePlant, usePlants } from '../../hooks/usePlants'
-import { isSearchQuery, useSpeciesSearch } from '../../hooks/useSpecies'
-import TextInput from '../form/TextInput'
-import Tile from '../form/Tile'
+import SpeciesPicker from '../plants/SpeciesPicker'
 import Action from '../ui/Action'
 import Card from '../ui/Card'
 import Emphasis from '../ui/Emphasis'
-import EmptyState from '../ui/EmptyState'
 import Heading from '../ui/Heading'
-import Spinner from '../ui/Spinner'
 import PlantFormDialog from './plants/PlantFormDialog'
 import StepTip from './shared/StepTip'
 import WizardActions from './shared/WizardActions'
 
-const EMPTY_RESULTS = []
-
-function speciesKey(species) {
-  return species.id ?? species.perenual_id ?? species.common_name
-}
-
 export default function Step3Plants({ availableSpaces = [], onBack, onComplete }) {
   const toast = useToast()
-  const [query, setQuery] = useState('')
   const [pendingSpecies, setPendingSpecies] = useState(null)
   const [dialogOpen, setDialogOpen] = useState(false)
-
-  const debouncedQuery = useDebouncedValue(query, 300)
-  const isSearching = isSearchQuery(debouncedQuery)
-  const { data: results = EMPTY_RESULTS, isLoading } = useSpeciesSearch(debouncedQuery)
-
-  const modeChanging = isSearchQuery(query) !== isSearching
-  const visibleResults = modeChanging ? EMPTY_RESULTS : results
-  const loading = isLoading || query !== debouncedQuery
 
   // Eager-commit pattern — `usePlants()` is the source of truth for added
   // plants, so back nav restores chips automatically and refreshes match
@@ -72,7 +52,6 @@ export default function Step3Plants({ availableSpaces = [], onBack, onComplete }
       space_id: spaceId,
       nickname,
     })
-    setQuery('')
   }
 
   function handleRemove(plantId) {
@@ -144,51 +123,9 @@ export default function Step3Plants({ availableSpaces = [], onBack, onComplete }
             </ul>
           )}
 
-          <TextInput
-            label="Search species"
-            labelHidden
-            type="search"
-            placeholder="Search species…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-
-          <div>
-            {loading && visibleResults.length === 0 ? (
-              <div role="status" aria-label="Searching species" className="flex items-center justify-center py-8">
-                <Spinner />
-              </div>
-            ) : visibleResults.length === 0 && isSearching ? (
-              <EmptyState
-                description={
-                  <>
-                    Nothing matches <span className="font-bold text-ink">"{debouncedQuery}"</span>. Try a different
-                    name.
-                  </>
-                }
-              />
-            ) : (
-              <div className="text-left">
-                <p className="text-[10px] font-extrabold tracking-[0.14em] uppercase text-ink-soft mb-2.5">
-                  {isSearching ? 'Results · tap to add' : 'Popular · tap to add'}
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {visibleResults.map((species) => (
-                    <Tile key={speciesKey(species)} size="card" onClick={() => handleSpeciesTap(species)}>
-                      <div className="min-w-0">
-                        <div className="text-sm font-bold text-ink truncate">{species.common_name}</div>
-                        {species.scientific_name && (
-                          <div className="font-display italic text-xs text-ink-soft truncate">
-                            {species.scientific_name}
-                          </div>
-                        )}
-                      </div>
-                    </Tile>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Re-key on plant count so the search query clears after each
+              add — picker remounts with empty state. */}
+          <SpeciesPicker key={addedPlants.length} onPick={handleSpeciesTap} actionLabel="add" />
         </Card.Body>
 
         <WizardActions onBack={onBack} continueLabel={continueLabel} />

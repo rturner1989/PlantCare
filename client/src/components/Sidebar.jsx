@@ -161,14 +161,7 @@ function Body({ user, onLogout, onClose }) {
       <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-4">
         <Logo to="/" size="sm" />
         {onClose ? (
-          <Action
-            variant="unstyled"
-            onClick={onClose}
-            aria-label="Close menu"
-            className="w-[28px] h-[28px] rounded-full bg-paper-deep text-ink-soft hover:text-ink hover:bg-mint/60 transition-colors flex items-center justify-center shrink-0"
-          >
-            <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
-          </Action>
+          <ActionIcon icon={faXmark} label="Close menu" onClick={onClose} scheme="paper" className="shrink-0" />
         ) : (
           <div className="flex items-center gap-1.5">
             <OrganiserTrigger />
