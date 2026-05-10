@@ -6,13 +6,15 @@ import Tooltip from './Tooltip'
 const SIZES = {
   sm: {
     wrapper: 'text-[10px] px-2 py-0.5 gap-1 font-extrabold',
+    wrapperWithIcon: 'text-[10px] pl-1 pr-2.5 py-0.5 gap-1.5 font-extrabold',
     wrapperWithClear: 'text-[10px] pl-2 pr-0.5 py-0.5 gap-1 font-extrabold',
-    icon: '',
+    icon: 'w-4 h-4 rounded-full inline-flex items-center justify-center flex-shrink-0',
     clearButton: 'w-4 h-4',
     clearIcon: 'w-2 h-2',
   },
   md: {
     wrapper: 'text-xs pl-2 pr-3.5 py-2 gap-2.5 font-semibold',
+    wrapperWithIcon: 'text-xs pl-2 pr-3.5 py-2 gap-2.5 font-semibold',
     wrapperWithClear: 'text-xs pl-2 pr-1 py-1 gap-1.5 font-semibold',
     icon: 'w-7 h-7 rounded-full inline-flex items-center justify-center text-sm flex-shrink-0',
     clearButton: 'w-5 h-5',
@@ -116,9 +118,11 @@ export default function Badge({
   const sizeRecipe = SIZES[size] ?? SIZES.sm
   const schemeRecipe = SCHEMES[scheme] ?? SCHEMES.neutral
 
+  const wrapperToken = onClear ? sizeRecipe.wrapperWithClear : icon ? sizeRecipe.wrapperWithIcon : sizeRecipe.wrapper
+
   const wrapperClasses = [
     'inline-flex items-center w-fit rounded-full',
-    onClear ? sizeRecipe.wrapperWithClear : sizeRecipe.wrapper,
+    wrapperToken,
     schemeClasses(variant, schemeRecipe),
     className,
   ]

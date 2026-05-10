@@ -127,4 +127,60 @@ describe('Badge', () => {
       expect(screen.getByText('0')).toBeInTheDocument()
     })
   })
+
+  describe('size + icon', () => {
+    it('uses the default sm wrapper padding when no icon is provided', () => {
+      render(<Badge size="sm">Plain</Badge>)
+      const badge = screen.getByText('Plain')
+      expect(badge).toHaveClass('px-2')
+      expect(badge).not.toHaveClass('pl-1')
+    })
+
+    it('switches to wrapperWithIcon padding (pl-1 pr-2.5) when icon is passed at size="sm"', () => {
+      render(
+        <Badge size="sm" icon={<span data-testid="icon-node">i</span>}>
+          With icon
+        </Badge>,
+      )
+      const badge = screen.getByText('With icon')
+      expect(badge).toHaveClass('pl-1')
+      expect(badge).toHaveClass('pr-2.5')
+    })
+
+    it('renders the icon inside an icon-disc wrapper at size="sm"', () => {
+      render(
+        <Badge size="sm" icon={<span data-testid="icon-node">i</span>}>
+          With icon
+        </Badge>,
+      )
+      const iconNode = screen.getByTestId('icon-node')
+      const disc = iconNode.parentElement
+      expect(disc).toHaveClass('w-4')
+      expect(disc).toHaveClass('h-4')
+      expect(disc).toHaveClass('rounded-full')
+    })
+
+    it('uses md wrapper padding regardless of icon (single md token covers both)', () => {
+      render(
+        <Badge size="md" icon={<span>i</span>}>
+          MD
+        </Badge>,
+      )
+      const badge = screen.getByText('MD')
+      expect(badge).toHaveClass('pl-2')
+      expect(badge).toHaveClass('py-2')
+    })
+
+    it('prefers wrapperWithClear over wrapperWithIcon when both onClear and icon are present', () => {
+      render(
+        <Badge size="sm" icon={<span>i</span>} onClear={() => {}}>
+          Both
+        </Badge>,
+      )
+      const badge = screen.getByText('Both').closest('span')
+      // sm wrapperWithClear is `pl-2 pr-0.5`
+      expect(badge).toHaveClass('pl-2')
+      expect(badge).toHaveClass('pr-0.5')
+    })
+  })
 })
