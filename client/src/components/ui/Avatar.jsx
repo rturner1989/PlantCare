@@ -26,6 +26,7 @@ const SIZE_CLASSES = {
   lg: 'w-[52px] h-[52px] text-2xl',
   xl: 'w-20 h-20 text-4xl',
   '2xl': 'w-[90px] h-[90px] text-5xl',
+  '3xl': 'w-[130px] h-[130px] text-6xl',
 }
 
 const SHAPE_CLASSES = {

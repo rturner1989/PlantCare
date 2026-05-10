@@ -79,12 +79,12 @@ export default function Menu({ label, children }) {
   )
 }
 
-function Trigger({ className = '', tooltipPlacement = 'bottom-end' }) {
+function Trigger({ className = '', tooltipPlacement = 'bottom-end', icon = faBars }) {
   const { open, setOpen, triggerRef, panelId, label } = useMenuContext()
   return (
     <ActionIcon
       ref={triggerRef}
-      icon={faBars}
+      icon={icon}
       label={label}
       onClick={() => setOpen((current) => !current)}
       scheme="neutral"

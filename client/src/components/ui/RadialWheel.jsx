@@ -4,7 +4,7 @@ import Action from './Action'
 
 const SIZES = {
   sm: { wheel: 240, centre: 76, spoke: 56, spokeIcon: 18 },
-  md: { wheel: 320, centre: 96, spoke: 72, spokeIcon: 24 },
+  md: { wheel: 320, centre: 100, spoke: 72, spokeIcon: 24 },
   lg: { wheel: 440, centre: 150, spoke: 100, spokeIcon: 32 },
 }
 

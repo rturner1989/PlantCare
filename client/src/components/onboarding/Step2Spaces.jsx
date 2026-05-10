@@ -96,7 +96,7 @@ export default function Step2Spaces({ onBack, onComplete }) {
     )
   }
 
-  function handleAddCustom(name, category, icon) {
+  function handleAddCustom({ name, category, icon }) {
     setSelectedSpaces((prev) => [...prev, name])
     setPendingCustom((prev) => [...prev, { name, category, icon }])
   }
@@ -250,6 +250,7 @@ export default function Step2Spaces({ onBack, onComplete }) {
         onClose={() => setCustomDialogOpen(false)}
         onAdd={handleAddCustom}
         existingNames={selectedSpaceSet}
+        showEnvironment={false}
       />
     </>
   )

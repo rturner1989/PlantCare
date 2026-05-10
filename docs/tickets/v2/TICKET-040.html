@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TICKET-040 — R4 Plant Detail v2</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6; }
+.ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+.header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+.header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+.header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+.badges { display: flex; gap: 8px; }
+.badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+.badge.status { background: #2d6a4f; color: #fff; }
+.badge.priority-high { background: #e63946; color: #fff; }
+section { padding: 28px 40px; border-top: 1px solid #eee; }
+section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+section > p { font-size: 15px; margin-bottom: 12px; }
+ol, ul { padding-left: 20px; }
+li { margin-bottom: 10px; font-size: 15px; }
+.plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+.plan-step { flex: 1; min-width: 80px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+.plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+.plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+.artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+.artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+.artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+.artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+.artifact .kind.page { background: #2d6a4f; }
+.artifact .kind.primitive { background: #1a1a2e; }
+.artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+.artifact .kind.tests { background: #4a6fa5; }
+.criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+.criterion span { font-size: 15px; }
+blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+.learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+.learn strong { color: #7a5a1a; }
+.rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.rails-map tr:last-child td { border-bottom: none; }
+.rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+.file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+.mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+.mockup-preview iframe { width: 100%; height: 480px; border: none; background: #fff; }
+.mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="ticket">
+  <div class="header">
+    <div class="id">TICKET-040 · R4</div>
+    <h1>Plant Detail v2</h1>
+    <div class="badges">
+      <span class="badge status">Open</span>
+      <span class="badge priority-high">High</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Summary</h2>
+    <p>Plant Detail (<code>/plants/:id</code>) is currently a placeholder. This ticket builds the v2 page per mockup 22: hero with always-open RadialWheel + medallion centre, four CareRings (Water · Feed · Light · Mood), three panels (Schedule · Recent care · Environment), top-level Segment tabs (Care · Species · Journal), nested FileTabs inside the Journal tab. Bundles the F5 FileTabs and F9 CareRing primitive builds inline since this is the only consumer today.</p>
+    <p>In one sentence: <strong>the portrait-and-timeline page where every plant lives — rings own state, panels own config and history, no facts duplicated between them.</strong></p>
+  </section>
+
+  <section>
+    <h2>Where this fits</h2>
+    <div class="plan-strip">
+      <span class="plan-step done"><span class="num">047</span>R11 Add Plant</span>
+      <span class="plan-step done"><span class="num">048</span>Care anchor</span>
+      <span class="plan-step current"><span class="num">040</span>R4 Plant Detail</span>
+      <span class="plan-step"><span class="num">041</span>R5 Journal</span>
+      <span class="plan-step"><span class="num">042+</span>Plan continues</span>
+    </div>
+    <p><strong>What came before:</strong> R3 House (rooms grid + list view + unified search) shipped via TICKET-039a/b/c. R11 Add Plant dialog (047) wires species pick + nickname + space pick + care anchor (048). The cross-cutting Add Plant dialog's "Open full detail" link points at this page — currently a placeholder.</p>
+    <p><strong>What this unlocks:</strong> R5 Journal (TICKET-041) needs FileTabs which lands here. R12 Edit/Log/Delete plant dialogs (TBD ticket) hang off Plant Detail's overflow menu. R13 Plant Doctor flow lives behind the Doctor spoke + a panel link. Almost every per-plant interaction routes through here.</p>
+    <p><strong>Mental model:</strong> Rails analog — `app/views/plants/show.html.erb`. Page-level component with sub-partials (rings + panels + nested tab-set). Lots of read-only display, modest interaction (RadialWheel spokes + tab switches + ring tap → drill-in).</p>
+  </section>
+
+  <section>
+    <h2>What you're building</h2>
+    <div class="artifact-list">
+      <div class="artifact">
+        <div><span class="kind primitive">primitive</span><span class="name">client/src/components/ui/FileTabs.jsx</span></div>
+        <div class="role">F5 — manila-folder tab strip with paper-seam connection to its panel. Flush-left desktop; equal-share `flex: 1` on mobile. Compound API (`<FileTabs.Panel>`) for the connected content. Used HERE for Plant Detail's nested Journal tabs, and later by R5 Journal region.</div>
+      </div>
+      <div class="artifact">
+        <div><span class="kind primitive">primitive</span><span class="name">client/src/components/ui/CareRing.jsx</span></div>
+        <div class="role">F9 — SVG circular progress ring with label + value. Four schemes (mint/coral/sunshine/sky). Used by Plant Detail's Water · Feed · Light · Mood row. Distinct primitive from <code>ProgressRing.jsx</code> (legacy onboarding progress) — same visual family, different semantics.</div>
+      </div>
+      <div class="artifact">
+        <div><span class="kind page">page</span><span class="name">client/src/pages/PlantDetail.jsx</span></div>
+        <div class="role">Replaces the current placeholder route. Hero (RadialWheel + name/species/meta), four CareRings, three panels (Schedule · Recent care · Environment), Segment tabs (Care · Species · Journal), nested FileTabs inside Journal tab. Sticky tab-bar scroll model on desktop. Overflow menu opens R12 dialogs (placeholders fine for now).</div>
+      </div>
+      <div class="artifact">
+        <div><span class="kind extend">extend</span><span class="name">client/src/App.jsx</span></div>
+        <div class="role">Route <code>/plants/:id</code> swaps from PlaceholderPage to lazy-loaded PlantDetail.</div>
+      </div>
+      <div class="artifact">
+        <div><span class="kind tests">tests</span><span class="name">client/tests/components/ui/FileTabs.test.jsx + CareRing.test.jsx + pages/plant-detail.spec.js</span></div>
+        <div class="role">Vitest for primitives, Playwright e2e for Plant Detail (deep-link to plant, spin wheel, switch top-level tab, switch nested Journal tab).</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Requirements</h2>
+    <ol>
+      <li>Visiting <code>/plants/:id</code> renders the full v2 Plant Detail page (mockup 22), not a placeholder.</li>
+      <li>Hero shows the RadialWheel always-open with the medallion centre showing the plant's avatar — same plant-portrait recipe used elsewhere (PlantTile / QuickDialog / DayRituals wheel). Urgent ring fires when plant is overdue.</li>
+      <li>Four CareRings render side-by-side: Water (sky), Feed (mint), Light (sunshine), Mood (coral when struggling, mint when thriving). Each shows label + value only — no subtitles, no rotation.</li>
+      <li>Schedule panel reads "Every N days — {reasoning}" sourced from species + space env modifiers. NO countdown / overdue text — that's the rings' job.</li>
+      <li>Recent care panel shows the last N care logs in chronological order.</li>
+      <li>Environment panel exposes editable Light / Temperature / Humidity Segments — saves to space (server's <code>SpacesController#update</code> already handles env levels).</li>
+      <li>Top-level Segment tabs (Care / Species / Journal) switch the main panel content. Care is the default; Species shows species-level info; Journal embeds nested FileTabs.</li>
+      <li>Nested Journal FileTabs (Timeline · Photos · Milestones · Schedule) filter the journal feed to this plant via <code>useJournal({ plant_id })</code>. (Journal endpoint may still be stubbed pre-R5 — wire what's available, render placeholder for missing data.)</li>
+      <li>Overflow menu surfaces Edit · Log care · Doctor · Delete actions. R12 dialogs aren't built yet — wire the menu items to placeholders or no-ops, leave a comment.</li>
+      <li>Desktop scroll model: page scrolls as one; hero scrolls away; Segment tab-bar sticks to top once it reaches the viewport edge (iOS large-title pattern).</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Acceptance criteria</h2>
+    <div class="criterion"><span class="box"></span><span>Click the "Open full detail" link inside any QuickDialog → lands on the new Plant Detail page (not the placeholder)</span></div>
+    <div class="criterion"><span class="box"></span><span>Hero RadialWheel renders always-open at 420px desktop / 300px mobile. Medallion centre shows the plant's avatar via the shared plant-portrait recipe</span></div>
+    <div class="criterion"><span class="box"></span><span>Four CareRings render in a row with the correct schemes: Water sky, Feed mint, Light sunshine, Mood adapts to status</span></div>
+    <div class="criterion"><span class="box"></span><span>Schedule panel reads e.g. "Every 7 days — medium light bump"; no "Next water in N days" text (that's redundant with the rings)</span></div>
+    <div class="criterion"><span class="box"></span><span>Tabbing across Segment + FileTabs is keyboard-navigable; activeTab + arrow-key cycle work per APG tablist pattern</span></div>
+    <div class="criterion"><span class="box"></span><span>Environment panel's Segments save to the space (round-trip via `useUpdateSpace`); plants in the space recalculate after the env change</span></div>
+    <div class="criterion"><span class="box"></span><span>Sticky Segment tab-bar pins on desktop scroll; hero scrolls away naturally above it</span></div>
+    <div class="criterion"><span class="box"></span><span>DevTools → Network: visiting `/plants/:id` fetches the plant via `usePlant(id)` + the journal feed via `useJournal({ plant_id })` (or stubbed placeholder query when endpoint not yet present)</span></div>
+    <div class="criterion"><span class="box"></span><span>Lint and tests pass</span></div>
+  </section>
+
+  <section>
+    <h2>Design references</h2>
+    <div class="mockup-preview">
+      <div class="label"><span>Mockup 22 — Plant Detail (desktop + mobile)</span><a href="../../mockups/plantcare-ui/v2/22-plant-detail-v1.html" target="_blank">Open ↗</a></div>
+      <iframe src="../../mockups/plantcare-ui/v2/22-plant-detail-v1.html"></iframe>
+    </div>
+    <blockquote>From <code>project_v2_design_decisions.md</code>: "Plant Detail role split — rings own state (next-due countdown, mood), panels own config + history (frequency reasoning, care log stream, environment levels). Don't duplicate facts across them."</blockquote>
+    <p><strong>Plan reference:</strong> see TICKET-040 in <code>docs/plans/2026-04-24-plantcare-frontend-v2.md</code> — one worked example, not a script to transcribe. Includes overall spec for the four rings, three panels, and tab structure.</p>
+    <p><strong>Scope-limiting:</strong> mockup 22 shows R12 Edit / Log Care / Delete dialogs accessible from the overflow menu — those dialogs are out of scope for this ticket. Wire the menu items to no-op placeholders with TODO comments. R12 ticket builds them later.</p>
+  </section>
+
+  <section>
+    <h2>React concepts worth looking up</h2>
+    <div class="learn">
+      <strong>Compound components for FileTabs.</strong> The <code>FileTabs</code> primitive uses the same compound shape as Card / Menu — <code>FileTabs.Panel</code> is a static property on the parent. Consumer authoring API stays declarative: <code>&lt;FileTabs activeId="timeline" onChange={setTab}&gt;&lt;FileTabs.Panel id="timeline"&gt;…&lt;/FileTabs.Panel&gt;…&lt;/FileTabs&gt;</code>. Rails analog: ViewComponent slots — single-paired (renders_one) for the active panel, plus multi (renders_many) for the tab strip itself.
+    </div>
+    <div class="learn">
+      <strong>Sticky positioning + scroll containment.</strong> <code>position: sticky</code> works only when the parent has a scrollable region AND the sticky element has a top offset. Plant Detail's main column scrolls; the Segment tab-bar gets <code>top-0 sticky z-10</code>. Make sure no ancestor has <code>overflow: hidden</code> in the wrong place — sticky breaks silently if the nearest scroll container is wrong.
+    </div>
+    <div class="learn">
+      <strong>SVG circular progress arc math.</strong> CareRing uses a stroke-dashoffset trick — a circle with circumference C, set <code>stroke-dasharray={C}</code> and <code>stroke-dashoffset={C * (1 - value/max)}</code>. Animate dashoffset to fill. <code>strokeLinecap="round"</code> for the soft cap. Same idea as the ProgressRing primitive already in the repo — copy the math, change the semantics (state vs progress).
+    </div>
+    <div class="learn">
+      <strong>Lazy-loaded route.</strong> Plant Detail is heavy (RadialWheel + CareRings + tabs + nested tabs + journal feed). Wire it via <code>React.lazy(() =&gt; import('./pages/PlantDetail'))</code> + the existing AppLayout Suspense fallback — same pattern other v2 pages use. Keeps the initial bundle lean.
+    </div>
+    <div class="learn">
+      <strong>WAI-ARIA tablist pattern.</strong> Segment + FileTabs both implement the same tabs/tabpanel/tab roles + arrow-key keyboard nav. Single source of truth: each tab has <code>role="tab"</code> + <code>aria-selected</code>; the panel has <code>role="tabpanel"</code> + <code>aria-labelledby</code>. Roving tabindex moves focus across tabs. The existing SegmentedControl already has this; FileTabs mirrors it.
+    </div>
+  </section>
+
+  <section>
+    <h2>Rails ↔ React mental map</h2>
+    <table class="rails-map">
+      <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>app/views/plants/show.html.erb</code></td>
+          <td><code>pages/PlantDetail.jsx</code></td>
+          <td>Page-level show view for a single record</td>
+        </tr>
+        <tr>
+          <td><code>before_action :set_plant</code></td>
+          <td><code>const { data: plant } = usePlant(id)</code></td>
+          <td>Fetched on render via TanStack Query, not via controller filter</td>
+        </tr>
+        <tr>
+          <td><code>render 'plants/recent_care', plant: @plant</code></td>
+          <td><code>&lt;RecentCarePanel plant={plant} /&gt;</code></td>
+          <td>Sub-partials become React sub-components</td>
+        </tr>
+        <tr>
+          <td>Tab UI helpers (none in stock Rails — custom)</td>
+          <td><code>&lt;SegmentedControl&gt;</code> + <code>&lt;FileTabs&gt;</code></td>
+          <td>Tablist/tabpanel pattern, two visual flavours by role</td>
+        </tr>
+        <tr>
+          <td><code>form_with model: @space</code> for env edit</td>
+          <td>Inline Segments + <code>useUpdateSpace</code> mutation</td>
+          <td>Save on change, no submit button — optimistic UX</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Related files</h2>
+    <ul class="file-list">
+      <li><span>client/src/components/ui/FileTabs.jsx</span><span class="action">create</span></li>
+      <li><span>client/src/components/ui/CareRing.jsx</span><span class="action">create</span></li>
+      <li><span>client/src/pages/PlantDetail.jsx</span><span class="action">create</span></li>
+      <li><span>client/src/App.jsx</span><span class="action">extend</span></li>
+      <li><span>client/tests/components/ui/FileTabs.test.jsx</span><span class="action">create</span></li>
+      <li><span>client/tests/components/ui/CareRing.test.jsx</span><span class="action">create</span></li>
+      <li><span>client/tests/pages/plant-detail.spec.js</span><span class="action">create</span></li>
+    </ul>
+    <p>This is a shape hint, not a spec. If you find a cleaner split during implementation, follow your nose.</p>
+  </section>
+
+  <section>
+    <h2>Notes &amp; gotchas</h2>
+    <ul>
+      <li><strong>Rings own state, panels own config + history.</strong> Don't print "Next water in 3 days" in both the Water ring AND the Schedule panel. Schedule says the rule ("Every 7 days — bright light bump"); the ring shows the live countdown.</li>
+      <li><strong>Don't build R12 dialogs.</strong> Overflow menu items wire to placeholder no-ops with a TODO comment. R12 ticket lands them.</li>
+      <li><strong>Mood ring needs a derived metric.</strong> If the backend doesn't expose a "mood" value, derive client-side from <code>water_status</code> + <code>feed_status</code> (overdue → struggling, due_today/soon → watchful, healthy → thriving). Same logic PlantTile already uses for its mood dot — extract if both consumers want it, otherwise inline.</li>
+      <li><strong>RadialWheel size.</strong> Plant Detail wants 420px desktop hero. The wheel currently caps at <code>lg</code> (440px) which is close. Use <code>size="lg"</code> or extend <code>SIZES</code> if the wheel needs a fresh "hero" preset.</li>
+      <li><strong>Journal feed may not be wired yet.</strong> R5 Journal region (TICKET-041) builds <code>useJournal</code>. If it's not present, scaffold a stub hook in this ticket that returns an empty array — drop it when 041 lands. Comment the stub explicitly.</li>
+      <li><strong>Closing checklist:</strong> <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh</code>, run <code>/vercel-react-best-practices</code> + <code>/accessibility</code>, <code>/comment-audit</code>, then open a PR with <code>feat(v2):</code> prefix.</li>
+    </ul>
+  </section>
+</div>
+</body>
+</html>

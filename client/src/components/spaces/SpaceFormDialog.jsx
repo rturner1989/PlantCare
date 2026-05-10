@@ -1,3 +1,5 @@
+import { faDroplet, faSun, faTemperatureHalf } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useId, useState } from 'react'
 import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
@@ -10,11 +12,45 @@ import Dialog from '../ui/Dialog'
 
 const EMPTY_SET = new Set()
 
+const ENV_AXES = [
+  { key: 'light_level', label: 'Light', icon: faSun, options: ['low', 'medium', 'bright'], default: 'medium' },
+  {
+    key: 'temperature_level',
+    label: 'Temperature',
+    icon: faTemperatureHalf,
+    options: ['cool', 'average', 'warm'],
+    default: 'average',
+  },
+  {
+    key: 'humidity_level',
+    label: 'Humidity',
+    icon: faDroplet,
+    options: ['dry', 'average', 'humid'],
+    default: 'average',
+  },
+]
+
+function capitalise(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1)
+}
+
 // Caller resets state by re-keying the component on the editing target
 // (e.g. <SpaceFormDialog key={space?.id ?? 'new'} … />). Per React's
 // modern idiom, key-driven remount avoids the open/space sync useEffect
 // that would otherwise leak state between Add and Edit modes.
-export default function SpaceFormDialog({ open, onClose, onAdd, onEdit, space = null, existingNames = EMPTY_SET }) {
+//
+// `showEnvironment` defaults true. Onboarding's Step2 passes false
+// because Step4Environment walks env per-space afterwards — env
+// segments here would be redundant in that flow.
+export default function SpaceFormDialog({
+  open,
+  onClose,
+  onAdd,
+  onEdit,
+  space = null,
+  existingNames = EMPTY_SET,
+  showEnvironment = true,
+}) {
   const isEdit = Boolean(space)
   const title = isEdit ? 'Edit space' : 'Add a custom space'
   const submitLabel = isEdit ? 'Save' : 'Add space'
@@ -23,6 +59,9 @@ export default function SpaceFormDialog({ open, onClose, onAdd, onEdit, space = 
   const [name, setName] = useState(space?.name ?? '')
   const [category, setCategory] = useState(space?.category ?? 'indoor')
   const [icon, setIcon] = useState(space?.icon ?? SPACE_ICON_OPTIONS[0].slug)
+  const [env, setEnv] = useState(() =>
+    Object.fromEntries(ENV_AXES.map((axis) => [axis.key, space?.[axis.key] ?? axis.default])),
+  )
 
   const { submitting, handleSubmit, fieldErrors, formRef } = useFormSubmit({
     action: async () => {
@@ -34,10 +73,11 @@ export default function SpaceFormDialog({ open, onClose, onAdd, onEdit, space = 
         throw new ValidationError({ name: `"${trimmed}" is already in your list.` })
       }
 
+      const payload = { name: trimmed, category, icon, ...(showEnvironment ? env : {}) }
       if (isEdit) {
-        await onEdit(space.id, trimmed, category, icon)
+        await onEdit(space.id, payload)
       } else {
-        await onAdd(trimmed, category, icon)
+        await onAdd(payload)
       }
       onClose()
     },
@@ -75,6 +115,23 @@ export default function SpaceFormDialog({ open, onClose, onAdd, onEdit, space = 
           />
 
           <IconPicker value={icon} onChange={setIcon} />
+
+          {showEnvironment &&
+            ENV_AXES.map((axis) => (
+              <SegmentedControl
+                key={axis.key}
+                label={
+                  <span className="flex items-center gap-1.5">
+                    <FontAwesomeIcon icon={axis.icon} aria-hidden="true" className="w-3 h-3" />
+                    {axis.label}
+                  </span>
+                }
+                value={env[axis.key]}
+                onChange={(next) => setEnv((prev) => ({ ...prev, [axis.key]: next }))}
+                options={axis.options.map((option) => ({ value: option, label: capitalise(option) }))}
+                density="equal"
+              />
+            ))}
         </Card.Body>
 
         <Card.Footer divider={false} className="flex gap-2.5">

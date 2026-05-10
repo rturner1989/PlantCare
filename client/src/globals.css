@@ -505,6 +505,23 @@ input[type="search"]::-webkit-search-cancel-button {
     0 4px 10px rgba(255, 107, 61, 0.2);
 }
 
+/* plant-portrait-urgent stacks on top to override the box-shadow when
+ * a plant is overdue — keep that variant compatible if you retune the
+ * shadows here. */
+@utility plant-portrait-glass {
+  position: relative;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.7) 0%, transparent 55%),
+    linear-gradient(135deg, rgba(176, 217, 192, 0.42) 0%, rgba(251, 248, 241, 0.78) 60%);
+  backdrop-filter: blur(var(--blur-heavy)) saturate(1.6);
+  -webkit-backdrop-filter: blur(var(--blur-heavy)) saturate(1.6);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    inset 0 -2px 8px rgba(11, 58, 26, 0.05),
+    0 12px 28px rgba(11, 58, 26, 0.14);
+  overflow: hidden;
+}
+
 /* Toast chip highlight — top-left radial wash, layered above the gradient
  * fill. Kept as a utility because it's ::after pseudo-content the JSX
  * can't express without an inline style escape. */

@@ -128,12 +128,12 @@ export default function House() {
     renderResults,
   })
 
-  async function handleAddSpace(name, category, icon) {
-    await createSpace.mutateAsync({ name, icon, category })
+  async function handleAddSpace(payload) {
+    await createSpace.mutateAsync(payload)
   }
 
-  async function handleEditSpace(id, name, category, icon) {
-    await updateSpace.mutateAsync({ id, name, category, icon })
+  async function handleEditSpace(id, payload) {
+    await updateSpace.mutateAsync({ id, ...payload })
   }
 
   function requestDeleteSpace(space) {
