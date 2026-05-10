@@ -36,7 +36,7 @@ export default function SpeciesView({ plant }) {
           <span className="text-[11px] font-semibold text-ink-soft">{capitaliseLabel(species.difficulty)} care</span>
         )}
       </Card.Header>
-      <Card.Body className="!flex-none flex flex-col gap-4 text-sm">
+      <Card.Body className="!flex-none !overflow-visible flex flex-col gap-4 text-sm">
         {species.description && <p className="text-ink leading-relaxed">{species.description}</p>}
         {species.care_tips && (
           <div className="flex flex-col gap-1.5">

@@ -54,7 +54,7 @@ function SchedulePanel({ plant }) {
   return (
     <Card variant="paper-warm" className="p-5 gap-3">
       <PanelHeader title="Schedule" hint="calculated from species + environment" />
-      <Card.Body className="!flex-none flex flex-col">
+      <Card.Body className="!flex-none !overflow-visible flex flex-col">
         {plant.calculated_watering_days && (
           <PanelRow
             icon="💧"
@@ -84,7 +84,7 @@ function RecentCarePanel({ plant }) {
   return (
     <Card variant="paper-warm" className="p-5 gap-3">
       <PanelHeader title="Recent care" hint={recent.length > 0 ? `${recent.length} latest` : null} />
-      <Card.Body className="!flex-none flex flex-col">
+      <Card.Body className="!flex-none !overflow-visible flex flex-col">
         {isLoading ? (
           <p className="text-sm text-ink-soft">Loading…</p>
         ) : recent.length === 0 ? (
@@ -145,7 +145,7 @@ function EnvironmentFitPanel({ plant }) {
   return (
     <Card variant="paper-warm" className="p-5 gap-3">
       <PanelHeader title="Environment fit" hint={space?.name ? `vs ${space.name}` : null} />
-      <Card.Body className="!flex-none flex flex-col">
+      <Card.Body className="!flex-none !overflow-visible flex flex-col">
         {ENV_AXES.map((axis) => {
           const ideal = species?.[axis.suggestKey]
           const current = space?.[axis.currentKey]
