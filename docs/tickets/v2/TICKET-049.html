@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>TICKET-049 — R12 — Edit / Log Care / Delete Plant dialogs</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #f5f5f0;
+    color: #1a1a1a;
+    padding: 40px;
+    line-height: 1.6;
+  }
+  .ticket {
+    max-width: 960px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+  .header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+  .header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+  .badges { display: flex; gap: 8px; }
+  .badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+  .badge.status { background: #2d6a4f; color: #fff; }
+  .badge.priority-high { background: #e63946; color: #fff; }
+  section { padding: 28px 40px; border-top: 1px solid #eee; }
+  section h2 {
+    font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em;
+    color: #666; margin-bottom: 16px;
+  }
+  section > p { font-size: 15px; margin-bottom: 12px; }
+  ol, ul { padding-left: 20px; }
+  li { margin-bottom: 10px; font-size: 15px; }
+
+  .plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+  .plan-step {
+    flex: 1; min-width: 80px; padding: 10px 8px; text-align: center;
+    border-radius: 6px; font-size: 11px; font-weight: 700;
+    background: #f0f0ea; color: #888; border: 1px solid transparent;
+  }
+  .plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+  .plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+  .plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+  .artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+  .artifact {
+    padding: 14px 18px; background: #f8faf8;
+    border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0;
+  }
+  .artifact .name {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 13px; font-weight: 700; color: #1a1a2e;
+  }
+  .artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+  .artifact .kind {
+    display: inline-block; font-size: 10px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 2px 8px; border-radius: 100px;
+    background: #1a1a2e; color: #fff;
+    margin-right: 8px; vertical-align: middle;
+  }
+  .artifact .kind.component { background: #1a1a2e; }
+  .artifact .kind.rewrite { background: #f4a261; color: #1a1a1a; }
+  .artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+  .artifact .kind.hook { background: #4a6fa5; }
+  .artifact .kind.test { background: #6a4a8f; }
+
+  .shape {
+    background: #1a1a2e; color: #d4d4d4; border-radius: 8px;
+    padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace;
+    font-size: 13px; line-height: 1.7; margin-top: 12px;
+    overflow-x: auto; white-space: pre;
+  }
+
+  .criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .criterion .box {
+    width: 18px; height: 18px; border: 2px solid #ccc;
+    border-radius: 4px; flex-shrink: 0; margin-top: 3px;
+  }
+  .criterion span { font-size: 15px; }
+
+  .mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+  .mockup-preview iframe { width: 100%; height: 360px; border: none; background: #fff; }
+  .mockup-preview .label {
+    padding: 10px 14px; background: #f5f5f0;
+    font-size: 12px; font-weight: 700; color: #666;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+  .mockup-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+
+  blockquote {
+    border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0;
+    background: #f8faf8; border-radius: 0 8px 8px 0;
+    font-size: 14px; color: #444;
+  }
+  code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+
+  .learn {
+    background: #fff8e8; border-left: 3px solid #f4a261;
+    padding: 14px 18px; border-radius: 0 8px 8px 0;
+    margin: 12px 0; font-size: 14px; color: #4a3a1a;
+  }
+  .learn strong { color: #7a5a1a; }
+
+  .rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+  .rails-map th {
+    text-align: left; padding: 10px 12px;
+    background: #1a1a2e; color: #fff;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;
+  }
+  .rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+  .rails-map tr:last-child td { border-bottom: none; }
+  .rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+
+  .plan-link {
+    display: inline-block; padding: 8px 14px; background: #f0f0ea;
+    border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px;
+  }
+  .plan-link:hover { background: #e6e6de; }
+
+  .file-list { list-style: none; padding: 0; }
+  .file-list li {
+    padding: 10px 14px; background: #f8f8f5; border-radius: 6px;
+    margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px;
+    display: flex; justify-content: space-between;
+  }
+  .file-list .action {
+    font-family: inherit; font-size: 11px; color: #888;
+    font-weight: 700; text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<div class="header">
+  <div class="id">TICKET-049 · v2 · R12</div>
+  <h1>Edit / Log Care / Delete Plant dialogs</h1>
+  <div class="badges">
+    <span class="badge status">Open</span>
+    <span class="badge priority-high">Priority: High</span>
+  </div>
+</div>
+
+<section>
+  <h2>Summary</h2>
+  <p>Plant Detail's overflow menu currently fires <code>toast.info('… coming soon')</code> for Edit, Log care, and Delete. R12 wires three dialogs into those entries, sharing the F10 dialog shell already established by R11 (Add Plant). Each dialog is a one-job CRUD surface against an existing plant — edit metadata, log a watering or feeding with date+notes, or delete the plant.</p>
+  <p>In one sentence: <strong>turn the Plant Detail overflow menu from cosmetic into functional by shipping three dialogs that mutate the plant on screen.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+
+  <div class="plan-strip">
+    <div class="plan-step done"><span class="num">F10</span>Dialog shell</div>
+    <div class="plan-step done"><span class="num">R4</span>Plant Detail v2</div>
+    <div class="plan-step done"><span class="num">R11</span>Add Plant</div>
+    <div class="plan-step current"><span class="num">R12</span>Edit / Log / Delete</div>
+    <div class="plan-step"><span class="num">R13</span>Plant Doctor</div>
+    <div class="plan-step"><span class="num">R14</span>Empty/error</div>
+    <div class="plan-step"><span class="num">R15</span>Auth visual</div>
+  </div>
+
+  <p><strong>What came before.</strong> F10 (TICKET-036) shipped the shared Dialog shell with focus-trap, drag-handle, close-X, and the Card.Header/Body/Footer slot convention. R4 (TICKET-040) just merged Plant Detail v2 — hero, rings, panels, sticky bar, breadcrumb, and the overflow menu with four placeholder entries. R11 (TICKET-047) shipped AddPlantDialog and proved the multi-step form-in-Dialog pattern, plus established the <code>FormDialog</code> vs action-Dialog naming convention.</p>
+
+  <p><strong>What this unlocks.</strong> R13 (Plant Doctor) takes over the fourth overflow entry. R14 polishes empty/error library so the dialogs can lean on consistent failure surfaces. After R12, Plant Detail is functionally complete — every overflow menu entry except Doctor opens a real working dialog.</p>
+
+  <p><strong>Mental model.</strong> Three Rails routes — <code>plants#update</code>, <code>plants/care_logs#create</code>, <code>plants#destroy</code> — except instead of redirecting to <code>plants#show</code> on success, the dialog closes and TanStack Query refetches the affected keys.</p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <div class="artifact-list">
+
+    <div class="artifact">
+      <div><span class="kind component">component</span><span class="name">client/src/components/plants/EditPlantDialog.jsx</span></div>
+      <p class="role">A FormDialog that takes a <code>plant</code> prop and lets the user edit nickname + space (species is locked once a plant exists — re-identifying a plant is a separate flow). Submits via a new <code>useUpdatePlant</code> mutation; closes on success and shows a toast. Same Card.Header / Card.Body / Card.Footer shape as AddPlantDialog's StepDetails, minus the species picker.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind component">component</span><span class="name">client/src/components/plants/LogCareDialog.jsx</span></div>
+      <p class="role">A FormDialog with a Segment for care type (Water / Feed), a date picker for <code>performed_at</code> (defaulting to "now"), and a notes textarea. Calls the existing <code>useLogCare</code> hook — same backend endpoint as the one-tap QuickDialog flow, just with date and notes opt-ins. On success, closes and shows the personality quote toast (existing <code>personality/confirmQuotes.js</code>) — keep visual-only, no per-plant voice.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind component">component</span><span class="name">client/src/components/plants/DeletePlantDialog.jsx</span></div>
+      <p class="role">A destructive confirm Dialog. Names the plant in the body. For plants older than 30 days, requires the user to type the plant's nickname before the Confirm button enables (type-to-confirm — same idea as GitHub repo deletion). Calls a new <code>useDeletePlant</code> mutation, then navigates to <code>/house</code> on success.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind extend">extend</span><span class="name">client/src/hooks/usePlants.js</span></div>
+      <p class="role">Add <code>useUpdatePlant(plantId)</code> and <code>useDeletePlant(plantId)</code>. Both default to <code>invalidateQueries</code> on success (per CLAUDE.md mutation cache rule) — invalidate <code>['plants', plantId]</code> and the list keys. <code>useLogCare</code> already exists; reuse it.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind rewrite">rewrite</span><span class="name">client/src/pages/Plant.jsx</span></div>
+      <p class="role">Wire the three menu entries from placeholder toasts into real dialog opens. Leave the Doctor entry as a placeholder — that's R13. Match existing Plant.jsx state pattern (one boolean <code>useState</code> per dialog, or a single <code>activeDialog</code> string — pick whichever reads cleanest given there are three dialogs).</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind test">tests</span><span class="name">client/tests/components/plants/{Edit,LogCare,Delete}PlantDialog.test.jsx + tests/pages/plant-dialogs.spec.js</span></div>
+      <p class="role">Vitest unit tests per dialog (renders, submits, calls mutation with right args, fires toast). One Playwright spec covering the happy path: open Plant Detail → overflow → each dialog round-trip.</p>
+    </div>
+
+  </div>
+
+  <div class="shape">Plant.jsx (overflow menu)
+├── EditPlantDialog        ←  useUpdatePlant
+├── LogCareDialog          ←  useLogCare (existing)
+├── (Doctor — R13 placeholder, leave alone)
+└── DeletePlantDialog      ←  useDeletePlant + navigate('/house')
+
+All three: &lt;Dialog&gt; → Card.Header (title) / Card.Body (form) / Card.Footer (Cancel + Action)</div>
+
+  <p style="margin-top:14px"><em>Out of scope for R12:</em> List-view row context menu (the plan mentions reaching these dialogs from a House list-view row menu — not built yet, comes later if needed). Plant Doctor entry stays a placeholder. Re-identifying a plant's species is not part of Edit.</p>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+  <ol>
+    <li>Edit plant from the overflow menu opens a dialog pre-filled with the plant's current nickname and space; saving persists the change and the Plant Detail page reflects it without a manual refresh.</li>
+    <li>Log care from the overflow menu opens a dialog where the user picks Water or Feed, optionally adjusts the date (default = now), optionally writes notes, and submits to create a CareLog. The plant's care timestamps update on screen.</li>
+    <li>Delete plant from the overflow menu opens a destructive confirm dialog naming the plant. For plants older than 30 days, Confirm stays disabled until the user types the plant nickname. Confirm hard-deletes the plant and lands the user on <code>/house</code>.</li>
+    <li>Each dialog uses the F10 Dialog shell with Card.Header / Card.Body / Card.Footer as direct children — no double-Card wrapping. Title style matches the CRUD-dialog convention (plain bold paragraph, <code>text-lg font-extrabold text-ink</code>) — not <code>Heading variant="display"</code>.</li>
+    <li>Mutation hooks invalidate the relevant TanStack Query keys after success; no manual refetch from the consumer. Delete additionally navigates away.</li>
+    <li>Visuals match mockups 34, 35, 36 — read CSS from the HTML files, not just the rendered iframe.</li>
+    <li>Three review gates pass: <code>/vercel-react-best-practices</code>, <code>/accessibility</code>, <code>/dhh-rails-reviewer</code>.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+  <div class="criterion"><div class="box"></div><span>Open Plant Detail, tap overflow → Edit. Dialog shows current nickname + space pre-filled. Change nickname, Save. Toast confirms; dialog closes; the page heading updates without manual refresh.</span></div>
+  <div class="criterion"><div class="box"></div><span>Open overflow → Log care. Default care type is Water; date defaults to today. Switch to Feed, change date to yesterday, add a note, Save. Toast confirms; dialog closes. Care rings + last-care timestamps refresh on screen.</span></div>
+  <div class="criterion"><div class="box"></div><span>Open overflow → Delete on a plant created &lt;30 days ago. Dialog shows "Delete <em>{nickname}</em>?" with Cancel + Delete. Confirm fires immediately (no type-to-confirm gate). Lands on <code>/house</code>; the plant is gone from the list.</span></div>
+  <div class="criterion"><div class="box"></div><span>Open Delete on a plant older than 30 days. Confirm button disabled. Type the wrong name → still disabled. Type the exact nickname → enabled. Confirm deletes; lands on <code>/house</code>.</span></div>
+  <div class="criterion"><div class="box"></div><span>Each dialog: Esc closes; clicking outside closes (matches existing Dialog primitive); focus-trap keeps Tab inside; first focusable element is Cancel on Delete (a11y rule for destructive actions).</span></div>
+  <div class="criterion"><div class="box"></div><span>DevTools → Network: submitting Edit fires <code>PATCH /api/v1/plants/:id</code>; Log care fires <code>POST /api/v1/plants/:id/care_logs</code>; Delete fires <code>DELETE /api/v1/plants/:id</code>. After Edit, the plant query refetches; <code>['plants']</code> list cache also refreshes.</span></div>
+  <div class="criterion"><div class="box"></div><span>Mobile (≤640px): all three dialogs fit the viewport, the form scrolls inside Card.Body if content exceeds height, the close-X stays reachable.</span></div>
+  <div class="criterion"><div class="box"></div><span>Lint and tests pass: <code>./scripts/lint.sh</code> + <code>./scripts/run_tests.sh client</code>.</span></div>
+</section>
+
+<section>
+  <h2>Design references</h2>
+
+  <div class="mockup-grid">
+    <div class="mockup-preview">
+      <div class="label"><span>Mockup 34 — Edit Plant</span><a href="../../mockups/plantcare-ui/v2/34-edit-plant-v1.html" target="_blank">Open ↗</a></div>
+      <iframe src="../../mockups/plantcare-ui/v2/34-edit-plant-v1.html"></iframe>
+    </div>
+    <div class="mockup-preview">
+      <div class="label"><span>Mockup 35 — Log Care</span><a href="../../mockups/plantcare-ui/v2/35-log-care-v1.html" target="_blank">Open ↗</a></div>
+      <iframe src="../../mockups/plantcare-ui/v2/35-log-care-v1.html"></iframe>
+    </div>
+    <div class="mockup-preview">
+      <div class="label"><span>Mockup 36 — Delete Plant</span><a href="../../mockups/plantcare-ui/v2/36-delete-plant-v1.html" target="_blank">Open ↗</a></div>
+      <iframe src="../../mockups/plantcare-ui/v2/36-delete-plant-v1.html"></iframe>
+    </div>
+  </div>
+
+  <blockquote>
+    <strong>From the v2 plan, R12 (originally TICKET-048):</strong>
+    Three dialogs on the shared Dialog shell — EditPlantDialog (34), LogCareDialog full-form variant (35), DeletePlantDialog (36). LogCareDialog is distinct from the existing <code>QuickDialog</code> one-tap RadialWheel flow — that stays. The full-form variant is for when the user wants to log care on a different date or attach a note. Type-to-confirm on Delete for plants older than 30 days. Confirmation renders plant-personality quote from <code>personality/confirmQuotes.js</code>.
+  </blockquote>
+
+  <a class="plan-link" href="../../plans/2026-04-24-plantcare-frontend-v2.md">→ docs/plans/2026-04-24-plantcare-frontend-v2.md (R12 row, line 1225 — one worked example, not a script to transcribe)</a>
+
+  <p style="margin-top:14px"><strong>Note on plan ticket numbering.</strong> The plan still labels R12 as TICKET-048, but that number was consumed by the R11 care-anchor follow-up shipped 2026-05-08. This ticket renumbers to TICKET-049. Do not update the plan file as part of R12 — the renumber is tracked here.</p>
+</section>
+
+<section>
+  <h2>React concepts worth looking up</h2>
+
+  <div class="learn">
+    <strong>TanStack Query mutations + cache invalidation.</strong> A mutation is a write (<code>useMutation</code>) — opposite of <code>useQuery</code>. After it succeeds, you invalidate the query keys whose data is now stale, and TanStack refetches them automatically the next time a component reads. Project rule (CLAUDE.md): <code>invalidateQueries</code> is the default; <code>setQueriesData</code> is a targeted optimisation only when you can name the specific race. For Edit and Delete, plain invalidate is the right call — both have cascading effects (plant list, dashboard, possibly Today). Rails analog: a controller that does <code>plant.update; redirect_to plants_path</code>, where the redirect is replaced by the cache invalidation.
+  </div>
+
+  <div class="learn">
+    <strong>Focus management for destructive dialogs.</strong> Accessibility rule the <code>/accessibility</code> review will flag: when a dialog confirms a destructive action, the initial focus must land on the safe choice (Cancel), not the destructive one. Reduces accidental Enter-key deletes. The Dialog primitive supports an <code>initialFocusRef</code> or similar — check <code>components/ui/Dialog.jsx</code> for the API. Also: Esc must close; the focus-trap in the Dialog primitive already handles Tab containment.
+  </div>
+
+  <div class="learn">
+    <strong>Controlled forms — error state shape.</strong> Multi-field error state is <code>{ field, message }</code>, not a plain string (CLAUDE.md "Forms" section). The "type-to-confirm" gate on Delete is a controlled input — <code>const [typed, setTyped] = useState('')</code>, button disabled while <code>typed !== plant.nickname</code>. No need for the <code>{ field, message }</code> shape on Delete — there's only one field — but Edit needs it (nickname, space).
+  </div>
+
+  <div class="learn">
+    <strong>Navigate-after-mutation pattern.</strong> On Delete success, the dialog should close AND the page should navigate away (the plant doesn't exist any more). Use <code>useNavigate()</code> from react-router and call it inside the mutation's <code>onSuccess</code>. Don't navigate before the request resolves — if the server rejects, you've lost the page mid-flight. Rails analog: <code>plant.destroy; redirect_to root_path</code> — except the redirect happens client-side after the response.
+  </div>
+
+  <div class="learn">
+    <strong>Three dialogs, one consumer — pick a state shape.</strong> Plant.jsx will need to know which dialog is open. Two clean options: three booleans (<code>editOpen</code>, <code>logOpen</code>, <code>deleteOpen</code>) — verbose but obvious; or one string (<code>activeDialog: 'edit' | 'log' | 'delete' | null</code>) — terser and makes "exactly one dialog open" structurally enforced. Either works. Pick by reading test — would a future reader prefer to grep for the boolean name or the discriminator? Don't reach for a reducer here.
+  </div>
+</section>
+
+<section>
+  <h2>Rails ↔ React mental map</h2>
+  <table class="rails-map">
+    <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>plants#update</code> + <code>params.expect(plant: [:nickname, :space_id])</code></td>
+        <td><code>useUpdatePlant(id)</code> calling <code>apiPatch('/api/v1/plants/:id')</code></td>
+        <td>Same shape; client picks fields manually before sending</td>
+      </tr>
+      <tr>
+        <td><code>plants/care_logs#create</code></td>
+        <td><code>useLogCare(id)</code> (existing) — reuse, don't fork</td>
+        <td>QuickDialog already uses it; LogCareDialog is the full-form variant</td>
+      </tr>
+      <tr>
+        <td><code>plants#destroy</code> + <code>redirect_to plants_path</code></td>
+        <td><code>useDeletePlant(id)</code> + <code>useNavigate()</code> in <code>onSuccess</code></td>
+        <td>Redirect happens after the response, not before</td>
+      </tr>
+      <tr>
+        <td><code>turbo_stream</code> after mutation refreshes the partial</td>
+        <td><code>queryClient.invalidateQueries(['plants', id])</code></td>
+        <td>TanStack refetches invalidated keys automatically</td>
+      </tr>
+      <tr>
+        <td>Flash <code>flash[:notice] = "Plant updated"</code></td>
+        <td><code>toast.success('Plant updated')</code></td>
+        <td>Project's ToastContext is the flash equivalent</td>
+      </tr>
+      <tr>
+        <td><code>form_with model: @plant</code> dual-mode (new + edit)</td>
+        <td><code>EditPlantDialog</code> takes <code>plant</code> prop, pre-fills via <code>useState</code> initialiser</td>
+        <td>FormDialog naming convention — record prop drives mode</td>
+      </tr>
+      <tr>
+        <td>"Type the repo name to confirm" pattern from GitHub</td>
+        <td>Controlled input + <code>typed !== plant.nickname</code> disables the destructive button</td>
+        <td>Only gate behind it for plants older than 30 days</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Related files</h2>
+  <ul class="file-list">
+    <li><span>client/src/components/plants/EditPlantDialog.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/components/plants/LogCareDialog.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/components/plants/DeletePlantDialog.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/hooks/usePlants.js</span><span class="action">extend</span></li>
+    <li><span>client/src/pages/Plant.jsx</span><span class="action">rewrite menuActions handlers</span></li>
+    <li><span>client/tests/components/plants/EditPlantDialog.test.jsx</span><span class="action">create</span></li>
+    <li><span>client/tests/components/plants/LogCareDialog.test.jsx</span><span class="action">create</span></li>
+    <li><span>client/tests/components/plants/DeletePlantDialog.test.jsx</span><span class="action">create</span></li>
+    <li><span>client/tests/pages/plant-dialogs.spec.js</span><span class="action">create</span></li>
+    <li><span>CLAUDE.md</span><span class="action">already in working tree (cleanup pass — bundle into this branch)</span></li>
+  </ul>
+  <p style="margin-top:12px"><em>This is a shape hint, not a spec. If you find a cleaner split during implementation — e.g. a shared <code>useDestructiveConfirm</code> hook for the type-to-confirm gate — follow your nose. Extract on second use.</em></p>
+</section>
+
+<section>
+  <h2>Notes &amp; gotchas</h2>
+  <ul>
+    <li><strong>QuickDialog stays untouched.</strong> The one-tap RadialWheel care flow is a separate surface from LogCareDialog. Don't merge them; they have different jobs.</li>
+    <li><strong>Doctor entry stays a placeholder.</strong> R13 owns it. Don't accidentally rip out the <code>toast.info('Plant Doctor coming soon')</code> handler on the doctor menu item.</li>
+    <li><strong>EditPlantDialog locks species.</strong> Re-identifying a plant's species is a different flow (and a different ticket if it ever ships). Don't put a SpeciesPicker in Edit.</li>
+    <li><strong>Personality quote stays visual-only.</strong> The confirm toast on LogCare can read a quote from <code>personality/confirmQuotes.js</code>, but it must not be framed as the plant speaking. Per memory <code>project_voice_removed_from_plan.md</code> and CLAUDE.md "Plant Personality" section: visual-only across all phases.</li>
+    <li><strong>Type-to-confirm threshold is 30 days.</strong> Use the plant's <code>created_at</code>. Plants younger than that get a single-click Confirm.</li>
+    <li><strong>Backend already supports all three.</strong> <code>PATCH/DELETE /api/v1/plants/:id</code> exist. <code>POST /api/v1/plants/:id/care_logs</code> exists with <code>params.expect(care_log: [:care_type, :performed_at, :notes])</code>. No backend work for R12.</li>
+    <li><strong>CLAUDE.md cleanup rides this branch.</strong> Working tree already has <code>M CLAUDE.md</code> from the cleanup pass we did before scaffolding R12. Stage it as part of this ticket's first commit (separate commit on the same branch is fine — labelled <code>chore(v2): CLAUDE.md cleanup pass</code>).</li>
+    <li><strong>When you're done:</strong> run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, run the three review skills (<code>/vercel-react-best-practices</code>, <code>/accessibility</code>, <code>/dhh-rails-reviewer</code>), commit on the <code>ticket-049-plant-dialogs</code> branch, then open a PR titled <code>feat(v2): R12 Edit / Log Care / Delete Plant dialogs (TICKET-049)</code>.</li>
+  </ul>
+</section>
+
+</div>
+</body>
+</html>
