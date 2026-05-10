@@ -50,18 +50,38 @@ test.describe('Plant Detail', () => {
     await expect(careRegion).toBeVisible()
   })
 
-  test('overflow menu surfaces placeholder toasts', async ({ page }) => {
+  test('overflow menu opens Edit / Log care / Delete dialogs and Doctor placeholder', async ({ page }) => {
     await registerAndAddPlant(page)
 
-    // Open the in-page overflow menu (Plant actions).
-    await page
-      .getByRole('button', { name: /Plant actions/ })
-      .first()
-      .click()
+    async function openMenu() {
+      await page
+        .getByRole('button', { name: /Plant actions/ })
+        .first()
+        .click()
+    }
 
-    // Menu items render and clicking Edit fires the placeholder toast.
+    // Edit plant → opens EditPlantDialog
+    await openMenu()
     await page.getByRole('menuitem', { name: /Edit plant/ }).click()
-    await expect(page.getByText('Edit plant coming soon')).toBeVisible()
+    await expect(page.getByRole('dialog', { name: /Edit plant/ })).toBeVisible()
+    await page.getByRole('button', { name: /Cancel/ }).click()
+
+    // Log care → opens LogCareDialog
+    await openMenu()
+    await page.getByRole('menuitem', { name: /Log care/ }).click()
+    await expect(page.getByRole('dialog', { name: /Log care/ })).toBeVisible()
+    await page.getByRole('button', { name: /Cancel/ }).click()
+
+    // Delete plant → opens DeletePlantDialog
+    await openMenu()
+    await page.getByRole('menuitem', { name: /Delete plant/ }).click()
+    await expect(page.getByRole('dialog', { name: /Delete plant/ })).toBeVisible()
+    await page.getByRole('button', { name: /Cancel/ }).click()
+
+    // Plant Doctor → still placeholder for R13
+    await openMenu()
+    await page.getByRole('menuitem', { name: /Plant Doctor/ }).click()
+    await expect(page.getByText('Plant Doctor coming soon')).toBeVisible()
   })
 
   test('non-existent plant id renders the empty state', async ({ page }) => {

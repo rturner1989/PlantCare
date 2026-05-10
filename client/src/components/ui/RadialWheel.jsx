@@ -304,13 +304,13 @@ export default function RadialWheel({
       setOpen(false)
       return
     }
+    // Fire the action immediately so dialog opens / navigation starts
+    // without waiting on the pulse. Pulse + wheel close run in parallel
+    // for visual feedback. Timeout stored so unmount / re-click can
+    // cancel it cleanly.
+    onSpoke?.(spoke.id)
     setTappedSpokeId(spoke.id)
-    // Brief confirm pulse before close so the user sees the tap land.
-    // 220ms matches the wheel's exit transition so the pulse and exit
-    // dovetail rather than overlap awkwardly. Stored so unmount /
-    // re-click can cancel it cleanly (avoids stale callbacks).
     tapTimeoutRef.current = setTimeout(() => {
-      onSpoke?.(spoke.id)
       setOpen(false)
       setTappedSpokeId(null)
       tapTimeoutRef.current = null

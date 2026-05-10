@@ -138,6 +138,7 @@ class Plant < ApplicationRecord
       id: id,
       nickname: nickname,
       notes: notes,
+      space_id: space_id,
       space: space.as_json,
       species: species&.as_json,
       calculated_watering_days: calculated_watering_days,

@@ -180,6 +180,7 @@
    * on the top edge. Gives Continue / Log in / Save the slight glossy
    * raise seen in the onboarding mockup. */
   --shadow-cta: 0 6px 16px rgba(20, 144, 47, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  --shadow-cta-danger: 0 6px 16px rgba(196, 65, 42, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.22);
   --shadow-lime-cta: 0 4px 12px rgba(134, 219, 101, 0.3);
 
   /* Gradients */

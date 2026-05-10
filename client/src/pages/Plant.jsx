@@ -17,7 +17,10 @@ import { PLANT_ACTION_SPOKES } from '../components/plants/ActionWheel'
 import PlantAvatar from '../components/plants/Avatar'
 import CareRingsRow from '../components/plants/CareRingsRow'
 import CareView from '../components/plants/CareView'
+import DeletePlantDialog from '../components/plants/DeletePlantDialog'
+import EditPlantDialog from '../components/plants/EditPlantDialog'
 import JournalView from '../components/plants/JournalView'
+import LogCareDialog from '../components/plants/LogCareDialog'
 import SpeciesView from '../components/plants/SpeciesView'
 import ActionIcon from '../components/ui/ActionIcon'
 import Badge from '../components/ui/Badge'
@@ -29,7 +32,7 @@ import Quote from '../components/ui/Quote'
 import RadialWheel from '../components/ui/RadialWheel'
 import Spinner from '../components/ui/Spinner'
 import { useToast } from '../context/ToastContext'
-import { useLogCare, usePlant } from '../hooks/usePlants'
+import { usePlant } from '../hooks/usePlants'
 import { getPlantHeroQuote } from '../personality/heroQuotes'
 import { pluralize } from '../utils/pluralize'
 
@@ -59,9 +62,10 @@ export default function Plant() {
   const navigate = useNavigate()
   const toast = useToast()
   const { data: plant, isLoading, error } = usePlant(id)
-  const logCare = useLogCare(plant?.id)
   const [view, setView] = useState('care')
   const [stuck, setStuck] = useState(false)
+  const [activeDialog, setActiveDialog] = useState(null)
+  const [logDefaultCareType, setLogDefaultCareType] = useState('watering')
   const sentinelRef = useRef(null)
   const shouldReduceMotion = useReducedMotion()
 
@@ -101,15 +105,18 @@ export default function Plant() {
   const primary = primaryActionFor(plant)
   const spokes = PLANT_ACTION_SPOKES.map((spoke) => ({ ...spoke, primary: spoke.id === primary }))
 
+  function openLogDialog(type) {
+    setLogDefaultCareType(type)
+    setActiveDialog('log')
+  }
+
   function handleSpoke(spokeId) {
     if (spokeId === 'water') {
-      logCare.mutate({ care_type: 'watering' })
-      toast.success(`Watered ${plant.nickname} 💧`)
+      openLogDialog('watering')
       return
     }
     if (spokeId === 'feed') {
-      logCare.mutate({ care_type: 'feeding' })
-      toast.success(`Fed ${plant.nickname} 🌱`)
+      openLogDialog('feeding')
       return
     }
     if (spokeId === 'photo') {
@@ -122,11 +129,23 @@ export default function Plant() {
   }
 
   const menuActions = [
-    { id: 'edit', label: 'Edit plant', icon: faPenToSquare, message: 'Edit plant coming soon' },
-    { id: 'log', label: 'Log care', icon: faSeedling, message: 'Manual log coming soon' },
+    { id: 'edit', label: 'Edit plant', icon: faPenToSquare, dialog: 'edit' },
+    { id: 'log', label: 'Log care', icon: faSeedling, dialog: 'log' },
     { id: 'doctor', label: 'Plant Doctor', icon: faStethoscope, message: 'Plant Doctor coming soon' },
-    { id: 'delete', label: 'Delete plant', icon: faTrashCan, variant: 'danger', message: 'Delete coming soon' },
+    { id: 'delete', label: 'Delete plant', icon: faTrashCan, variant: 'danger', dialog: 'delete' },
   ]
+
+  function handleMenuAction(action) {
+    if (action.dialog === 'log') {
+      openLogDialog('watering')
+      return
+    }
+    if (action.dialog) {
+      setActiveDialog(action.dialog)
+      return
+    }
+    toast.info(action.message)
+  }
 
   const ageText = ageLabel(plant)
   const personalityQuote = plant.species?.personality ? getPlantHeroQuote(plant.species.personality, plant.id) : null
@@ -142,7 +161,7 @@ export default function Plant() {
             key={action.id}
             icon={action.icon}
             variant={action.variant}
-            onClick={() => toast.info(action.message)}
+            onClick={() => handleMenuAction(action)}
           >
             {action.label}
           </Menu.Item>
@@ -256,6 +275,20 @@ export default function Plant() {
       {view === 'care' && <CareView plant={plant} />}
       {view === 'species' && <SpeciesView plant={plant} />}
       {view === 'journal' && <JournalView plant={plant} />}
+
+      <EditPlantDialog
+        plant={plant}
+        open={activeDialog === 'edit'}
+        onClose={() => setActiveDialog(null)}
+        onDeleteRequest={() => setActiveDialog('delete')}
+      />
+      <LogCareDialog
+        plant={plant}
+        open={activeDialog === 'log'}
+        onClose={() => setActiveDialog(null)}
+        defaultCareType={logDefaultCareType}
+      />
+      <DeletePlantDialog plant={plant} open={activeDialog === 'delete'} onClose={() => setActiveDialog(null)} />
     </div>
   )
 }

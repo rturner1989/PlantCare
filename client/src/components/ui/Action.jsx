@@ -8,6 +8,7 @@ const SIZE_MD = 'gap-2 px-6 py-3 text-sm font-extrabold active:scale-[0.98]'
 const VARIANT_CLASSES = {
   primary: `${BASE_BUTTON} ${SIZE_MD} text-white bg-[image:var(--gradient-brand)] shadow-[var(--shadow-cta)]`,
   secondary: `${BASE_BUTTON} ${SIZE_MD} bg-mint text-emerald`,
+  danger: `${BASE_BUTTON} ${SIZE_MD} text-white bg-coral-deep shadow-[var(--shadow-cta-danger)]`,
   'cta-card':
     'block w-full p-4 rounded-lg text-white text-left bg-[image:var(--gradient-forest)] transition-transform active:scale-[0.99]',
   ghost: 'inline-flex items-center gap-1 text-ink-soft font-semibold hover:text-ink transition-colors',

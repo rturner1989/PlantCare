@@ -100,13 +100,22 @@ function RecentCarePanel({ plant }) {
 function CareLogRow({ log }) {
   const icon = CARE_TYPE_ICON[log.care_type] ?? '🌿'
   const verb = CARE_TYPE_VERB[log.care_type] ?? log.care_type
-  const when = log.performed_at
+  const relativeWhen = log.performed_at
     ? RELATIVE_TIME.format(
         Math.round((new Date(log.performed_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
         'day',
       )
     : null
-  return <PanelRow icon={icon} label={verb} sub={when} />
+  const subContent = log.notes ? (
+    <>
+      {relativeWhen}
+      {relativeWhen && <span className="mx-1.5 text-ink-softer">·</span>}
+      <span className="italic">{log.notes}</span>
+    </>
+  ) : (
+    relativeWhen
+  )
+  return <PanelRow icon={icon} label={verb} sub={subContent} />
 }
 
 const ENV_AXES = [

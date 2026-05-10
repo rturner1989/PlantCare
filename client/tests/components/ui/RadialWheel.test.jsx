@@ -65,9 +65,10 @@ describe('RadialWheel', () => {
     const onSpoke = vi.fn()
     render(<RadialWheel spokes={SPOKES} onSpoke={onSpoke} defaultOpen />)
     fireEvent.click(screen.getByRole('menuitem', { name: /^Feed,/ }))
-    // 220ms confirm pulse delay before onSpoke fires + wheel closes.
-    await waitFor(() => expect(onSpoke).toHaveBeenCalledWith('feed'))
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    // onSpoke fires synchronously so dialog/navigation handlers don't
+    // wait on the 220ms pulse. Wheel closes after the pulse completes.
+    expect(onSpoke).toHaveBeenCalledWith('feed')
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument())
   })
 
   describe('keyboard nav', () => {
