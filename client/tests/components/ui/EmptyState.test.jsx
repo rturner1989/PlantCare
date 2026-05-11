@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import EmptyState from '../../../src/components/ui/EmptyState'
 
 describe('EmptyState', () => {
-  describe('slot rendering', () => {
-    it('renders only the description when icon/title/action are omitted', () => {
+  describe('slot rendering (defaults to card variant)', () => {
+    it('renders only the description when other slots are omitted', () => {
       render(<EmptyState description="No species found." />)
       expect(screen.getByText('No species found.')).toBeInTheDocument()
       expect(screen.queryByRole('heading')).not.toBeInTheDocument()
@@ -17,92 +17,130 @@ describe('EmptyState', () => {
       expect(heading.tagName).toBe('H2')
     })
 
-    it('promotes the title to an <h1> when headingLevel="h1" (for page-level empties)', () => {
+    it('promotes the title to an <h1> when headingLevel="h1" is passed', () => {
       render(<EmptyState title="All caught up!" headingLevel="h1" />)
-      const heading = screen.getByRole('heading', { name: 'All caught up!' })
-      expect(heading.tagName).toBe('H1')
+      expect(screen.getByRole('heading', { name: 'All caught up!' }).tagName).toBe('H1')
     })
 
-    it('renders the icon inside a circular mint badge', () => {
-      render(<EmptyState icon={<span data-testid="leaf-icon">🌿</span>} />)
-      const icon = screen.getByTestId('leaf-icon')
-      const badge = icon.parentElement
-      expect(badge).toHaveClass('rounded-full')
-      expect(badge).toHaveClass('bg-mint')
-    })
-
-    it('renders the action below the description', () => {
-      render(<EmptyState description="Empty" action={<button type="button">Add</button>} />)
-      expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument()
-    })
-
-    it('renders all four slots together when fully populated', () => {
+    it('accepts a ReactNode title (so callers can italicise a word with <em>)', () => {
       render(
         <EmptyState
-          icon={<span data-testid="icon">i</span>}
-          title="Empty house"
-          description="Add your first plant."
-          action={<button type="button">Add</button>}
-        />,
-      )
-      expect(screen.getByTestId('icon')).toBeInTheDocument()
-      expect(screen.getByRole('heading', { name: 'Empty house' })).toBeInTheDocument()
-      expect(screen.getByText('Add your first plant.')).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument()
-    })
-  })
-
-  describe('description spacing', () => {
-    it('omits mt-1 when there is no title above (description hugs the top)', () => {
-      render(<EmptyState description="Just text" />)
-      expect(screen.getByText('Just text')).not.toHaveClass('mt-1')
-    })
-
-    it('adds mt-1 when a title is present (separates the two)', () => {
-      render(<EmptyState title="Heading" description="Detail" />)
-      expect(screen.getByText('Detail')).toHaveClass('mt-1')
-    })
-  })
-
-  describe('description content', () => {
-    it('accepts a JSX node, not just a string (for query interpolation etc.)', () => {
-      render(
-        <EmptyState
-          description={
+          title={
             <>
-              No matches for <strong>"xyz"</strong>.
+              Your greenhouse is <em>waiting</em>
             </>
           }
         />,
       )
-      expect(screen.getByText('xyz', { exact: false })).toBeInTheDocument()
-      expect(screen.getByText('"xyz"').tagName).toBe('STRONG')
+      const heading = screen.getByRole('heading')
+      expect(heading).toHaveTextContent('Your greenhouse is waiting')
+      expect(heading.querySelector('em')).toBeInTheDocument()
+    })
+
+    it('renders a hint string under the description', () => {
+      render(<EmptyState description="Filtered." hint="Active filters: 3" />)
+      expect(screen.getByText('Active filters: 3')).toBeInTheDocument()
     })
   })
 
-  describe('layout', () => {
-    it('centers its slots in a flex column', () => {
+  describe('actions', () => {
+    it('accepts a single action node via the `actions` prop', () => {
+      render(<EmptyState actions={<button type="button">Add</button>} />)
+      expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument()
+    })
+
+    it('accepts an array of action nodes via `actions`', () => {
+      render(
+        <EmptyState
+          actions={[
+            <button key="a" type="button">
+              Primary
+            </button>,
+            <button key="b" type="button">
+              Secondary
+            </button>,
+          ]}
+        />,
+      )
+      expect(screen.getByRole('button', { name: 'Primary' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Secondary' })).toBeInTheDocument()
+    })
+
+    it('filters out falsy entries in the `actions` array', () => {
+      render(
+        <EmptyState
+          actions={[
+            <button key="a" type="button">
+              Primary
+            </button>,
+            null,
+            false,
+          ]}
+        />,
+      )
+      expect(screen.getByRole('button', { name: 'Primary' })).toBeInTheDocument()
+    })
+  })
+
+  describe('tone (card variant)', () => {
+    it.each(['mint', 'forest', 'sunshine', 'coral', 'sky'])('applies the %s tone class to the disc', (tone) => {
+      render(<EmptyState icon={<span data-testid="icon">i</span>} tone={tone} />)
+      const disc = screen.getByTestId('icon').parentElement
+      // Each tone has a distinct gradient — assert the disc has a
+      // background gradient class (not the solid bg-mint of the old API).
+      expect(disc.className).toMatch(/bg-\[linear-gradient/)
+    })
+
+    it('defaults to mint tone when none provided', () => {
+      render(<EmptyState icon={<span data-testid="icon">i</span>} />)
+      const disc = screen.getByTestId('icon').parentElement
+      expect(disc.className).toContain('text-emerald')
+    })
+
+    it('forest tone uses paper text (only light-text tone)', () => {
+      render(<EmptyState icon={<span data-testid="icon">i</span>} tone="forest" />)
+      const disc = screen.getByTestId('icon').parentElement
+      expect(disc.className).toContain('text-paper')
+    })
+  })
+
+  describe('card variant chrome', () => {
+    it('renders inside a paper-bg card with warm-md shadow + min-height', () => {
       const { container } = render(<EmptyState description="hi" />)
       const root = container.firstChild
-      expect(root).toHaveClass('flex')
-      expect(root).toHaveClass('flex-col')
-      expect(root).toHaveClass('items-center')
-      expect(root).toHaveClass('justify-center')
-      expect(root).toHaveClass('text-center')
+      expect(root.className).toContain('bg-paper')
+      expect(root.className).toContain('min-h-[380px]')
+      expect(root.className).toContain('empty-card-blob')
+    })
+  })
+
+  describe('inline variant', () => {
+    it('drops the card chrome (no paper bg, no min-height, no blob)', () => {
+      const { container } = render(<EmptyState variant="inline" description="hi" />)
+      const root = container.firstChild
+      expect(root.className).not.toContain('bg-paper')
+      expect(root.className).not.toContain('min-h-[380px]')
+      expect(root.className).not.toContain('empty-card-blob')
+    })
+
+    it('still centers its slots in a flex column', () => {
+      const { container } = render(<EmptyState variant="inline" description="hi" />)
+      const root = container.firstChild
+      expect(root.className).toContain('flex-col')
+      expect(root.className).toContain('items-center')
+      expect(root.className).toContain('text-center')
     })
 
     it("does NOT bake in vertical padding — outer spacing is the caller's job", () => {
-      const { container } = render(<EmptyState description="hi" />)
+      const { container } = render(<EmptyState variant="inline" description="hi" />)
       expect(container.firstChild.className).not.toMatch(/\bpy-/)
     })
   })
 
-  describe('className', () => {
-    it('merges a user-provided className alongside the layout classes', () => {
-      const { container } = render(<EmptyState description="hi" className="py-8" />)
-      const root = container.firstChild
-      expect(root).toHaveClass('py-8')
-      expect(root).toHaveClass('flex')
+  describe('className passthrough', () => {
+    it('merges a user-provided className onto the outer container', () => {
+      const { container } = render(<EmptyState variant="inline" description="hi" className="custom-thing" />)
+      expect(container.firstChild.className).toContain('custom-thing')
     })
   })
 })

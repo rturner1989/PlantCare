@@ -32,6 +32,7 @@ class Plant < ApplicationRecord
   belongs_to :species, optional: true
   has_many :care_logs, dependent: :destroy
   has_many :plant_photos, dependent: :destroy
+  has_many :achievements, as: :source, dependent: :destroy
 
   delegate :user, to: :space
 

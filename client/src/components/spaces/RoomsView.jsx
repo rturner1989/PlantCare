@@ -86,12 +86,17 @@ export default function RoomsView({ spaces, plants, weatherToday, onAddSpace, on
   if (spaces.length === 0) {
     return (
       <EmptyState
-        icon={<span>🏡</span>}
-        title="No spaces yet"
+        tone="sunshine"
+        icon={<span>⌂</span>}
+        title={
+          <>
+            No spaces, no plants — <em>yet</em>
+          </>
+        }
         description="Spaces keep your plants grouped by where they live. Add one to get started."
-        action={
-          <Action to="/welcome" variant="primary">
-            Set up spaces
+        actions={
+          <Action onClick={onAddSpace} variant="primary">
+            Add a space
           </Action>
         }
       />

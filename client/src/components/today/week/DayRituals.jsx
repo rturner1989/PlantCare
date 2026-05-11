@@ -6,6 +6,7 @@ import { useLogCare } from '../../../hooks/usePlants'
 import PlantActionWheel from '../../plants/ActionWheel'
 import PlantAvatar from '../../plants/Avatar'
 import Action from '../../ui/Action'
+import EmptyState from '../../ui/EmptyState'
 
 const KIND_LABEL = { water: 'Water', feed: 'Feed' }
 const KIND_PAST = { water: 'Watered', feed: 'Fed' }
@@ -191,16 +192,26 @@ function RowContent({ task, plant, verb, stateClass, stateLabel }) {
 }
 
 function RitualsEmpty({ isToday }) {
-  const title = isToday ? 'All caught up' : 'Nothing scheduled'
-  const description = isToday ? 'Your plants are thriving. Check back later.' : 'No rituals lined up for this day.'
+  const title = isToday ? (
+    <>
+      Everyone's <em className="italic">thriving</em>
+    </>
+  ) : (
+    <>
+      Nothing <em className="italic">scheduled</em>
+    </>
+  )
+  const description = isToday ? 'Your plants are happy. Check back later.' : 'No rituals lined up for this day.'
 
   return (
-    <div className="px-4 py-8 text-center flex flex-col items-center gap-2">
-      <span aria-hidden="true" className="text-3xl mb-1">
-        ✨
-      </span>
-      <p className="text-base font-bold text-ink">{title}</p>
-      <p className="text-sm text-ink-soft">{description}</p>
-    </div>
+    <EmptyState
+      variant="inline"
+      tone={isToday ? 'forest' : 'mint'}
+      icon={<span>{isToday ? '🌿' : '🗓️'}</span>}
+      title={title}
+      description={description}
+      headingLevel="h3"
+      className="py-6"
+    />
   )
 }

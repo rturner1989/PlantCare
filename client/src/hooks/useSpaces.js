@@ -16,6 +16,8 @@ export function useArchiveSpace() {
     mutationFn: (id) => apiPost(`/api/v1/spaces/${id}/archive`, {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['spaces'] })
+      queryClient.invalidateQueries({ queryKey: ['plants'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
 }
@@ -26,14 +28,17 @@ export function useUnarchiveSpace() {
     mutationFn: (id) => apiDelete(`/api/v1/spaces/${id}/archive`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['spaces'] })
+      queryClient.invalidateQueries({ queryKey: ['plants'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
 }
 
-export function useSpacePresets() {
+export function useSpacePresets({ enabled = true } = {}) {
   return useQuery({
     queryKey: ['spaces', 'presets'],
     queryFn: () => apiGet('/api/v1/spaces/presets'),
+    enabled,
   })
 }
 
@@ -51,6 +56,7 @@ export function useCreateSpace() {
     mutationFn: (data) => apiPost('/api/v1/spaces', { space: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['spaces'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
 }
@@ -79,7 +85,12 @@ export function useDeleteSpace() {
   return useMutation({
     mutationFn: (id) => apiDelete(`/api/v1/spaces/${id}`),
     onSuccess: () => {
+      // Server-side cascade deletes the space's plants too — refetch
+      // the plant + dashboard queries so Today / House stop rendering
+      // ghost rows for plants that no longer exist.
       queryClient.invalidateQueries({ queryKey: ['spaces'] })
+      queryClient.invalidateQueries({ queryKey: ['plants'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
 }

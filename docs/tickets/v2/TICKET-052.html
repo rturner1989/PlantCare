@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>TICKET-052 — Empty + Error states sweep</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #f5f5f0; color: #1a1a1a; padding: 40px; line-height: 1.6;
+  }
+  .ticket { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+  .header { background: #1a1a2e; color: #fff; padding: 32px 40px; }
+  .header .id { font-size: 13px; opacity: 0.6; letter-spacing: 0.1em; text-transform: uppercase; }
+  .header h1 { font-size: 28px; font-weight: 700; margin: 8px 0 16px; }
+  .badges { display: flex; gap: 8px; }
+  .badge { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+  .badge.status { background: #2d6a4f; color: #fff; }
+  .badge.priority-medium { background: #f4a261; color: #1a1a1a; }
+  section { padding: 28px 40px; border-top: 1px solid #eee; }
+  section h2 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #666; margin-bottom: 16px; }
+  section > p { font-size: 15px; margin-bottom: 12px; }
+  ol, ul { padding-left: 20px; }
+  li { margin-bottom: 10px; font-size: 15px; }
+
+  .plan-strip { display: flex; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+  .plan-step { flex: 1; min-width: 80px; padding: 10px 8px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f0f0ea; color: #888; border: 1px solid transparent; }
+  .plan-step.done { background: #d8ecdc; color: #2d6a4f; }
+  .plan-step.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+  .plan-step .num { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
+
+  .artifact-list { display: grid; gap: 10px; margin-top: 8px; }
+  .artifact { padding: 14px 18px; background: #f8faf8; border-left: 3px solid #2d6a4f; border-radius: 0 8px 8px 0; }
+  .artifact .name { font-family: 'SF Mono', Consolas, monospace; font-size: 13px; font-weight: 700; color: #1a1a2e; }
+  .artifact .role { font-size: 14px; color: #444; margin-top: 4px; }
+  .artifact .kind { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 100px; background: #1a1a2e; color: #fff; margin-right: 8px; vertical-align: middle; }
+  .artifact .kind.component { background: #1a1a2e; }
+  .artifact .kind.extend { background: #f4a261; color: #1a1a1a; }
+  .artifact .kind.sweep { background: #6a4a8f; }
+  .artifact .kind.test { background: #6a4a8f; }
+
+  .shape { background: #1a1a2e; color: #d4d4d4; border-radius: 8px; padding: 20px 24px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; margin-top: 12px; overflow-x: auto; white-space: pre; }
+
+  .criterion { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .criterion .box { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+  .criterion span { font-size: 15px; }
+
+  .mockup-preview { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+  .mockup-preview iframe { width: 100%; height: 360px; border: none; background: #fff; }
+  .mockup-preview .label { padding: 10px 14px; background: #f5f5f0; font-size: 12px; font-weight: 700; color: #666; display: flex; justify-content: space-between; align-items: center; }
+  .mockup-preview .label a { color: #2d6a4f; text-decoration: none; font-weight: 700; }
+  .mockup-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+
+  blockquote { border-left: 3px solid #2d6a4f; padding: 12px 16px; margin: 12px 0; background: #f8faf8; border-radius: 0 8px 8px 0; font-size: 14px; color: #444; }
+  code { background: #f0f0ea; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; }
+
+  .learn { background: #fff8e8; border-left: 3px solid #f4a261; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #4a3a1a; }
+  .learn strong { color: #7a5a1a; }
+
+  .rails-map { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+  .rails-map th { text-align: left; padding: 10px 12px; background: #1a1a2e; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+  .rails-map td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+  .rails-map tr:last-child td { border-bottom: none; }
+  .rails-map td:nth-child(3) { color: #666; font-size: 13px; }
+
+  .plan-link { display: inline-block; padding: 8px 14px; background: #f0f0ea; border-radius: 6px; font-size: 13px; color: #444; text-decoration: none; margin-top: 8px; }
+  .plan-link:hover { background: #e6e6de; }
+
+  .file-list { list-style: none; padding: 0; }
+  .file-list li { padding: 10px 14px; background: #f8f8f5; border-radius: 6px; margin-bottom: 4px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; display: flex; justify-content: space-between; }
+  .file-list .action { font-family: inherit; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ticket">
+
+<div class="header">
+  <div class="id">TICKET-052 · v2 · Closeout sweep</div>
+  <h1>Empty + Error states sweep</h1>
+  <div class="badges">
+    <span class="badge status">Open</span>
+    <span class="badge priority-medium">Priority: Medium</span>
+  </div>
+</div>
+
+<section>
+  <h2>Summary</h2>
+  <p>Closeout work, not new feature. Aligns 8+ existing empty-state surfaces against mockup 28 (per-region tone, hint slot, multi-action), introduces a full-page <code>ErrorState</code> primitive for 404/500, adds an app-level <code>ErrorBoundary</code> to catch render crashes, and a <code>WidgetError</code> for partial-region failures. Two memory entries close: <code>project_empty_states_mockup.md</code> + <code>project_error_states_mockup.md</code>.</p>
+  <p>In one sentence: <strong>stop apologising for the placeholder states — make every "nothing here" or "something broke" surface match the app's voice.</strong></p>
+</section>
+
+<section>
+  <h2>Where this fits</h2>
+
+  <div class="plan-strip">
+    <div class="plan-step done"><span class="num">R11</span>Add Plant</div>
+    <div class="plan-step done"><span class="num">R12</span>Edit / Log / Delete</div>
+    <div class="plan-step current"><span class="num">Closeout</span>Empty + Error states</div>
+    <div class="plan-step"><span class="num">Next</span>Offline + queue</div>
+    <div class="plan-step"><span class="num">R13</span>Plant Doctor</div>
+    <div class="plan-step"><span class="num">…</span>R-rest + rebrand</div>
+  </div>
+
+  <p><strong>What came before.</strong> R11 (TICKET-047) shipped the Add Plant flow with its own one-off "no species" state. R12 (TICKET-049) wired Plant Detail's overflow menu and surfaced that <code>CareView</code>'s "Recent care" panel still lacks an empty state for plants with zero logs. Across the app several surfaces still render bare strings or ad-hoc paragraphs for "nothing here" — Today, House, RoomsView, ListView (filtered), SpeciesPicker (search), NotificationsDrawer, Plant Detail. Mockup 28 catalogues the canonical empty-state shape; mockup 32 the error-state shapes. This ticket retrofits both everywhere they're missing.</p>
+
+  <p><strong>What this unlocks.</strong> R13 Plant Doctor will need its own empty state ("no symptoms picked yet") — primitive will be ready. Future Achievements, Encyclopedia, and any new region inherits the extended <code>EmptyState</code> + new <code>ErrorState</code>. App-level <code>ErrorBoundary</code> means the next render crash blanks one widget instead of the whole page. The offline UX slice from mockup 32 (banner, cached-row labels, mutation queue, replay on reconnect) is deferred to its own ticket — service-worker + IndexedDB territory needs its own focus.</p>
+
+  <p><strong>Mental model.</strong> Rails ships <code>rescue_from ActiveRecord::RecordNotFound, with: :render_404</code> and <code>render 'shared/error'</code> partials. This ticket is the React equivalent for a SPA — <code>&lt;Route path="*" /&gt;</code> catches deleted records, <code>ErrorBoundary</code> rescues render crashes, <code>EmptyState</code> is the shared partial.</p>
+</section>
+
+<section>
+  <h2>What you're building</h2>
+
+  <div class="artifact-list">
+
+    <div class="artifact">
+      <div><span class="kind extend">extend</span><span class="name">client/src/components/ui/EmptyState.jsx</span></div>
+      <p class="role">Add <code>tone</code> prop (<code>mint</code> default, <code>forest</code>, <code>sunshine</code>, <code>coral</code>, <code>sky</code>) controlling the illustration disc colour, a <code>hint</code> slot for the small italic line ("Streak: 7 days", "Active filters: 3"), and support for multiple actions (rename <code>action</code> → <code>actions</code> ReactNode-or-array, or add a sibling <code>secondaryActions</code> prop — pick whichever reads cleaner). Title accepts <code>ReactNode</code> already so callers can wrap a word in <code>&lt;em&gt;</code> for the italic emphasis convention from the mockup.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind component">component</span><span class="name">client/src/components/ui/ErrorState.jsx</span></div>
+      <p class="role">Full-page error surface. <code>scheme</code> prop picks between <code>"404"</code> (forest medallion + greenhouse copy) and <code>"500"</code> (coral medallion + "wobbled on our end" copy). Renders a Fraunces italic medallion ("404" or "!"), <code>headline</code>, <code>body</code>, and 1-3 <code>actions</code> (primary + secondary + ghost). Used by the catch-all route + Plant.jsx 404 + the app-level <code>ErrorBoundary</code> fallback.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind component">component</span><span class="name">client/src/components/ui/ErrorBoundary.jsx</span></div>
+      <p class="role">React error boundary class (class component — error boundaries aren't supported in function components). Catches render-time exceptions in its children, renders a fallback (default: <code>&lt;ErrorState scheme="500" /&gt;</code>). Wraps <code>&lt;Outlet /&gt;</code> in <code>AppLayout</code> so one bad route doesn't blank the page. Accepts a <code>fallback</code> prop so per-region usage (Organiser widgets, Notifications drawer) can render in-card error UI instead.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind component">component</span><span class="name">client/src/components/ui/WidgetError.jsx</span></div>
+      <p class="role">In-card error UI for partial failures — small icon, "Couldn't load" copy, retry action. Passed to <code>ErrorBoundary fallback</code> when wrapping a single widget so the surrounding page stays intact. Distinct from full-page <code>ErrorState</code>: this is a quiet placeholder, not a full surface takeover.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind sweep">sweep</span><span class="name">Per-page empty-state realignment</span></div>
+      <p class="role">Every consumer of <code>EmptyState</code> gets revisited against mockup 28: Today (×2: no plants + no urgent rituals), House / RoomsView (no spaces), ListView (filtered no-match), SpeciesPicker (search no-match), NotificationsDrawer (empty inbox), Plant Detail's CareView "Recent care" panel (no logs yet — currently shows nothing). Each picks the right <code>tone</code>, italicises the emphasis word, and sets primary + secondary actions where the mockup specifies them.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind sweep">sweep</span><span class="name">404 routing</span></div>
+      <p class="role">Plant.jsx currently renders <code>&lt;EmptyState&gt;</code> for "Plant not found" — that's wrong, it's a 404, not an empty list. Swap to <code>&lt;ErrorState scheme="404" /&gt;</code>. Add a top-level catch-all route in <code>App.jsx</code> so visiting any non-existent path lands on the same ErrorState — Rails' <code>rescue_from ActionController::RoutingError</code> equivalent.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind sweep">sweep</span><span class="name">AppLayout ErrorBoundary wiring</span></div>
+      <p class="role">Wrap <code>&lt;Outlet /&gt;</code> in <code>&lt;ErrorBoundary&gt;</code> at the AppLayout level so a render crash inside a route gets caught and replaced with <code>ErrorState scheme="500"</code> while keeping the sidebar / topbar chrome around it. Optionally wrap a couple of independent-widget regions (Organiser, Notifications drawer) in their own per-region boundaries with <code>WidgetError</code> fallback so one bad widget doesn't take down the whole route either.</p>
+    </div>
+
+    <div class="artifact">
+      <div><span class="kind test">tests</span><span class="name">tests/components/ui/{EmptyState,ErrorState,ErrorBoundary}.test.jsx + tests/pages/error-states.spec.js</span></div>
+      <p class="role">Vitest coverage per primitive: tone-class application, scheme switching on ErrorState, ErrorBoundary catches + renders fallback (default and custom). One Playwright spec exercises 404 routing (visit fake URL → ErrorState page) and confirms the layout chrome (sidebar / topbar) stays around the 404.</p>
+    </div>
+
+  </div>
+
+  <div class="shape">AppLayout
+└── &lt;ErrorBoundary fallback=&lt;ErrorState scheme="500" /&gt;&gt;
+    └── &lt;Outlet /&gt;
+        ├── routed pages (Today, House, Plant, …)
+        │   └── (optional) per-widget &lt;ErrorBoundary fallback=&lt;WidgetError /&gt;&gt;
+        └── &lt;Route path="*" element=&lt;ErrorState scheme="404" /&gt; /&gt;</div>
+
+  <p style="margin-top:14px"><em>Out of scope:</em> OfflineBanner + <code>useOnlineStatus</code> hook (separate ticket — pairs with the deferred queue work); persistent mutation queue + replay on reconnect (service worker + IndexedDB); service worker installation; server-side error reporting (Honeybadger/Sentry wiring); Achievements empty state (feature not built).</p>
+</section>
+
+<section>
+  <h2>Requirements</h2>
+  <ol>
+    <li>Every page-level "nothing here" state renders the extended <code>EmptyState</code> with the correct tone, an italicised emphasis word in the title, and the action set from mockup 28.</li>
+    <li>Filter no-matches (ListView, SpeciesPicker, NotificationsDrawer filtered) show their distinct variant — different illustration, different actions ("Clear filters", "Browse popular", "Request species" etc.) — not a generic "nothing here".</li>
+    <li>Visiting a deleted, non-existent, or typo'd URL renders the full-page <code>ErrorState scheme="404"</code> with Back-to-Today as the primary action — not a blank page, not the empty Layout chrome, not a generic React Router fallback.</li>
+    <li>A render-time exception inside any routed page is caught by the app-level <code>ErrorBoundary</code> and replaced with <code>ErrorState scheme="500"</code> + Retry. The error doesn't blank the layout chrome (sidebar / topbar stay visible).</li>
+    <li>Plant Detail's "Recent care" panel renders the "No care yet" empty state when the plant has zero CareLog entries. Logging one (via wheel water/feed or Log care dialog) clears the empty state and shows the log.</li>
+    <li>The primitives are reusable — no copy-pasted inline error/empty markup left anywhere in <code>pages/</code> or <code>components/</code> after the sweep.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Acceptance criteria</h2>
+  <div class="criterion"><div class="box"></div><span>Sign in as a brand-new user → Today renders "Your greenhouse is <em>waiting</em>" with Add-a-plant primary + Tour-the-app secondary, mint-tone illustration disc.</span></div>
+  <div class="criterion"><div class="box"></div><span>Today on a user with plants but no urgent rituals → "Everyone's <em>thriving</em>" forest-tone state, "Streak: N days" hint visible.</span></div>
+  <div class="criterion"><div class="box"></div><span>House on a user with no spaces → "No spaces, no plants — <em>yet</em>" sunshine-tone state, Add-plant primary + Add-space secondary.</span></div>
+  <div class="criterion"><div class="box"></div><span>ListView with a filter combo that matches nothing → "No entries match those <em>filters</em>" with Clear-filters primary + "Widen to 30 days" ghost. Hint shows "Active filters: N".</span></div>
+  <div class="criterion"><div class="box"></div><span>Add Plant dialog → search "zylarphia" (or any nonsense) → "We couldn't find <em>"zylarphia"</em>" with Browse-popular primary + Request-species secondary.</span></div>
+  <div class="criterion"><div class="box"></div><span>Visit <code>/plants/999999</code> (non-existent plant id) → full-page 404 ErrorState, NOT the page-level "Plant not found" EmptyState. Sidebar + topbar chrome stays around the ErrorState.</span></div>
+  <div class="criterion"><div class="box"></div><span>Visit <code>/totally-fake-route</code> → same full-page 404. Refreshing on the 404 page keeps you on 404 (not a blank screen).</span></div>
+  <div class="criterion"><div class="box"></div><span>Temporarily insert <code>throw new Error('oops')</code> at the top of a page component → 500 ErrorState renders inside the layout. Removing the throw + clicking Retry recovers the page.</span></div>
+  <div class="criterion"><div class="box"></div><span>If a per-widget boundary is wired (Organiser / Notifications drawer), forcing a throw inside that widget renders <code>WidgetError</code> in-card without taking down the surrounding route.</span></div>
+  <div class="criterion"><div class="box"></div><span>Plant Detail on a freshly-added plant with no logs → CareView "Recent care" panel shows the empty state, not a blank row list.</span></div>
+  <div class="criterion"><div class="box"></div><span>Keyboard a11y: ErrorState's primary action receives initial focus on mount; <code>WidgetError</code> retry button is keyboard-reachable.</span></div>
+  <div class="criterion"><div class="box"></div><span>Lint and tests pass: <code>./scripts/lint.sh</code> + <code>./scripts/run_tests.sh client</code>. Reviews pass: comment-audit, <code>/vercel-react-best-practices</code>, <code>/accessibility</code>.</span></div>
+</section>
+
+<section>
+  <h2>Design references</h2>
+
+  <div class="mockup-grid">
+    <div class="mockup-preview">
+      <div class="label"><span>Mockup 28 — Empty states (8 variants)</span><a href="../../mockups/plantcare-ui/v2/28-empty-states-v1.html" target="_blank">Open ↗</a></div>
+      <iframe src="../../mockups/plantcare-ui/v2/28-empty-states-v1.html"></iframe>
+    </div>
+    <div class="mockup-preview">
+      <div class="label"><span>Mockup 32 — Error & offline states</span><a href="../../mockups/plantcare-ui/v2/32-error-states-v1.html" target="_blank">Open ↗</a></div>
+      <iframe src="../../mockups/plantcare-ui/v2/32-error-states-v1.html"></iframe>
+    </div>
+  </div>
+
+  <blockquote>
+    <strong>From mockup 28's note:</strong> one shell, per-region copy + illustration, 1 primary + 0-2 secondary actions. Tones: mint (default/positive), forest (success/streak), sunshine (additive/CTA-heavy), coral (warning/destructive context), sky (search/discovery).
+  </blockquote>
+
+  <blockquote>
+    <strong>From mockup 32's note:</strong> 404 medallion uses Fraunces italic with the gradient-display emerald→leaf (same vocabulary as hero h1s). 500 medallion is coral-gradient with a paper "!" — urgency without shouting. Copy leans into the plant metaphor ("This plant isn't in your greenhouse" / "wobbled on our end") not the HTTP status text. Per-widget failures get a quieter in-card placeholder ("A widget failed" scene in mockup 32) — that's <code>WidgetError</code>.
+  </blockquote>
+
+  <p style="margin-top:14px"><strong>What this ticket SKIPS from the mockups.</strong> Mockup 28's Achievements variant (feature not built yet — defer to that ticket). Mockup 32's offline banner + cached-rows labels + mutation queue + replay behaviour — service-worker + IndexedDB territory, separate ticket. Mockup 32's "Report this link" / "Contact support" actions can be stubbed to toasts ("Coming soon") rather than wired to real endpoints.</p>
+</section>
+
+<section>
+  <h2>React concepts worth looking up</h2>
+
+  <div class="learn">
+    <strong>Error boundaries — still class-component territory.</strong> React 19 didn't change this: <code>componentDidCatch</code> + <code>getDerivedStateFromError</code> are the only way to catch render-time exceptions in descendants. Hooks can't replace this — there's no <code>useErrorBoundary</code> in core (TanStack Query has its own <code>useQueryErrorResetBoundary</code> for the query layer, but that's different). The class component is small; wrap it once at <code>AppLayout</code> and once per major widget that should fail isolated. Rails analog: <code>rescue_from</code> inside <code>ApplicationController</code> for app-wide + per-controller overrides for slice-level fallback.
+  </div>
+
+  <div class="learn">
+    <strong>Catch-all routes in React Router v7.</strong> <code>&lt;Route path="*" element=&lt;ErrorState scheme="404" /&gt; /&gt;</code> as the last child of <code>&lt;Routes&gt;</code> matches anything no earlier route matched. Lives inside the layout route so the 404 page keeps the persistent chrome (sidebar / topbar). Rails analog: <code>match '*unmatched', to: 'errors#not_found'</code> at the bottom of <code>routes.rb</code> — same pattern, same semantics, same "last route wins" rule.
+  </div>
+
+  <div class="learn">
+    <strong>Focus on mount for full-page error states.</strong> When 404/500 replaces the route content, keyboard focus is sitting on whatever the user last clicked — often a Link in the sidebar. Focus the primary action ("Back to Today") on mount so Enter recovers the user instantly. Same pattern as ConfirmDialog from TICKET-049 (<code>requestAnimationFrame</code> + ref). Don't use <code>autoFocus</code> — it doesn't survive React 19's concurrent mount + focuses too early.
+  </div>
+
+  <div class="learn">
+    <strong>ErrorBoundary placement matters.</strong> If the boundary wraps the whole router (above the layout), a render crash blanks the sidebar + topbar — defeating the point. Wrap <code>&lt;Outlet /&gt;</code> only so layout chrome survives. Per-widget boundaries go inside the page next to the widget they protect — Organiser widgets each get their own <code>&lt;ErrorBoundary fallback=&lt;WidgetError /&gt; /&gt;</code> so one fetch failure doesn't take down the dashboard.
+  </div>
+
+  <div class="learn">
+    <strong>ErrorBoundary reset across navigation.</strong> A boundary that has caught an error stays caught until something tells it to reset. React Router doesn't reset boundaries on route change by default. Pass <code>key={location.pathname}</code> on the boundary so it remounts (and re-renders fresh) when the route changes — or use TanStack's <code>QueryErrorResetBoundary</code> if the error came from a query. Otherwise the user is trapped on the 500 screen even after navigating elsewhere.
+  </div>
+</section>
+
+<section>
+  <h2>Rails ↔ React mental map</h2>
+  <table class="rails-map">
+    <thead><tr><th>Rails</th><th>React equivalent in this ticket</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>rescue_from ActionController::RoutingError</code></td>
+        <td><code>&lt;Route path="*" element=&lt;ErrorState scheme="404" /&gt; /&gt;</code></td>
+        <td>Catch-all at the bottom of the route table</td>
+      </tr>
+      <tr>
+        <td><code>rescue_from StandardError</code> in ApplicationController</td>
+        <td><code>&lt;ErrorBoundary fallback=&lt;ErrorState scheme="500" /&gt; /&gt;</code></td>
+        <td>Class component — only way to catch render-time throws</td>
+      </tr>
+      <tr>
+        <td><code>render 'shared/empty_state'</code> partial</td>
+        <td><code>&lt;EmptyState tone="mint" /&gt;</code> primitive</td>
+        <td>Same job — one shell, per-region content</td>
+      </tr>
+      <tr>
+        <td>Per-controller <code>rescue_from</code> overrides</td>
+        <td>Per-region <code>&lt;ErrorBoundary fallback=&lt;WidgetError /&gt; /&gt;</code></td>
+        <td>Localised handling so one bad slice doesn't take down the page</td>
+      </tr>
+      <tr>
+        <td><code>flash[:notice]</code> for transient notices</td>
+        <td>Project's <code>useToast()</code> (ToastContext)</td>
+        <td>Existing — referenced for completeness</td>
+      </tr>
+      <tr>
+        <td><code>ApplicationController#redirect_to root_path</code></td>
+        <td><code>useNavigate()('/today')</code> inside the ErrorState's primary action</td>
+        <td>Safe-harbour navigation after error</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Related files</h2>
+  <ul class="file-list">
+    <li><span>client/src/components/ui/EmptyState.jsx</span><span class="action">extend</span></li>
+    <li><span>client/src/components/ui/ErrorState.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/components/ui/ErrorBoundary.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/components/ui/WidgetError.jsx</span><span class="action">create</span></li>
+    <li><span>client/src/layouts/AppLayout.jsx</span><span class="action">wrap Outlet in ErrorBoundary</span></li>
+    <li><span>client/src/App.jsx</span><span class="action">add catch-all route</span></li>
+    <li><span>client/src/pages/Today.jsx</span><span class="action">empty-state realign (×2)</span></li>
+    <li><span>client/src/pages/House.jsx</span><span class="action">empty-state realign</span></li>
+    <li><span>client/src/pages/Plant.jsx</span><span class="action">EmptyState → ErrorState (404)</span></li>
+    <li><span>client/src/components/spaces/RoomsView.jsx</span><span class="action">empty-state realign</span></li>
+    <li><span>client/src/components/spaces/ListView.jsx</span><span class="action">filter-empty realign</span></li>
+    <li><span>client/src/components/plants/SpeciesPicker.jsx</span><span class="action">search-empty realign</span></li>
+    <li><span>client/src/components/plants/CareView.jsx</span><span class="action">add empty state to Recent care panel</span></li>
+    <li><span>client/src/components/NotificationsDrawer.jsx</span><span class="action">empty-state realign</span></li>
+    <li><span>client/src/globals.css</span><span class="action">add gradient tokens if missing (coral-gradient, forest-gradient)</span></li>
+    <li><span>client/tests/components/ui/EmptyState.test.jsx</span><span class="action">extend / create</span></li>
+    <li><span>client/tests/components/ui/ErrorState.test.jsx</span><span class="action">create</span></li>
+    <li><span>client/tests/components/ui/ErrorBoundary.test.jsx</span><span class="action">create</span></li>
+    <li><span>client/tests/pages/error-states.spec.js</span><span class="action">create (Playwright)</span></li>
+  </ul>
+  <p style="margin-top:12px"><em>This is a shape hint, not a spec. If you find a cleaner split during implementation — e.g. <code>EmptyState</code> tone tokens better living in <code>globals.css</code> as <code>@utility</code> classes, or <code>ErrorState</code> swappable for a more general <code>FullPageState</code> primitive — follow your nose. Extract on second use.</em></p>
+</section>
+
+<section>
+  <h2>Notes &amp; gotchas</h2>
+  <ul>
+    <li><strong>Offline UX is a different ticket.</strong> No OfflineBanner / <code>useOnlineStatus</code> / cached-row labels / mutation queue here. Mockup 32's offline scene is real but it pairs with service-worker + IndexedDB queue work that warrants its own focus.</li>
+    <li><strong>Don't add an external error reporter.</strong> No Honeybadger / Sentry / Bugsnag wiring inside <code>componentDidCatch</code> — that's an ops ticket. A <code>console.error(error, info)</code> in the catch is fine for now.</li>
+    <li><strong>Achievements empty state is out of scope.</strong> Feature isn't built; the mockup's "streak starts on your first check-in" variant lands when Achievements does.</li>
+    <li><strong>Mind the existing EmptyState callsites.</strong> Eight consumers today; the prop API change has to be backward-compatible OR migrate all eight in this ticket. Pick one approach and apply consistently.</li>
+    <li><strong>ErrorBoundary inside AppLayout, not above it.</strong> If the boundary wraps the whole router, a render crash blanks the sidebar/topbar — defeating the point. Wrap <code>&lt;Outlet /&gt;</code> only so layout chrome survives.</li>
+    <li><strong>Reset the boundary on route change.</strong> Pass <code>key={location.pathname}</code> so navigating away from a crashed page actually un-traps the user. Without this the user stays on the 500 screen forever even after clicking a sidebar link.</li>
+    <li><strong>Test the 404 path on a real fake URL, not a mocked one.</strong> The catch-all route is easy to get wrong (route order, nested routes, layout wrapping). One Playwright spec hitting <code>/totally-fake</code> > a hundred unit tests.</li>
+    <li><strong>When you're done:</strong> run <code>./scripts/lint.sh &amp;&amp; ./scripts/run_tests.sh client</code>, fire the three review skills (<code>/vercel-react-best-practices</code>, <code>/accessibility</code>, <code>/dhh-rails-reviewer</code> — last one is n/a here, no backend), commit on <code>ticket-052-states-sweep</code>, open a PR titled <code>feat(v2): Empty + Error states sweep (TICKET-052)</code>.</li>
+  </ul>
+</section>
+
+</div>
+</body>
+</html>

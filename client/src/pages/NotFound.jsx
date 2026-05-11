@@ -1,14 +1,24 @@
 import Action from '../components/ui/Action'
+import ErrorState from '../components/ui/errors/ErrorState'
 
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-dvh px-6 text-center">
-      <h1 className="text-6xl font-extrabold text-ink mb-4">404</h1>
-      <p className="text-lg text-ink-soft mb-8">Page not found</p>
-
-      <Action to="/" variant="primary">
-        Back to Today
-      </Action>
-    </div>
+    <ErrorState
+      scheme="404"
+      title={
+        <>
+          This page isn't <em>in your greenhouse</em>
+        </>
+      }
+      description="The link you followed doesn't exist, or the plant moved on to a different garden. No soil lost — pick somewhere else to go."
+      actions={[
+        <Action key="today" variant="primary" to="/">
+          Back to Today
+        </Action>,
+        <Action key="house" variant="secondary" to="/house">
+          Open House
+        </Action>,
+      ]}
+    />
   )
 }

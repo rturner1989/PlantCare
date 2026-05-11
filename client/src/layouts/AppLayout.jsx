@@ -10,6 +10,9 @@ import OrganiserDrawer from '../components/OrganiserDrawer'
 import AddPlantDialog from '../components/plants/AddPlantDialog'
 import Sidebar from '../components/Sidebar'
 import MobileSearchDrawer from '../components/search/MobileSearchDrawer'
+import Action from '../components/ui/Action'
+import ErrorBoundary from '../components/ui/errors/ErrorBoundary'
+import ErrorState from '../components/ui/errors/ErrorState'
 import ProgressBar from '../components/ui/ProgressBar'
 import Spinner from '../components/ui/Spinner'
 import { useToast } from '../context/ToastContext'
@@ -22,6 +25,28 @@ function RouteFallback() {
     <div className="flex items-center justify-center min-h-[50dvh]">
       <Spinner />
     </div>
+  )
+}
+
+function renderRouteError({ reset }) {
+  return (
+    <ErrorState
+      scheme="500"
+      title={
+        <>
+          Something <em>wobbled</em> on our end
+        </>
+      }
+      description="The page tripped over a root. It's not your fault — try again, or head back to Today."
+      actions={[
+        <Action key="retry" type="button" variant="primary" onClick={reset}>
+          Try again
+        </Action>,
+        <Action key="home" variant="secondary" to="/">
+          Back to Today
+        </Action>,
+      ]}
+    />
   )
 }
 
@@ -90,7 +115,9 @@ export default function AppLayout() {
           transition={{ duration: 0.4, ease: 'easeOut', delay: 0.15 }}
         >
           <Suspense fallback={<RouteFallback />}>
-            <Outlet />
+            <ErrorBoundary key={location.pathname} fallback={renderRouteError}>
+              <Outlet />
+            </ErrorBoundary>
           </Suspense>
         </motion.main>
       ) : (
@@ -101,7 +128,9 @@ export default function AppLayout() {
           className="md:ml-[64px] desktop:ml-[260px] pt-[calc(env(safe-area-inset-top)+74px)] md:pt-0 pb-[calc(74px+clamp(2px,env(safe-area-inset-bottom),12px))] xs:pb-0 flex flex-col flex-1 min-h-0 overflow-y-auto focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald/40 focus-visible:ring-inset"
         >
           <Suspense fallback={<RouteFallback />}>
-            <Outlet />
+            <ErrorBoundary key={location.pathname} fallback={renderRouteError}>
+              <Outlet />
+            </ErrorBoundary>
           </Suspense>
         </main>
       )}

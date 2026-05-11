@@ -10,8 +10,10 @@ import SpaceSearchResults from '../components/spaces/SpaceSearchResults'
 import Action from '../components/ui/Action'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
 import EmptyState from '../components/ui/EmptyState'
+import ErrorState from '../components/ui/errors/ErrorState'
 import PageHeader from '../components/ui/PageHeader'
 import Spinner from '../components/ui/Spinner'
+import { useToast } from '../context/ToastContext'
 import { usePlants } from '../hooks/usePlants'
 import { useRegisterSearchScope } from '../hooks/useRegisterSearchScope'
 import { useSearch } from '../hooks/useSearch'
@@ -66,6 +68,7 @@ export default function House() {
   const createSpace = useCreateSpace()
   const updateSpace = useUpdateSpace()
   const deleteSpace = useDeleteSpace()
+  const toast = useToast()
 
   const isLoading = spacesLoading || plantsLoading
   const error = spacesError || plantsError
@@ -143,7 +146,10 @@ export default function House() {
   function confirmDeleteSpace() {
     const space = deleteState.space
     if (!space) return
-    deleteSpace.mutate(space.id)
+    deleteSpace.mutate(space.id, {
+      onSuccess: () => toast.success(`Deleted ${space.name}`),
+      onError: () => toast.error(`Couldn't delete ${space.name}`),
+    })
     if (filteredSpaceId === space.id) clearSpaceFilter()
   }
 
@@ -185,7 +191,7 @@ export default function House() {
       : null
 
   return (
-    <div className="flex flex-col gap-5 lg:gap-7 px-3 lg:px-6 py-4 lg:py-6 overflow-x-hidden">
+    <div className="flex flex-col flex-1 gap-5 lg:gap-7 px-3 lg:px-6 py-4 lg:py-6 overflow-x-hidden">
       <PageHeader
         eyebrow="Your greenhouse"
         meta={meta}
@@ -202,20 +208,31 @@ export default function House() {
       )}
 
       {!isLoading && error && (
-        <EmptyState
-          title="We couldn't load your house"
-          description="Something went wrong fetching your spaces and plants."
-          action={
+        <ErrorState
+          scheme="500"
+          headingLevel="h2"
+          title={
+            <>
+              Something <em>wobbled</em> on our end
+            </>
+          }
+          description="We couldn't fetch your spaces and plants. Try again, or head back to Today."
+          actions={[
             <Action
-              variant="secondary"
+              key="retry"
+              type="button"
+              variant="primary"
               onClick={() => {
                 refetchSpaces()
                 refetchPlants()
               }}
             >
               Try again
-            </Action>
-          }
+            </Action>,
+            <Action key="today" variant="secondary" to="/">
+              Back to Today
+            </Action>,
+          ]}
         />
       )}
 
