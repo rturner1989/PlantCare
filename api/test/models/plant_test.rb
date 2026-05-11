@@ -216,6 +216,26 @@ class PlantTest < ActiveSupport::TestCase
     assert_equal 'Due today', water_task[:due_label]
   end
 
+  test 'destroying a plant cascades to its per-plant achievements' do
+    plant = @space.plants.create!(nickname: 'Cascading Charlie', species: @species)
+    Achievement.unlock!(user: current_user, kind: 'plant_anniversary', source: plant, metadata: { day_count: 30 })
+
+    assert_difference -> { Achievement.where(source_type: 'Plant', source_id: plant.id).count }, -1 do
+      plant.destroy!
+    end
+  end
+
+  test 'destroying a plant leaves user-milestone achievements intact' do
+    plant = @space.plants.create!(nickname: 'Solo', species: @species)
+    # plant_created event triggers first_plant unlock; the source on the
+    # Achievement row stays nil because first_plant declares no source_for.
+    user_milestone_count = Achievement.where(user: current_user, source_type: nil).count
+
+    plant.destroy!
+
+    assert_equal user_milestone_count, Achievement.where(user: current_user, source_type: nil).count
+  end
+
   private def current_user
     @space.user
   end
