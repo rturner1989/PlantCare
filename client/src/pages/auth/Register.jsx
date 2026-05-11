@@ -46,7 +46,6 @@ export default function Register() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          placeholder="Your name"
           autoComplete="name"
           error={fieldErrors.name}
         />
@@ -57,7 +56,6 @@ export default function Register() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          placeholder="you@example.com"
           autoComplete="email"
           error={fieldErrors.email}
         />
@@ -70,7 +68,7 @@ export default function Register() {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            placeholder="8+ characters with a letter and a number"
+            hint="At least 8 characters, with a letter and a number."
             autoComplete="new-password"
             error={fieldErrors.password}
           />
@@ -87,7 +85,6 @@ export default function Register() {
             value={passwordConfirmation}
             onChange={(e) => setPasswordConfirmation(e.target.value)}
             required
-            placeholder="Confirm your password"
             autoComplete="new-password"
             error={fieldErrors.passwordConfirmation}
           />

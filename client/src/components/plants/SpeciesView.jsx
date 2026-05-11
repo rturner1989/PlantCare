@@ -40,7 +40,7 @@ export default function SpeciesView({ plant }) {
         {species.description && <p className="text-ink leading-relaxed">{species.description}</p>}
         {species.care_tips && (
           <div className="flex flex-col gap-1.5">
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink-softer">Care tips</p>
+            <p className="eyebrow-label text-ink-softer">Care tips</p>
             <p className="text-ink-soft leading-relaxed">{species.care_tips}</p>
           </div>
         )}
@@ -48,7 +48,7 @@ export default function SpeciesView({ plant }) {
           <dl className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {stats.map((stat) => (
               <div key={stat.label} className="flex flex-col gap-0.5 px-3 py-2 rounded-md bg-paper-deep/40">
-                <dt className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink-softer">{stat.label}</dt>
+                <dt className="eyebrow-label text-ink-softer">{stat.label}</dt>
                 <dd className="text-sm font-bold text-ink">{stat.value}</dd>
               </div>
             ))}

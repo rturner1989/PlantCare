@@ -16,7 +16,7 @@ export default function StakeRing({ scheme, label, percent, valueDisplay, unit, 
 
   return (
     <div className="flex-1 min-w-0 flex flex-col items-center text-center gap-1.5 sm:gap-2 p-3 sm:p-4 bg-paper-deep border border-paper-edge rounded-md">
-      <p className={`text-[10px] font-extrabold uppercase tracking-[0.14em] ${labelColor}`}>{label}</p>
+      <p className={`eyebrow-label ${labelColor}`}>{label}</p>
 
       <div className="block sm:hidden">
         <ProgressRing value={percent} size={88} strokeWidth={8} color={ringColor} trackColor="var(--paper-edge)">
@@ -32,9 +32,7 @@ export default function StakeRing({ scheme, label, percent, valueDisplay, unit, 
         <ProgressRing value={percent} size={128} strokeWidth={10} color={ringColor} trackColor="var(--paper-edge)">
           <div className="flex flex-col items-center">
             <span className="font-display italic text-3xl font-medium text-ink leading-none">{valueDisplay}</span>
-            {unit && (
-              <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink-soft mt-1">{unit}</span>
-            )}
+            {unit && <span className="eyebrow-label text-ink-soft mt-1">{unit}</span>}
           </div>
         </ProgressRing>
       </div>

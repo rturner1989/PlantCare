@@ -87,7 +87,7 @@ export default function RoomsView({ spaces, plants, weatherToday, onAddSpace, on
     return (
       <EmptyState
         tone="sunshine"
-        icon={<span>⌂</span>}
+        icon={<span>🏠</span>}
         title={
           <>
             No spaces, no plants — <em>yet</em>

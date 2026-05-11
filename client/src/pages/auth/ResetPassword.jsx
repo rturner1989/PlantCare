@@ -88,7 +88,7 @@ export default function ResetPassword() {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            placeholder="8+ characters with a letter and a number"
+            hint="At least 8 characters, with a letter and a number."
             autoComplete="new-password"
             error={fieldErrors.password}
           />
@@ -102,7 +102,6 @@ export default function ResetPassword() {
             value={passwordConfirmation}
             onChange={(e) => setPasswordConfirmation(e.target.value)}
             required
-            placeholder="Confirm your new password"
             autoComplete="new-password"
             error={fieldErrors.passwordConfirmation}
           />

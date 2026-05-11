@@ -1,4 +1,4 @@
-const LABEL_TEXT = 'block text-[10px] font-extrabold text-ink-soft uppercase tracking-[0.14em]'
+const LABEL_TEXT = 'block eyebrow-label text-ink-soft'
 
 // text-base (16px) — iOS Safari auto-zooms into any input below 16px on
 // focus and doesn't zoom back out. focus:ring-inset keeps the focus ring
@@ -14,6 +14,7 @@ export default function FormField({
   labelHidden = false,
   required = false,
   hint,
+  hintId,
   error,
   errorId,
   className = '',
@@ -22,24 +23,30 @@ export default function FormField({
   const hasError = Boolean(error)
 
   return (
-    // biome-ignore lint/a11y/noLabelWithoutControl: control is the rendered child (input/select/textarea), passed via children — biome can't statically see through it
-    <label className={`block ${className}`}>
-      <span className={labelHidden ? 'sr-only' : `mb-1.5 ${LABEL_TEXT}`}>
-        {label}
-        {required && (
-          <span aria-hidden="true" className="ml-0.5 text-coral-deep">
-            *
-          </span>
-        )}
-      </span>
-      {children}
+    <div className={`block ${className}`}>
+      {/* biome-ignore lint/a11y/noLabelWithoutControl: control is the rendered child (input/select/textarea), passed via children — biome can't statically see through it */}
+      <label className="block">
+        <span className={labelHidden ? 'sr-only' : `mb-1.5 ${LABEL_TEXT}`}>
+          {label}
+          {required && (
+            <span aria-hidden="true" className="ml-0.5 text-coral-deep">
+              *
+            </span>
+          )}
+        </span>
+        {children}
+      </label>
       {hasError ? (
         <span id={errorId} className="mt-1 block text-xs font-semibold text-coral-deep">
           {error}
         </span>
       ) : (
-        hint && <span className="mt-1 block text-xs text-ink-soft">{hint}</span>
+        hint && (
+          <span id={hintId} className="mt-1 block text-xs text-ink-soft">
+            {hint}
+          </span>
+        )
       )}
-    </label>
+    </div>
   )
 }

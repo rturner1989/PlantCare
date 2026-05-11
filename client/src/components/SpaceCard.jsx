@@ -1,26 +1,13 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { pluralize } from '../utils/pluralize'
-import { getSpaceIcon } from '../utils/spaceIcons'
+import { getSpaceEmoji } from '../utils/spaceIcons'
 import Action from './ui/Action'
 import Badge from './ui/Badge'
 
-/**
- * SpaceCard — tile in the House grid.
- *
- * Shows the space icon, name, plant count, and an attention badge
- * ("N thirsty") when `attentionCount > 0`. The whole tile is clickable
- * via Action so keyboard focus, focus ring, and button semantics come
- * for free; the caller wires `onClick` to route to the space's detail
- * page (or filter the list view, etc.).
- *
- *   <SpaceCard space={space} attentionCount={2} onClick={() => navigate(`/spaces/${space.id}`)} />
- *
- * A missing/unknown `space.icon` renders no icon tile — safer than a
- * broken glyph when the backend adds a new slug ahead of the client.
- */
+// Missing/unknown `space.icon` renders no icon tile — safer than a
+// broken glyph when the backend adds a new slug ahead of the client.
 export default function SpaceCard({ space, attentionCount = 0, onClick }) {
   const hasAttention = attentionCount > 0
-  const icon = getSpaceIcon(space.icon)
+  const emoji = getSpaceEmoji(space.icon)
 
   return (
     <Action
@@ -31,9 +18,9 @@ export default function SpaceCard({ space, attentionCount = 0, onClick }) {
       }`}
     >
       <div className="flex items-start justify-between">
-        {icon ? (
-          <div className="w-9 h-9 rounded-md bg-mint flex items-center justify-center text-emerald text-sm">
-            <FontAwesomeIcon icon={icon} />
+        {emoji ? (
+          <div aria-hidden="true" className="w-9 h-9 rounded-md bg-mint flex items-center justify-center text-base">
+            {emoji}
           </div>
         ) : (
           <div className="w-9 h-9" />

@@ -131,6 +131,13 @@ Reusable / decorative CSS goes in a Tailwind v4 `@utility` block in `client/src/
 
 Naming: kebab-case, scoped prefix where it helps. `@utility` owns the visual treatment only — size and position stay as Tailwind utilities at the call site.
 
+**Typography utilities to reuse, not re-roll:**
+
+- **`eyebrow-label`** — small uppercase preheading / form-label / section-tag pattern: `font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em`. Colour stays at the consumer (`text-ink-soft` for form labels, `text-ink-softer` for muted, dynamic for theme-coloured). 9+ callsites today (FormField, SegmentedControl, Breadcrumb, SpeciesView, SpaceFormDialog, StakeRing, etc.). New eyebrow / form-label markup should reach for this instead of hand-rolling the same 4 classes.
+- **`text-gradient-display`** — brand emerald→leaf gradient text-clip. Use on `<em>` inside titles + medallions.
+
+Sites with intentionally different tracking (`0.12em` / `0.18em` / `0.22em`) — NotificationItem nav-row labels, Preheading auth/marketing dot-eyebrows — stay inline. The utility owns the canonical 0.14em tracking only.
+
 ### Components
 
 Three buckets, chosen by purpose not reusability:
@@ -180,6 +187,37 @@ Don't hand-roll `<Action variant="unstyled" className="rounded-full bg-… hover
 **Sizes:** `xs` (20/10px, chip-internal close), `sm` (28/12px, default), `md` (36/16px, mobile top bar).
 
 Hand-roll only when: genuinely unique chrome no scheme matches AND no future repeat (rare — add a scheme instead if reused), decorative non-interactive icon badge, button needs a child element ActionIcon doesn't support (e.g. unread-count badge over the bell).
+
+### Icon source — FA vs emoji
+
+App has two icon paradigms, used for different jobs. Don't mix within a category.
+
+- **Font Awesome — chrome / interactive controls.** Sized + recoloured via CSS, themable. Use for: ActionIcon scheme buttons (close, menu, edit, delete, bell), Sidebar / MobileTopBar nav, overflow menu items, Breadcrumb chevrons, SegmentedControl env axes (`faSun` / `faTemperatureHalf` / `faDroplet`). Reach for FA whenever the icon is a button or sits in app chrome.
+- **Emoji — identity / content.** Coloured + warm by default, personality-rich. Use for: space icons (couch, kitchen, balcony…), plant species avatars, Step 0 portrait, EmptyState illustration discs, hero-quote emotes, toast confirmations.
+- **Care-type icons (💧 water, 🌱 feed) — emoji even in chrome.** Single deliberate carve-out. The water-drop + seedling carry universal care-as-ritual meaning that FA's generic `faDroplet` loses. Applies to RadialWheel spokes, LogCareDialog care-type Segment, CareView log rows, wheel water/feed toast copy.
+
+**Pre-flight when reaching for an icon:** chrome / button / nav? → FA. Identity / illustration / personality? → emoji. Water or feed concept? → emoji even if chrome. Don't introduce a third icon library — emoji + FA covers the full app today, adding a third would split the paradigm again.
+
+### Action surfaces — shared chrome family
+
+Compound action surfaces (Menu dropdown, RadialWheel) read as cousins from the same UI kit, not two different design languages. Same token palette, different intensity by context.
+
+**Shared tokens (all action surfaces use these):**
+
+- Background: `bg-paper`
+- Edge / definition: `paper-edge` (1px via ring or border)
+- Hover: `mint` (intensity scales with context — see below)
+- Focus: `emerald` ring (opacity scales — `/15` inset for form chrome, `/40` outset for tap targets)
+- Shadow family: `shadow-warm-sm` / `shadow-warm-md` / `shadow-warm-lg` (pick by lift weight)
+
+**Intensity scales by surface role:**
+
+- **Compact / utility lists** (Menu items) — subtle hover (`bg-mint/50`), reads as content, doesn't compete with the row text. Panel chrome: `shadow-warm-md` + `ring-1 ring-paper-edge`.
+- **Celebratory tap targets** (RadialWheel spokes) — punchy hover (`bg-mint` full), reads as ready-to-tap. At-rest: `shadow-warm-sm` + `border border-paper-edge/50`. Primary spoke promotes to `shadow-warm-md scale-110` when emphasised.
+
+**Panel chrome utility:** `@utility action-surface-panel` in globals.css bakes the popover surface recipe (`bg-paper` + warm-md shadow + 1px paper-edge "ring" via box-shadow + `rounded-md` + tight inner padding). Reach for it on any compound dropdown / popover panel. Consumer adds origin / animation / positioning on top.
+
+**Pre-flight before adding a new action surface:** use the same token palette. Intensity (hover opacity, shadow weight) scales with surface role — compact list = subtle, tap target = punchy. Document the role intent in the consumer's className, don't invent a new colour family.
 
 ### Forms
 
