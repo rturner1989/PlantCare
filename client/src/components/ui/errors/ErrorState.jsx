@@ -1,32 +1,5 @@
 import { useEffect, useRef } from 'react'
 
-/**
- * ErrorState — full-page error surface for 404 / 500 / catch-all.
- *
- * Two schemes:
- *   - "404" (default): paper medallion with Fraunces italic "404" in
- *     brand emerald→leaf gradient. Body copy leans into the greenhouse
- *     metaphor.
- *   - "500": coral-gradient medallion with paper "!" — urgency without
- *     shouting.
- *
- * Title accepts ReactNode so callers can wrap a key word in <em> for
- * gradient-display emphasis (same convention as EmptyState card).
- *
- * The primary action receives focus on mount (a11y — keyboard users
- * land on the safe recovery path, Enter dismisses the error).
- *
- *   <ErrorState
- *     scheme="404"
- *     title={<>This plant isn't <em>in your greenhouse</em></>}
- *     description="The page you tried to open doesn't exist."
- *     actions={[
- *       <Action variant="primary" to="/">Back to Today</Action>,
- *       <Action variant="secondary" to="/house">Open House</Action>,
- *     ]}
- *   />
- */
-
 const MEDALLION_TEXT = { 404: '404', 500: '!' }
 
 const MEDALLION_TONE = {

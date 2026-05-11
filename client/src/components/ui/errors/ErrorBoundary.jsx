@@ -1,32 +1,8 @@
 import { Component } from 'react'
 
-/**
- * React error boundary — catches render-time exceptions in descendants
- * and renders a fallback instead of blanking the page.
- *
- * `fallback` can be either:
- *   - A ReactNode rendered as-is when an error is caught
- *   - A function `({ error, reset }) => ReactNode` for fallbacks that
- *     want to inspect the error or expose a "try again" button
- *
- * Reset on route change is the caller's responsibility — pass
- * `key={location.pathname}` so the boundary remounts when the route
- * changes. Without it, the user stays trapped on the error screen
- * even after navigating elsewhere.
- *
- *   <ErrorBoundary
- *     key={location.pathname}
- *     fallback={({ reset }) => (
- *       <ErrorState
- *         scheme="500"
- *         title={<>Something <em>wobbled</em></>}
- *         actions={[<Action onClick={reset}>Try again</Action>]}
- *       />
- *     )}
- *   >
- *     <Outlet />
- *   </ErrorBoundary>
- */
+// Class component because error boundaries still need
+// componentDidCatch + getDerivedStateFromError — no hook equivalent in
+// React 19. Caller passes key={location.pathname} to reset on nav.
 export default class ErrorBoundary extends Component {
   state = { error: null }
 

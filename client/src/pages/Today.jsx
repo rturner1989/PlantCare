@@ -7,6 +7,7 @@ import WeatherWidget from '../components/today/WeatherWidget'
 import WeekCard from '../components/today/week/WeekCard'
 import Action from '../components/ui/Action'
 import EmptyState from '../components/ui/EmptyState'
+import ErrorState from '../components/ui/errors/ErrorState'
 import Spinner from '../components/ui/Spinner'
 import { useAddPlant } from '../hooks/useAddPlant'
 import { useAuth } from '../hooks/useAuth'
@@ -53,17 +54,20 @@ export default function Today() {
 
   if (error) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-dvh px-4">
-        <EmptyState
-          title="We couldn't load today"
-          description="Something went wrong fetching your plants."
-          action={
-            <Action variant="secondary" onClick={() => refetch()}>
-              Try again
-            </Action>
-          }
-        />
-      </div>
+      <ErrorState
+        scheme="500"
+        title={
+          <>
+            Something <em>wobbled</em> on our end
+          </>
+        }
+        description="We couldn't fetch your plants. Try again, or head back home."
+        actions={[
+          <Action key="retry" type="button" variant="primary" onClick={() => refetch()}>
+            Try again
+          </Action>,
+        ]}
+      />
     )
   }
 

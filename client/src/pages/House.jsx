@@ -210,6 +210,7 @@ export default function House() {
       {!isLoading && error && (
         <ErrorState
           scheme="500"
+          headingLevel="h2"
           title={
             <>
               Something <em>wobbled</em> on our end

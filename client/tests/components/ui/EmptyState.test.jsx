@@ -44,11 +44,6 @@ describe('EmptyState', () => {
   })
 
   describe('actions', () => {
-    it('accepts a single action node via the legacy `action` prop', () => {
-      render(<EmptyState action={<button type="button">Add</button>} />)
-      expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument()
-    })
-
     it('accepts a single action node via the `actions` prop', () => {
       render(<EmptyState actions={<button type="button">Add</button>} />)
       expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument()

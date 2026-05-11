@@ -87,7 +87,7 @@ export default function ListView({
                     tone="mint"
                     icon={<span>🌱</span>}
                     description={`No plants in ${formatSpaceName(space.name)} yet.`}
-                    action={
+                    actions={
                       <Action onClick={() => openAddPlant({ defaultSpaceId: space.id })} variant="secondary">
                         Add one
                       </Action>

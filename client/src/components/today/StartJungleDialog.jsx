@@ -61,7 +61,11 @@ export default function StartJungleDialog({ open, onClose }) {
         <p id={titleId} className="text-lg font-extrabold text-ink">
           {TITLE}
         </p>
-        <p className="mt-1 text-xs font-bold text-ink-soft uppercase tracking-[0.08em]">
+        <p
+          role="status"
+          aria-live="polite"
+          className="mt-1 text-xs font-bold text-ink-soft uppercase tracking-[0.08em]"
+        >
           Step {STEP_INDEX[step]} of 3 · {STEP_LABEL[step]}
         </p>
       </Card.Header>
