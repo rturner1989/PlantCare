@@ -22,10 +22,11 @@ import EditPlantDialog from '../components/plants/EditPlantDialog'
 import JournalView from '../components/plants/JournalView'
 import LogCareDialog from '../components/plants/LogCareDialog'
 import SpeciesView from '../components/plants/SpeciesView'
+import Action from '../components/ui/Action'
 import ActionIcon from '../components/ui/ActionIcon'
 import Badge from '../components/ui/Badge'
 import Breadcrumb from '../components/ui/Breadcrumb'
-import EmptyState from '../components/ui/EmptyState'
+import ErrorState from '../components/ui/errors/ErrorState'
 import Heading from '../components/ui/Heading'
 import Menu from '../components/ui/Menu'
 import Quote from '../components/ui/Quote'
@@ -92,11 +93,22 @@ export default function Plant() {
 
   if (error || !plant) {
     return (
-      <EmptyState
-        icon={<span>🌿</span>}
-        title="Plant not found"
-        description="This plant may have been removed, or the link is wrong."
-        headingLevel="h1"
+      <ErrorState
+        scheme="404"
+        title={
+          <>
+            That plant isn't <em>in your greenhouse</em>
+          </>
+        }
+        description="It may have been removed, or the link is wrong. Pick somewhere else to go."
+        actions={[
+          <Action key="today" variant="primary" to="/">
+            Back to Today
+          </Action>,
+          <Action key="house" variant="secondary" to="/house">
+            Open House
+          </Action>,
+        ]}
       />
     )
   }

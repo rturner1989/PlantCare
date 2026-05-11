@@ -740,6 +740,47 @@ input[type="search"]::-webkit-search-cancel-button {
   opacity: 0.3;
 }
 
+/* Decorative mint blob in the top-right corner of an EmptyState card.
+ * Matches mockup 28 — a soft green radial fade that sits behind the
+ * content (z-index 0; consumers wrap children in a relative element so
+ * the content stacks above). Pseudo-element so consumers don't have to
+ * inject extra markup. */
+@utility empty-card-blob {
+  &::before {
+    content: "";
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(134, 219, 101, 0.18), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  /* Heading <em> emphasis word picks up the brand emerald→leaf gradient
+   * — matches mockup 28's italic display headline. Cascades from the
+   * card root so consumers just write <em>yet</em> in the title. */
+  & em {
+    background: var(--gradient-display);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-style: italic;
+  }
+}
+
+/* Apply the brand emerald→leaf gradient to text via background-clip.
+ * Used on <em> tags inside EmptyState + ErrorState titles to highlight
+ * the key word in the headline. */
+@utility text-gradient-display {
+  background: var(--gradient-display);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-style: italic;
+}
+
 /* Landscape lock — shown when a phone (short viewport) is held in
  * landscape in a regular browser tab. The installed PWA already locks
  * to portrait via manifest.json's orientation field; this handles the

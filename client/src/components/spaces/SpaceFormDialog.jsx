@@ -1,11 +1,13 @@
 import { faDroplet, faSun, faTemperatureHalf } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useId, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import { ValidationError } from '../../errors/ValidationError'
 import { useFormSubmit } from '../../hooks/useFormSubmit'
-import { SPACE_ICON_OPTIONS } from '../../utils/spaceIcons'
+import { useSpacePresets } from '../../hooks/useSpaces'
+import { getSpaceEmoji, SPACE_ICON_OPTIONS } from '../../utils/spaceIcons'
 import SegmentedControl from '../form/SegmentedControl'
 import TextInput from '../form/TextInput'
+import Tile from '../form/Tile'
 import Action from '../ui/Action'
 import Card from '../ui/Card'
 import Dialog from '../ui/Dialog'
@@ -52,7 +54,7 @@ export default function SpaceFormDialog({
   showEnvironment = true,
 }) {
   const isEdit = Boolean(space)
-  const title = isEdit ? 'Edit space' : 'Add a custom space'
+  const title = isEdit ? 'Edit space' : 'Add a space'
   const submitLabel = isEdit ? 'Save' : 'Add space'
 
   const titleId = useId()
@@ -62,6 +64,18 @@ export default function SpaceFormDialog({
   const [env, setEnv] = useState(() =>
     Object.fromEntries(ENV_AXES.map((axis) => [axis.key, space?.[axis.key] ?? axis.default])),
   )
+
+  const { data: presets = [] } = useSpacePresets({ enabled: !isEdit })
+  const availablePresets = useMemo(() => {
+    if (isEdit) return []
+    return presets.filter((preset) => !existingNames.has(preset.name))
+  }, [isEdit, presets, existingNames])
+
+  function applyPreset(preset) {
+    setName(preset.name)
+    setCategory(preset.category)
+    setIcon(preset.icon)
+  }
 
   const { submitting, handleSubmit, fieldErrors, formRef } = useFormSubmit({
     action: async () => {
@@ -86,14 +100,18 @@ export default function SpaceFormDialog({
 
   return (
     <Dialog open={open} onClose={onClose} title={title} ariaLabelledBy={titleId}>
-      <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-4 min-h-0">
+      <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 gap-4">
         <Card.Header divider={false}>
           <p id={titleId} className="text-lg font-extrabold text-ink">
             {title}
           </p>
         </Card.Header>
 
-        <Card.Body className="!flex-none flex flex-col gap-4">
+        <Card.Body className="flex flex-col gap-4">
+          {availablePresets.length > 0 && (
+            <PresetChips presets={availablePresets} activeName={name} onPick={applyPreset} />
+          )}
+
           <TextInput
             label="Name"
             type="text"
@@ -144,6 +162,27 @@ export default function SpaceFormDialog({
         </Card.Footer>
       </form>
     </Dialog>
+  )
+}
+
+function PresetChips({ presets, activeName, onPick }) {
+  return (
+    <div>
+      <span className="block text-[10px] font-extrabold text-ink-soft uppercase tracking-[0.14em] mb-2">Quick add</span>
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+        {presets.map((preset) => (
+          <Tile
+            key={preset.name}
+            size="chip"
+            selected={preset.name === activeName}
+            icon={<span aria-hidden="true">{getSpaceEmoji(preset.icon)}</span>}
+            onClick={() => onPick(preset)}
+          >
+            {preset.name}
+          </Tile>
+        ))}
+      </div>
+    </div>
   )
 }
 

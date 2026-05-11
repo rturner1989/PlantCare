@@ -84,10 +84,10 @@ test.describe('Plant Detail', () => {
     await expect(page.getByText('Plant Doctor coming soon')).toBeVisible()
   })
 
-  test('non-existent plant id renders the empty state', async ({ page }) => {
+  test('non-existent plant id renders the 404 ErrorState', async ({ page }) => {
     await registerUser(page, 'Empty State Tester')
     await completeOnboarding(page)
     await page.goto('/plants/999999')
-    await expect(page.getByRole('heading', { name: /Plant not found/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /isn't in your greenhouse/i })).toBeVisible()
   })
 })

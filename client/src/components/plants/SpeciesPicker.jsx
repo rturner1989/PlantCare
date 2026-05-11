@@ -41,11 +41,15 @@ export default function SpeciesPicker({ onPick, actionLabel = 'pick', autoFocus 
           </div>
         ) : visibleResults.length === 0 && isSearching ? (
           <EmptyState
-            description={
+            variant="inline"
+            tone="sky"
+            icon={<span>🔍</span>}
+            title={
               <>
-                Nothing matches <span className="font-bold text-ink">"{debouncedQuery}"</span>. Try a different name.
+                We couldn't find <em className="italic">"{debouncedQuery}"</em>
               </>
             }
+            description="Try a different name, or browse popular species below."
           />
         ) : (
           <div className="text-left">

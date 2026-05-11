@@ -254,8 +254,14 @@ export default function NotificationsDrawer() {
           <p className="px-3 py-6 text-sm text-ink-softer">Loading…</p>
         ) : notifications.length === 0 ? (
           <EmptyState
+            variant="inline"
+            tone="forest"
             icon={<span aria-hidden="true">🌿</span>}
-            title="You're all caught up"
+            title={
+              <>
+                You're all <em className="italic">caught up</em>
+              </>
+            }
             description="New notifications land here when plants need you or milestones arrive."
             headingLevel="h3"
             className="py-10"

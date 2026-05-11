@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Highlights from '../components/today/Highlights'
 import PlantsRow from '../components/today/PlantsRow'
+import StartJungleDialog from '../components/today/StartJungleDialog'
 import TodayHeader from '../components/today/TodayHeader'
 import WeatherWidget from '../components/today/WeatherWidget'
 import WeekCard from '../components/today/week/WeekCard'
@@ -21,6 +22,7 @@ export default function Today() {
   const { user } = useAuth()
   const { open: openAddPlant } = useAddPlant()
   const [selectedDate, setSelectedDate] = useState(todayIso())
+  const [jungleWizardOpen, setJungleWizardOpen] = useState(false)
   const isToday = selectedDate === todayIso()
 
   // Pass undefined for today so we share the cache key with other consumers
@@ -34,6 +36,7 @@ export default function Today() {
   const totalSpaces = data?.stats?.total_spaces ?? 0
   const firstName = user?.name?.split(' ')[0]
   const noPlants = totalPlants === 0
+  const noSpaces = totalSpaces === 0
 
   if (isLoading) {
     return (
@@ -65,22 +68,41 @@ export default function Today() {
   }
 
   return (
-    <div className="flex flex-col gap-4 lg:gap-6 px-3 lg:px-6 py-4 lg:py-6 overflow-x-hidden">
+    <div className="flex flex-col flex-1 gap-4 lg:gap-6 px-3 lg:px-6 py-4 lg:py-6 overflow-x-hidden">
       <TodayHeader firstName={firstName} />
 
-      {noPlants ? (
-        <div className="flex-1 flex items-center justify-center">
-          <EmptyState
-            icon={<span>🌱</span>}
-            title="Your jungle starts here"
-            description="Add a plant to see it come alive."
-            action={
-              <Action onClick={() => openAddPlant()} variant="primary">
-                Add a plant
-              </Action>
-            }
-          />
-        </div>
+      {noSpaces ? (
+        <EmptyState
+          tone="sunshine"
+          icon={<span>⌂</span>}
+          title={
+            <>
+              Start your <em>jungle</em>
+            </>
+          }
+          description="A space, a plant, and you're off. We'll walk you through it."
+          actions={
+            <Action onClick={() => setJungleWizardOpen(true)} variant="primary">
+              Get started
+            </Action>
+          }
+        />
+      ) : noPlants ? (
+        <EmptyState
+          tone="mint"
+          icon={<span>🌱</span>}
+          title={
+            <>
+              Your jungle <em>starts here</em>
+            </>
+          }
+          description="Add a plant to see it come alive."
+          actions={
+            <Action onClick={() => openAddPlant()} variant="primary">
+              Add a plant
+            </Action>
+          }
+        />
       ) : (
         <main className="flex flex-col gap-4 lg:gap-5 min-w-0">
           <WeatherWidget variant="strip" />
@@ -97,6 +119,8 @@ export default function Today() {
           <PlantsRow plants={plants} spacesCount={totalSpaces} />
         </main>
       )}
+
+      <StartJungleDialog open={jungleWizardOpen} onClose={() => setJungleWizardOpen(false)} />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { useCareLogs } from '../../hooks/usePlants'
 import { pluralize } from '../../utils/pluralize'
 import Action from '../ui/Action'
 import Card from '../ui/Card'
+import EmptyState from '../ui/EmptyState'
 import Heading from '../ui/Heading'
 
 const RELATIVE_TIME = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
@@ -88,7 +89,19 @@ function RecentCarePanel({ plant }) {
         {isLoading ? (
           <p className="text-sm text-ink-soft">Loading…</p>
         ) : recent.length === 0 ? (
-          <p className="text-sm text-ink-soft italic">No care logged yet — actions land here as you tap the wheel.</p>
+          <EmptyState
+            variant="inline"
+            tone="mint"
+            icon={<span>💧</span>}
+            title={
+              <>
+                No care <em className="italic">yet</em>
+              </>
+            }
+            description="Tap the wheel above to log the first watering or feeding — it'll land here."
+            headingLevel="h4"
+            className="py-4"
+          />
         ) : (
           recent.map((log) => <CareLogRow key={log.id} log={log} />)
         )}

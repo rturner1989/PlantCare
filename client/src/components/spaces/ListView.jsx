@@ -83,6 +83,8 @@ export default function ListView({
               >
                 {spacePlants.length === 0 ? (
                   <EmptyState
+                    variant="inline"
+                    tone="mint"
                     icon={<span>🌱</span>}
                     description={`No plants in ${formatSpaceName(space.name)} yet.`}
                     action={
