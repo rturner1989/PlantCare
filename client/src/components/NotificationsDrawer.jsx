@@ -186,6 +186,41 @@ export default function NotificationsDrawer() {
     }
   }
 
+  function renderBody() {
+    if (isLoading) return <p className="px-3 py-6 text-sm text-ink-softer">Loading…</p>
+    if (notifications.length === 0) {
+      return (
+        <EmptyState
+          variant="inline"
+          tone="forest"
+          icon={<span aria-hidden="true">🌿</span>}
+          title={
+            <>
+              You're all <em className="italic">caught up</em>
+            </>
+          }
+          description="New notifications land here when plants need you or milestones arrive."
+          headingLevel="h3"
+          className="py-10"
+        />
+      )
+    }
+    return (
+      <AnimatePresence mode="popLayout" initial={false}>
+        {(expandedGroup ? [expandedGroup] : grouped).map(({ group, items }) => (
+          <NotificationGroup
+            key={group.key}
+            group={group}
+            items={items}
+            capped={!expandedGroup}
+            onViewAll={() => setViewKey(group.key)}
+            onClose={closeDrawer}
+          />
+        ))}
+      </AnimatePresence>
+    )
+  }
+
   return (
     <Drawer open={open} onClose={closeDrawer} title="Notifications">
       <header className="flex items-center justify-between gap-2 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2.5 shrink-0">
@@ -250,36 +285,7 @@ export default function NotificationsDrawer() {
           expandedGroup ? 'overflow-hidden' : 'overflow-y-auto'
         }`}
       >
-        {isLoading ? (
-          <p className="px-3 py-6 text-sm text-ink-softer">Loading…</p>
-        ) : notifications.length === 0 ? (
-          <EmptyState
-            variant="inline"
-            tone="forest"
-            icon={<span aria-hidden="true">🌿</span>}
-            title={
-              <>
-                You're all <em className="italic">caught up</em>
-              </>
-            }
-            description="New notifications land here when plants need you or milestones arrive."
-            headingLevel="h3"
-            className="py-10"
-          />
-        ) : (
-          <AnimatePresence mode="popLayout" initial={false}>
-            {(expandedGroup ? [expandedGroup] : grouped).map(({ group, items }) => (
-              <NotificationGroup
-                key={group.key}
-                group={group}
-                items={items}
-                capped={!expandedGroup}
-                onViewAll={() => setViewKey(group.key)}
-                onClose={closeDrawer}
-              />
-            ))}
-          </AnimatePresence>
-        )}
+        {renderBody()}
       </div>
     </Drawer>
   )
