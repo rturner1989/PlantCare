@@ -32,9 +32,7 @@ export default function StakeRing({ scheme, label, percent, valueDisplay, unit, 
         <ProgressRing value={percent} size={128} strokeWidth={10} color={ringColor} trackColor="var(--paper-edge)">
           <div className="flex flex-col items-center">
             <span className="font-display italic text-3xl font-medium text-ink leading-none">{valueDisplay}</span>
-            {unit && (
-              <span className="eyebrow-label text-ink-soft mt-1">{unit}</span>
-            )}
+            {unit && <span className="eyebrow-label text-ink-soft mt-1">{unit}</span>}
           </div>
         </ProgressRing>
       </div>
