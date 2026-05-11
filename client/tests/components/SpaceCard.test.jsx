@@ -29,10 +29,9 @@ describe('SpaceCard', () => {
       expect(screen.getByText('1 plant')).toBeInTheDocument()
     })
 
-    it('renders the space icon tile for a known icon slug', () => {
-      const { container } = render_(<SpaceCard space={space()} />)
-      // FA renders an <svg> for the icon — verify one exists inside the tile.
-      expect(container.querySelector('svg')).toBeInTheDocument()
+    it('renders the space emoji tile for a known icon slug', () => {
+      render_(<SpaceCard space={space()} />)
+      expect(screen.getByText('🛋️')).toBeInTheDocument()
     })
 
     it('omits the icon gracefully when the slug is unknown (no broken glyph)', () => {

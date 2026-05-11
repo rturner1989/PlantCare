@@ -173,7 +173,7 @@ function Items({ placement = 'bottom-right', className = '', children }) {
           role="menu"
           aria-label={label}
           style={{ position: 'fixed', zIndex: 50, ...position }}
-          className={`min-w-[180px] rounded-md bg-paper shadow-warm-md ring-1 ring-paper-edge p-1 ${originClass} ${className}`}
+          className={`min-w-[180px] action-surface-panel ${originClass} ${className}`}
           {...motionProps}
         >
           <ul className="list-none m-0 p-0 flex flex-col">{children}</ul>

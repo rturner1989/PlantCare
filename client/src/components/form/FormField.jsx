@@ -1,4 +1,4 @@
-const LABEL_TEXT = 'block text-[10px] font-extrabold text-ink-soft uppercase tracking-[0.14em]'
+const LABEL_TEXT = 'block eyebrow-label text-ink-soft'
 
 // text-base (16px) — iOS Safari auto-zooms into any input below 16px on
 // focus and doesn't zoom back out. focus:ring-inset keeps the focus ring
@@ -14,6 +14,7 @@ export default function FormField({
   labelHidden = false,
   required = false,
   hint,
+  hintId,
   error,
   errorId,
   className = '',
@@ -38,7 +39,11 @@ export default function FormField({
           {error}
         </span>
       ) : (
-        hint && <span className="mt-1 block text-xs text-ink-soft">{hint}</span>
+        hint && (
+          <span id={hintId} className="mt-1 block text-xs text-ink-soft">
+            {hint}
+          </span>
+        )
       )}
     </label>
   )

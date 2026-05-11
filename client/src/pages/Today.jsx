@@ -78,7 +78,7 @@ export default function Today() {
       {noSpaces ? (
         <EmptyState
           tone="sunshine"
-          icon={<span>⌂</span>}
+          icon={<span>🏠</span>}
           title={
             <>
               Start your <em>jungle</em>

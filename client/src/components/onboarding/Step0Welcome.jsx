@@ -6,7 +6,7 @@ import Heading from '../ui/Heading'
 import Preheading from '../ui/Preheading'
 import { MORPH_TRANSITION } from './shared/WizardCard'
 
-const PORTRAIT_URL = '/onboarding/monstera.png'
+const PORTRAIT_URL = '/onboarding/monstera.webp'
 
 const MotionCard = motion.create(Card)
 

@@ -99,7 +99,7 @@ export default function SpaceFormDialog({
   })
 
   return (
-    <Dialog open={open} onClose={onClose} title={title} ariaLabelledBy={titleId}>
+    <Dialog open={open} onClose={onClose} title={title} ariaLabelledBy={titleId} className="!max-w-2xl">
       <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 gap-4">
         <Card.Header divider={false}>
           <p id={titleId} className="text-lg font-extrabold text-ink">
@@ -168,7 +168,7 @@ export default function SpaceFormDialog({
 function PresetChips({ presets, activeName, onPick }) {
   return (
     <div>
-      <span className="block text-[10px] font-extrabold text-ink-soft uppercase tracking-[0.14em] mb-2">Quick add</span>
+      <span className="block eyebrow-label text-ink-soft mb-2">Quick add</span>
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
         {presets.map((preset) => (
           <Tile
@@ -194,7 +194,7 @@ function PresetChips({ presets, activeName, onPick }) {
 function IconPicker({ value, onChange }) {
   return (
     <div>
-      <span className="block text-[10px] font-extrabold text-ink-soft uppercase tracking-[0.14em] mb-2">Icon</span>
+      <span className="block eyebrow-label text-ink-soft mb-2">Icon</span>
       <div role="radiogroup" aria-label="Icon" className="grid grid-cols-6 gap-2">
         {SPACE_ICON_OPTIONS.map((option) => {
           const checked = option.slug === value

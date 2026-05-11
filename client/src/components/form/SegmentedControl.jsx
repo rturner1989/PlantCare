@@ -6,7 +6,7 @@ import { useId } from 'react'
 // for free. The active pill slides between positions via a shared layoutId.
 
 const TRACK_BASE = 'gap-[3px] bg-paper-deep border border-paper-edge p-[3px] rounded-md'
-const LABEL = 'flex items-center gap-1.5 text-[10px] font-extrabold text-ink-soft uppercase tracking-[0.14em]'
+const LABEL = 'flex items-center gap-1.5 eyebrow-label text-ink-soft'
 const OPTION_BASE =
   'relative flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-[11px] text-xs capitalize transition-colors duration-200'
 const OPTION_ACTIVE = 'text-forest font-bold'
