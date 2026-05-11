@@ -82,30 +82,32 @@ function RecentCarePanel({ plant }) {
   const { data: logs = [], isLoading } = useCareLogs(plant.id)
   const recent = logs.slice(0, 5)
 
+  function renderRows() {
+    if (isLoading) return <p className="text-sm text-ink-soft">Loading…</p>
+    if (recent.length === 0) {
+      return (
+        <EmptyState
+          variant="inline"
+          tone="mint"
+          icon={<span>💧</span>}
+          title={
+            <>
+              No care <em className="italic">yet</em>
+            </>
+          }
+          description="Tap the wheel above to log the first watering or feeding — it'll land here."
+          headingLevel="h4"
+          className="py-4"
+        />
+      )
+    }
+    return recent.map((log) => <CareLogRow key={log.id} log={log} />)
+  }
+
   return (
     <Card variant="paper-warm" className="p-5 gap-3">
       <PanelHeader title="Recent care" hint={recent.length > 0 ? `${recent.length} latest` : null} />
-      <Card.Body className="!flex-none !overflow-visible flex flex-col">
-        {isLoading ? (
-          <p className="text-sm text-ink-soft">Loading…</p>
-        ) : recent.length === 0 ? (
-          <EmptyState
-            variant="inline"
-            tone="mint"
-            icon={<span>💧</span>}
-            title={
-              <>
-                No care <em className="italic">yet</em>
-              </>
-            }
-            description="Tap the wheel above to log the first watering or feeding — it'll land here."
-            headingLevel="h4"
-            className="py-4"
-          />
-        ) : (
-          recent.map((log) => <CareLogRow key={log.id} log={log} />)
-        )}
-      </Card.Body>
+      <Card.Body className="!flex-none !overflow-visible flex flex-col">{renderRows()}</Card.Body>
     </Card>
   )
 }
@@ -119,16 +121,19 @@ function CareLogRow({ log }) {
         'day',
       )
     : null
-  const subContent = log.notes ? (
-    <>
-      {relativeWhen}
-      {relativeWhen && <span className="mx-1.5 text-ink-softer">·</span>}
-      <span className="italic">{log.notes}</span>
-    </>
-  ) : (
-    relativeWhen
-  )
-  return <PanelRow icon={icon} label={verb} sub={subContent} />
+
+  function renderSub() {
+    if (!log.notes) return relativeWhen
+    return (
+      <>
+        {relativeWhen}
+        {relativeWhen && <span className="mx-1.5 text-ink-softer">·</span>}
+        <span className="italic">{log.notes}</span>
+      </>
+    )
+  }
+
+  return <PanelRow icon={icon} label={verb} sub={renderSub()} />
 }
 
 const ENV_AXES = [

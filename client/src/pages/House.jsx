@@ -190,24 +190,31 @@ export default function House() {
           .join(' · ')
       : null
 
-  return (
-    <div className="flex flex-col flex-1 gap-5 lg:gap-7 px-3 lg:px-6 py-4 lg:py-6 overflow-x-hidden">
-      <PageHeader
-        eyebrow="Your greenhouse"
-        meta={meta}
-        actions={
-          <SegmentedControl label="View as" labelHidden value={view} onChange={setView} options={VIEW_OPTIONS} />
-        }
-      >
-        Browse your <em className="text-emerald">plants</em>
-      </PageHeader>
-      {isLoading && (
+  const header = (
+    <PageHeader
+      eyebrow="Your greenhouse"
+      meta={meta}
+      actions={<SegmentedControl label="View as" labelHidden value={view} onChange={setView} options={VIEW_OPTIONS} />}
+    >
+      Browse your <em className="text-emerald">plants</em>
+    </PageHeader>
+  )
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col flex-1 gap-5 lg:gap-7 px-3 lg:px-6 py-4 lg:py-6 overflow-x-hidden">
+        {header}
         <div role="status" aria-label="Loading your house" className="flex items-center justify-center py-16">
           <Spinner />
         </div>
-      )}
+      </div>
+    )
+  }
 
-      {!isLoading && error && (
+  if (error) {
+    return (
+      <div className="flex flex-col flex-1 gap-5 lg:gap-7 px-3 lg:px-6 py-4 lg:py-6 overflow-x-hidden">
+        {header}
         <ErrorState
           scheme="500"
           headingLevel="h2"
@@ -234,16 +241,24 @@ export default function House() {
             </Action>,
           ]}
         />
-      )}
+      </div>
+    )
+  }
 
-      {!isLoading && !error && (filteredSpace || searchQuery.trim()) && (
+  const hasFilterChips = filteredSpace || searchQuery.trim()
+
+  return (
+    <div className="flex flex-col flex-1 gap-5 lg:gap-7 px-3 lg:px-6 py-4 lg:py-6 overflow-x-hidden">
+      {header}
+
+      {hasFilterChips && (
         <div className="flex flex-wrap items-center gap-3">
           {filteredSpace && <FilterChip space={filteredSpace} onClear={clearSpaceFilter} />}
           {searchQuery.trim() && <QueryChip query={searchQuery} onClear={() => setSearchQuery('')} />}
         </div>
       )}
 
-      {!isLoading && !error && view === 'rooms' && (
+      {view === 'rooms' && (
         <RoomsView
           spaces={spaces ?? []}
           plants={plants ?? []}
@@ -254,7 +269,7 @@ export default function House() {
         />
       )}
 
-      {!isLoading && !error && view === 'list' && (
+      {view === 'list' && (
         <ListView
           spaces={spaces ?? []}
           plants={plants ?? []}
