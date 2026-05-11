@@ -23,17 +23,19 @@ export default function FormField({
   const hasError = Boolean(error)
 
   return (
-    // biome-ignore lint/a11y/noLabelWithoutControl: control is the rendered child (input/select/textarea), passed via children — biome can't statically see through it
-    <label className={`block ${className}`}>
-      <span className={labelHidden ? 'sr-only' : `mb-1.5 ${LABEL_TEXT}`}>
-        {label}
-        {required && (
-          <span aria-hidden="true" className="ml-0.5 text-coral-deep">
-            *
-          </span>
-        )}
-      </span>
-      {children}
+    <div className={`block ${className}`}>
+      {/* biome-ignore lint/a11y/noLabelWithoutControl: control is the rendered child (input/select/textarea), passed via children — biome can't statically see through it */}
+      <label className="block">
+        <span className={labelHidden ? 'sr-only' : `mb-1.5 ${LABEL_TEXT}`}>
+          {label}
+          {required && (
+            <span aria-hidden="true" className="ml-0.5 text-coral-deep">
+              *
+            </span>
+          )}
+        </span>
+        {children}
+      </label>
       {hasError ? (
         <span id={errorId} className="mt-1 block text-xs font-semibold text-coral-deep">
           {error}
@@ -45,6 +47,6 @@ export default function FormField({
           </span>
         )
       )}
-    </label>
+    </div>
   )
 }
