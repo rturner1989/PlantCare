@@ -88,11 +88,11 @@ describe('TextInput', () => {
   })
 
   describe('className', () => {
-    it('merges user-provided className onto the wrapper label', () => {
+    it('merges user-provided className onto the wrapper div', () => {
       const { container } = render(<TextInput label="Email" type="email" className="mb-6" />)
-      const labelEl = container.querySelector('label')
-      expect(labelEl).toHaveClass('block')
-      expect(labelEl).toHaveClass('mb-6')
+      const wrapper = container.firstChild
+      expect(wrapper).toHaveClass('block')
+      expect(wrapper).toHaveClass('mb-6')
     })
   })
 
