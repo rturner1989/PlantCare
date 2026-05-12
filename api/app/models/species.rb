@@ -8,6 +8,7 @@
 #  care_tips               :text
 #  common_name             :string           not null
 #  description             :text
+#  details_synced_at       :datetime
 #  difficulty              :string
 #  feeding_frequency_days  :integer
 #  growth_rate             :string
