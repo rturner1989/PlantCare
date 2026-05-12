@@ -1,3 +1,4 @@
+import { useSpecies } from '../../hooks/useSpecies'
 import Card from '../ui/Card'
 import Heading from '../ui/Heading'
 
@@ -6,7 +7,10 @@ function capitaliseLabel(value) {
 }
 
 export default function SpeciesView({ plant }) {
-  const species = plant.species
+  const inline = plant.species
+  const { data: live } = useSpecies(inline?.id)
+  const species = live ?? inline
+
   if (!species) {
     return (
       <Card variant="paper-warm" className="p-5">
