@@ -22,6 +22,50 @@ export default function SpeciesPicker({ onPick, actionLabel = 'pick', autoFocus 
   const visibleResults = modeChanging ? EMPTY_RESULTS : results
   const loading = isLoading || query !== debouncedQuery
 
+  function renderResults() {
+    if (loading && visibleResults.length === 0) {
+      return (
+        <div role="status" aria-label="Searching species" className="flex items-center justify-center py-8">
+          <Spinner />
+        </div>
+      )
+    }
+    if (visibleResults.length === 0 && isSearching) {
+      return (
+        <EmptyState
+          variant="inline"
+          tone="sky"
+          icon={<span>🔍</span>}
+          title={
+            <>
+              We couldn't find <em className="italic">"{debouncedQuery}"</em>
+            </>
+          }
+          description="Try a different name, or browse popular species below."
+        />
+      )
+    }
+    return (
+      <div className="text-left">
+        <p className="text-[10px] font-extrabold tracking-[0.14em] uppercase text-ink-soft mb-2.5">
+          {isSearching ? `Results · tap to ${actionLabel}` : `Popular · tap to ${actionLabel}`}
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          {visibleResults.map((species) => (
+            <Tile key={speciesKey(species)} size="card" onClick={() => onPick(species)}>
+              <div className="min-w-0">
+                <div className="text-sm font-bold text-ink truncate">{species.common_name}</div>
+                {species.scientific_name && (
+                  <div className="font-display italic text-xs text-ink-soft truncate">{species.scientific_name}</div>
+                )}
+              </div>
+            </Tile>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <TextInput
@@ -33,46 +77,7 @@ export default function SpeciesPicker({ onPick, actionLabel = 'pick', autoFocus 
         onChange={(event) => setQuery(event.target.value)}
         autoFocus={autoFocus}
       />
-
-      <div>
-        {loading && visibleResults.length === 0 ? (
-          <div role="status" aria-label="Searching species" className="flex items-center justify-center py-8">
-            <Spinner />
-          </div>
-        ) : visibleResults.length === 0 && isSearching ? (
-          <EmptyState
-            variant="inline"
-            tone="sky"
-            icon={<span>🔍</span>}
-            title={
-              <>
-                We couldn't find <em className="italic">"{debouncedQuery}"</em>
-              </>
-            }
-            description="Try a different name, or browse popular species below."
-          />
-        ) : (
-          <div className="text-left">
-            <p className="text-[10px] font-extrabold tracking-[0.14em] uppercase text-ink-soft mb-2.5">
-              {isSearching ? `Results · tap to ${actionLabel}` : `Popular · tap to ${actionLabel}`}
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {visibleResults.map((species) => (
-                <Tile key={speciesKey(species)} size="card" onClick={() => onPick(species)}>
-                  <div className="min-w-0">
-                    <div className="text-sm font-bold text-ink truncate">{species.common_name}</div>
-                    {species.scientific_name && (
-                      <div className="font-display italic text-xs text-ink-soft truncate">
-                        {species.scientific_name}
-                      </div>
-                    )}
-                  </div>
-                </Tile>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+      <div>{renderResults()}</div>
     </div>
   )
 }

@@ -71,11 +71,9 @@ export default function Today() {
     )
   }
 
-  return (
-    <div className="flex flex-col flex-1 gap-4 lg:gap-6 px-3 lg:px-6 py-4 lg:py-6 overflow-x-hidden">
-      <TodayHeader firstName={firstName} />
-
-      {noSpaces ? (
+  function renderBody() {
+    if (noSpaces) {
+      return (
         <EmptyState
           tone="sunshine"
           icon={<span>🏠</span>}
@@ -91,7 +89,11 @@ export default function Today() {
             </Action>
           }
         />
-      ) : noPlants ? (
+      )
+    }
+
+    if (noPlants) {
+      return (
         <EmptyState
           tone="mint"
           icon={<span>🌱</span>}
@@ -107,23 +109,31 @@ export default function Today() {
             </Action>
           }
         />
-      ) : (
-        <main className="flex flex-col gap-4 lg:gap-5 min-w-0">
-          <WeatherWidget variant="strip" />
-          <Highlights data={data} />
-          <WeekCard
-            tasks={tasks}
-            plants={plants}
-            tasksByDay={tasksByDay}
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-            isLoading={isLoading}
-            isToday={isToday}
-          />
-          <PlantsRow plants={plants} spacesCount={totalSpaces} />
-        </main>
-      )}
+      )
+    }
 
+    return (
+      <main className="flex flex-col gap-4 lg:gap-5 min-w-0">
+        <WeatherWidget variant="strip" />
+        <Highlights data={data} />
+        <WeekCard
+          tasks={tasks}
+          plants={plants}
+          tasksByDay={tasksByDay}
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+          isLoading={isLoading}
+          isToday={isToday}
+        />
+        <PlantsRow plants={plants} spacesCount={totalSpaces} />
+      </main>
+    )
+  }
+
+  return (
+    <div className="flex flex-col flex-1 gap-4 lg:gap-6 px-3 lg:px-6 py-4 lg:py-6 overflow-x-hidden">
+      <TodayHeader firstName={firstName} />
+      {renderBody()}
       <StartJungleDialog open={jungleWizardOpen} onClose={() => setJungleWizardOpen(false)} />
     </div>
   )

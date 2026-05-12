@@ -12,6 +12,12 @@ function isUrgent(plant) {
   return plant.water_status === 'overdue' || plant.feed_status === 'overdue'
 }
 
+function renderNextCare(nextCare) {
+  if (!nextCare) return '—'
+  if (nextCare.overdue) return <em className="font-display italic text-coral-deep font-medium">{nextCare.label}</em>
+  return nextCare.label
+}
+
 function moodFor(plant) {
   if (plant.water_status === 'overdue' || plant.feed_status === 'overdue') return 'wilting'
   if (
@@ -72,17 +78,7 @@ export default function Row({ plant }) {
         {speciesName && <span className="font-display italic text-xs text-ink-soft truncate">{speciesName}</span>}
       </span>
 
-      <span className="text-[11px] text-ink-soft truncate">
-        {nextCare ? (
-          nextCare.overdue ? (
-            <em className="font-display italic text-coral-deep font-medium">{nextCare.label}</em>
-          ) : (
-            nextCare.label
-          )
-        ) : (
-          '—'
-        )}
-      </span>
+      <span className="text-[11px] text-ink-soft truncate">{renderNextCare(nextCare)}</span>
 
       <span
         aria-hidden="true"

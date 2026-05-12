@@ -62,11 +62,7 @@ export default function RoomCard({ icon, name, count, variant = 'indoor', peek =
         className="mt-auto pt-2.5 border-t border-dashed border-paper-edge flex flex-col gap-1.5 text-[11px] text-ink-soft min-h-[62px]"
       >
         {nextCare && <SummaryRow icon={nextCare.icon} text={nextCare.label} overdue={nextCare.overdue} />}
-        {weatherPill ? (
-          <WeatherPillRow icon={weatherPill.icon} label={weatherPill.label} scheme={weatherPill.scheme} />
-        ) : envHint ? (
-          <SummaryRow icon="☀" text={envHint} />
-        ) : null}
+        {renderEnvLine({ weatherPill, envHint })}
       </Card.Footer>
     </Card>
   )
@@ -79,6 +75,14 @@ const WEATHER_SCHEME = {
 const WEATHER_ICON_SCHEME = {
   frost: 'bg-frost-deep text-paper',
   default: 'bg-sky-deep text-paper',
+}
+
+function renderEnvLine({ weatherPill, envHint }) {
+  if (weatherPill) {
+    return <WeatherPillRow icon={weatherPill.icon} label={weatherPill.label} scheme={weatherPill.scheme} />
+  }
+  if (envHint) return <SummaryRow icon="☀" text={envHint} />
+  return null
 }
 
 function WeatherPillRow({ icon, label, scheme }) {

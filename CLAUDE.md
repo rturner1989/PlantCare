@@ -113,6 +113,43 @@ Pre-flight before adding to `client/src/utils/`: reads backend constants → mov
 
 Backend reference: `api/app/models/plant.rb#calculate_schedule`, `api/app/models/space.rb#*_MODIFIERS`. Authoritative — never duplicated.
 
+### Render branching — no chained ternaries inside JSX
+
+Chained / nested ternaries inside a component's render JSX read poorly even when each branch is short. Paren nesting hides which branch a fragment belongs to, and adding a fourth branch later usually means rewriting the chain. Extract a render helper with early returns and call it via `{renderX()}`.
+
+| Shape | Pattern | Action |
+|---|---|---|
+| 3+ JSX branches | `A ? <X /> : B ? <Y /> : <Z />` | Extract `renderX()` with `if` early returns. |
+| Nested JSX ternary | `A ? (B ? X : Y) : Z` | Extract `renderX()` with `if` early returns. |
+| Repeated short-circuit guards | `!isLoading && !error && ...` repeated across siblings | Early-return loading + error at top; main path drops the guards. |
+| Single-line prop ternary | `className={x ? 'a' : 'b'}`, `animate={open ? 'visible' : false}` | Leave alone — two-state, one line, reads fine. |
+| Two-state JSX ternary | `overdue ? <em>x</em> : <span>x</span>` | Leave alone — single branch point. |
+
+```jsx
+// ❌ chained
+return (
+  <div>
+    {isLoading ? <Spinner /> : empty ? <EmptyState ... /> : <List ... />}
+  </div>
+)
+
+// ✅ early-return helper
+function renderBody() {
+  if (isLoading) return <Spinner />
+  if (empty) return <EmptyState ... />
+  return <List ... />
+}
+
+return <div>{renderBody()}</div>
+```
+
+**Where to put the helper:**
+
+- **Closes over state / props** → inline function inside the component, named `renderX` for the slot it fills (`renderBody`, `renderStep`, `renderRows`, `renderResults`, `renderSub`).
+- **Pure transform of inputs** → module-scope function. `renderEnvLine(props)` in RoomCard, `renderNextCare(nextCare)` in Row.jsx. Don't close over component scope if you don't have to.
+
+These are **plain render functions**, not nested components — call as `{renderBody()}` not `<RenderBody />`. They reuse existing component types, so they don't trip Vercel's `rerender-no-inline-components` rule.
+
 ### Naming
 
 - No single-letter or ultra-short abbreviations (`s`, `x`, `fn`, `cfg`, `tmp`) even in tiny helpers. Reader-time beats author-time.

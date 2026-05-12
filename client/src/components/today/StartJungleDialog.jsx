@@ -55,6 +55,42 @@ export default function StartJungleDialog({ open, onClose }) {
     navigate(`/plants/${plant.id}`)
   }
 
+  function renderStep() {
+    if (step === 'space') {
+      return (
+        <StepFirstSpace
+          form={spaceForm}
+          onFormChange={setSpaceForm}
+          createdSpace={createdSpace}
+          onAdded={handleSpaceCreated}
+          onCancel={handleClose}
+        />
+      )
+    }
+
+    if (step === 'species') {
+      return (
+        <>
+          <StepSpecies onPick={handleSpeciesPicked} />
+          <Card.Footer divider={false} className="flex gap-2.5">
+            <Action type="button" variant="secondary" onClick={() => setStep('space')}>
+              Back
+            </Action>
+          </Card.Footer>
+        </>
+      )
+    }
+
+    return (
+      <StepDetails
+        species={pickedSpecies}
+        defaultSpaceId={createdSpace?.id ?? null}
+        onBack={() => setStep('species')}
+        onSubmitSuccess={handlePlantCreated}
+      />
+    )
+  }
+
   return (
     <Dialog open={open} onClose={handleClose} title={TITLE} ariaLabelledBy={titleId} className="!max-w-2xl">
       <Card.Header divider={false}>
@@ -69,36 +105,7 @@ export default function StartJungleDialog({ open, onClose }) {
           Step {STEP_INDEX[step]} of 3 · {STEP_LABEL[step]}
         </p>
       </Card.Header>
-
-      {step === 'space' && (
-        <StepFirstSpace
-          form={spaceForm}
-          onFormChange={setSpaceForm}
-          createdSpace={createdSpace}
-          onAdded={handleSpaceCreated}
-          onCancel={handleClose}
-        />
-      )}
-
-      {step === 'species' && (
-        <>
-          <StepSpecies onPick={handleSpeciesPicked} />
-          <Card.Footer divider={false} className="flex gap-2.5">
-            <Action type="button" variant="secondary" onClick={() => setStep('space')}>
-              Back
-            </Action>
-          </Card.Footer>
-        </>
-      )}
-
-      {step === 'details' && (
-        <StepDetails
-          species={pickedSpecies}
-          defaultSpaceId={createdSpace?.id ?? null}
-          onBack={() => setStep('species')}
-          onSubmitSuccess={handlePlantCreated}
-        />
-      )}
+      {renderStep()}
     </Dialog>
   )
 }
