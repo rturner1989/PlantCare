@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import PlantAvatar from '../../plants/Avatar'
 import Card from '../../ui/Card'
 
@@ -8,9 +9,17 @@ const ICON_VARIANT = {
   outdoor: 'bg-sunshine/20 text-sunshine-deep',
 }
 
-// Display-only card. Edit pencil sibling in the parent `<li>` is the
-// only interactive affordance; everything else here is plain content.
-export default function RoomCard({ icon, name, count, variant = 'indoor', peek = [], nextCare, envHint, weatherPill }) {
+export default function RoomCard({
+  spaceId,
+  icon,
+  name,
+  count,
+  variant = 'indoor',
+  peek = [],
+  nextCare,
+  envHint,
+  weatherPill,
+}) {
   const visiblePeek = peek.slice(0, PEEK_LIMIT)
   const hiddenCount = Math.max(0, peek.length - PEEK_LIMIT)
 
@@ -34,7 +43,7 @@ export default function RoomCard({ icon, name, count, variant = 'indoor', peek =
 
       <Card.Body className="!overflow-visible !flex-none">
         {peek.length > 0 && (
-          <ul aria-hidden="true" className="flex">
+          <ul className="peek-row list-none p-0">
             {visiblePeek.map((plant, index) => (
               <li
                 key={plant.id ?? index}
@@ -42,15 +51,24 @@ export default function RoomCard({ icon, name, count, variant = 'indoor', peek =
                   plant.urgent ? 'rounded-full ring-2 ring-coral shadow-[0_2px_6px_rgba(255,107,61,0.2)]' : ''
                 }`}
               >
-                <PlantAvatar species={plant.species} size="xs" shape="circle" />
+                <Link
+                  to={`/plants/${plant.id}`}
+                  aria-label={`View ${plant.nickname ?? plant.species?.common_name ?? 'plant'}`}
+                  className="block rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2 focus-visible:ring-offset-paper-warm"
+                >
+                  <PlantAvatar species={plant.species} size="xs" shape="circle" />
+                </Link>
               </li>
             ))}
             {hiddenCount > 0 && (
-              <li
-                key="more"
-                className="-ml-1.5 w-8 h-8 rounded-full bg-paper-deep flex items-center justify-center text-[10px] font-extrabold text-ink-soft shadow-[inset_0_0_0_1px_var(--color-paper-edge),0_2px_6px_rgba(11,58,26,0.08)]"
-              >
-                +{hiddenCount}
+              <li key="more" className="-ml-1.5">
+                <Link
+                  to={`/house?view=list&space_id=${spaceId}`}
+                  aria-label={`See all ${peek.length} plants in this space`}
+                  className="w-8 h-8 rounded-full bg-paper-deep flex items-center justify-center text-[10px] font-extrabold text-ink-soft shadow-[inset_0_0_0_1px_var(--color-paper-edge),0_2px_6px_rgba(11,58,26,0.08)] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2 focus-visible:ring-offset-paper-warm hover:bg-paper transition-colors"
+                >
+                  +{hiddenCount}
+                </Link>
               </li>
             )}
           </ul>

@@ -49,7 +49,12 @@ function nextCareFor(plants) {
 function peekFor(plants) {
   return [...plants]
     .sort((a, b) => (needsCare(a) ? 0 : 1) - (needsCare(b) ? 0 : 1))
-    .map((plant) => ({ id: plant.id, species: plant.species, urgent: needsCare(plant) }))
+    .map((plant) => ({
+      id: plant.id,
+      nickname: plant.nickname,
+      species: plant.species,
+      urgent: needsCare(plant),
+    }))
 }
 
 function weatherPillFor(today) {
@@ -114,6 +119,7 @@ export default function RoomsView({ spaces, plants, weatherToday, onAddSpace, on
         return (
           <li key={space.id} className="relative">
             <RoomCard
+              spaceId={space.id}
               icon={getSpaceEmoji(space.icon)}
               name={displayName}
               count={`${pluralize(space.plants_count, 'plant')} · ${space.category}`}

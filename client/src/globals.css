@@ -811,6 +811,35 @@ input[type="search"]::-webkit-search-cancel-button {
   padding: 0.25rem;
 }
 
+/* Hovered avatar scales up, siblings shift outward to make room. No
+ * vertical motion, no neighbour scaling. Pointer-only via (hover: hover)
+ * so it doesn't fire on touch taps. */
+@utility peek-row {
+  display: flex;
+
+  & > li {
+    transition: transform 0.18s ease-out;
+    transform-origin: center;
+  }
+
+  @media (hover: hover) {
+    & > li:hover {
+      transform: scale(1.3);
+      z-index: 10;
+    }
+
+    /* All preceding siblings shift left */
+    & > li:has(~ li:hover) {
+      transform: translateX(-6px);
+    }
+
+    /* All following siblings shift right */
+    & > li:hover ~ li {
+      transform: translateX(6px);
+    }
+  }
+}
+
 /* Landscape lock — shown when a phone (short viewport) is held in
  * landscape in a regular browser tab. The installed PWA already locks
  * to portrait via manifest.json's orientation field; this handles the
