@@ -134,7 +134,7 @@ class Species < ApplicationRecord
     fresh = client.build_species(details)
     assign_attributes(fresh.attributes.except('id', 'created_at', 'updated_at', 'popular'))
     self.details_synced_at = Time.current
-    save ? self : self.tap { reload }
+    save ? self : tap { reload }
   end
 
   def stale_details?
