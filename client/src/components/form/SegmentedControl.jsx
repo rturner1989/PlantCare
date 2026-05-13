@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { motion, useReducedMotion } from 'motion/react'
 import { useId } from 'react'
+import Spinner from '../ui/Spinner'
 
 // Hidden radios inside labels — native arrow-key navigation + form semantics
 // for free. The active pill slides between positions via a shared layoutId.
@@ -25,7 +26,8 @@ function isFontAwesomeIcon(icon) {
   return icon && typeof icon === 'object' && 'iconName' in icon
 }
 
-function OptionIcon({ icon }) {
+function OptionIcon({ icon, loading }) {
+  if (loading) return <Spinner size="sm" className="relative w-3 h-3 border-[1.5px]" />
   if (!icon) return null
   if (isFontAwesomeIcon(icon)) {
     return <FontAwesomeIcon icon={icon} className="relative text-sm" aria-hidden="true" />
@@ -95,7 +97,7 @@ export default function SegmentedControl({
                   aria-hidden="true"
                 />
               )}
-              <OptionIcon icon={option.icon} />
+              <OptionIcon icon={option.icon} loading={option.loading} />
               <span className="relative">{option.label}</span>
               {option.phase && (
                 <span

@@ -10,7 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { motion, useReducedMotion } from 'motion/react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import SegmentedControl from '../components/form/SegmentedControl'
 import { PLANT_ACTION_SPOKES } from '../components/plants/ActionWheel'
@@ -34,6 +34,7 @@ import RadialWheel from '../components/ui/RadialWheel'
 import Spinner from '../components/ui/Spinner'
 import { useToast } from '../context/ToastContext'
 import { usePlant } from '../hooks/usePlants'
+import { useSpecies } from '../hooks/useSpecies'
 import { getPlantHeroQuote } from '../personality/heroQuotes'
 import { pluralize } from '../utils/pluralize'
 
@@ -64,14 +65,19 @@ export default function Plant() {
   const toast = useToast()
   const { data: plant, isLoading, error } = usePlant(id)
   const [view, setView] = useState('care')
+  const [, startViewTransition] = useTransition()
   const [stuck, setStuck] = useState(false)
   const [activeDialog, setActiveDialog] = useState(null)
   const [logDefaultCareType, setLogDefaultCareType] = useState('watering')
   const sentinelRef = useRef(null)
   const shouldReduceMotion = useReducedMotion()
+  const { data: liveSpecies, isFetching: speciesFetching } = useSpecies(plant?.species?.id, {
+    enabled: view === 'species',
+  })
+  const species = liveSpecies ?? plant?.species
 
   function handleViewChange(next) {
-    setView(next)
+    startViewTransition(() => setView(next))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -278,14 +284,14 @@ export default function Plant() {
           onChange={handleViewChange}
           options={[
             { value: 'care', label: 'Care', icon: '💧' },
-            { value: 'species', label: 'Species', icon: '🌿' },
+            { value: 'species', label: 'Species', icon: '🌿', loading: speciesFetching },
             { value: 'journal', label: 'Journal', icon: '📖' },
           ]}
         />
       </div>
 
       {view === 'care' && <CareView plant={plant} />}
-      {view === 'species' && <SpeciesView plant={plant} />}
+      {view === 'species' && <SpeciesView species={species} />}
       {view === 'journal' && <JournalView plant={plant} />}
 
       <EditPlantDialog

@@ -8,6 +8,7 @@
 #  care_tips               :text
 #  common_name             :string           not null
 #  description             :text
+#  details_synced_at       :datetime
 #  difficulty              :string
 #  feeding_frequency_days  :integer
 #  growth_rate             :string
@@ -65,6 +66,8 @@ class Species < ApplicationRecord
     'average' => 'average'
   }.freeze
 
+  STALE_AFTER = 7.days
+
   pg_search_scope :search,
     against: [:common_name, :scientific_name],
     using: {
@@ -102,12 +105,12 @@ class Species < ApplicationRecord
 
   def self.find_or_fetch_from_api(perenual_id, fallback: {}, client: PerenualClient.new)
     existing = find_by(source: 'perenual', external_id: perenual_id.to_s)
-    return existing if existing
+    return existing.refresh_if_stale!(client: client) if existing
 
     details = client.details(perenual_id)
 
     species = if details
-      client.build_species(details)
+      client.build_species(details).tap { |built| built.details_synced_at = Time.current }
     elsif fallback[:common_name].present?
       build_fallback_from_search(perenual_id, fallback)
     end
@@ -120,6 +123,22 @@ class Species < ApplicationRecord
     end
 
     species
+  end
+
+  def refresh_if_stale!(client: PerenualClient.new)
+    return self unless external_id.present? && stale_details?
+
+    details = client.details(external_id)
+    return self unless details
+
+    fresh = client.build_species(details)
+    assign_attributes(fresh.attributes.except('id', 'created_at', 'updated_at', 'popular'))
+    self.details_synced_at = Time.current
+    save ? self : tap { reload }
+  end
+
+  def stale_details?
+    details_synced_at.nil? || details_synced_at < STALE_AFTER.ago
   end
 
   def self.build_fallback_from_search(perenual_id, data)

@@ -97,8 +97,13 @@ class SpeciesTest < ActiveSupport::TestCase
   end
 
   class StubClient
-    def initialize(details_response: nil) = @details_response = details_response
+    def initialize(details_response: nil, species_response: nil)
+      @details_response = details_response
+      @species_response = species_response
+    end
+
     def details(_perenual_id) = @details_response
+    def build_species(_data) = @species_response
   end
 
   test 'find_or_fetch_from_api returns the persisted row when one already exists' do
@@ -132,5 +137,78 @@ class SpeciesTest < ActiveSupport::TestCase
 
   test 'find_or_fetch_from_api returns nil when details fail and no fallback is given' do
     assert_nil Species.find_or_fetch_from_api('999998', client: StubClient.new(details_response: nil))
+  end
+
+  test 'find_or_fetch_from_api stamps details_synced_at on a fresh fetch' do
+    fresh = Species.new(common_name: 'Aloe', watering_frequency_days: 7, personality: 'chill',
+                        source: 'perenual', external_id: '12345')
+    stub = StubClient.new(details_response: { 'id' => '12345' }, species_response: fresh)
+
+    species = Species.find_or_fetch_from_api('12345', client: stub)
+
+    assert_predicate species, :persisted?
+    assert_not_nil species.details_synced_at
+    assert_in_delta Time.current, species.details_synced_at, 5
+  end
+
+  test 'refresh_if_stale! is a no-op when external_id is missing' do
+    seeded = species(:monstera)
+    assert_nil seeded.external_id
+    result = seeded.refresh_if_stale!(client: StubClient.new)
+    assert_equal seeded.id, result.id
+    assert_nil result.details_synced_at
+  end
+
+  test 'refresh_if_stale! is a no-op when details_synced_at is within the stale window' do
+    existing = Species.create!(common_name: 'Fresh', watering_frequency_days: 7, personality: 'chill',
+                               source: 'perenual', external_id: 'p1',
+                               details_synced_at: 1.day.ago)
+    stub = StubClient.new(species_response: Species.new(common_name: 'WRONG'))
+
+    result = existing.refresh_if_stale!(client: stub)
+
+    assert_equal 'Fresh', result.common_name
+  end
+
+  test 'refresh_if_stale! refreshes attributes from Perenual when stale' do
+    existing = Species.create!(common_name: 'Old', watering_frequency_days: 7, personality: 'chill',
+                               source: 'perenual', external_id: 'p2',
+                               details_synced_at: 10.days.ago)
+    incoming = Species.new(common_name: 'Refreshed', scientific_name: 'New name',
+                           watering_frequency_days: 5, personality: 'dramatic',
+                           source: 'perenual', external_id: 'p2', care_tips: 'updated tips')
+    stub = StubClient.new(details_response: { 'id' => 'p2' }, species_response: incoming)
+
+    result = existing.refresh_if_stale!(client: stub)
+
+    assert_equal existing.id, result.id
+    assert_equal 'Refreshed', result.common_name
+    assert_equal 'updated tips', result.care_tips
+    assert_in_delta Time.current, result.details_synced_at, 5
+  end
+
+  test 'refresh_if_stale! preserves the popular flag on refresh' do
+    existing = Species.create!(common_name: 'Iconic', watering_frequency_days: 7, personality: 'chill',
+                               source: 'perenual', external_id: 'p3',
+                               popular: true, details_synced_at: 10.days.ago)
+    incoming = Species.new(common_name: 'Iconic', watering_frequency_days: 7, personality: 'chill',
+                           source: 'perenual', external_id: 'p3', popular: false)
+    stub = StubClient.new(details_response: { 'id' => 'p3' }, species_response: incoming)
+
+    result = existing.refresh_if_stale!(client: stub)
+
+    assert result.popular, 'popular flag should survive Perenual refresh'
+  end
+
+  test 'refresh_if_stale! falls back to self when Perenual returns nil' do
+    existing = Species.create!(common_name: 'Cached', watering_frequency_days: 7, personality: 'chill',
+                               source: 'perenual', external_id: 'p4',
+                               details_synced_at: 10.days.ago)
+    stub = StubClient.new(details_response: nil)
+
+    result = existing.refresh_if_stale!(client: stub)
+
+    assert_equal existing.id, result.id
+    assert_equal 'Cached', result.common_name
   end
 end

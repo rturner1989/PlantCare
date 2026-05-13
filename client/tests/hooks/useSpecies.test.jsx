@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiGet } from '../../src/api/client'
-import { isSearchQuery, useSpeciesSearch } from '../../src/hooks/useSpecies'
+import { isSearchQuery, useSpecies, useSpeciesSearch } from '../../src/hooks/useSpecies'
 
 vi.mock('../../src/api/client', () => ({
   apiGet: vi.fn(),
@@ -103,6 +103,33 @@ describe('useSpeciesSearch', () => {
       resolveSearch([{ id: 99, common_name: 'Rose' }])
       await waitFor(() => expect(result.current.data).toEqual([{ id: 99, common_name: 'Rose' }]))
     })
+  })
+})
+
+describe('useSpecies', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('fetches the species detail endpoint when enabled and id is present', async () => {
+    apiGet.mockResolvedValue({ id: 42, common_name: 'Aloe' })
+    const { result } = renderHook(() => useSpecies(42), { wrapper: makeWrapper() })
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(apiGet).toHaveBeenCalledWith('/api/v1/species/42')
+  })
+
+  it('skips the fetch when enabled is false (gates on view === species in Plant.jsx)', async () => {
+    apiGet.mockResolvedValue({ id: 42, common_name: 'Aloe' })
+    const { result } = renderHook(() => useSpecies(42, { enabled: false }), { wrapper: makeWrapper() })
+
+    expect(result.current.fetchStatus).toBe('idle')
+    expect(apiGet).not.toHaveBeenCalled()
+  })
+
+  it('skips the fetch when id is falsy', () => {
+    renderHook(() => useSpecies(null), { wrapper: makeWrapper() })
+    expect(apiGet).not.toHaveBeenCalled()
   })
 })
 

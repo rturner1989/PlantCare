@@ -21,10 +21,10 @@ export function useSpeciesSearch(query) {
   })
 }
 
-export function useSpecies(id) {
+export function useSpecies(id, { enabled = true } = {}) {
   return useQuery({
     queryKey: ['species', id],
     queryFn: () => apiGet(`/api/v1/species/${id}`),
-    enabled: !!id,
+    enabled: enabled && !!id,
   })
 }

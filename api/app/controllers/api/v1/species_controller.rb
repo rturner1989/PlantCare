@@ -15,7 +15,7 @@ module Api
         species = if params[:perenual_id]
           Species.find_or_fetch_from_api(params[:perenual_id], fallback: search_summary)
         else
-          Species.find_by(id: params[:id])
+          Species.find_by(id: params[:id])&.refresh_if_stale!
         end
 
         return render json: { error: 'Not found' }, status: :not_found unless species

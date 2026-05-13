@@ -5,8 +5,7 @@ function capitaliseLabel(value) {
   return value.charAt(0).toUpperCase() + value.slice(1)
 }
 
-export default function SpeciesView({ plant }) {
-  const species = plant.species
+export default function SpeciesView({ species }) {
   if (!species) {
     return (
       <Card variant="paper-warm" className="p-5">
